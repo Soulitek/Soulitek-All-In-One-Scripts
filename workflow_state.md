@@ -1,10 +1,205 @@
 # Workflow State
 
-## Current Status: ✅ Ready
+## Current Status: ✅ Completed
 
-### No Active Workflow
+---
 
-All tasks completed. Ready for new assignments.
+## Completed Workflows
+
+### ✅ Created: URL-Based Quick Installer (2025-10-23)
+
+**Objective:** Enable one-line installation from URL for quick deployment on new PCs.
+
+**Features Implemented:**
+
+1. **One-Line Installation**
+   - Run from URL: `iwr -useb [URL] | iex`
+   - No manual download required
+   - Perfect for new PC setup
+   - Works from any PowerShell window
+
+2. **Automatic Installation Process**
+   - Downloads latest version from GitHub
+   - Extracts to C:\SouliTEK
+   - Creates desktop shortcut
+   - Offers immediate launch option
+   - Cleans up temporary files
+
+3. **Installation Features**
+   - TLS 1.2 secure download
+   - Progress indicators for each step
+   - Error handling with helpful messages
+   - Admin detection and warnings
+   - Old version auto-removal (updates)
+
+4. **Desktop Integration**
+   - Automatic shortcut creation
+   - Icon support (if available)
+   - Proper PowerShell execution arguments
+   - Working directory configuration
+
+5. **Comprehensive Documentation**
+   - Created QUICK_INSTALL.md (full guide)
+   - Multiple installation methods
+   - Troubleshooting section
+   - Usage scenarios
+   - Security considerations
+   - Update & uninstall instructions
+
+6. **URL Options**
+   - Primary GitHub raw URL
+   - Support for short URLs (bit.ly, tinyurl)
+   - Custom domain capability
+   - Easy to memorize for technicians
+
+**Files Created:**
+1. `Install-SouliTEK.ps1` - Quick installer script (250+ lines)
+2. `docs/QUICK_INSTALL.md` - Complete installation guide (500+ lines)
+
+**Updated Files:**
+1. `README.md` - Added one-line install to Quick Start section
+2. `workflow_state.md` - Updated with completed workflow
+
+**Installation Command:**
+```powershell
+iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1 | iex
+```
+
+**Use Cases:**
+- New PC setup (0 to ready in 30 seconds)
+- Remote support sessions (instant tool deployment)
+- Customer site visits (no USB drive needed)
+- Quick updates (rerun to get latest version)
+- Training sessions (everyone installs quickly)
+
+**Benefits:**
+- No manual downloads
+- No ZIP extraction
+- No file copying
+- Always latest version
+- Professional deployment
+
+**Result:** Complete URL-based installation system ready for production use.
+
+---
+
+## Completed Workflows
+
+### ✅ Created: License Expiration Checker (2025-10-23)
+
+**Objective:** Created a PowerShell script to monitor Microsoft 365 tenant license subscriptions and alert administrators about capacity issues.
+
+**Features Implemented:**
+
+1. **Microsoft Graph Integration**
+   - Uses Get-MgSubscribedSku to retrieve all tenant licenses
+   - Secure OAuth 2.0 authentication via browser
+   - Connection status monitoring
+   - Requires Organization.Read.All permission
+   - Automatic disconnect on exit
+
+2. **License Monitoring**
+   - Displays all Microsoft 365 license subscriptions
+   - Shows total seats, used seats, available seats
+   - Calculates usage percentages
+   - Friendly SKU name translation (40+ licenses mapped)
+   - Real-time capacity warnings
+
+3. **Color-Coded Alert System**
+   - RED (Critical): No available seats - immediate action required
+   - YELLOW (Warning): 5 or fewer seats remaining - plan to purchase
+   - GREEN (OK): Sufficient seat availability
+   - Visual usage bars in HTML reports
+
+4. **Alert Delivery Methods**
+   - Email alerts with HTML formatting and SMTP configuration
+   - Microsoft Teams webhook notifications
+   - Standalone HTML alert reports
+   - Automatic identification of licenses needing attention
+
+5. **Detailed Reporting**
+   - Comprehensive service plan breakdowns
+   - Shows all included services per license
+   - Provisioning status for each service
+   - Complete license property analysis
+
+6. **Usage Statistics**
+   - Overall tenant statistics (total, used, available)
+   - Top 5 license consumers with visual bars
+   - Licenses requiring attention list
+   - Allocation recommendations
+   - Usage trend indicators
+
+7. **Export Functionality**
+   - Text format (.txt) - Human-readable reports
+   - CSV format (.csv) - Spreadsheet analysis
+   - HTML format (.html) - Professional web reports with styling
+   - All formats option for complete documentation
+
+8. **Professional Interface**
+   - Menu-based navigation with 7 options
+   - Real-time connection status display
+   - Color-coded output for easy interpretation
+   - Comprehensive help guide built-in
+   - Soulitek branding throughout
+
+9. **Security Features**
+   - Read-only permissions (Organization.Read.All)
+   - No access to user personal data
+   - Secure browser-based authentication
+   - Automatic session cleanup
+
+**Files Created:**
+1. `scripts/license_expiration_checker.ps1` - Main PowerShell script (1200+ lines)
+2. `docs/LICENSE_EXPIRATION_CHECKER.md` - Comprehensive documentation (800+ lines)
+
+**Key Functions:**
+- Connect-ToMicrosoftGraph: Secure authentication
+- Get-LicenseStatus: Display all subscriptions
+- Get-DetailedLicenseReport: Service plan breakdown
+- Get-LicenseUsageStatistics: Allocation analysis
+- Send-ExpirationAlert: Multi-method alerting
+- Export-LicenseReport: Multiple format exports
+- Get-FriendlySkuName: SKU translation (40+ licenses)
+
+**Alert Thresholds:**
+- Critical: 0 available seats (red alert)
+- Warning: ≤5 available seats (yellow alert)
+- OK: >5 available seats (green status)
+
+**Use Cases:**
+- Prevent service disruptions from license shortages
+- Capacity planning and budget forecasting
+- License optimization and cost reduction
+- Compliance documentation and auditing
+- Proactive license management
+
+**Requirements:**
+- Microsoft Graph PowerShell SDK
+- Global Administrator or Global Reader role
+- Organization.Read.All permission
+- Internet connectivity to graph.microsoft.com
+
+**Result:** Complete, production-ready license monitoring tool ready for Microsoft 365 tenant management.
+
+---
+
+### ✅ Fixed: GUI Launcher Icons and Favicon (2025-10-23)
+
+**Objective:** Replace emoji icons with ASCII-safe alternatives and add favicon to GUI launcher window.
+
+**Changes Made:**
+1. Removed all emoji category icons - categories now show clean text labels only:
+   - All, Network, Security, Support, Software, M365, Hardware
+
+2. Removed search icon - changed from 🔍 to plain "Search:" label
+
+3. Added window icon/favicon support:
+   - Automatically loads Favicon.png from assets/images
+   - Graceful fallback if icon file not found
+   - Sets form icon for professional branding
+
+**Result:** GUI launcher now uses ASCII-safe icons throughout, preventing encoding errors while maintaining visual clarity. Window icon enhances professional appearance.
 
 ---
 
@@ -354,6 +549,30 @@ All tasks completed. Ready for new assignments.
 ---
 
 ## Log
+- 2025-10-23: Created URL-based quick installer for one-line deployment (Install-SouliTEK.ps1)
+- 2025-10-23: Added comprehensive QUICK_INSTALL.md documentation (500+ lines)
+- 2025-10-23: Created DEPLOYMENT_CHECKLIST.md for repository deployment
+- 2025-10-23: Created QUICK_INSTALL_CHEATSHEET.md for quick reference
+- 2025-10-23: Updated README.md with one-line install command in Quick Start
+- 2025-10-23: Added automatic download, extraction, installation, and shortcut creation
+- 2025-10-23: Implemented TLS 1.2 secure downloads from GitHub
+- 2025-10-23: Added admin detection and proper error handling
+- 2025-10-23: Added License Expiration Checker to GUI launcher menu (11 tools total)
+- 2025-10-23: Fixed linter warnings in License Expiration Checker (removed unused variables)
+- 2025-10-23: Created License Expiration Checker for Microsoft 365 license monitoring
+- 2025-10-23: Implemented Microsoft Graph integration with Get-MgSubscribedSku
+- 2025-10-23: Added color-coded alert system (Critical/Warning/OK) based on seat availability
+- 2025-10-23: Created alert delivery methods (Email, Teams webhook, HTML reports)
+- 2025-10-23: Added detailed license reporting with service plan breakdowns
+- 2025-10-23: Implemented usage statistics with visual bars and top consumers
+- 2025-10-23: Added export functionality (TXT, CSV, HTML formats)
+- 2025-10-23: Created friendly SKU name mapping for 40+ Microsoft 365 licenses
+- 2025-10-23: Added comprehensive documentation (LICENSE_EXPIRATION_CHECKER.md)
+- 2025-10-23: Included setup guides for Teams webhooks and email alerts
+- 2025-10-23: Fixed favicon path resolution error - using $Script:RootPath instead of $MyInvocation which was null in function context
+- 2025-10-23: Removed all category icons - categories now display clean text labels only (All, Network, Security, Support, Software, M365, Hardware)
+- 2025-10-23: Removed search icon - changed from emoji 🔍 to plain "Search:" label (no icon)
+- 2025-10-23: Added window favicon support - loads Favicon.png from assets/images for professional branding
 - 2025-10-23: Redesigned Chocolatey Installer menu with 2-column grid layout and 4-way arrow navigation (Up/Down/Left/Right)
 - 2025-10-23: Updated documentation to reflect new grid layout and navigation controls
 - 2025-10-23: Removed 3 apps from Chocolatey Installer: Skype, K-Lite Codec Pack, Audacity (39 packages total)

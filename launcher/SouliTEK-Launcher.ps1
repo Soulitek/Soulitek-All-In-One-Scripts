@@ -67,6 +67,15 @@ $Script:Tools = @(
         Color = "#d97706"
     },
     @{
+        Name = "License Expiration Checker"
+        Icon = "[L]"
+        Description = "Monitor Microsoft 365 license subscriptions and get alerts for capacity issues"
+        Script = "license_expiration_checker.ps1"
+        Category = "M365"
+        Tags = @("license", "microsoft", "365", "m365", "subscription", "expiration", "monitoring", "alerts")
+        Color = "#f59e0b"
+    },
+    @{
         Name = "Printer Spooler Fix"
         Icon = "[P]"
         Description = "Comprehensive printer spooler troubleshooting and repair"
@@ -133,13 +142,13 @@ $Script:Tools = @(
 
 # Category definitions with colors
 $Script:Categories = @(
-    @{ Name = "All"; Icon = "≡"; Color = "#6366f1" }
-    @{ Name = "Network"; Icon = "⚡"; Color = "#3b82f6" }
-    @{ Name = "Security"; Icon = "🛡"; Color = "#dc2626" }
-    @{ Name = "Support"; Icon = "🔧"; Color = "#10b981" }
-    @{ Name = "Software"; Icon = "📦"; Color = "#8b5cf6" }
-    @{ Name = "M365"; Icon = "📧"; Color = "#d97706" }
-    @{ Name = "Hardware"; Icon = "⚙"; Color = "#3498db" }
+    @{ Name = "All"; Icon = ""; Color = "#6366f1" }
+    @{ Name = "Network"; Icon = ""; Color = "#3b82f6" }
+    @{ Name = "Security"; Icon = ""; Color = "#dc2626" }
+    @{ Name = "Support"; Icon = ""; Color = "#10b981" }
+    @{ Name = "Software"; Icon = ""; Color = "#8b5cf6" }
+    @{ Name = "M365"; Icon = ""; Color = "#d97706" }
+    @{ Name = "Hardware"; Icon = ""; Color = "#3498db" }
 )
 
 # Global filter state
@@ -514,6 +523,17 @@ function New-LauncherGUI {
     $form.MaximizeBox = $false
     $form.BackColor = [System.Drawing.Color]::FromArgb(240, 242, 245)
     
+    # Set window icon if available
+    $iconPath = Join-Path $Script:RootPath "assets\images\Favicon.png"
+    if (Test-Path $iconPath) {
+        try {
+            $icon = New-Object System.Drawing.Icon($iconPath)
+            $form.Icon = $icon
+        } catch {
+            # Silently fail if icon can't be loaded
+        }
+    }
+    
     # Header Panel with modern gradient
     $headerPanel = New-Object System.Windows.Forms.Panel
     $headerPanel.Size = New-Object System.Drawing.Size(950, 120)
@@ -549,7 +569,7 @@ function New-LauncherGUI {
     
     # Search Box Label
     $searchLabel = New-Object System.Windows.Forms.Label
-    $searchLabel.Text = "🔍 Search:"
+    $searchLabel.Text = "Search:"
     $searchLabel.Font = New-Object System.Drawing.Font("Segoe UI", 11, [System.Drawing.FontStyle]::Bold)
     $searchLabel.Location = New-Object System.Drawing.Point(30, 15)
     $searchLabel.Size = New-Object System.Drawing.Size(90, 35)
@@ -583,7 +603,7 @@ function New-LauncherGUI {
     
     foreach ($category in $Script:Categories) {
         $catButton = New-Object System.Windows.Forms.Button
-        $catButton.Text = "$($category.Icon) $($category.Name)"
+        $catButton.Text = $category.Name
         $catButton.Size = New-Object System.Drawing.Size(110, 35)
         $catButton.Location = New-Object System.Drawing.Point($xPos, 58)
         $catButton.FlatStyle = "Flat"

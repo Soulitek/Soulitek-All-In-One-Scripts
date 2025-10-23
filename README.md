@@ -16,12 +16,22 @@
 
 ## 🚀 Quick Start
 
+### ⚡ One-Line Install (New PC)
+
+```powershell
+iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1 | iex
+```
+
+**Perfect for new PCs!** Just open PowerShell, paste the command, and start working. 🎉
+
+### 💻 Already Installed?
+
 ```powershell
 # Just double-click or run:
 .\SouliTEK-Launcher.ps1
 ```
 
-**That's it!** Modern GUI with all tools in one place. 🎉
+**That's it!** Modern GUI with all tools in one place.
 
 ---
 
@@ -76,6 +86,7 @@ Soulitek-AIO/
 
 ## 📖 Documentation
 
+- **[Quick Install Guide](docs/QUICK_INSTALL.md)** - One-line installation & URL setup
 - **[Quick Reference](QUICK_REFERENCE.md)** - Fast lookup guide
 - **[Project Structure](PROJECT_STRUCTURE.md)** - Detailed folder info
 - **[Full Docs](docs/)** - All documentation
