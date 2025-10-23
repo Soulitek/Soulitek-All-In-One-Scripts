@@ -629,6 +629,11 @@ iwr -useb get.soulitek.co.il | iex
 ---
 
 ## Log
+- 2025-10-23: Created Vercel deployment configuration (vercel.json) for simple redirect
+- 2025-10-23: Added comprehensive VERCEL_DEPLOYMENT.md guide with step-by-step instructions
+- 2025-10-23: Updated README.md with get.soulitek.co.il as primary install command
+- 2025-10-23: Updated QUICK_INSTALL_CHEATSHEET.md with custom domain
+- 2025-10-23: Configured auto-deploy from GitHub to Vercel
 - 2025-10-23: Created custom domain hosting solution for soulitek.co.il
 - 2025-10-23: Added hosting/install-proxy.php with download logging and analytics
 - 2025-10-23: Created hosting/landing-page.html with beautiful UI and one-click copy

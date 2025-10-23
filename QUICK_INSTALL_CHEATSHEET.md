@@ -5,6 +5,11 @@
 ## One-Line Installation
 
 ```powershell
+iwr -useb get.soulitek.co.il | iex
+```
+
+**Alternative (GitHub direct):**
+```powershell
 iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1 | iex
 ```
 

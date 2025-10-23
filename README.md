@@ -19,10 +19,18 @@
 ### ⚡ One-Line Install (New PC)
 
 ```powershell
-iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1 | iex
+iwr -useb get.soulitek.co.il | iex
 ```
 
 **Perfect for new PCs!** Just open PowerShell, paste the command, and start working. 🎉
+
+<details>
+<summary>Alternative: Direct GitHub URL</summary>
+
+```powershell
+iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1 | iex
+```
+</details>
 
 ### 💻 Already Installed?
 
