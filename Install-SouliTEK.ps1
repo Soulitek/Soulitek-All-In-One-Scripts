@@ -42,7 +42,7 @@ Write-Host ""
 
 # Configuration
 $RepoOwner = "Soulitek"
-$RepoName = "Soulitek-AIO"  # Update this if your repo name is different
+$RepoName = "Soulitek-All-In-One-Scripts"  # Correct repository name
 $Branch = "main"
 $InstallPath = "C:\SouliTEK"
 $ZipUrl = "https://github.com/$RepoOwner/$RepoName/archive/refs/heads/$Branch.zip"

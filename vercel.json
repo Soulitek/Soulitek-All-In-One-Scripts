@@ -1,32 +1,14 @@
 {
-  "headers": [
-    {
-      "source": "/install.ps1",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "text/plain; charset=utf-8"
-        }
-      ]
-    },
-    {
-      "source": "/standalone-install.ps1",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "text/plain; charset=utf-8"
-        }
-      ]
-    }
-  ],
-  "rewrites": [
+  "redirects": [
     {
       "source": "/",
-      "destination": "/standalone-install.ps1"
+      "destination": "https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1",
+      "permanent": true
     },
     {
       "source": "/install",
-      "destination": "/standalone-install.ps1"
+      "destination": "https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1",
+      "permanent": true
     }
   ]
 }
