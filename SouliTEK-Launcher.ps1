@@ -38,7 +38,7 @@ $Script:CurrentVersion = "1.0.0"
 $Script:Tools = @(
     @{
         Name = "Battery Report Generator"
-        Icon = "🔋"
+        Icon = "⚡"
         Description = "Generate comprehensive battery health reports for laptops"
         Script = "battery_report_generator.ps1"
         Category = "Hardware"
@@ -46,7 +46,7 @@ $Script:Tools = @(
     },
     @{
         Name = "PST Finder"
-        Icon = "📧"
+        Icon = "✉"
         Description = "Locate and analyze Outlook PST files across the system"
         Script = "FindPST.ps1"
         Category = "Data"
@@ -54,7 +54,7 @@ $Script:Tools = @(
     },
     @{
         Name = "Printer Spooler Fix"
-        Icon = "🖨️"
+        Icon = "⊞"
         Description = "Comprehensive printer spooler troubleshooting and repair"
         Script = "printer_spooler_fix.ps1"
         Category = "Troubleshooting"
@@ -62,7 +62,7 @@ $Script:Tools = @(
     },
     @{
         Name = "WiFi Password Viewer"
-        Icon = "📶"
+        Icon = "≈"
         Description = "View and export saved WiFi passwords from Windows"
         Script = "wifi_password_viewer.ps1"
         Category = "Network"
@@ -70,7 +70,7 @@ $Script:Tools = @(
     },
     @{
         Name = "Event Log Analyzer"
-        Icon = "📊"
+        Icon = "▤"
         Description = "Analyze Windows Event Logs with statistical summaries"
         Script = "EventLogAnalyzer.ps1"
         Category = "Diagnostics"
@@ -78,7 +78,7 @@ $Script:Tools = @(
     },
     @{
         Name = "Remote Support Toolkit"
-        Icon = "🛠️"
+        Icon = "⚙"
         Description = "Comprehensive system diagnostics for remote IT support"
         Script = "remote_support_toolkit.ps1"
         Category = "Support"
@@ -346,21 +346,11 @@ function New-LauncherGUI {
         $descLabel.Location = New-Object System.Drawing.Point(100, 40)
         $descLabel.ForeColor = [System.Drawing.Color]::Gray
         
-        # Category Badge
-        $categoryLabel = New-Object System.Windows.Forms.Label
-        $categoryLabel.Text = "  $($tool.Category)  "
-        $categoryLabel.Font = New-Object System.Drawing.Font("Segoe UI", 8, [System.Drawing.FontStyle]::Bold)
-        $categoryLabel.Size = New-Object System.Drawing.Size(100, 20)
-        $categoryLabel.Location = New-Object System.Drawing.Point(610, 15)
-        $categoryLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
-        $categoryLabel.BackColor = [System.Drawing.ColorTranslator]::FromHtml($tool.Color)
-        $categoryLabel.ForeColor = [System.Drawing.Color]::White
-        
         # Launch Button
         $launchButton = New-Object System.Windows.Forms.Button
         $launchButton.Text = "Launch"
-        $launchButton.Size = New-Object System.Drawing.Size(100, 35)
-        $launchButton.Location = New-Object System.Drawing.Point(690, 50)
+        $launchButton.Size = New-Object System.Drawing.Size(120, 60)
+        $launchButton.Location = New-Object System.Drawing.Point(670, 20)
         $launchButton.FlatStyle = "Flat"
         $launchButton.BackColor = [System.Drawing.ColorTranslator]::FromHtml($tool.Color)
         $launchButton.ForeColor = [System.Drawing.Color]::White
@@ -391,7 +381,6 @@ function New-LauncherGUI {
         $toolCard.Controls.Add($iconLabel)
         $toolCard.Controls.Add($nameLabel)
         $toolCard.Controls.Add($descLabel)
-        $toolCard.Controls.Add($categoryLabel)
         $toolCard.Controls.Add($launchButton)
         
         # Add card to panel
