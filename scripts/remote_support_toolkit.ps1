@@ -568,7 +568,7 @@ function New-SupportPackage {
         
         # Generate HTML report
         Write-Host "[1/3] Generating HTML system report..." -ForegroundColor Yellow
-        $htmlReport = Export-SystemReport -OutputPath $Script:OutputFolder
+        $null = Export-SystemReport -OutputPath $Script:OutputFolder
         
         # Export all data to CSV
         Write-Host "[2/3] Exporting detailed data to CSV..." -ForegroundColor Yellow
@@ -822,24 +822,24 @@ function Show-Help {
     Write-Host "WHAT'S COLLECTED:" -ForegroundColor Yellow
     Write-Host "----------------------------------------" -ForegroundColor Gray
     Write-Host ""
-    Write-Host "✓ System Information (OS, CPU, RAM, Serial)" -ForegroundColor Gray
-    Write-Host "✓ Disk Usage (All drives with free space)" -ForegroundColor Gray
-    Write-Host "✓ Installed Software (All programs)" -ForegroundColor Gray
-    Write-Host "✓ Running Processes (Top 50 by CPU)" -ForegroundColor Gray
-    Write-Host "✓ Network Configuration (All adapters)" -ForegroundColor Gray
-    Write-Host "✓ Recent Errors (Last 24 hours)" -ForegroundColor Gray
-    Write-Host "✓ Critical Services Status" -ForegroundColor Gray
-    Write-Host "✓ Windows Update History" -ForegroundColor Gray
+    Write-Host "[+] System Information (OS, CPU, RAM, Serial)" -ForegroundColor Gray
+    Write-Host "[+] Disk Usage (All drives with free space)" -ForegroundColor Gray
+    Write-Host "[+] Installed Software (All programs)" -ForegroundColor Gray
+    Write-Host "[+] Running Processes (Top 50 by CPU)" -ForegroundColor Gray
+    Write-Host "[+] Network Configuration (All adapters)" -ForegroundColor Gray
+    Write-Host "[+] Recent Errors (Last 24 hours)" -ForegroundColor Gray
+    Write-Host "[+] Critical Services Status" -ForegroundColor Gray
+    Write-Host "[+] Windows Update History" -ForegroundColor Gray
     Write-Host ""
     Write-Host "========================================" -ForegroundColor Cyan
     Write-Host "TIPS:" -ForegroundColor Yellow
     Write-Host "----------------------------------------" -ForegroundColor Gray
     Write-Host ""
-    Write-Host "• Use 'Full Support Package' for remote support" -ForegroundColor Gray
-    Write-Host "• Create ZIP file to email to support team" -ForegroundColor Gray
-    Write-Host "• HTML report is easy to read and share" -ForegroundColor Gray
-    Write-Host "• CSV files can be imported to Excel" -ForegroundColor Gray
-    Write-Host "• Run as Administrator for full information" -ForegroundColor Gray
+    Write-Host "- Use 'Full Support Package' for remote support" -ForegroundColor Gray
+    Write-Host "- Create ZIP file to email to support team" -ForegroundColor Gray
+    Write-Host "- HTML report is easy to read and share" -ForegroundColor Gray
+    Write-Host "- CSV files can be imported to Excel" -ForegroundColor Gray
+    Write-Host "- Run as Administrator for full information" -ForegroundColor Gray
     Write-Host ""
     Write-Host "========================================" -ForegroundColor Cyan
     Write-Host ""

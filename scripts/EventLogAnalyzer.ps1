@@ -281,13 +281,6 @@ function Get-EventLogAnalysis {
     Write-Progress -Activity "Event Log Analysis" -Status "Processing $LogName..." -PercentComplete 0
     
     try {
-        # Build filter hash for Get-WinEvent
-        $filterHash = @{
-            LogName   = $LogName
-            StartTime = $StartTime
-            EndTime   = $EndTime
-        }
-        
         # Map entry types to event level IDs
         # 1=Critical, 2=Error, 3=Warning, 4=Information
         $levels = @()
@@ -304,15 +297,23 @@ function Get-EventLogAnalysis {
         Write-Verbose "Retrieving events from $LogName (Max: $MaxEvents)..."
         
         $events = @()
+        
+        # Build Level filter part properly
+        $levelFilter = ($levels | ForEach-Object { "Level=$_" }) -join ' or '
+        
         $filterXml = @"
 <QueryList>
   <Query Id="0" Path="$LogName">
     <Select Path="$LogName">
-      *[System[TimeCreated[@SystemTime&gt;='$($StartTime.ToUniversalTime().ToString('o'))' and @SystemTime&lt;='$($EndTime.ToUniversalTime().ToString('o'))'] and ($($levels | ForEach-Object { "Level=$_" }) -join ' or ')]]
+      *[System[TimeCreated[@SystemTime&gt;='$($StartTime.ToUniversalTime().ToString('o'))' and @SystemTime&lt;='$($EndTime.ToUniversalTime().ToString('o'))'] and ($levelFilter)]]
     </Select>
   </Query>
 </QueryList>
 "@
+        
+        # Log the filter for debugging
+        Write-Verbose "FilterXml Query:`n$filterXml"
+        Write-Log "Query filter: Start=$($StartTime.ToUniversalTime().ToString('o')), End=$($EndTime.ToUniversalTime().ToString('o')), Levels=$($levels -join ',')" -Level INFO
         
         try {
             $events = Get-WinEvent -FilterXml $filterXml -MaxEvents $MaxEvents -ErrorAction Stop
@@ -323,7 +324,13 @@ function Get-EventLogAnalysis {
                 Write-Log "No events found in $LogName for specified criteria" -Level INFO
                 $events = @()
             }
+            elseif ($_.Exception.Message -match "specified query is invalid") {
+                Write-Log "Invalid query for $LogName. Filter: $levelFilter" -Level ERROR
+                Write-Error "Failed to analyze event log '$LogName': The specified query is invalid. This may be due to incorrect date format or log access permissions."
+                return $null
+            }
             else {
+                Write-Log "Error querying $LogName : $($_.Exception.Message)" -Level ERROR
                 throw
             }
         }
@@ -596,7 +603,7 @@ function Invoke-MainAnalysis {
     
     try {
         # Initialize logging
-        $logInfo = Initialize-Logging
+        $null = Initialize-Logging
         Write-Log "EventLogAnalyzer v$script:ScriptVersion started" -Level INFO
         Write-Log "Parameters: LogNames=$($LogNames -join ','), Hours=$Hours" -Level INFO
         

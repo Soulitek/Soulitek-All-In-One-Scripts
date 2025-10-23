@@ -136,7 +136,7 @@ function Start-Tool {
     try {
         # Launch PowerShell with the script
         $psPath = "powershell.exe"
-        $arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`""
+        $arguments = "-NoExit -NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`""
         
         Start-Process -FilePath $psPath -ArgumentList $arguments
         
@@ -344,7 +344,7 @@ function New-LauncherGUI {
         # Add shadow effect using a darker panel behind
         $shadowPanel = New-Object System.Windows.Forms.Panel
         $shadowPanel.Size = New-Object System.Drawing.Size(850, $cardHeight)
-        $shadowPanel.Location = New-Object System.Drawing.Point(18, $yPosition + 3)
+        $shadowPanel.Location = New-Object System.Drawing.Point(18, ($yPosition + 3))
         $shadowPanel.BackColor = [System.Drawing.Color]::FromArgb(30, 0, 0, 0)
         $shadowPanel.BorderStyle = "None"
         $toolsPanel.Controls.Add($shadowPanel)
@@ -414,8 +414,7 @@ function New-LauncherGUI {
             Start-Tool -ScriptName $toolInfo.Script -ToolName $toolInfo.Name
         })
         
-        # Add hover effects - scale effect simulation
-        $originalColor = $launchButton.BackColor
+        # Add hover effects
         $launchButton.Add_MouseEnter({
             $this.ForeColor = [System.Drawing.Color]::FromArgb(255, 255, 255)
         })
@@ -432,6 +431,7 @@ function New-LauncherGUI {
         
         # Add card to panel
         $toolsPanel.Controls.Add($toolCard)
+        $toolCard.BringToFront()
         
         $yPosition += ($cardHeight + $cardSpacing)
     }

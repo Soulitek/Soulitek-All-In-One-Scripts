@@ -250,11 +250,13 @@ Comprehensive system diagnostics:
 - Check that script names haven't been changed
 - Verify all 6 tools are present
 
-### Problem: Tool won't launch
+### Problem: Tool won't launch or terminal closes immediately
 **Solution:**
 - Run launcher as Administrator
 - Check PowerShell execution policy: `Set-ExecutionPolicy RemoteSigned`
 - Ensure no antivirus blocking
+- The launcher now uses `-NoExit` flag to keep PowerShell windows open
+- If terminal closes, check for error messages that appear briefly
 
 ### Problem: Launcher window is blank
 **Solution:**
