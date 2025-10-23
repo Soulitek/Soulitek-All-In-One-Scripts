@@ -1,539 +1,114 @@
-# Soulitek-AIO - All-in-One IT Solutions Toolkit
+# SouliTEK All-In-One Scripts
 
 <div align="center">
 
 ![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue?style=for-the-badge&logo=powershell)
 ![Windows](https://img.shields.io/badge/Windows-8.1%2B-0078D6?style=for-the-badge&logo=windows)
 ![License](https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge)
-![Status](https://img.shields.io/badge/Status-Active-success?style=for-the-badge)
 
-**Professional PowerShell Tools for IT Technicians & Helpdesk Engineers**
+**Professional PowerShell Tools for IT Technicians**
 
-*Coded by [SouliTEK](https://soulitek.co.il) - IT Solutions for Your Business*
+*By [SouliTEK](https://soulitek.co.il)*
 
 </div>
 
 ---
 
-## 📋 Overview
+## 🚀 Quick Start
 
-Soulitek-AIO is a comprehensive collection of professional PowerShell scripts designed specifically for IT technicians, system administrators, and helpdesk engineers. Each tool is built with safety, logging, and enterprise-grade error handling in mind.
+```powershell
+# Just double-click or run:
+.\SouliTEK-Launcher.ps1
+```
 
-### 🎯 Key Features
-
-- ✅ **Administrator Privilege Checks** - All scripts verify elevated permissions before execution
-- ✅ **Comprehensive Logging** - Detailed logs saved to `$env:TEMP\SouliTEK-Scripts\`
-- ✅ **WhatIf Support** - Safe testing mode for all destructive operations
-- ✅ **Interactive Menus** - User-friendly interfaces with clear options
-- ✅ **Export Capabilities** - Results exported to CSV, JSON, HTML, and TXT formats
-- ✅ **Error Handling** - Robust try/catch blocks with helpful remediation messages
-- ✅ **Windows Compatibility** - Supports Windows 8.1, 10, 11, Server 2016+
+**That's it!** Modern GUI with all tools in one place. 🎉
 
 ---
 
-## 🚀 GUI Launcher *(NEW & IMPROVED!)*
+## 🛠️ Available Tools (6 Scripts)
 
-**File:** `SouliTEK-Launcher.ps1` *(Root directory - easy access!)*
+| Tool | Purpose |
+|------|---------|
+| ⚡ **Battery Report** | Analyze laptop battery health |
+| ✉ **PST Finder** | Find Outlook PST files |
+| ⊞ **Printer Fix** | Fix printer spooler issues |
+| ≈ **WiFi Passwords** | View saved WiFi passwords |
+| ▤ **Event Log Analyzer** | Analyze Windows event logs |
+| ⚙ **Support Toolkit** | Complete system diagnostics |
 
-**🎨 Beautiful Modern Design with Rounded Buttons!**
-
-Modern graphical interface to launch all tools from one convenient location!
-
-**Features:**
-- 🎨 Stunning modern UI with rounded buttons and circular icons
-- 🖱️ One-click tool launching
-- 📊 Beautiful tool cards with shadow effects
-- ✅ Administrator status indicator
-- 🔗 Quick links to GitHub and website
-- ℹ️ Built-in help and about dialogs
-- 🎨 Color-coded tools by category
-- ⚡ Smooth animations and hover effects
-
-**Quick Start:**
-```powershell
-# From project root - Simply double-click or run:
-.\SouliTEK-Launcher.ps1
-
-# Or run directly from launcher folder:
-.\launcher\SouliTEK-Launcher.ps1
-```
-
-**No more command-line!** Just click and go! 🎉
+All scripts located in `./scripts/` folder.
 
 ---
 
 ## 📁 Project Structure
 
-The project is now organized into logical folders:
-
 ```
 Soulitek-AIO/
-├── scripts/          # All PowerShell tool scripts
-├── launcher/         # GUI launcher application
-├── docs/             # Documentation and guides
-├── assets/           # Images, icons, screenshots
-└── config/           # Configuration files
+├── scripts/          # All PowerShell tools
+├── launcher/         # GUI launcher
+├── docs/             # Documentation
+└── assets/           # Images & icons
 ```
-
-📖 **See [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) for detailed folder information**
 
 ---
 
-## 🛠️ Available Tools (6 Professional Scripts)
+## 💡 Features
 
-### 1. 🔋 Battery Report Generator
-**File:** `scripts/battery_report_generator.ps1`
+- ✅ Modern GUI with rounded buttons
+- ✅ One-click tool launching
+- ✅ Administrator checks
+- ✅ Detailed logging
+- ✅ Export to CSV/HTML/JSON
+- ✅ Windows 8.1, 10, 11 compatible
 
-Generate comprehensive battery health reports for laptops and portable devices.
+---
 
-**Features:**
-- Quick Battery Report (7 days)
-- Detailed Battery Report (28 days)
-- Real-time Battery Health Check
-- Sleep Study Report (Modern Standby)
-- Energy Efficiency Report
-- All Reports Package
+## 📖 Documentation
 
-**Usage:**
+- **[Quick Reference](QUICK_REFERENCE.md)** - Fast lookup guide
+- **[Project Structure](PROJECT_STRUCTURE.md)** - Detailed folder info
+- **[Full Docs](docs/)** - All documentation
+
+---
+
+## 🔧 Usage
+
+### GUI Launcher (Recommended)
 ```powershell
-# Run as Administrator
+.\SouliTEK-Launcher.ps1
+```
+
+### Run Individual Tool
+```powershell
 .\scripts\battery_report_generator.ps1
-
-# Or use the GUI Launcher (recommended!)
 ```
 
-**Outputs:**
-- HTML reports on Desktop
-- Battery health percentage
-- Design vs. current capacity
-- Sleep drain analysis
-- Power efficiency recommendations
+### Run as Administrator
+Right-click launcher → "Run as Administrator"
 
 ---
 
-### 2. 📧 PST Finder
-**File:** `scripts/FindPST.ps1`
-
-Locate and analyze Outlook PST files across the system.
-
-**Features:**
-- Quick Scan (common locations)
-- Deep Scan (all fixed drives)
-- Summary reports with file sizes
-- HTML/CSV/XLSX export options
-- Per-user statistics
-- Custom path scanning
-- Scheduled daily scans
-
-**Usage:**
-```powershell
-# Interactive mode
-.\FindPST.ps1
-
-# Automated scan for scheduled tasks
-.\FindPST.ps1 -AutoScan
-```
-
-**Outputs:**
-- CSV reports with PST locations and sizes
-- HTML formatted reports
-- Excel spreadsheets (if Excel installed)
-- Summary statistics
-
----
-
-### 3. 🖨️ Printer Spooler Fix
-**File:** `scripts/printer_spooler_fix.ps1`
-
-Comprehensive printer spooler management and troubleshooting tool.
-
-**Features:**
-- Basic Fix (quick one-time fix)
-- Advanced Monitor (continuous monitoring)
-- Status Check (detailed diagnostics)
-- PowerShell Mode (advanced logging)
-- Scheduled Tasks (automatic daily fixes)
-- Recent error logs
-
-**Usage:**
-```powershell
-# Interactive mode
-.\printer_spooler_fix.ps1
-
-# Silent automated fix
-.\printer_spooler_fix.ps1 -AutoFixSilent
-```
-
-**What it does:**
-1. Stops Print Spooler service
-2. Clears stuck print jobs
-3. Cleans spool directory
-4. Restarts Print Spooler
-5. Verifies service status
-
----
-
-### 4. 📶 WiFi Password Viewer
-**File:** `scripts/wifi_password_viewer.ps1`
-
-View and export saved WiFi passwords from Windows.
-
-**Features:**
-- View all saved WiFi networks
-- Display current network password
-- Search specific network by name
-- Export to TXT file
-- Export to CSV/Excel format
-- Quick copy to clipboard
-- Security type information
-
-**Usage:**
-```powershell
-# Run as Administrator
-.\wifi_password_viewer.ps1
-```
-
-**Outputs:**
-- All WiFi networks with passwords
-- Desktop exports (TXT/CSV)
-- Clipboard copy for quick sharing
-
-**⚠️ Security Warning:**
-- Only use on authorized systems
-- Delete exported files after use
-- Handle password files securely
-
----
-
-### 5. 📊 Event Log Analyzer
-**File:** `scripts/EventLogAnalyzer.ps1`
-
-Advanced Windows Event Log analysis tool with statistical summaries.
-
-**Features:**
-- Multi-log analysis (Application, System, Security)
-- Configurable time ranges
-- Error, Warning, and Information filtering
-- Top 10 Event IDs by occurrence
-- Top 10 Sources/Providers
-- JSON and CSV export
-- Detailed event message capture
-
-**Usage:**
-```powershell
-# Analyze last 24 hours (default)
-.\EventLogAnalyzer.ps1
-
-# Analyze specific logs for 48 hours
-.\EventLogAnalyzer.ps1 -LogNames "Application","System" -Hours 48
-
-# Custom time range with all event types
-.\EventLogAnalyzer.ps1 -StartTime "2025-01-01 00:00" -EndTime "2025-01-02 00:00" -IncludeInformation $true
-
-# Export only JSON format
-.\EventLogAnalyzer.ps1 -ExportFormat JSON -Force
-```
-
-**Outputs:**
-- Comprehensive JSON summary
-- CSV summary table
-- Detailed events CSV
-- Statistical analysis
-- Top event patterns
-
----
-
-### 6. 🛠️ Remote Support Toolkit *(NEW)*
-**File:** `scripts/remote_support_toolkit.ps1`
-
-Comprehensive system diagnostics collection tool for remote IT support.
-
-**Features:**
-- Complete system information collector
-- Hardware specifications (CPU, RAM, BIOS)
-- Disk space analysis
-- Installed software inventory
-- Running processes monitoring
-- Network adapter configuration
-- Recent error log collection
-- Critical services status
-- Windows Update history
-- Professional HTML report generation
-- CSV data export for analysis
-- ZIP package creation for easy sharing
-
-**Usage:**
-```powershell
-# Interactive mode with menu
-.\remote_support_toolkit.ps1
-```
-
-**Menu Options:**
-1. **Quick Info** - Display basic system information on screen
-2. **Full Support Package** - Collect all diagnostics and create complete package
-3. **System Report Only** - Generate HTML report only
-4. **Export to CSV** - Export all data to CSV files
-5. **Help** - Usage guide
-
-**What It Collects:**
-- System information (OS, hardware, serial numbers)
-- Disk usage across all drives
-- Complete list of installed programs
-- Top 50 running processes by CPU usage
-- All network adapter configurations
-- Recent system errors (last 24 hours)
-- Status of critical Windows services
-- Windows Update installation history
-
-**Outputs:**
-- **SystemReport.html** - Beautiful, professional HTML report
-- **SystemInfo.csv** - System specifications
-- **DiskInfo.csv** - Disk space details
-- **InstalledSoftware.csv** - All installed programs
-- **RunningProcesses.csv** - Active processes with resource usage
-- **NetworkConfig.csv** - Network configuration
-- **RecentErrors.csv** - Recent system errors
-- **CriticalServices.csv** - Service status
-- **WindowsUpdates.csv** - Update history
-- **README.txt** - Package summary
-- **collection_log.txt** - Collection process log
-- Optional: **ZIP file** for easy email sharing
-
-**Use Cases:**
-- Remote troubleshooting preparation
-- Pre-service system documentation
-- Hardware inventory
-- Health check reports
-- Client system documentation
-- Issue diagnosis preparation
-
----
-
-## 📥 Installation
-
-### Prerequisites
-- **Operating System:** Windows 8.1, 10, 11, Server 2016+
-- **PowerShell:** Version 5.1 or higher
-- **Privileges:** Administrator rights required
-- **Execution Policy:** RemoteSigned or Unrestricted
-
-### Setup
-
-1. **Download or Clone Repository**
-```powershell
-git clone https://github.com/Soulitek/Soulitek-All-In-One-Scripts.git
-cd Soulitek-All-In-One-Scripts
-```
-
-2. **Set Execution Policy** (if needed)
-```powershell
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-```
-
-3. **Run Scripts as Administrator**
-- Right-click PowerShell → "Run as Administrator"
-- Navigate to script location
-- Execute desired script
-
----
-
-## 🚀 Quick Start Guide
-
-### First Time Users
-
-1. **Verify PowerShell Version:**
-```powershell
-$PSVersionTable.PSVersion
-# Should be 5.1 or higher
-```
-
-2. **Check Administrator Privileges:**
-```powershell
-([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-# Should return True
-```
-
-3. **Run Your First Script:**
-```powershell
-# Example: Battery Report Generator
-.\battery_report_generator.ps1
-```
-
----
-
-## 📂 Project Structure
-
-```
-Soulitek-AIO/
-├── SouliTEK-Launcher.ps1           # GUI Launcher - Start here! (NEW!)
-├── battery_report_generator.ps1    # Battery health analysis tool
-├── FindPST.ps1                     # Outlook PST file finder
-├── printer_spooler_fix.ps1         # Printer spooler troubleshooting
-├── wifi_password_viewer.ps1        # WiFi password recovery
-├── EventLogAnalyzer.ps1            # Event log analysis tool
-├── remote_support_toolkit.ps1      # Remote support diagnostics
-├── README.md                       # This file
-├── TODO.md                         # Task tracking and roadmap
-├── CONTRIBUTING.md                 # Contribution guidelines
-├── LICENSE                         # License information
-├── .gitignore                      # Git ignore rules
-└── .gitattributes                  # Git file handling
-```
-
----
-
-## 📝 Logging & Output
-
-All scripts create detailed logs in:
-```
-%TEMP%\SouliTEK-Scripts\<ScriptName>\
-```
-
-### Log Types:
-- **Verbose Logs:** Detailed execution steps with timestamps
-- **JSON Summaries:** Structured data for automation
-- **Error Logs:** Specific error messages with remediation steps
-
-### Export Locations:
-- **Desktop:** Default location for user-facing reports
-- **Temp Folder:** Working directory for automated processes
-
----
-
-## 🔒 Security & Privacy
-
-### Our Commitment:
-- ✅ **No External Connections** - Scripts do not send data to external servers
-- ✅ **No Credential Storage** - Passwords are not stored or logged in plaintext
-- ✅ **Local Processing Only** - All operations performed locally
-- ✅ **Transparent Code** - Open source for security review
-- ✅ **Administrator Checks** - Prevents unauthorized execution
-- ✅ **Confirmation Prompts** - Destructive actions require explicit consent
-
-### Best Practices:
-1. Review scripts before first use
-2. Run in test environment when possible
-3. Back up important data before system changes
-4. Delete exported password files after use
-5. Keep scripts updated to latest version
-
----
-
-## 🤝 Contributing
-
-We welcome contributions from the IT community!
-
-### How to Contribute:
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-### Coding Standards:
-- Follow existing PowerShell best practices
-- Include comment-based help for all functions
-- Add error handling with try/catch blocks
-- Test on Windows 10/11 before submitting
-- Update README with new features
-
----
-
-## 🐛 Troubleshooting
-
-### Common Issues:
-
-**"Script cannot be loaded because running scripts is disabled"**
-```powershell
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-```
-
-**"Administrator privileges required"**
-- Right-click PowerShell → "Run as Administrator"
-- Or use: `Start-Process powershell -Verb RunAs`
-
-**"Access Denied" errors**
-- Verify you're running as Administrator
-- Check antivirus/security software isn't blocking
-
-**Scripts not finding files/services**
-- Ensure target system is Windows 8.1+
-- Some features require specific Windows versions
-
----
-
-## 📋 Roadmap
-
-See [TODO.md](TODO.md) for detailed task tracking and upcoming features.
-
-### Planned Features:
-- [ ] Network diagnostics tool
-- [ ] Disk health analyzer
-- [ ] System cleanup utility
-- [x] Remote support toolkit ✅ **COMPLETED!**
-- [x] Unified GUI launcher ✅ **COMPLETED!**
-
----
-
-## 📄 License
-
-**Proprietary Software**  
-© 2025 SouliTEK - All Rights Reserved
-
-This software is provided "AS IS" without warranty of any kind. Use at your own risk. The user is solely responsible for any outcomes, damages, or issues that may arise from using these scripts.
-
-### Usage Terms:
-- ✅ Free for personal and commercial use
-- ✅ Modification allowed for personal use
-- ❌ Redistribution prohibited without permission
-- ❌ Commercial resale prohibited
-
-For licensing inquiries, contact SouliTEK.
-
----
-
-## 👨‍💻 About SouliTEK
-
-**Professional IT Solutions for Your Business**
-
-SouliTEK provides comprehensive IT services including:
-- 🔧 Computer Repair & Maintenance
-- 🌐 Network Setup & Support
-- 💻 Software Solutions
-- 🏢 Business IT Consulting
-- 🛡️ Security & Data Protection
-
-### Contact:
-- **Website:** [https://soulitek.co.il](https://soulitek.co.il)
-- **Email:** letstalk@soulitek.co.il
-- **Support:** Available for Israeli businesses
-- **Language:** Hebrew & English support
-
----
-
-## 🌟 Acknowledgments
-
-- Built for IT professionals by IT professionals
-- Inspired by real-world helpdesk challenges
-- Community feedback and feature requests welcome
-- Special thanks to the PowerShell community
+## 📋 Requirements
+
+- Windows 8.1 or higher
+- PowerShell 5.1 or higher
+- Administrator privileges (for most tools)
 
 ---
 
 ## 📞 Support
 
-### Getting Help:
-1. Check script's built-in Help menu
-2. Review verbose logs in `%TEMP%\SouliTEK-Scripts\`
-3. Search [Issues](https://github.com/Soulitek/Soulitek-All-In-One-Scripts/issues) for similar problems
-4. Open a new issue with:
-   - Script name and version
-   - Windows version
-   - Error messages
-   - Steps to reproduce
+- **Website:** https://soulitek.co.il
+- **Email:** letstalk@soulitek.co.il
+- **GitHub:** [Soulitek/Soulitek-All-In-One-Scripts](https://github.com/Soulitek/Soulitek-All-In-One-Scripts)
 
-### Professional Support:
-For enterprise support and custom script development, contact SouliTEK directly.
+---
+
+## 📄 License
+
+Proprietary - © 2025 SouliTEK. All Rights Reserved.
+
+See [LICENSE](LICENSE) for details.
 
 ---
 
@@ -541,11 +116,6 @@ For enterprise support and custom script development, contact SouliTEK directly.
 
 **Made with ❤️ in Israel**
 
-*Empowering IT professionals with better tools*
-
-[![GitHub](https://img.shields.io/badge/GitHub-Soulitek-black?style=for-the-badge&logo=github)](https://github.com/Soulitek/Soulitek-All-In-One-Scripts)
-[![Website](https://img.shields.io/badge/Website-soulitek.co.il-blue?style=for-the-badge)](https://soulitek.co.il)
-[![PowerShell](https://img.shields.io/badge/PowerShell-Powered-blue?style=for-the-badge&logo=powershell)](https://docs.microsoft.com/powershell/)
+*Professional IT Solutions for Your Business*
 
 </div>
-
