@@ -1,0 +1,214 @@
+# ============================================================
+# Soulitek-AIO .gitignore
+# PowerShell and Windows specific ignore patterns
+# ============================================================
+
+# PowerShell Gallery artifacts
+*.nupkg
+*.nuspec
+
+# PowerShell Module artifacts
+*.psd1.bak
+*.psm1.bak
+
+# Build artifacts
+bin/
+obj/
+out/
+publish/
+
+# Test results
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
+
+# SouliTEK specific logs (but keep structure)
+# These are generated in %TEMP% but might be copied here
+*_Verbose_*.log
+*_Summary_*.json
+*_AutoScan_*.csv
+*_Fix_*.txt
+*_Monitor_*.txt
+
+# Exported reports (user-generated)
+BatteryReport_*.html
+SleepStudy_*.html
+EnergyReport_*.html
+PST_Report_*.html
+PST_Report_*.csv
+PST_Report_*.xlsx
+WiFi_Passwords_*.txt
+WiFi_Passwords_*.csv
+EventLogAnalysis_*.json
+EventLogAnalysis_*.csv
+PrinterSpooler_*.txt
+
+# Report folders
+BatteryReports_*/
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Windows shortcuts
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# JetBrains IDEs
+.idea/
+*.iml
+*.iws
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Notepad++
+*.bak
+
+# PowerShell ISE
+*.ps1.bak
+
+# Backup files
+*.backup
+*.old
+
+# Package management
+packages/
+.nuget/
+
+# Sensitive data (should never be committed)
+*password*
+*secret*
+*credential*
+*.pfx
+*.p12
+*.key
+*.pem
+
+# Exclude sensitive exports but allow example templates
+!example_*.txt
+!template_*.csv
+
+# Node modules (if any web components added)
+node_modules/
+
+# Python (if any Python tools added)
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.so
+.env
+venv/
+ENV/
+
+# Compiled Dynamic libraries
+*.dll
+*.exe
+
+# Except for safe executables we might include
+!setup.exe
+!launcher.exe
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Archives (unless specifically needed)
+*.zip
+*.7z
+*.rar
+*.tar
+*.gz
+
+# Except for release archives
+!release_*.zip
+
+# Documentation builds
+docs/_build/
+docs/.doctrees/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# Azure Functions
+local.settings.json
+.python_packages/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+
+# Private notes and TODO lists (keep main TODO.md)
+private_notes.md
+scratch.md
+
+# Custom exclusions
+custom/
+private/
+test_data/
+sandbox/
+
+# Keep important files
+!README.md
+!TODO.md
+!LICENSE
+!.gitignore
+!.gitattributes
+

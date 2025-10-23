@@ -1,0 +1,210 @@
+SOULITEK-AIO SOFTWARE LICENSE AGREEMENT
+
+Copyright (c) 2025 SouliTEK - All Rights Reserved
+Website: https://soulitek.co.il
+Contact: Eitan
+
+============================================================
+IMPORTANT LEGAL NOTICE - PLEASE READ CAREFULLY
+============================================================
+
+This Software License Agreement ("Agreement") is a legal agreement between 
+you (either an individual or a single entity) and SouliTEK for the software 
+product identified above, which includes computer software and may include 
+associated media, printed materials, and "online" or electronic documentation 
+("Software").
+
+BY INSTALLING, COPYING, OR OTHERWISE USING THE SOFTWARE, YOU AGREE TO BE 
+BOUND BY THE TERMS OF THIS AGREEMENT. IF YOU DO NOT AGREE TO THE TERMS OF 
+THIS AGREEMENT, DO NOT INSTALL OR USE THE SOFTWARE.
+
+============================================================
+1. GRANT OF LICENSE
+============================================================
+
+SouliTEK grants you the following rights:
+
+a) PERSONAL AND COMMERCIAL USE: You may use the Software for personal or 
+   commercial purposes without charge.
+
+b) MODIFICATION: You may modify the Software for your own personal use.
+
+c) DISTRIBUTION RESTRICTIONS: You may NOT redistribute, resell, or 
+   sublicense the Software or modified versions without explicit written 
+   permission from SouliTEK.
+
+============================================================
+2. RESTRICTIONS
+============================================================
+
+You may NOT:
+
+a) Remove or alter any copyright, trademark, or other proprietary notices 
+   from the Software.
+
+b) Reverse engineer, decompile, or disassemble the Software, except to the 
+   extent that such activity is expressly permitted by applicable law.
+
+c) Rent, lease, or lend the Software.
+
+d) Use the Software for any unlawful purpose.
+
+e) Redistribute the Software or modified versions without written permission.
+
+f) Claim authorship of the original Software.
+
+g) Sell, resell, or commercially distribute the Software without explicit 
+   written authorization from SouliTEK.
+
+============================================================
+3. DISCLAIMER OF WARRANTY
+============================================================
+
+THE SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER 
+EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT.
+
+SouliTEK DOES NOT WARRANT THAT THE SOFTWARE WILL MEET YOUR REQUIREMENTS 
+OR THAT THE OPERATION OF THE SOFTWARE WILL BE UNINTERRUPTED OR ERROR-FREE.
+
+============================================================
+4. LIMITATION OF LIABILITY
+============================================================
+
+IN NO EVENT SHALL SOULITEK BE LIABLE FOR ANY SPECIAL, INCIDENTAL, INDIRECT, 
+OR CONSEQUENTIAL DAMAGES WHATSOEVER (INCLUDING, WITHOUT LIMITATION, DAMAGES 
+FOR LOSS OF BUSINESS PROFITS, BUSINESS INTERRUPTION, LOSS OF BUSINESS 
+INFORMATION, OR ANY OTHER PECUNIARY LOSS) ARISING OUT OF THE USE OF OR 
+INABILITY TO USE THIS SOFTWARE, EVEN IF SOULITEK HAS BEEN ADVISED OF THE 
+POSSIBILITY OF SUCH DAMAGES.
+
+YOU ACKNOWLEDGE THAT YOU ARE SOLELY RESPONSIBLE FOR:
+- Any outcomes resulting from the use of this Software
+- Any damages or issues that may arise from using this Software
+- Ensuring you have appropriate backups before using this Software
+- Testing the Software in a non-production environment first
+
+============================================================
+5. ASSUMPTION OF RISK
+============================================================
+
+BY USING THIS SOFTWARE, YOU ACKNOWLEDGE AND ACCEPT THAT:
+
+a) You use the Software at your own risk.
+
+b) You are solely responsible for any consequences of using this Software.
+
+c) You understand the actions this Software will perform.
+
+d) You accept full responsibility for its use.
+
+e) You have adequate backups of all data before using this Software.
+
+f) You have tested the Software in a safe environment when possible.
+
+============================================================
+6. SPECIFIC USE CASES
+============================================================
+
+ADMINISTRATOR PRIVILEGES:
+Many tools in this Software require Administrator privileges. You acknowledge 
+that running software with elevated privileges carries inherent risks and 
+you assume full responsibility.
+
+SYSTEM MODIFICATIONS:
+Some tools modify system settings, services, or files. You agree to review 
+and understand what changes will be made before executing any script.
+
+SENSITIVE INFORMATION:
+Tools like WiFi Password Viewer access sensitive information. You agree to:
+- Only use these tools on systems you own or have explicit permission to access
+- Handle exported data securely
+- Delete sensitive exports after use
+- Comply with all applicable laws and regulations
+
+============================================================
+7. SECURITY AND PRIVACY
+============================================================
+
+SouliTEK is committed to your privacy:
+
+a) The Software does NOT transmit data to external servers.
+b) The Software does NOT store passwords in plaintext logs.
+c) All operations are performed locally on your system.
+d) No telemetry or usage data is collected without explicit opt-in.
+
+YOU are responsible for:
+- Securing any files exported by the Software
+- Properly disposing of sensitive data
+- Ensuring compliance with your organization's security policies
+
+============================================================
+8. ATTRIBUTION
+============================================================
+
+If you modify or incorporate this Software into your own projects, you must:
+
+a) Retain the original copyright notice
+b) Acknowledge SouliTEK as the original author
+c) Clearly mark any modifications you have made
+
+============================================================
+9. TERMINATION
+============================================================
+
+This Agreement is effective until terminated. Your rights under this 
+Agreement will terminate automatically without notice from SouliTEK if you 
+fail to comply with any term(s) of this Agreement. Upon termination, you 
+must destroy all copies of the Software.
+
+============================================================
+10. GOVERNING LAW
+============================================================
+
+This Agreement shall be governed by the laws of the State of Israel, 
+without regard to its conflict of law provisions.
+
+============================================================
+11. ENTIRE AGREEMENT
+============================================================
+
+This Agreement constitutes the entire agreement between you and SouliTEK 
+regarding the Software and supersedes all prior or contemporaneous 
+understandings regarding such subject matter.
+
+============================================================
+12. CONTACT INFORMATION
+============================================================
+
+For questions about this License or to request permissions:
+
+SouliTEK - IT Solutions
+Website: https://soulitek.co.il
+Email: contact@soulitek.co.il
+
+For licensing inquiries, enterprise agreements, or custom development:
+Contact us through our website or email.
+
+============================================================
+13. ACKNOWLEDGMENT
+============================================================
+
+BY INSTALLING OR USING THE SOFTWARE, YOU ACKNOWLEDGE THAT YOU HAVE READ 
+THIS AGREEMENT, UNDERSTAND IT, AND AGREE TO BE BOUND BY ITS TERMS AND 
+CONDITIONS.
+
+============================================================
+
+SouliTEK - IT Solutions for Your Business
+Professional Computer Repair | Network Setup | Software Solutions | IT Consulting
+
+Serving the Israeli business community with quality IT services since 2020.
+
+Hebrew Translation / תרגום לעברית:
+תוכנה זו מסופקת "כמות שהיא" ללא אחריות מכל סוג. השימוש בתוכנה הוא על אחריותך הבלעדית.
+חברת SouliTEK אינה אחראית לכל נזק או תוצאה הנובעים משימוש בתוכנה זו.
+
+============================================================
+END OF LICENSE AGREEMENT
+============================================================
+

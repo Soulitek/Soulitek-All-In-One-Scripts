@@ -1,0 +1,69 @@
+# ============================================================
+# Soulitek-AIO .gitattributes
+# Git attributes for proper handling of file types
+# ============================================================
+
+# Auto detect text files and normalize line endings to LF
+* text=auto
+
+# PowerShell scripts
+*.ps1 text eol=lf
+*.psm1 text eol=lf
+*.psd1 text eol=lf
+*.ps1xml text eol=lf
+
+# Scripts
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.sh text eol=lf
+
+# Documentation
+*.md text
+*.txt text
+*.rtf text
+*.csv text
+*.json text
+*.xml text
+*.yaml text
+*.yml text
+
+# Configuration files
+.gitignore text
+.gitattributes text
+.editorconfig text
+
+# Archives (treat as binary)
+*.zip binary
+*.7z binary
+*.rar binary
+*.tar binary
+*.gz binary
+
+# Executables (treat as binary)
+*.exe binary
+*.dll binary
+*.msi binary
+*.appx binary
+
+# Images (treat as binary)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg text
+
+# Office documents (treat as binary)
+*.doc binary
+*.docx binary
+*.xls binary
+*.xlsx binary
+*.ppt binary
+*.pptx binary
+*.pdf binary
+
+# Linguist overrides for repository language detection
+*.ps1 linguist-language=PowerShell
+*.md linguist-documentation
+LICENSE linguist-documentation
+
