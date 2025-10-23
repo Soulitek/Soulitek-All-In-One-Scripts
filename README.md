@@ -31,6 +31,32 @@ Soulitek-AIO is a comprehensive collection of professional PowerShell scripts de
 
 ---
 
+## 🚀 GUI Launcher *(NEW!)*
+
+**File:** `SouliTEK-Launcher.ps1`
+
+Modern graphical interface to launch all tools from one convenient location!
+
+**Features:**
+- 🎨 Beautiful, modern GUI with gradient header
+- 🖱️ One-click tool launching
+- 📊 Visual tool cards with descriptions
+- 🎯 Category badges for easy identification
+- ✅ Administrator status indicator
+- 🔗 Quick links to GitHub and website
+- ℹ️ Built-in help and about dialogs
+- 🎨 Color-coded tools by category
+
+**Usage:**
+```powershell
+# Simply double-click or run:
+.\SouliTEK-Launcher.ps1
+```
+
+**No more command-line!** Just click and go! 🎉
+
+---
+
 ## 🛠️ Available Tools (6 Professional Scripts)
 
 ### 1. 🔋 Battery Report Generator
@@ -315,12 +341,13 @@ $PSVersionTable.PSVersion
 
 ```
 Soulitek-AIO/
-├── battery_report_generator.ps1   # Battery health analysis tool
+├── SouliTEK-Launcher.ps1           # GUI Launcher - Start here! (NEW!)
+├── battery_report_generator.ps1    # Battery health analysis tool
 ├── FindPST.ps1                     # Outlook PST file finder
 ├── printer_spooler_fix.ps1         # Printer spooler troubleshooting
 ├── wifi_password_viewer.ps1        # WiFi password recovery
 ├── EventLogAnalyzer.ps1            # Event log analysis tool
-├── remote_support_toolkit.ps1      # Remote support diagnostics (NEW!)
+├── remote_support_toolkit.ps1      # Remote support diagnostics
 ├── README.md                       # This file
 ├── TODO.md                         # Task tracking and roadmap
 ├── CONTRIBUTING.md                 # Contribution guidelines
@@ -420,7 +447,7 @@ See [TODO.md](TODO.md) for detailed task tracking and upcoming features.
 - [ ] Disk health analyzer
 - [ ] System cleanup utility
 - [x] Remote support toolkit ✅ **COMPLETED!**
-- [ ] Unified GUI launcher
+- [x] Unified GUI launcher ✅ **COMPLETED!**
 
 ---
 
