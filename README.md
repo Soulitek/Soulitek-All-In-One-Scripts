@@ -31,36 +31,58 @@ Soulitek-AIO is a comprehensive collection of professional PowerShell scripts de
 
 ---
 
-## 🚀 GUI Launcher *(NEW!)*
+## 🚀 GUI Launcher *(NEW & IMPROVED!)*
 
-**File:** `SouliTEK-Launcher.ps1`
+**File:** `SouliTEK-Launcher.ps1` *(Root directory - easy access!)*
+
+**🎨 Beautiful Modern Design with Rounded Buttons!**
 
 Modern graphical interface to launch all tools from one convenient location!
 
 **Features:**
-- 🎨 Beautiful, modern GUI with gradient header
+- 🎨 Stunning modern UI with rounded buttons and circular icons
 - 🖱️ One-click tool launching
-- 📊 Visual tool cards with descriptions
-- 🎯 Category badges for easy identification
+- 📊 Beautiful tool cards with shadow effects
 - ✅ Administrator status indicator
 - 🔗 Quick links to GitHub and website
 - ℹ️ Built-in help and about dialogs
 - 🎨 Color-coded tools by category
+- ⚡ Smooth animations and hover effects
 
-**Usage:**
+**Quick Start:**
 ```powershell
-# Simply double-click or run:
+# From project root - Simply double-click or run:
 .\SouliTEK-Launcher.ps1
+
+# Or run directly from launcher folder:
+.\launcher\SouliTEK-Launcher.ps1
 ```
 
 **No more command-line!** Just click and go! 🎉
 
 ---
 
+## 📁 Project Structure
+
+The project is now organized into logical folders:
+
+```
+Soulitek-AIO/
+├── scripts/          # All PowerShell tool scripts
+├── launcher/         # GUI launcher application
+├── docs/             # Documentation and guides
+├── assets/           # Images, icons, screenshots
+└── config/           # Configuration files
+```
+
+📖 **See [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) for detailed folder information**
+
+---
+
 ## 🛠️ Available Tools (6 Professional Scripts)
 
 ### 1. 🔋 Battery Report Generator
-**File:** `battery_report_generator.ps1`
+**File:** `scripts/battery_report_generator.ps1`
 
 Generate comprehensive battery health reports for laptops and portable devices.
 
@@ -75,7 +97,9 @@ Generate comprehensive battery health reports for laptops and portable devices.
 **Usage:**
 ```powershell
 # Run as Administrator
-.\battery_report_generator.ps1
+.\scripts\battery_report_generator.ps1
+
+# Or use the GUI Launcher (recommended!)
 ```
 
 **Outputs:**
@@ -88,7 +112,7 @@ Generate comprehensive battery health reports for laptops and portable devices.
 ---
 
 ### 2. 📧 PST Finder
-**File:** `FindPST.ps1`
+**File:** `scripts/FindPST.ps1`
 
 Locate and analyze Outlook PST files across the system.
 
@@ -119,7 +143,7 @@ Locate and analyze Outlook PST files across the system.
 ---
 
 ### 3. 🖨️ Printer Spooler Fix
-**File:** `printer_spooler_fix.ps1`
+**File:** `scripts/printer_spooler_fix.ps1`
 
 Comprehensive printer spooler management and troubleshooting tool.
 
@@ -150,7 +174,7 @@ Comprehensive printer spooler management and troubleshooting tool.
 ---
 
 ### 4. 📶 WiFi Password Viewer
-**File:** `wifi_password_viewer.ps1`
+**File:** `scripts/wifi_password_viewer.ps1`
 
 View and export saved WiFi passwords from Windows.
 
@@ -182,7 +206,7 @@ View and export saved WiFi passwords from Windows.
 ---
 
 ### 5. 📊 Event Log Analyzer
-**File:** `EventLogAnalyzer.ps1`
+**File:** `scripts/EventLogAnalyzer.ps1`
 
 Advanced Windows Event Log analysis tool with statistical summaries.
 
@@ -220,7 +244,7 @@ Advanced Windows Event Log analysis tool with statistical summaries.
 ---
 
 ### 6. 🛠️ Remote Support Toolkit *(NEW)*
-**File:** `remote_support_toolkit.ps1`
+**File:** `scripts/remote_support_toolkit.ps1`
 
 Comprehensive system diagnostics collection tool for remote IT support.
 
