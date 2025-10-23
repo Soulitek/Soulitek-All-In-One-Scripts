@@ -8,29 +8,44 @@ The **GUI Launcher** provides a beautiful, modern graphical interface to access 
 
 ## ✨ Features at a Glance
 
+### 🔍 **Search-First UX (NEW!)**
+- **Real-time Search Box** - Type to instantly filter tools
+- **Smart Matching** - Searches name, description, category, and tags
+- **Live Results** - Tools filter as you type
+- **No Results Message** - Clear feedback when nothing matches
+- **Example Searches:** "printer", "network", "outlook", "backup"
+
+### 🏷️ **Category Filtering (NEW!)**
+- **7 Category Buttons** - All, Network, Security, Support, Software, M365, Hardware
+- **Color-Coded** - Each category has a distinct color
+- **Visual Icons** - Quick recognition (⚡ Network, 🛡 Security, etc.)
+- **Toggle Selection** - Click to filter, click again to show all
+- **Combo Filtering** - Combine search + category for powerful filtering
+
 ### 🎨 **Modern Design**
 - Beautiful gradient header with SouliTEK branding
 - Clean, professional Windows Forms interface
 - Color-coded tool categories for easy identification
 - Smooth, intuitive user experience
+- Enhanced filter panel with modern design
 
 ### 🖱️ **One-Click Launching**
 - Launch any tool with a single click
 - No need to remember script names
 - No PowerShell commands to type
-- Instant access to all 6 professional tools
+- Instant access to all 10 professional tools
 
 ### 📊 **Visual Tool Cards**
 Each tool is displayed in an attractive card showing:
 - 🎯 **Icon** - Visual identification
 - 📝 **Name** - Tool name in color
 - 📄 **Description** - What the tool does
-- 🏷️ **Category Badge** - Tool type (Hardware, Network, etc.)
+- 🏷️ **Category** - Tool type (Hardware, Network, M365, etc.)
 - 🚀 **Launch Button** - Start the tool
 
 ### ✅ **Smart Features**
 - **Administrator Indicator** - Shows if running with admin privileges
-- **Status Bar** - Real-time feedback on launched tools
+- **Status Bar** - Real-time feedback on launched tools and filter results
 - **Built-in Help** - Complete usage guide
 - **About Dialog** - Version and contact information
 - **Quick Links** - Direct access to GitHub and website
@@ -39,7 +54,7 @@ Each tool is displayed in an attractive card showing:
 
 ## 🚀 How to Use
 
-### Quick Start (3 Steps!)
+### Quick Start (4 Steps!)
 
 1. **Run the Launcher**
    ```powershell
@@ -47,17 +62,46 @@ Each tool is displayed in an attractive card showing:
    ```
    Or simply **double-click** the file in Windows Explorer!
 
-2. **Browse Available Tools**
-   - Scroll through the colorful tool cards
-   - Read descriptions to find what you need
-   - Note the category badges
+2. **Find Your Tool** (NEW!)
+   - **Option A:** Type in the search box (e.g., "printer", "network")
+   - **Option B:** Click a category button (Network, Security, etc.)
+   - **Option C:** Scroll through all tool cards
+   - Use search + category together for precise filtering!
 
-3. **Launch a Tool**
+3. **Browse Filtered Results**
+   - View tools matching your search/category
+   - Read descriptions to confirm it's what you need
+   - Status bar shows how many tools match
+
+4. **Launch a Tool**
    - Click the **"Launch"** button on any tool card
    - The tool opens in a new PowerShell window
    - Follow the on-screen instructions in the tool
 
 **That's it!** No command-line expertise needed! 🎉
+
+### 🔍 Search Examples
+
+| Search Term | Results |
+|------------|---------|
+| `printer` | Printer Spooler Fix |
+| `network` | WiFi Password Viewer, Network Test Tool |
+| `outlook` | PST Finder (via tags) |
+| `security` | BitLocker Status Report, USB Device Log |
+| `encryption` | BitLocker Status Report |
+| `backup` | PST Finder (via tags) |
+
+### 🏷️ Category Quick Reference
+
+| Category | Tools | Description |
+|----------|-------|-------------|
+| **All** | 10 tools | Show everything |
+| **Network** | 2 tools | WiFi, network diagnostics |
+| **Security** | 2 tools | BitLocker, USB forensics |
+| **Support** | 3 tools | Troubleshooting, diagnostics |
+| **Software** | 1 tool | Chocolatey installer |
+| **M365** | 1 tool | Outlook/Office 365 tools |
+| **Hardware** | 1 tool | Battery health |
 
 ---
 
@@ -70,9 +114,24 @@ Each tool is displayed in an attractive card showing:
 │  Professional PowerShell Tools for IT       │
 └─────────────────────────────────────────────┘
 ```
-- Purple gradient background
+- Indigo gradient background
 - Clear branding and title
 - Professional appearance
+
+### Search & Filter Panel (NEW!)
+```
+┌─────────────────────────────────────────────┐
+│  🔍 Search: [________________________]      │
+│                                             │
+│  Categories:                                │
+│  [≡ All] [⚡ Network] [🛡 Security] [🔧 Support] │
+│  [📦 Software] [📧 M365] [⚙ Hardware]       │
+└─────────────────────────────────────────────┘
+```
+- Search box with real-time filtering
+- Color-coded category buttons
+- Active category is highlighted
+- Visual feedback on selection
 
 ### Tool Cards
 Each tool card contains:
@@ -88,22 +147,27 @@ Each tool card contains:
 
 **Color Codes:**
 - 🔵 **Blue** (#3498db) - Hardware tools
-- 🟣 **Purple** (#9b59b6) - Data tools
-- 🔴 **Red** (#e74c3c) - Troubleshooting tools
-- 🟢 **Teal** (#1abc9c) - Network tools
-- 🟠 **Orange** (#f39c12) - Diagnostics tools
 - 🟢 **Green** (#2ecc71) - Support tools
+- 🟢 **Teal** (#1abc9c) - Network tools (WiFi)
+- 🔵 **Blue** (#3b82f6) - Network tools (Testing)
+- 🔴 **Red** (#dc2626) - Security tools (BitLocker)
+- 🟣 **Purple** (#8b5cf6) - Security tools (USB) / Software
+- 🟠 **Orange** (#d97706) - M365 tools
+- 🟠 **Orange** (#f39c12) - Support tools (Event Log)
+- 🔴 **Red** (#e74c3c) - Support tools (Printer)
+- 🟢 **Green** (#10b981) - Software tools (Chocolatey)
 
 ### Status Bar
 ```
 ┌─────────────────────────────────────────────┐
-│ Ready - Select a tool to launch  ✓ Admin   │
+│ Showing 10 tool(s) in 'All' category  [+] Administrator │
 └─────────────────────────────────────────────┘
 ```
-- **Left Side** - Current status and last action
+- **Left Side** - Current status, filter results, and tool count
 - **Right Side** - Administrator privilege indicator
-  - ✓ Administrator (Green) - Full privileges
-  - ⚠ Not Administrator (Yellow) - Limited privileges
+  - [+] Administrator (Green) - Full privileges
+  - [!] Not Administrator (Orange) - Limited privileges
+- **Filter Feedback** - Shows "No tools found" when nothing matches
 
 ### Bottom Buttons
 ```
@@ -112,11 +176,11 @@ Each tool card contains:
 
 ---
 
-## 🛠️ Available Tools
+## 🛠️ Available Tools (10 Total)
 
 ### 1. 🔋 Battery Report Generator
-**Category:** Hardware  
-**Color:** Blue
+**Category:** Hardware | **Icon:** [B] | **Color:** Blue  
+**Tags:** battery, laptop, health, report, power
 
 Generate comprehensive battery health reports including:
 - Battery capacity analysis
@@ -124,13 +188,14 @@ Generate comprehensive battery health reports including:
 - Charge cycles
 - Detailed 28-day reports
 
-**Best For:** Laptop maintenance, battery diagnostics
+**Best For:** Laptop maintenance, battery diagnostics  
+**Search:** "battery", "laptop", "power", "health"
 
 ---
 
 ### 2. 📧 PST Finder
-**Category:** Data  
-**Color:** Purple
+**Category:** M365 | **Icon:** [M] | **Color:** Orange  
+**Tags:** outlook, pst, email, microsoft, office, 365, backup
 
 Locate and analyze Outlook PST files:
 - Quick scan common locations
@@ -138,13 +203,14 @@ Locate and analyze Outlook PST files:
 - Size analysis
 - Export to CSV/HTML
 
-**Best For:** Email management, disk cleanup, migrations
+**Best For:** Email management, disk cleanup, migrations  
+**Search:** "pst", "outlook", "email", "office", "365", "backup"
 
 ---
 
 ### 3. 🖨️ Printer Spooler Fix
-**Category:** Troubleshooting  
-**Color:** Red
+**Category:** Support | **Icon:** [P] | **Color:** Red  
+**Tags:** printer, spooler, print, troubleshoot, fix, repair
 
 Fix printer issues automatically:
 - Stop/restart spooler service
@@ -152,13 +218,14 @@ Fix printer issues automatically:
 - Monitor mode
 - Status checking
 
-**Best For:** Printer problems, stuck print queues
+**Best For:** Printer problems, stuck print queues  
+**Search:** "printer", "spooler", "print", "fix"
 
 ---
 
 ### 4. 📶 WiFi Password Viewer
-**Category:** Network  
-**Color:** Teal
+**Category:** Network | **Icon:** [W] | **Color:** Teal  
+**Tags:** wifi, password, network, wireless, credentials
 
 View and export saved WiFi passwords:
 - All saved networks
@@ -166,13 +233,14 @@ View and export saved WiFi passwords:
 - Export to file
 - Quick copy to clipboard
 
-**Best For:** Network setup, password recovery
+**Best For:** Network setup, password recovery  
+**Search:** "wifi", "password", "wireless", "network"
 
 ---
 
 ### 5. 📊 Event Log Analyzer
-**Category:** Diagnostics  
-**Color:** Orange
+**Category:** Support | **Icon:** [E] | **Color:** Orange  
+**Tags:** event, log, analyzer, diagnostics, windows, troubleshoot
 
 Analyze Windows Event Logs:
 - Application, System, Security logs
@@ -180,13 +248,14 @@ Analyze Windows Event Logs:
 - Top event IDs
 - Export to CSV/JSON
 
-**Best For:** Troubleshooting, diagnostics, auditing
+**Best For:** Troubleshooting, diagnostics, auditing  
+**Search:** "event", "log", "analyzer", "diagnostics"
 
 ---
 
 ### 6. 🛠️ Remote Support Toolkit
-**Category:** Support  
-**Color:** Green
+**Category:** Support | **Icon:** [R] | **Color:** Green  
+**Tags:** remote, support, diagnostics, system, troubleshoot
 
 Comprehensive system diagnostics:
 - Complete system information
@@ -196,7 +265,71 @@ Comprehensive system diagnostics:
 - HTML reports
 - ZIP packaging
 
-**Best For:** Remote support, documentation, diagnostics
+**Best For:** Remote support, documentation, diagnostics  
+**Search:** "remote", "support", "diagnostics", "system"
+
+---
+
+### 7. 🌐 Network Test Tool
+**Category:** Network | **Icon:** [N] | **Color:** Blue  
+**Tags:** network, ping, tracert, dns, latency, diagnostics
+
+Advanced network testing and diagnostics:
+- Ping tests with statistics
+- Traceroute analysis
+- DNS lookup
+- Latency monitoring
+- Export to HTML/CSV
+
+**Best For:** Network troubleshooting, connectivity issues  
+**Search:** "network", "ping", "dns", "tracert", "latency"
+
+---
+
+### 8. 🔒 BitLocker Status Report
+**Category:** Security | **Icon:** [S] | **Color:** Red  
+**Tags:** bitlocker, encryption, security, recovery, volume
+
+Check BitLocker encryption status:
+- All drive encryption status
+- Recovery key information
+- Security health score
+- Export to HTML/CSV/TXT
+
+**Best For:** Security audits, encryption management  
+**Search:** "bitlocker", "encryption", "security", "recovery"
+
+---
+
+### 9. 💾 USB Device Log
+**Category:** Security | **Icon:** [U] | **Color:** Purple  
+**Tags:** usb, forensics, security, audit, device, history
+
+Forensic USB device history analysis:
+- Registry scanning
+- Event log analysis
+- Device timestamps
+- VID/PID information
+- Export to HTML/CSV/TXT
+
+**Best For:** Security audits, forensics, compliance  
+**Search:** "usb", "forensics", "security", "device"
+
+---
+
+### 10. 📦 Chocolatey Installer
+**Category:** Software | **Icon:** [C] | **Color:** Green  
+**Tags:** chocolatey, installer, software, packages, apps, install
+
+Interactive package installer with Ninite-like UX:
+- 40+ curated packages
+- Auto-install Chocolatey
+- Preset support
+- Idempotent installation
+- Professional logging
+
+**Best For:** Software deployment, system setup  
+**Search:** "chocolatey", "installer", "software", "packages", "apps"
 
 ---
 
@@ -219,25 +352,44 @@ Comprehensive system diagnostics:
 
 **Scenario 1: Laptop Maintenance**
 ```
-1. Launch Battery Report Generator
-2. Review battery health
-3. Launch Event Log Analyzer
-4. Check for errors
+1. Type "battery" in search box
+2. Launch Battery Report Generator
+3. Review battery health
+4. Type "event" in search box
+5. Launch Event Log Analyzer
+6. Check for errors
 ```
 
 **Scenario 2: Printer Problems**
 ```
-1. Launch Printer Spooler Fix
-2. Run Basic Fix mode
-3. If issues persist, use Monitor mode
+1. Type "printer" in search box (finds Printer Spooler Fix)
+2. Launch Printer Spooler Fix
+3. Run Basic Fix mode
+4. If issues persist, use Monitor mode
 ```
 
 **Scenario 3: Remote Support**
 ```
-1. Launch Remote Support Toolkit
-2. Create Full Support Package
-3. Create ZIP file
-4. Email to IT support
+1. Click "Support" category button
+2. Launch Remote Support Toolkit
+3. Create Full Support Package
+4. Create ZIP file
+5. Email to IT support
+```
+
+**Scenario 4: Network Troubleshooting**
+```
+1. Click "Network" category (shows 2 tools)
+2. Launch Network Test Tool for diagnostics
+3. If needed, launch WiFi Password Viewer
+```
+
+**Scenario 5: Security Audit**
+```
+1. Click "Security" category (shows 2 tools)
+2. Launch BitLocker Status Report for encryption
+3. Launch USB Device Log for forensics
+4. Export reports for compliance
 ```
 
 ---
@@ -337,12 +489,18 @@ cd C:\Path\To\Scripts
 │          🚀 SouliTEK All-In-One Scripts           │ ← Header
 │     Professional PowerShell Tools for IT          │
 ├────────────────────────────────────────────────────┤
+│  🔍 Search: [___________________________]         │ ← Search Box
+│                                                    │
+│  Categories:                                       │ ← Category
+│  [≡ All] [⚡ Network] [🛡 Security] [🔧 Support]   │   Filters
+│  [📦 Software] [📧 M365] [⚙ Hardware]             │   (NEW!)
+├────────────────────────────────────────────────────┤
 │                                                    │
 │  ┌──────────────────────────────────────┐        │
 │  │ 🔋 Battery Report Generator          │        │
 │  │    Generate comprehensive battery    │        │ ← Tool Cards
 │  │    health reports for laptops        │        │   (Scrollable)
-│  │                        [Launch]      │        │
+│  │                        [Launch]      │        │   (Filtered)
 │  └──────────────────────────────────────┘        │
 │                                                    │
 │  ┌──────────────────────────────────────┐        │
@@ -351,10 +509,10 @@ cd C:\Path\To\Scripts
 │  │                        [Launch]      │        │
 │  └──────────────────────────────────────┘        │
 │                                                    │
-│  [... more tool cards ...]                       │
+│  [... more filtered tool cards ...]              │
 │                                                    │
 ├────────────────────────────────────────────────────┤
-│ Ready - Select a tool to launch  ✓ Administrator │ ← Status Bar
+│ Showing 10 tool(s) in 'All' category  [+] Admin  │ ← Status Bar
 ├────────────────────────────────────────────────────┤
 │ [Help] [About] [GitHub] [Website]        [Exit]  │ ← Bottom Buttons
 └────────────────────────────────────────────────────┘
@@ -387,7 +545,43 @@ cd C:\Path\To\Scripts
 
 ## 📝 Version History
 
-### Version 1.0.0 (Current)
+### Version 2.0.0 (Current) - Enhanced with Search & Filtering
+**Release Date:** October 23, 2025
+
+**NEW Features:**
+- 🔍 **Search-First UX** - Real-time search box with smart matching
+- 🏷️ **Category Filtering** - 7 color-coded category buttons
+- 🏷️ **Tag System** - Comprehensive tags for better searchability
+- 📊 **Dynamic Filtering** - Combine search + category filters
+- 💯 **10 Tools** - Added 4 new professional tools
+- 📧 **M365 Category** - New category for Microsoft 365 tools
+- 📈 **Enhanced Status Bar** - Shows filter results and tool count
+
+**All Features:**
+- Modern GUI design with enhanced filter panel
+- One-click launching
+- Built-in help system
+- Administrator detection
+- Real-time search and filtering
+- Category-based organization
+- Status bar with live feedback
+- Quick link buttons
+
+**Tools Included (10 Total):**
+1. Battery Report Generator (Hardware)
+2. PST Finder (M365)
+3. Printer Spooler Fix (Support)
+4. WiFi Password Viewer (Network)
+5. Event Log Analyzer (Support)
+6. Remote Support Toolkit (Support)
+7. Network Test Tool (Network) - NEW!
+8. BitLocker Status Report (Security) - NEW!
+9. USB Device Log (Security) - NEW!
+10. Chocolatey Installer (Software) - NEW!
+
+---
+
+### Version 1.0.0
 **Release Date:** October 23, 2025
 
 **Features:**
@@ -399,14 +593,6 @@ cd C:\Path\To\Scripts
 - Administrator detection
 - Status bar feedback
 - Quick link buttons
-
-**Tools Included:**
-1. Battery Report Generator
-2. PST Finder
-3. Printer Spooler Fix
-4. WiFi Password Viewer
-5. Event Log Analyzer
-6. Remote Support Toolkit
 
 ---
 

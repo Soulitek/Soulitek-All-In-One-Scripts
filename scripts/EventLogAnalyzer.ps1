@@ -71,8 +71,8 @@
     SECURITY NOTE  : This script reads Windows Event Logs which may contain sensitive
                      system information. Ensure exported files are handled securely.
                      
-    Hebrew: כלי מתקדם לניתוח יומני אירועים של Windows עבור טכנאי IT
-            מספק סיכומים סטטיסטיים ויצוא ל-CSV/JSON
+    For IT Technicians: Advanced Windows Event Log analysis tool
+                        Provides statistical summaries and CSV/JSON export
 #>
 
 [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Low')]
@@ -531,6 +531,32 @@ function Export-AnalysisResults {
 
 <#
 .SYNOPSIS
+    Displays the SouliTEK ASCII banner.
+#>
+function Show-Banner {
+    Write-Host ""
+    Write-Host "  =========================================================" -ForegroundColor Cyan
+    Write-Host "   _____ ____  _    _ _      _____ _______ ______ _  __  " -ForegroundColor Cyan
+    Write-Host "  / ____/ __ \| |  | | |    |_   _|__   __|  ____| |/ /  " -ForegroundColor Cyan
+    Write-Host " | (___| |  | | |  | | |      | |    | |  | |__  | ' /   " -ForegroundColor Cyan
+    Write-Host "  \___ \ |  | | |  | | |      | |    | |  |  __| |  <    " -ForegroundColor Cyan
+    Write-Host "  ____) | |__| | |__| | |____ _| |_   | |  | |____| . \   " -ForegroundColor Cyan
+    Write-Host " |_____/ \____/ \____/|______|_____|  |_|  |______|_|\_\  " -ForegroundColor Cyan
+    Write-Host "  =========================================================" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "  Event Log Analyzer - Professional Tool" -ForegroundColor White
+    Write-Host "  =========================================================" -ForegroundColor DarkGray
+    Write-Host ""
+    Write-Host "  Website: " -NoNewline -ForegroundColor Gray
+    Write-Host "https://soulitek.co.il" -ForegroundColor Cyan
+    Write-Host "  Email: " -NoNewline -ForegroundColor Gray
+    Write-Host "letstalk@soulitek.co.il" -ForegroundColor Cyan
+    Write-Host "  (C) 2025 SouliTEK - All Rights Reserved" -ForegroundColor Gray
+    Write-Host ""
+}
+
+<#
+.SYNOPSIS
     Displays a summary of analysis results to the console.
 #>
 function Show-AnalysisSummary {
@@ -540,7 +566,7 @@ function Show-AnalysisSummary {
         [PSCustomObject]$Results
     )
     
-    Write-Host ""
+    Show-Banner
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host "  EVENT LOG ANALYSIS SUMMARY" -ForegroundColor Cyan
     Write-Host "============================================================" -ForegroundColor Cyan

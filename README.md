@@ -25,16 +25,20 @@
 
 ---
 
-## 🛠️ Available Tools (6 Scripts)
+## 🛠️ Available Tools (10 Scripts)
 
 | Tool | Purpose |
 |------|---------|
 | ⚡ **Battery Report** | Analyze laptop battery health |
+| 🔒 **BitLocker Status** | Check encryption & recovery keys |
 | ✉ **PST Finder** | Find Outlook PST files |
 | ⊞ **Printer Fix** | Fix printer spooler issues |
 | ≈ **WiFi Passwords** | View saved WiFi passwords |
 | ▤ **Event Log Analyzer** | Analyze Windows event logs |
 | ⚙ **Support Toolkit** | Complete system diagnostics |
+| 🌐 **Network Test Tool** | Ping, tracert, DNS, latency tests |
+| 🔍 **USB Device Log** | Forensic USB device history analysis |
+| 📦 **Chocolatey Installer** | Ninite-like package installer with TUI |
 
 All scripts located in `./scripts/` folder.
 
@@ -54,11 +58,18 @@ Soulitek-AIO/
 
 ## 💡 Features
 
+### GUI Launcher
+- 🔍 **Search-First UX** - Type to instantly filter tools
+- 🏷️ **Category Filtering** - 7 color-coded categories (Network, Security, Support, etc.)
 - ✅ Modern GUI with rounded buttons
 - ✅ One-click tool launching
+- ✅ Real-time filtering and smart search
 - ✅ Administrator checks
-- ✅ Detailed logging
-- ✅ Export to CSV/HTML/JSON
+
+### Tools
+- ✅ Detailed logging and reporting
+- ✅ Export to CSV/HTML/JSON/TXT
+- ✅ Professional formatting
 - ✅ Windows 8.1, 10, 11 compatible
 
 ---

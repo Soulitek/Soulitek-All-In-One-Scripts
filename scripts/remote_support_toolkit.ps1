@@ -69,11 +69,33 @@ function Write-Log {
     }
 }
 
+function Show-Banner {
+    Write-Host ""
+    Write-Host "  =========================================================" -ForegroundColor Cyan
+    Write-Host "   _____ ____  _    _ _      _____ _______ ______ _  __  " -ForegroundColor Cyan
+    Write-Host "  / ____/ __ \| |  | | |    |_   _|__   __|  ____| |/ /  " -ForegroundColor Cyan
+    Write-Host " | (___| |  | | |  | | |      | |    | |  | |__  | ' /   " -ForegroundColor Cyan
+    Write-Host "  \___ \ |  | | |  | | |      | |    | |  |  __| |  <    " -ForegroundColor Cyan
+    Write-Host "  ____) | |__| | |__| | |____ _| |_   | |  | |____| . \   " -ForegroundColor Cyan
+    Write-Host " |_____/ \____/ \____/|______|_____|  |_|  |______|_|\_\  " -ForegroundColor Cyan
+    Write-Host "  =========================================================" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "  Remote Support Toolkit - Professional Tool" -ForegroundColor White
+    Write-Host "  =========================================================" -ForegroundColor DarkGray
+    Write-Host ""
+    Write-Host "  Website: " -NoNewline -ForegroundColor Gray
+    Write-Host "https://soulitek.co.il" -ForegroundColor Cyan
+    Write-Host "  Email: " -NoNewline -ForegroundColor Gray
+    Write-Host "letstalk@soulitek.co.il" -ForegroundColor Cyan
+    Write-Host "  (C) 2025 SouliTEK - All Rights Reserved" -ForegroundColor Gray
+    Write-Host ""
+}
+
 function Show-Header {
     param([string]$Title, [ConsoleColor]$Color = 'Cyan')
     
     Clear-Host
-    Write-Host ""
+    Show-Banner
     Write-Host "============================================================" -ForegroundColor $Color
     Write-Host ""
     Write-Host "  $Title" -ForegroundColor $Color
@@ -375,7 +397,7 @@ function Export-SystemReport {
 </head>
 <body>
     <div class="header">
-        <h1>🖥️ System Support Report</h1>
+        <h1>[SYSTEM] Support Report</h1>
         <p><strong>Computer:</strong> $($systemInfo.ComputerName) | <strong>User:</strong> $($systemInfo.UserName)</p>
         <p><strong>Generated:</strong> $($systemInfo.CollectionTime)</p>
     </div>

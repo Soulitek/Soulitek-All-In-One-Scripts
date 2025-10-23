@@ -40,6 +40,29 @@ param(
 # Set console title and colors
 $Host.UI.RawUI.WindowTitle = "Printer Spooler Fix - All-in-One Tool - by Soulitek.co.il"
 
+# Function to show ASCII banner
+function Show-Banner {
+    Write-Host ""
+    Write-Host "  =========================================================" -ForegroundColor Cyan
+    Write-Host "   _____ ____  _    _ _      _____ _______ ______ _  __  " -ForegroundColor Cyan
+    Write-Host "  / ____/ __ \| |  | | |    |_   _|__   __|  ____| |/ /  " -ForegroundColor Cyan
+    Write-Host " | (___| |  | | |  | | |      | |    | |  | |__  | ' /   " -ForegroundColor Cyan
+    Write-Host "  \___ \ |  | | |  | | |      | |    | |  |  __| |  <    " -ForegroundColor Cyan
+    Write-Host "  ____) | |__| | |__| | |____ _| |_   | |  | |____| . \   " -ForegroundColor Cyan
+    Write-Host " |_____/ \____/ \____/|______|_____|  |_|  |______|_|\_\  " -ForegroundColor Cyan
+    Write-Host "  =========================================================" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "  Printer Spooler Fix - Professional Tool" -ForegroundColor White
+    Write-Host "  =========================================================" -ForegroundColor DarkGray
+    Write-Host ""
+    Write-Host "  Website: " -NoNewline -ForegroundColor Gray
+    Write-Host "https://soulitek.co.il" -ForegroundColor Cyan
+    Write-Host "  Email: " -NoNewline -ForegroundColor Gray
+    Write-Host "letstalk@soulitek.co.il" -ForegroundColor Cyan
+    Write-Host "  (C) 2025 SouliTEK - All Rights Reserved" -ForegroundColor Gray
+    Write-Host ""
+}
+
 # Function to check admin privileges
 function Test-Administrator {
     $currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
@@ -178,22 +201,10 @@ function Show-Disclaimer {
 function Show-MainMenu {
     $Host.UI.RawUI.ForegroundColor = "Cyan"
     Clear-Host
+    Show-Banner
+    Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "============================================================"
-    Write-Host ""
-    Write-Host "        PRINTER SPOOLER FIX TOOL - All-in-One"
-    Write-Host ""
-    Write-Host "============================================================"
-    Write-Host ""
-    Write-Host "     Coded by: Soulitek.co.il"
-    Write-Host "     IT Solutions for your business"
-    Write-Host "     https://soulitek.co.il"
-    Write-Host ""
-    Write-Host "     (C) 2025 Soulitek - All Rights Reserved"
-    Write-Host ""
-    Write-Host "============================================================"
-    Write-Host ""
-    Write-Host "Select an option:"
+    Write-Host "Select an option:" -ForegroundColor Cyan
     Write-Host ""
     Write-Host " [1] Basic Fix           - Quick one-time fix"
     Write-Host " [2] Advanced Monitor    - Continuous monitoring"

@@ -69,11 +69,33 @@ function Test-Administrator {
     return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 }
 
+function Show-Banner {
+    Write-Host ""
+    Write-Host "  =========================================================" -ForegroundColor Cyan
+    Write-Host "   _____ ____  _    _ _      _____ _______ ______ _  __  " -ForegroundColor Cyan
+    Write-Host "  / ____/ __ \| |  | | |    |_   _|__   __|  ____| |/ /  " -ForegroundColor Cyan
+    Write-Host " | (___| |  | | |  | | |      | |    | |  | |__  | ' /   " -ForegroundColor Cyan
+    Write-Host "  \___ \ |  | | |  | | |      | |    | |  |  __| |  <    " -ForegroundColor Cyan
+    Write-Host "  ____) | |__| | |__| | |____ _| |_   | |  | |____| . \   " -ForegroundColor Cyan
+    Write-Host " |_____/ \____/ \____/|______|_____|  |_|  |______|_|\_\  " -ForegroundColor Cyan
+    Write-Host "  =========================================================" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "  PST Finder - Professional Tool" -ForegroundColor White
+    Write-Host "  =========================================================" -ForegroundColor DarkGray
+    Write-Host ""
+    Write-Host "  Website: " -NoNewline -ForegroundColor Gray
+    Write-Host "https://soulitek.co.il" -ForegroundColor Cyan
+    Write-Host "  Email: " -NoNewline -ForegroundColor Gray
+    Write-Host "letstalk@soulitek.co.il" -ForegroundColor Cyan
+    Write-Host "  (C) 2025 SouliTEK - All Rights Reserved" -ForegroundColor Gray
+    Write-Host ""
+}
+
 function Show-Header {
     param([string]$Title, [ConsoleColor]$Color = 'Cyan')
     
     Clear-Host
-    Write-Host ""
+    Show-Banner
     Write-Host "============================================================" -ForegroundColor $Color
     Write-Host ""
     Write-Host "  $Title" -ForegroundColor $Color
@@ -88,7 +110,7 @@ function Get-PSTFiles {
         [string[]]$Paths,
         
         [Parameter(Mandatory=$false)]
-        [switch]$Recurse = $true
+        [switch]$Recurse
     )
     
     $ErrorActionPreference = 'SilentlyContinue'
@@ -254,10 +276,10 @@ function Invoke-QuickScan {
         "C:\Users\*"
     )
     
-    $files = Get-PSTFiles -Paths $searchPaths
+    $files = Get-PSTFiles -Paths $searchPaths -Recurse
     
     if ($files.Count -gt 0) {
-        $success = Export-PSTReport -Files $files -OutputPath $Script:LastReport
+        [void](Export-PSTReport -Files $files -OutputPath $Script:LastReport)
         $summary = Save-Summary -Files $files
         
         Write-Host "========================================" -ForegroundColor Green
@@ -299,14 +321,14 @@ function Invoke-DeepScan {
     foreach ($drive in $drives) {
         $drivePath = "$($drive):\"
         Write-Host "  Scanning drive $drivePath..." -ForegroundColor Gray
-        $allFiles += Get-PSTFiles -Paths @($drivePath)
+        $allFiles += Get-PSTFiles -Paths @($drivePath) -Recurse
     }
     
     $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
     $deepReport = Join-Path $Script:WorkDir "DeepScan_$timestamp.csv"
     
     if ($allFiles.Count -gt 0) {
-        $success = Export-PSTReport -Files $allFiles -OutputPath $deepReport
+        [void](Export-PSTReport -Files $allFiles -OutputPath $deepReport)
         Copy-Item $deepReport $Script:LastReport -Force
         $summary = Save-Summary -Files $allFiles
         
@@ -602,13 +624,13 @@ function Invoke-CustomPathScan {
     Write-Host "Scanning $customPath..." -ForegroundColor Cyan
     Write-Host ""
     
-    $files = Get-PSTFiles -Paths @($customPath)
+    $files = Get-PSTFiles -Paths @($customPath) -Recurse
     
     $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
     $customReport = Join-Path $Script:WorkDir "CustomScan_$timestamp.csv"
     
     if ($files.Count -gt 0) {
-        $success = Export-PSTReport -Files $files -OutputPath $customReport
+        [void](Export-PSTReport -Files $files -OutputPath $customReport)
         Copy-Item $customReport $Script:LastReport -Force
         $summary = Save-Summary -Files $files
         
@@ -775,7 +797,7 @@ function Invoke-AutoScan {
     $allFiles = @()
     foreach ($drive in $drives) {
         $drivePath = "$($drive):\"
-        $allFiles += Get-PSTFiles -Paths @($drivePath)
+        $allFiles += Get-PSTFiles -Paths @($drivePath) -Recurse
     }
     
     if ($allFiles.Count -gt 0) {

@@ -56,11 +56,34 @@ function Test-Administrator {
     return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 }
 
+# Function to show ASCII banner
+function Show-Banner {
+    Write-Host ""
+    Write-Host "  =========================================================" -ForegroundColor Cyan
+    Write-Host "   _____ ____  _    _ _      _____ _______ ______ _  __  " -ForegroundColor Cyan
+    Write-Host "  / ____/ __ \| |  | | |    |_   _|__   __|  ____| |/ /  " -ForegroundColor Cyan
+    Write-Host " | (___| |  | | |  | | |      | |    | |  | |__  | ' /   " -ForegroundColor Cyan
+    Write-Host "  \___ \ |  | | |  | | |      | |    | |  |  __| |  <    " -ForegroundColor Cyan
+    Write-Host "  ____) | |__| | |__| | |____ _| |_   | |  | |____| . \   " -ForegroundColor Cyan
+    Write-Host " |_____/ \____/ \____/|______|_____|  |_|  |______|_|\_\  " -ForegroundColor Cyan
+    Write-Host "  =========================================================" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "  Battery Report Generator - Professional Tool" -ForegroundColor White
+    Write-Host "  =========================================================" -ForegroundColor DarkGray
+    Write-Host ""
+    Write-Host "  Website: " -NoNewline -ForegroundColor Gray
+    Write-Host "https://soulitek.co.il" -ForegroundColor Cyan
+    Write-Host "  Email: " -NoNewline -ForegroundColor Gray
+    Write-Host "letstalk@soulitek.co.il" -ForegroundColor Cyan
+    Write-Host "  (C) 2025 SouliTEK - All Rights Reserved" -ForegroundColor Gray
+    Write-Host ""
+}
+
 # Function to show disclaimer
 function Show-Disclaimer {
     Clear-Host
+    Show-Banner
     Set-ConsoleColor "Yellow"
-    Write-Host ""
     Write-Host "============================================================"
     Write-Host ""
     Write-Host "                    IMPORTANT NOTICE"
@@ -85,22 +108,8 @@ function Show-Disclaimer {
 # Function to show main menu
 function Show-MainMenu {
     Clear-Host
+    Show-Banner
     Set-ConsoleColor "Blue"
-    Write-Host ""
-    Write-Host "============================================================"
-    Write-Host ""
-    Write-Host "         BATTERY REPORT GENERATOR - Professional Tool"
-    Write-Host ""
-    Write-Host "============================================================"
-    Write-Host ""
-    Write-Host "      Coded by: Soulitek.co.il"
-    Write-Host "      IT Solutions for your business"
-    Write-Host "      https://soulitek.co.il"
-    Write-Host ""
-    Write-Host "      (C) 2025 Soulitek - All Rights Reserved"
-    Write-Host ""
-    Write-Host "============================================================"
-    Write-Host ""
     Write-Host "Select an option:"
     Write-Host ""
     Write-Host "  [1] Quick Battery Report    - Basic health overview"
@@ -135,7 +144,7 @@ function New-QuickReport {
     $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
     $reportFile = "$env:USERPROFILE\Desktop\BatteryReport_$timestamp.html"
     
-    $result = powercfg /batteryreport /output "$reportFile" /duration 7 2>&1
+    [void](powercfg /batteryreport /output "$reportFile" /duration 7 2>&1)
     
     if ($LASTEXITCODE -eq 0) {
         Set-ConsoleColor "Green"
@@ -190,7 +199,7 @@ function New-DetailedReport {
     $reportFile = "$env:USERPROFILE\Desktop\BatteryReport_Detailed_$timestamp.html"
     
     Write-Host "Analyzing battery data..."
-    $result = powercfg /batteryreport /output "$reportFile" /duration 28 2>&1
+    [void](powercfg /batteryreport /output "$reportFile" /duration 28 2>&1)
     
     if ($LASTEXITCODE -eq 0) {
         Set-ConsoleColor "Green"
@@ -333,7 +342,7 @@ function New-SleepStudyReport {
     $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
     $reportFile = "$env:USERPROFILE\Desktop\SleepStudy_$timestamp.html"
     
-    $result = powercfg /sleepstudy /output "$reportFile" /duration 7 2>&1
+    [void](powercfg /sleepstudy /output "$reportFile" /duration 7 2>&1)
     
     if ($LASTEXITCODE -eq 0) {
         Set-ConsoleColor "Green"
@@ -471,7 +480,7 @@ function New-AllReports {
     Write-Host ""
     
     Write-Host "[1/4] Generating Quick Battery Report..."
-    $result1 = powercfg /batteryreport /output "$folder\BatteryReport_Quick.html" /duration 7 2>&1
+    [void](powercfg /batteryreport /output "$folder\BatteryReport_Quick.html" /duration 7 2>&1)
     if ($LASTEXITCODE -eq 0) {
         Write-Host "      [OK] Quick report completed" -ForegroundColor Green
     } else {
@@ -479,7 +488,7 @@ function New-AllReports {
     }
     
     Write-Host "[2/4] Generating Detailed Battery Report..."
-    $result2 = powercfg /batteryreport /output "$folder\BatteryReport_Detailed.html" /duration 28 2>&1
+    [void](powercfg /batteryreport /output "$folder\BatteryReport_Detailed.html" /duration 28 2>&1)
     if ($LASTEXITCODE -eq 0) {
         Write-Host "      [OK] Detailed report completed" -ForegroundColor Green
     } else {
@@ -487,7 +496,7 @@ function New-AllReports {
     }
     
     Write-Host "[3/4] Generating Sleep Study..."
-    $result3 = powercfg /sleepstudy /output "$folder\SleepStudy.html" /duration 7 2>&1
+    [void](powercfg /sleepstudy /output "$folder\SleepStudy.html" /duration 7 2>&1)
     if ($LASTEXITCODE -eq 0) {
         Write-Host "      [OK] Sleep study completed" -ForegroundColor Green
     } else {
