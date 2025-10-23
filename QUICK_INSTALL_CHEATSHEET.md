@@ -68,3 +68,4 @@ Simply run the install command again - it will update to the latest version auto
 
 **© 2025 SouliTEK - Made with ❤️ in Israel**
 
+
