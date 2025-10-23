@@ -8,9 +8,17 @@ Your SouliTEK All-In-One Scripts now supports **one-line installation from URL**
 
 You can now install SouliTEK on any PC with just one PowerShell command:
 
+**GitHub URL:**
 ```powershell
 iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1 | iex
 ```
+
+**Custom Domain (Recommended):**
+```powershell
+iwr -useb get.soulitek.co.il | iex
+```
+
+💡 **See [Custom Domain Setup Guide](docs/CUSTOM_DOMAIN_SETUP.md) for hosting on soulitek.co.il**
 
 ---
 

@@ -1,0 +1,44 @@
+# ============================================================
+# SouliTEK Installer - Simple Redirect
+# ============================================================
+# 
+# This .htaccess file redirects requests to the GitHub raw file.
+# 
+# Setup Instructions:
+# 1. Rename this file to ".htaccess"
+# 2. Upload to your subdomain folder (e.g., /public_html/get/)
+# 3. Users can run: iwr -useb get.soulitek.co.il | iex
+# 
+# This is the SIMPLEST method - just redirects to GitHub.
+# 
+# ============================================================
+
+# Enable URL Rewriting
+RewriteEngine On
+
+# Redirect root to GitHub raw file
+RewriteRule ^$ https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1 [L,R=301]
+
+# Optional: Redirect /install as well
+RewriteRule ^install/?$ https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1 [L,R=301]
+
+# ============================================================
+# Alternative: Serve file directly (if you have Install-SouliTEK.ps1 in this folder)
+# ============================================================
+# 
+# <Files "Install-SouliTEK.ps1">
+#     AddType text/plain .ps1
+#     Header set Content-Type "text/plain; charset=utf-8"
+# </Files>
+# 
+# ============================================================
+
+# Security: Block directory listing
+Options -Indexes
+
+# Prevent access to .htaccess itself
+<Files ".htaccess">
+    Order allow,deny
+    Deny from all
+</Files>
+

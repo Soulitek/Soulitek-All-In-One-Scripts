@@ -83,6 +83,86 @@ iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-S
 
 ---
 
+### ✅ Added: Custom Domain Hosting Support (2025-10-23)
+
+**Objective:** Enable hosting the installer on custom domain (soulitek.co.il) for easier branding and access.
+
+**Features Implemented:**
+
+1. **Multiple Hosting Methods**
+   - Simple redirect (.htaccess)
+   - PHP proxy with logging
+   - Direct hosting
+   - Cloudflare Workers support
+
+2. **Ready-to-Use Files**
+   - `hosting/install-proxy.php` - PHP proxy with download logging
+   - `hosting/.htaccess-redirect` - Simple Apache redirect
+   - `hosting/landing-page.html` - Beautiful landing page with copy button
+   - `hosting/README.md` - Hosting setup instructions
+
+3. **Custom Domain Configuration**
+   - Subdomain setup (get.soulitek.co.il)
+   - Path-based (soulitek.co.il/install)
+   - DNS configuration guide
+   - SSL/HTTPS setup
+
+4. **Landing Page Features**
+   - One-click command copy
+   - Step-by-step instructions
+   - Tool showcase with icons
+   - Mobile responsive design
+   - Professional branding
+
+5. **Download Analytics**
+   - PHP proxy logs downloads
+   - IP address tracking
+   - User-agent detection
+   - Timestamp logging
+   - Easy stats viewing
+
+6. **Comprehensive Documentation**
+   - `docs/CUSTOM_DOMAIN_SETUP.md` - Complete setup guide
+   - `CUSTOM_DOMAIN_QUICK_SETUP.md` - Quick reference
+   - `hosting/README.md` - File explanations
+   - Testing procedures
+   - Troubleshooting guide
+
+**Files Created:**
+1. `hosting/install-proxy.php` - PHP proxy (150+ lines)
+2. `hosting/.htaccess-redirect` - Apache redirect config
+3. `hosting/landing-page.html` - Landing page (300+ lines)
+4. `hosting/README.md` - Hosting documentation
+5. `docs/CUSTOM_DOMAIN_SETUP.md` - Setup guide (600+ lines)
+6. `CUSTOM_DOMAIN_QUICK_SETUP.md` - Quick setup (200+ lines)
+
+**Updated Files:**
+1. `URL_INSTALL_SUMMARY.md` - Added custom domain option
+
+**Installation Commands:**
+
+**GitHub (default):**
+```powershell
+iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1 | iex
+```
+
+**Custom Domain (branded):**
+```powershell
+iwr -useb get.soulitek.co.il | iex
+```
+
+**Benefits:**
+- Easier to remember and share
+- Professional branding
+- Custom URL control
+- Download analytics
+- Faster with CDN (optional)
+- Better marketing presence
+
+**Result:** Complete custom domain hosting solution with multiple methods and beautiful landing page.
+
+---
+
 ## Completed Workflows
 
 ### ✅ Created: License Expiration Checker (2025-10-23)
@@ -549,6 +629,14 @@ iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-S
 ---
 
 ## Log
+- 2025-10-23: Created custom domain hosting solution for soulitek.co.il
+- 2025-10-23: Added hosting/install-proxy.php with download logging and analytics
+- 2025-10-23: Created hosting/landing-page.html with beautiful UI and one-click copy
+- 2025-10-23: Added hosting/.htaccess-redirect for simple Apache redirects
+- 2025-10-23: Created docs/CUSTOM_DOMAIN_SETUP.md (comprehensive guide, 600+ lines)
+- 2025-10-23: Created CUSTOM_DOMAIN_QUICK_SETUP.md for rapid deployment
+- 2025-10-23: Added hosting/README.md with file explanations and setup instructions
+- 2025-10-23: Documented multiple hosting methods (redirect, PHP proxy, Cloudflare Workers)
 - 2025-10-23: Created URL-based quick installer for one-line deployment (Install-SouliTEK.ps1)
 - 2025-10-23: Added comprehensive QUICK_INSTALL.md documentation (500+ lines)
 - 2025-10-23: Created DEPLOYMENT_CHECKLIST.md for repository deployment
