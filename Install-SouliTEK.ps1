@@ -17,6 +17,15 @@
 
 #Requires -Version 5.1
 
+# Add error handling and keep window open
+$ErrorActionPreference = "Continue"
+trap {
+    Write-Host "Error occurred: $_" -ForegroundColor Red
+    Write-Host "Press any key to exit..."
+    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+    exit 1
+}
+
 # Banner
 Write-Host ""
 Write-Host "============================================================" -ForegroundColor Cyan
@@ -189,4 +198,11 @@ Write-Host ""
 Write-Host "Thank you for using SouliTEK!" -ForegroundColor Green
 Write-Host "Visit: https://soulitek.co.il | letstalk@soulitek.co.il" -ForegroundColor Gray
 Write-Host ""
+
+# Keep window open if there were any errors
+if ($Error.Count -gt 0) {
+    Write-Host ""
+    Write-Host "Errors occurred during installation. Press any key to exit..." -ForegroundColor Red
+    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+}
 

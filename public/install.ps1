@@ -17,6 +17,15 @@
 
 #Requires -Version 5.1
 
+# Add error handling and keep window open
+$ErrorActionPreference = "Continue"
+trap {
+    Write-Host "Error occurred: $_" -ForegroundColor Red
+    Write-Host "Press any key to exit..."
+    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+    exit 1
+}
+
 # Banner
 Write-Host ""
 Write-Host "============================================================" -ForegroundColor Cyan
@@ -33,12 +42,15 @@ Write-Host ""
 
 # Configuration
 $RepoOwner = "Soulitek"
-$RepoName = "Soulitek-AIO"  # Update this if your repo name is different
+$RepoName = "Soulitek-All-In-One-Scripts"  # Correct repository name
 $Branch = "main"
 $InstallPath = "C:\SouliTEK"
 $ZipUrl = "https://github.com/$RepoOwner/$RepoName/archive/refs/heads/$Branch.zip"
 $TempZip = Join-Path $env:TEMP "SouliTEK-AIO.zip"
 $TempExtract = Join-Path $env:TEMP "SouliTEK-AIO-Extract"
+
+Write-Host "Debug: Repository: $RepoOwner/$RepoName" -ForegroundColor Yellow
+Write-Host "Debug: Install Path: $InstallPath" -ForegroundColor Yellow
 
 # Check admin privileges
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
@@ -52,7 +64,8 @@ if (-not $isAdmin) {
 }
 
 # Step 1: Download
-Write-Host "[1/4] Downloading latest version from GitHub..." -ForegroundColor Cyan
+Write-Host "[1/4] Downloading latest version from Vercel..." -ForegroundColor Cyan
+Write-Host "Debug: Download URL will be: $ZipUrl" -ForegroundColor Yellow
 try {
     # Enable TLS 1.2
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
@@ -189,4 +202,11 @@ Write-Host ""
 Write-Host "Thank you for using SouliTEK!" -ForegroundColor Green
 Write-Host "Visit: https://soulitek.co.il | letstalk@soulitek.co.il" -ForegroundColor Gray
 Write-Host ""
+
+# Keep window open if there were any errors
+if ($Error.Count -gt 0) {
+    Write-Host ""
+    Write-Host "Errors occurred during installation. Press any key to exit..." -ForegroundColor Red
+    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+}
 
