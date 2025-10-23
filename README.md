@@ -31,7 +31,7 @@ Soulitek-AIO is a comprehensive collection of professional PowerShell scripts de
 
 ---
 
-## 🛠️ Available Tools
+## 🛠️ Available Tools (6 Professional Scripts)
 
 ### 1. 🔋 Battery Report Generator
 **File:** `battery_report_generator.ps1`
@@ -155,7 +155,7 @@ View and export saved WiFi passwords from Windows.
 
 ---
 
-### 5. 📊 Event Log Analyzer *(NEW)*
+### 5. 📊 Event Log Analyzer
 **File:** `EventLogAnalyzer.ps1`
 
 Advanced Windows Event Log analysis tool with statistical summaries.
@@ -190,6 +190,72 @@ Advanced Windows Event Log analysis tool with statistical summaries.
 - Detailed events CSV
 - Statistical analysis
 - Top event patterns
+
+---
+
+### 6. 🛠️ Remote Support Toolkit *(NEW)*
+**File:** `remote_support_toolkit.ps1`
+
+Comprehensive system diagnostics collection tool for remote IT support.
+
+**Features:**
+- Complete system information collector
+- Hardware specifications (CPU, RAM, BIOS)
+- Disk space analysis
+- Installed software inventory
+- Running processes monitoring
+- Network adapter configuration
+- Recent error log collection
+- Critical services status
+- Windows Update history
+- Professional HTML report generation
+- CSV data export for analysis
+- ZIP package creation for easy sharing
+
+**Usage:**
+```powershell
+# Interactive mode with menu
+.\remote_support_toolkit.ps1
+```
+
+**Menu Options:**
+1. **Quick Info** - Display basic system information on screen
+2. **Full Support Package** - Collect all diagnostics and create complete package
+3. **System Report Only** - Generate HTML report only
+4. **Export to CSV** - Export all data to CSV files
+5. **Help** - Usage guide
+
+**What It Collects:**
+- System information (OS, hardware, serial numbers)
+- Disk usage across all drives
+- Complete list of installed programs
+- Top 50 running processes by CPU usage
+- All network adapter configurations
+- Recent system errors (last 24 hours)
+- Status of critical Windows services
+- Windows Update installation history
+
+**Outputs:**
+- **SystemReport.html** - Beautiful, professional HTML report
+- **SystemInfo.csv** - System specifications
+- **DiskInfo.csv** - Disk space details
+- **InstalledSoftware.csv** - All installed programs
+- **RunningProcesses.csv** - Active processes with resource usage
+- **NetworkConfig.csv** - Network configuration
+- **RecentErrors.csv** - Recent system errors
+- **CriticalServices.csv** - Service status
+- **WindowsUpdates.csv** - Update history
+- **README.txt** - Package summary
+- **collection_log.txt** - Collection process log
+- Optional: **ZIP file** for easy email sharing
+
+**Use Cases:**
+- Remote troubleshooting preparation
+- Pre-service system documentation
+- Hardware inventory
+- Health check reports
+- Client system documentation
+- Issue diagnosis preparation
 
 ---
 
@@ -254,10 +320,13 @@ Soulitek-AIO/
 ├── printer_spooler_fix.ps1         # Printer spooler troubleshooting
 ├── wifi_password_viewer.ps1        # WiFi password recovery
 ├── EventLogAnalyzer.ps1            # Event log analysis tool
+├── remote_support_toolkit.ps1      # Remote support diagnostics (NEW!)
 ├── README.md                       # This file
 ├── TODO.md                         # Task tracking and roadmap
+├── CONTRIBUTING.md                 # Contribution guidelines
 ├── LICENSE                         # License information
-└── .gitignore                      # Git ignore rules
+├── .gitignore                      # Git ignore rules
+└── .gitattributes                  # Git file handling
 ```
 
 ---
@@ -350,7 +419,7 @@ See [TODO.md](TODO.md) for detailed task tracking and upcoming features.
 - [ ] Network diagnostics tool
 - [ ] Disk health analyzer
 - [ ] System cleanup utility
-- [ ] Remote support toolkit
+- [x] Remote support toolkit ✅ **COMPLETED!**
 - [ ] Unified GUI launcher
 
 ---
@@ -385,7 +454,7 @@ SouliTEK provides comprehensive IT services including:
 
 ### Contact:
 - **Website:** [https://soulitek.co.il](https://soulitek.co.il)
-- **Email:** contact@soulitek.co.il
+- **Email:** letstalk@soulitek.co.il
 - **Support:** Available for Israeli businesses
 - **Language:** Hebrew & English support
 
