@@ -168,30 +168,21 @@ Write-Host "  1. Use the desktop shortcut: 'SouliTEK Launcher'" -ForegroundColor
 Write-Host "  2. Run from: $InstallPath\SouliTEK-Launcher.ps1" -ForegroundColor Gray
 Write-Host ""
 
-# Ask to launch
-Write-Host "Would you like to launch the GUI now? (Y/N): " -ForegroundColor Yellow -NoNewline
-$Launch = Read-Host
+# Automatically launch the GUI
+Write-Host ""
+Write-Host "[*] Launching SouliTEK GUI..." -ForegroundColor Cyan
+Start-Sleep -Seconds 1
 
-if ($Launch -eq 'Y' -or $Launch -eq 'y' -or $Launch -eq '') {
-    Write-Host ""
-    Write-Host "[*] Launching SouliTEK GUI..." -ForegroundColor Cyan
-    Start-Sleep -Seconds 1
-    
-    # Launch the GUI
-    $LauncherScript = Join-Path $InstallPath "SouliTEK-Launcher.ps1"
-    
-    if ($isAdmin) {
-        # Run directly if already admin
-        & $LauncherScript
-    }
-    else {
-        # Run without elevation (user can elevate from GUI if needed)
-        Start-Process -FilePath "powershell.exe" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$LauncherScript`""
-    }
+# Launch the GUI
+$LauncherScript = Join-Path $InstallPath "SouliTEK-Launcher.ps1"
+
+if ($isAdmin) {
+    # Run directly if already admin
+    & $LauncherScript
 }
 else {
-    Write-Host ""
-    Write-Host "To launch later, run: $InstallPath\SouliTEK-Launcher.ps1" -ForegroundColor Cyan
+    # Run without elevation (user can elevate from GUI if needed)
+    Start-Process -FilePath "powershell.exe" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$LauncherScript`""
 }
 
 Write-Host ""
