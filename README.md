@@ -205,8 +205,8 @@ Advanced Windows Event Log analysis tool with statistical summaries.
 
 1. **Download or Clone Repository**
 ```powershell
-git clone https://github.com/YourUsername/Soulitek-AIO.git
-cd Soulitek-AIO
+git clone https://github.com/Soulitek/Soulitek-All-In-One-Scripts.git
+cd Soulitek-All-In-One-Scripts
 ```
 
 2. **Set Execution Policy** (if needed)
@@ -405,7 +405,7 @@ SouliTEK provides comprehensive IT services including:
 ### Getting Help:
 1. Check script's built-in Help menu
 2. Review verbose logs in `%TEMP%\SouliTEK-Scripts\`
-3. Search [Issues](https://github.com/YourUsername/Soulitek-AIO/issues) for similar problems
+3. Search [Issues](https://github.com/Soulitek/Soulitek-All-In-One-Scripts/issues) for similar problems
 4. Open a new issue with:
    - Script name and version
    - Windows version
@@ -423,6 +423,7 @@ For enterprise support and custom script development, contact SouliTEK directly.
 
 *Empowering IT professionals with better tools*
 
+[![GitHub](https://img.shields.io/badge/GitHub-Soulitek-black?style=for-the-badge&logo=github)](https://github.com/Soulitek/Soulitek-All-In-One-Scripts)
 [![Website](https://img.shields.io/badge/Website-soulitek.co.il-blue?style=for-the-badge)](https://soulitek.co.il)
 [![PowerShell](https://img.shields.io/badge/PowerShell-Powered-blue?style=for-the-badge&logo=powershell)](https://docs.microsoft.com/powershell/)
 
