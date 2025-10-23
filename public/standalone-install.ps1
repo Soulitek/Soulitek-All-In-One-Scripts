@@ -1,17 +1,9 @@
 # ============================================================
-# SouliTEK All-In-One Scripts - Quick Installer
+# SouliTEK All-In-One Scripts - Standalone Installer
 # ============================================================
 # 
-# Run this script directly from URL:
-# iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1 | iex
-# 
-# Or with short URL (if configured):
-# iwr -useb bit.ly/soulitek-install | iex
-#
-# This script will:
-# 1. Download the latest version from GitHub
-# 2. Extract to C:\SouliTEK
-# 3. Launch the GUI
+# This is a self-contained installer that doesn't require
+# downloading additional files from GitHub.
 # 
 # ============================================================
 
@@ -35,17 +27,15 @@ Write-Host " \___ \ / _ \| | | | | | | | |  _| | ' / " -ForegroundColor Cyan
 Write-Host "  ___) | (_) | |_| | | | | | | |___| . \ " -ForegroundColor Cyan
 Write-Host " |____/ \___/ \__,_|_|_| |_| |_____|_|\_\" -ForegroundColor Cyan
 Write-Host "" -ForegroundColor Cyan
-Write-Host "     All-In-One Scripts - Quick Installer" -ForegroundColor White
+Write-Host "     All-In-One Scripts - Standalone Installer" -ForegroundColor White
 Write-Host "     https://soulitek.co.il" -ForegroundColor Gray
 Write-Host "============================================================" -ForegroundColor Cyan
 Write-Host ""
 
 # Configuration
 $InstallPath = "C:\SouliTEK"
-$TempDir = Join-Path $env:TEMP "SouliTEK-Install"
 
 Write-Host "Debug: Install Path: $InstallPath" -ForegroundColor Yellow
-Write-Host "Debug: Temp Directory: $TempDir" -ForegroundColor Yellow
 
 # Check admin privileges
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
@@ -58,27 +48,26 @@ if (-not $isAdmin) {
     Write-Host ""
 }
 
-# Step 1: Create installation files
-Write-Host "[1/4] Preparing installation files..." -ForegroundColor Cyan
-
+# Step 1: Create installation directory
+Write-Host "[1/3] Creating installation directory..." -ForegroundColor Cyan
 try {
-    # Create temp directory
-    if (Test-Path $TempDir) {
-        Remove-Item -Path $TempDir -Recurse -Force
+    # Remove old installation if exists
+    if (Test-Path $InstallPath) {
+        Write-Host "      [i] Removing old installation..." -ForegroundColor Yellow
+        Remove-Item -Path $InstallPath -Recurse -Force
     }
-    New-Item -ItemType Directory -Path $TempDir -Force | Out-Null
     
-    # Create the directory structure
+    # Create directory structure
     $dirs = @(
-        "launcher",
-        "scripts", 
-        "assets\images",
-        "docs"
+        $InstallPath,
+        "$InstallPath\launcher",
+        "$InstallPath\scripts", 
+        "$InstallPath\assets\images",
+        "$InstallPath\docs"
     )
     
     foreach ($dir in $dirs) {
-        $fullPath = Join-Path $TempDir $dir
-        New-Item -ItemType Directory -Path $fullPath -Force | Out-Null
+        New-Item -ItemType Directory -Path $dir -Force | Out-Null
     }
     
     Write-Host "      [+] Directory structure created" -ForegroundColor Green
@@ -88,81 +77,41 @@ catch {
     exit 1
 }
 
-# Step 2: Copy files from current directory
-Write-Host "[2/4] Copying files..." -ForegroundColor Cyan
+# Step 2: Create basic launcher
+Write-Host "[2/3] Creating launcher..." -ForegroundColor Cyan
 try {
-    # Get the directory where this script is running from
-    $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-    
-    # Copy launcher
-    $launcherSource = Join-Path $ScriptDir "launcher\SouliTEK-Launcher.ps1"
-    $launcherDest = Join-Path $TempDir "launcher\SouliTEK-Launcher.ps1"
-    if (Test-Path $launcherSource) {
-        Copy-Item -Path $launcherSource -Destination $launcherDest -Force
-    }
-    
-    # Copy scripts
-    $scriptsSource = Join-Path $ScriptDir "scripts"
-    $scriptsDest = Join-Path $TempDir "scripts"
-    if (Test-Path $scriptsSource) {
-        Copy-Item -Path "$scriptsSource\*" -Destination $scriptsDest -Recurse -Force
-    }
-    
-    # Copy assets
-    $assetsSource = Join-Path $ScriptDir "assets"
-    $assetsDest = Join-Path $TempDir "assets"
-    if (Test-Path $assetsSource) {
-        Copy-Item -Path "$assetsSource\*" -Destination $assetsDest -Recurse -Force
-    }
-    
-    # Copy docs
-    $docsSource = Join-Path $ScriptDir "docs"
-    $docsDest = Join-Path $TempDir "docs"
-    if (Test-Path $docsSource) {
-        Copy-Item -Path "$docsSource\*" -Destination $docsDest -Recurse -Force
-    }
-    
-    # Copy main launcher wrapper
-    $mainLauncherSource = Join-Path $ScriptDir "SouliTEK-Launcher.ps1"
-    $mainLauncherDest = Join-Path $TempDir "SouliTEK-Launcher.ps1"
-    if (Test-Path $mainLauncherSource) {
-        Copy-Item -Path $mainLauncherSource -Destination $mainLauncherDest -Force
-    }
-    
-    Write-Host "      [+] Files copied successfully" -ForegroundColor Green
+    # Create a simple launcher that downloads the full version
+    $launcherContent = @'
+# ============================================================
+# SouliTEK All-In-One Scripts - Launcher
+# ============================================================
+
+Write-Host "SouliTEK All-In-One Scripts" -ForegroundColor Cyan
+Write-Host "Downloading full version..." -ForegroundColor Yellow
+
+# Download and run the full installer
+try {
+    Invoke-WebRequest -Uri "https://get.soulitek.co.il" -UseBasicParsing | Invoke-Expression
 }
 catch {
-    Write-Host "      [!] File copy failed: $_" -ForegroundColor Red
+    Write-Host "Failed to download installer: $_" -ForegroundColor Red
+    Write-Host "Please check your internet connection and try again." -ForegroundColor Yellow
+    Read-Host "Press Enter to exit"
+}
+'@
+    
+    $launcherPath = Join-Path $InstallPath "SouliTEK-Launcher.ps1"
+    $launcherContent | Out-File -FilePath $launcherPath -Encoding UTF8
+    
+    Write-Host "      [+] Launcher created" -ForegroundColor Green
+}
+catch {
+    Write-Host "      [!] Failed to create launcher: $_" -ForegroundColor Red
     exit 1
 }
 
-# Step 3: Install to destination
-Write-Host "[3/4] Installing to $InstallPath..." -ForegroundColor Cyan
-try {
-    # Remove old installation if exists
-    if (Test-Path $InstallPath) {
-        Write-Host "      [i] Removing old installation..." -ForegroundColor Yellow
-        Remove-Item -Path $InstallPath -Recurse -Force
-    }
-    
-    # Create parent directory if needed
-    $ParentPath = Split-Path -Parent $InstallPath
-    if (-not (Test-Path $ParentPath)) {
-        New-Item -ItemType Directory -Path $ParentPath -Force | Out-Null
-    }
-    
-    # Copy files to installation directory
-    Copy-Item -Path $TempDir -Destination $InstallPath -Recurse -Force
-    
-    Write-Host "      [+] Installed successfully" -ForegroundColor Green
-}
-catch {
-    Write-Host "      [!] Installation failed: $_" -ForegroundColor Red
-    exit 1
-}
-
-# Step 4: Create shortcuts
-Write-Host "[4/4] Creating shortcuts..." -ForegroundColor Cyan
+# Step 3: Create shortcuts
+Write-Host "[3/3] Creating shortcuts..." -ForegroundColor Cyan
 try {
     $WScriptShell = New-Object -ComObject WScript.Shell
     
@@ -174,13 +123,6 @@ try {
     $Shortcut.Arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$InstallPath\SouliTEK-Launcher.ps1`""
     $Shortcut.WorkingDirectory = $InstallPath
     $Shortcut.Description = "SouliTEK All-In-One Scripts Launcher"
-    
-    # Set icon if available
-    $IconPath = Join-Path $InstallPath "assets\images\Favicon.png"
-    if (Test-Path $IconPath) {
-        $Shortcut.IconLocation = $IconPath
-    }
-    
     $Shortcut.Save()
     
     Write-Host "      [+] Desktop shortcut created" -ForegroundColor Green
@@ -189,11 +131,6 @@ catch {
     Write-Host "      [!] Shortcut creation failed: $_" -ForegroundColor Yellow
     Write-Host "      You can still run the launcher from: $InstallPath\SouliTEK-Launcher.ps1" -ForegroundColor Yellow
 }
-
-# Clean up
-Write-Host ""
-Write-Host "[i] Cleaning up temporary files..." -ForegroundColor Cyan
-Remove-Item -Path $TempDir -Recurse -Force -ErrorAction SilentlyContinue
 
 # Success message
 Write-Host ""
@@ -237,4 +174,3 @@ if ($Error.Count -gt 0) {
     Write-Host "Errors occurred during installation. Press any key to exit..." -ForegroundColor Red
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
-
