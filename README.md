@@ -78,10 +78,13 @@ Soulitek-All-In-One-Scripts/
 
 ## 💡 Features
 
-### GUI Launcher
+### Modern WPF GUI Launcher (v2.0) 🎨
+- ✨ **Material Design UI** - Professional gradient backgrounds and shadows
+- 🎯 **Modern Interface** - Hardware-accelerated graphics with smooth animations
 - 🔍 **Search-First UX** - Type to instantly filter tools
 - 🏷️ **Category Filtering** - 7 color-coded categories (Network, Security, Support, etc.)
-- ✅ Modern GUI with rounded buttons
+- 🎨 **Beautiful Cards** - Rounded, color-coded tool cards with hover effects
+- ⚡ **Fast & Responsive** - DirectX rendering for smooth performance
 - ✅ One-click tool launching
 - ✅ Real-time filtering and smart search
 - ✅ Administrator checks
@@ -96,6 +99,8 @@ Soulitek-All-In-One-Scripts/
 
 ## 📖 Documentation
 
+- **[WPF Launcher Quick Start](docs/WPF_QUICK_START.md)** - Get started with the modern GUI in 30 seconds
+- **[WPF Launcher Guide](docs/WPF_LAUNCHER_GUIDE.md)** - Complete WPF documentation and customization
 - **[Quick Install Guide](docs/QUICK_INSTALL.md)** - One-line installation & URL setup
 - **[Quick Reference](QUICK_REFERENCE.md)** - Fast lookup guide
 - **[Project Structure](PROJECT_STRUCTURE.md)** - Detailed folder info
