@@ -14,7 +14,17 @@ The following file has been created for you:
 ## 🎯 Your Install Command (After Setup)
 
 ```powershell
-iwr -useb get.soulitek.co.il | iex
+# Method 1: Direct GitHub URL (recommended - no redirect issues)
+iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1 | iex
+
+# Method 2: Custom domain with redirect handling (if you prefer branded URL)
+$response = iwr -useb get.soulitek.co.il -MaximumRedirection 0 -ErrorAction SilentlyContinue
+if ($response.StatusCode -eq 308) {
+    $redirectUri = $response.Headers['Location']
+    iwr -useb $redirectUri | iex
+} else {
+    $response.Content | iex
+}
 ```
 
 ---

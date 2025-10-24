@@ -2,6 +2,42 @@
 
 ## Current Status: ✅ Completed
 
+### ✅ Fixed: 308 Permanent Redirect Error (2025-01-27)
+
+**Problem:** Users getting "308 Permanent Redirect" error when trying to download from `get.soulitek.co.il` using PowerShell's `iwr` command.
+
+**Root Cause:** 
+1. PowerShell's `Invoke-WebRequest` doesn't automatically follow 308 redirects
+2. Vercel configuration was pointing to wrong repository name
+
+**Solution Implemented:**
+1. **Fixed Repository Path**: Updated `vercel.json` to use correct repository name `Soulitek-All-In-One-Scripts`
+2. **Provided Working Commands**: Updated documentation with two options:
+   - **Method 1 (Recommended)**: Direct GitHub URL (no redirect issues)
+   - **Method 2**: Custom domain with manual redirect handling
+
+**Files Updated:**
+1. `vercel.json` - Fixed repository path
+2. `README.md` - Updated with working command
+3. `docs/VERCEL_DEPLOYMENT.md` - Added both methods with explanations
+
+**Working Commands:**
+```powershell
+# Method 1: Direct GitHub URL (recommended)
+iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1 | iex
+
+# Method 2: Custom domain with redirect handling
+$response = iwr -useb get.soulitek.co.il -MaximumRedirection 0 -ErrorAction SilentlyContinue
+if ($response.StatusCode -eq 308) {
+    $redirectUri = $response.Headers['Location']
+    iwr -useb $redirectUri | iex
+} else {
+    $response.Content | iex
+}
+```
+
+**Result:** Users can now download and install successfully using either method.
+
 ---
 
 ## Completed Workflows

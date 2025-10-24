@@ -19,16 +19,24 @@
 ### ⚡ One-Line Install (New PC)
 
 ```powershell
-iwr -useb get.soulitek.co.il | iex
+# Recommended: Direct GitHub URL (no redirect issues)
+iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1 | iex
 ```
 
 **Perfect for new PCs!** Just open PowerShell, paste the command, and start working. 🎉
 
 <details>
-<summary>Alternative: Direct GitHub URL</summary>
+<summary>Alternative: Custom Domain (if you prefer branded URL)</summary>
 
 ```powershell
-iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1 | iex
+# Custom domain with redirect handling
+$response = iwr -useb get.soulitek.co.il -MaximumRedirection 0 -ErrorAction SilentlyContinue
+if ($response.StatusCode -eq 308) {
+    $redirectUri = $response.Headers['Location']
+    iwr -useb $redirectUri | iex
+} else {
+    $response.Content | iex
+}
 ```
 </details>
 
