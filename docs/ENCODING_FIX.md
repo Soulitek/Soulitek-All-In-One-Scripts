@@ -10,7 +10,7 @@ When launching the Remote Support Toolkit from the GUI launcher, two issues were
 ## Error Message
 
 ```
-At C:\Users\Eitan\Soulitek-AIO\scripts\remote_support_toolkit.ps1:825 char:43
+At C:\Users\Eitan\Soulitek-All-In-One-Scripts\scripts\remote_support_toolkit.ps1:825 char:43
 +     Write-Host "ג" System Information (OS, CPU, RAM, Serial)" -Foreg ...
 +                                           ~
 Missing argument in parameter list.

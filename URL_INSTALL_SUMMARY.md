@@ -10,7 +10,7 @@ You can now install SouliTEK on any PC with just one PowerShell command:
 
 **GitHub URL:**
 ```powershell
-iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1 | iex
 ```
 
 **Custom Domain (Recommended):**
@@ -73,7 +73,7 @@ Pre-deployment guide with:
 
 ### Step 1: Verify Repository Name
 
-Your installer is configured for: `Soulitek/Soulitek-AIO`
+Your installer is configured for: `Soulitek/Soulitek-All-In-One-Scripts`
 
 **Check your actual repo name:**
 ```powershell
@@ -99,7 +99,7 @@ git push origin main
 
 On any PC, open PowerShell and run:
 ```powershell
-iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1 | iex
 ```
 
 Verify:
@@ -115,7 +115,7 @@ Make it easier to remember:
 
 **Using bit.ly:**
 1. Go to https://bit.ly
-2. Paste: `https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1`
+2. Paste: `https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1`
 3. Custom name: `soulitek-install`
 4. Result: Users can run: `iwr -useb bit.ly/soulitek-install | iex`
 
@@ -376,7 +376,7 @@ If you have questions about the installer:
 Remember, this is all your users need:
 
 ```powershell
-iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1 | iex
 ```
 
 Simple. Fast. Professional. 💪

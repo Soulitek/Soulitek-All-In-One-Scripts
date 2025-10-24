@@ -11,7 +11,7 @@ This guide explains how to install and run SouliTEK All-In-One Scripts directly 
 Open PowerShell and run:
 
 ```powershell
-iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1 | iex
 ```
 
 That's it! The script will:
@@ -58,7 +58,7 @@ C:\SouliTEK\
 
 **PowerShell:**
 ```powershell
-iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1 | iex
 ```
 
 **Breakdown:**
@@ -72,7 +72,7 @@ If you prefer to review the script first:
 
 ```powershell
 # Download
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1" -OutFile "$env:TEMP\Install-SouliTEK.ps1"
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1" -OutFile "$env:TEMP\Install-SouliTEK.ps1"
 
 # Review (optional)
 notepad "$env:TEMP\Install-SouliTEK.ps1"
@@ -83,7 +83,7 @@ notepad "$env:TEMP\Install-SouliTEK.ps1"
 
 ### Method 3: Manual Installation
 
-1. Download ZIP from GitHub: https://github.com/Soulitek/Soulitek-AIO/archive/refs/heads/main.zip
+1. Download ZIP from GitHub: https://github.com/Soulitek/Soulitek-All-In-One-Scripts/archive/refs/heads/main.zip
 2. Extract to `C:\SouliTEK`
 3. Run `C:\SouliTEK\SouliTEK-Launcher.ps1`
 
@@ -95,21 +95,21 @@ notepad "$env:TEMP\Install-SouliTEK.ps1"
 
 ```powershell
 # Just got a new PC? One command and you're ready!
-iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1 | iex
 ```
 
 ### Scenario 2: Remote Support Session
 
 ```powershell
 # Customer needs help? Install instantly during remote session
-iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1 | iex
 ```
 
 ### Scenario 3: Update to Latest Version
 
 ```powershell
 # Run the installer again - it will remove old version and install latest
-iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1 | iex
 ```
 
 ---
@@ -154,7 +154,7 @@ The installer handles execution policy automatically:
 ### GitHub Raw URL (Primary)
 
 ```
-https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1
+https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1
 ```
 
 ### Short URL Option
@@ -188,7 +188,7 @@ If you fork the repository:
 
 ```powershell
 $RepoOwner = "Soulitek"               # Your GitHub username
-$RepoName = "Soulitek-AIO"            # Your repo name
+$RepoName = "Soulitek-All-In-One-Scripts"            # Your repo name
 $Branch = "main"                       # Branch to install from
 ```
 
@@ -217,7 +217,7 @@ $Launch = $false  # Don't auto-launch
 
 ```powershell
 # Simply run the installer again
-iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1 | iex
 ```
 
 The installer will:
@@ -342,8 +342,8 @@ $InstallPath = "$env:USERPROFILE\SouliTEK"
 **Need Help?**
 - 🌐 Website: https://soulitek.co.il
 - 📧 Email: letstalk@soulitek.co.il
-- 💻 GitHub: https://github.com/Soulitek/Soulitek-AIO
-- 📖 Documentation: https://github.com/Soulitek/Soulitek-AIO/tree/main/docs
+- 💻 GitHub: https://github.com/Soulitek/Soulitek-All-In-One-Scripts
+- 📖 Documentation: https://github.com/Soulitek/Soulitek-All-In-One-Scripts/tree/main/docs
 
 ---
 

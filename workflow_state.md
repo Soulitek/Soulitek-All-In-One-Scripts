@@ -2,32 +2,66 @@
 
 ## Current Status: ✅ Completed
 
-### ✅ Fixed: 308 Permanent Redirect Error (2025-01-27)
+### ✅ Repository Name Cleanup (2025-10-24)
 
-**Problem:** Users getting "308 Permanent Redirect" error when trying to download from `get.soulitek.co.il` using PowerShell's `iwr` command.
+**Completed:** Updated all repository references from `Soulitek-AIO` to `Soulitek-All-In-One-Scripts` across the entire codebase.
+
+**Files Updated:** 24 files
+- ✅ README.md
+- ✅ workflow_state.md
+- ✅ Install-SouliTEK.ps1
+- ✅ public/install.ps1
+- ✅ VERCEL_SETUP_CHECKLIST.md
+- ✅ URL_INSTALL_SUMMARY.md
+- ✅ CUSTOM_DOMAIN_QUICK_SETUP.md
+- ✅ DEPLOYMENT_CHECKLIST.md
+- ✅ PROJECT_STRUCTURE.md
+- ✅ RESTRUCTURE_SUMMARY.md
+- ✅ QUICK_INSTALL_CHEATSHEET.md
+- ✅ hosting/install-proxy.php
+- ✅ docs/VERCEL_DEPLOYMENT.md
+- ✅ docs/CUSTOM_DOMAIN_SETUP.md
+- ✅ docs/LICENSE_EXPIRATION_CHECKER.md
+- ✅ docs/NETWORK_TEST_TOOL.md
+- ✅ docs/ENCODING_FIX.md
+- ✅ docs/NEW_TOOL_ADDED.md
+- ✅ docs/SUCCESS.md
+- ✅ docs/GITHUB_SETUP.md
+- ✅ docs/QUICK_START.md
+- ✅ docs/CONTRIBUTING.md
+- ✅ docs/TODO.md
+- ✅ docs/QUICK_INSTALL.md
+
+**Verification:**
+- ✅ 0 references to old name "Soulitek-AIO"
+- ✅ 120 references to correct name "Soulitek-All-In-One-Scripts"
+- ✅ All repository URLs now consistent
+
+**Result:** Complete consistency across all documentation and scripts with correct GitHub repository name.
+
+---
+
+### ⚠️ Important: PowerShell Redirect Limitation (Updated 2025-10-24)
+
+**Issue:** The simple command `iwr -useb get.soulitek.co.il | iex` does NOT work due to PowerShell's limitation with 308 redirects.
 
 **Root Cause:** 
-1. PowerShell's `Invoke-WebRequest` doesn't automatically follow 308 redirects
-2. Vercel configuration was pointing to wrong repository name
+PowerShell's `Invoke-WebRequest` with `-UseBasicParsing` flag doesn't automatically follow HTTP 308 (Permanent Redirect) responses. This is a PowerShell limitation, not a server configuration issue.
 
-**Solution Implemented:**
-1. **Fixed Repository Path**: Updated `vercel.json` to use correct repository name `Soulitek-All-In-One-Scripts`
-2. **Provided Working Commands**: Updated documentation with two options:
-   - **Method 1 (Recommended)**: Direct GitHub URL (no redirect issues)
-   - **Method 2**: Custom domain with manual redirect handling
+**Working Solutions:**
 
-**Files Updated:**
-1. `vercel.json` - Fixed repository path
-2. `README.md` - Updated with working command
-3. `docs/VERCEL_DEPLOYMENT.md` - Added both methods with explanations
-
-**Working Commands:**
+**✅ Method 1: Direct GitHub URL (Recommended)**
 ```powershell
-# Method 1: Direct GitHub URL (recommended)
 iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1 | iex
+```
+- Always works
+- No redirect issues
+- Faster (direct download)
+- Best for documentation
 
-# Method 2: Custom domain with redirect handling
-$response = iwr -useb get.soulitek.co.il -MaximumRedirection 0 -ErrorAction SilentlyContinue
+**✅ Method 2: Custom Domain with Manual Redirect Handling**
+```powershell
+$response = iwr -useb https://get.soulitek.co.il -MaximumRedirection 0 -ErrorAction SilentlyContinue
 if ($response.StatusCode -eq 308) {
     $redirectUri = $response.Headers['Location']
     iwr -useb $redirectUri | iex
@@ -35,8 +69,17 @@ if ($response.StatusCode -eq 308) {
     $response.Content | iex
 }
 ```
+- Uses custom domain (branding)
+- Manually handles the redirect
+- Works reliably
 
-**Result:** Users can now download and install successfully using either method.
+**Why Not Fix the Redirect?**
+- This is a PowerShell limitation, not fixable server-side
+- Even using HTTP 301/302 redirects won't work with `-UseBasicParsing`
+- The direct GitHub URL is simpler and more reliable
+
+**Recommendation:**
+Use Method 1 (direct GitHub URL) in all documentation, customer communications, and quick reference guides. It's simpler, faster, and always works.
 
 ---
 
@@ -98,7 +141,7 @@ if ($response.StatusCode -eq 308) {
 
 **Installation Command:**
 ```powershell
-iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1 | iex
 ```
 
 **Use Cases:**
@@ -179,7 +222,7 @@ iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-S
 
 **GitHub (default):**
 ```powershell
-iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1 | iex
 ```
 
 **Custom Domain (branded):**

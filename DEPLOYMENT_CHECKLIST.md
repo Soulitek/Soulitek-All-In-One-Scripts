@@ -9,13 +9,13 @@ This checklist ensures the URL-based installation works correctly.
 ### 1. Verify Repository Name
 
 The installer is currently configured for:
-- **Repository:** `Soulitek/Soulitek-AIO`
+- **Repository:** `Soulitek/Soulitek-All-In-One-Scripts`
 - **Branch:** `main`
 
 **Action Required:**
 - If your GitHub repo has a different name, update line 36 in `Install-SouliTEK.ps1`:
   ```powershell
-  $RepoName = "Soulitek-AIO"  # Change to your actual repo name
+  $RepoName = "Soulitek-All-In-One-Scripts"  # Change to your actual repo name
   ```
 
 ### 2. Commit All Changes
@@ -43,7 +43,7 @@ git push origin main
 
 2. Run the install command:
    ```powershell
-   iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1 | iex
+   iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1 | iex
    ```
 
 3. Verify it:
@@ -72,7 +72,7 @@ git remote -v
 ```
 
 This will show you the URL. For example:
-- `https://github.com/Soulitek/Soulitek-AIO.git` → Repo name is `Soulitek-AIO`
+- `https://github.com/Soulitek/Soulitek-All-In-One-Scripts.git` → Repo name is `Soulitek-All-In-One-Scripts`
 - `https://github.com/Soulitek/Soulitek-All-In-One-Scripts.git` → Repo name is `Soulitek-All-In-One-Scripts`
 
 **Update the installer accordingly!**
@@ -88,7 +88,7 @@ Make it easier to type by creating short URLs:
 1. Go to https://bit.ly
 2. Sign in or create account
 3. Create new link:
-   - **Long URL:** `https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1`
+   - **Long URL:** `https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1`
    - **Custom name:** `soulitek-install`
 4. Result: `https://bit.ly/soulitek-install`
 
@@ -108,7 +108,7 @@ iwr -useb bit.ly/soulitek-install | iex
 
 If you own `soulitek.co.il`, set up a redirect:
 - From: `https://get.soulitek.co.il/install`
-- To: `https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1`
+- To: `https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1`
 
 ---
 
@@ -134,7 +134,7 @@ Add to your:
 
 Create a browser bookmark with:
 - **Name:** "SouliTEK Install Command"
-- **URL:** `javascript:navigator.clipboard.writeText('iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1 | iex')`
+- **URL:** `javascript:navigator.clipboard.writeText('iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1 | iex')`
 
 Clicking it copies the command to clipboard!
 
@@ -148,7 +148,7 @@ Clicking it copies the command to clipboard!
 ```
 This command downloads and runs a script from our official GitHub repository.
 You can review the script first at:
-https://github.com/Soulitek/Soulitek-AIO/blob/main/Install-SouliTEK.ps1
+https://github.com/Soulitek/Soulitek-All-In-One-Scripts/blob/main/Install-SouliTEK.ps1
 
 The script will:
 1. Download our latest tools
@@ -216,7 +216,7 @@ Quick Install: bit.ly/soulitek-install
 If installation fails, check:
 
 1. **GitHub Access:**
-   - Can you access https://github.com/Soulitek/Soulitek-AIO ?
+   - Can you access https://github.com/Soulitek/Soulitek-All-In-One-Scripts ?
    - Is the repository public or private?
    - If private, users need authentication
 

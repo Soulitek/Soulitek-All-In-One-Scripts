@@ -17,7 +17,7 @@
  */
 
 // Configuration
-$githubUrl = 'https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1';
+$githubUrl = 'https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1';
 $logFile = __DIR__ . '/install-downloads.log';
 $enableLogging = true; // Set to false to disable logging
 

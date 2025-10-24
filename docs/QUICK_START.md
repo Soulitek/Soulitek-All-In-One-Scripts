@@ -2,7 +2,7 @@
 
 ## ✅ What's Been Done
 
-Your **Soulitek-AIO** project is now ready for GitHub! Here's what has been set up:
+Your **Soulitek-All-In-One-Scripts** project is now ready for GitHub! Here's what has been set up:
 
 ### 📦 Repository Initialized
 - ✅ Git repository initialized
@@ -37,7 +37,7 @@ Your **Soulitek-AIO** project is now ready for GitHub! Here's what has been set 
 
 1. **Create GitHub Repository**
    - Go to: https://github.com/new
-   - Name: `Soulitek-AIO`
+   - Name: `Soulitek-All-In-One-Scripts`
    - Description: `Professional PowerShell Tools for IT Technicians & Helpdesk Engineers`
    - Visibility: Public or Private
    - **DO NOT** initialize with README, .gitignore, or license
@@ -45,12 +45,12 @@ Your **Soulitek-AIO** project is now ready for GitHub! Here's what has been set 
 
 2. **Connect and Push** (Replace YOUR_USERNAME with your GitHub username)
    ```bash
-   git remote add origin https://github.com/YOUR_USERNAME/Soulitek-AIO.git
+   git remote add origin https://github.com/YOUR_USERNAME/Soulitek-All-In-One-Scripts.git
    git branch -M main
    git push -u origin main
    ```
 
-3. **Done!** Visit `https://github.com/YOUR_USERNAME/Soulitek-AIO`
+3. **Done!** Visit `https://github.com/YOUR_USERNAME/Soulitek-All-In-One-Scripts`
 
 ### Option 2: Detailed Instructions
 
@@ -181,7 +181,7 @@ git checkout main
 ## 🎯 Your Repository URL (after upload)
 
 ```
-https://github.com/YOUR_USERNAME/Soulitek-AIO
+https://github.com/YOUR_USERNAME/Soulitek-All-In-One-Scripts
 ```
 
 **Replace YOUR_USERNAME with your actual GitHub username!**
@@ -192,7 +192,7 @@ https://github.com/YOUR_USERNAME/Soulitek-AIO
 
 1. **Detailed Guide:** See [GITHUB_SETUP.md](GITHUB_SETUP.md)
 2. **Git Issues:** https://docs.github.com
-3. **Project Issues:** https://github.com/YOUR_USERNAME/Soulitek-AIO/issues
+3. **Project Issues:** https://github.com/YOUR_USERNAME/Soulitek-All-In-One-Scripts/issues
 4. **Contact:** contact@soulitek.co.il
 
 ---

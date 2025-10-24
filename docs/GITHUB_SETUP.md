@@ -1,4 +1,4 @@
-# 🚀 GitHub Setup Guide - Soulitek-AIO
+# 🚀 GitHub Setup Guide - Soulitek-All-In-One-Scripts
 
 This guide will walk you through uploading this project to GitHub.
 
@@ -43,7 +43,7 @@ git config --list
 
 | Setting | Value |
 |---------|-------|
-| **Repository name** | `Soulitek-AIO` |
+| **Repository name** | `Soulitek-All-In-One-Scripts` |
 | **Description** | Professional PowerShell Tools for IT Technicians & Helpdesk Engineers |
 | **Visibility** | ⚪ Public *(or)* ⚪ Private |
 | **Initialize** | ❌ Do NOT initialize with README (we already have one) |
@@ -62,7 +62,7 @@ After creating the repository, GitHub will show you instructions. Use these comm
 
 ```bash
 # Add GitHub as remote origin
-git remote add origin https://github.com/YOUR_USERNAME/Soulitek-AIO.git
+git remote add origin https://github.com/YOUR_USERNAME/Soulitek-All-In-One-Scripts.git
 
 # Verify remote was added
 git remote -v
@@ -84,7 +84,7 @@ First, set up SSH keys if you haven't:
 Then run:
 ```bash
 # Add GitHub as remote origin (SSH)
-git remote add origin git@github.com:YOUR_USERNAME/Soulitek-AIO.git
+git remote add origin git@github.com:YOUR_USERNAME/Soulitek-All-In-One-Scripts.git
 
 # Verify remote was added
 git remote -v
@@ -100,7 +100,7 @@ git push -u origin main
 
 ### Step 4: Verify Upload
 
-1. Go to your repository: `https://github.com/YOUR_USERNAME/Soulitek-AIO`
+1. Go to your repository: `https://github.com/YOUR_USERNAME/Soulitek-All-In-One-Scripts`
 2. You should see all your files including:
    - ✓ README.md
    - ✓ All PowerShell scripts
@@ -270,7 +270,7 @@ Then on GitHub:
 
 **Solution:** Update the existing remote:
 ```bash
-git remote set-url origin https://github.com/YOUR_USERNAME/Soulitek-AIO.git
+git remote set-url origin https://github.com/YOUR_USERNAME/Soulitek-All-In-One-Scripts.git
 ```
 
 ### Problem: "Failed to push some refs"
@@ -342,7 +342,7 @@ git branch -a
 git branch -d feature/new-tool
 
 # Clone repository to another computer
-git clone https://github.com/YOUR_USERNAME/Soulitek-AIO.git
+git clone https://github.com/YOUR_USERNAME/Soulitek-All-In-One-Scripts.git
 
 # Update from GitHub
 git pull
@@ -371,11 +371,11 @@ git push
 
 ## 🎉 Success!
 
-Once you've completed these steps, your Soulitek-AIO toolkit will be live on GitHub!
+Once you've completed these steps, your Soulitek-All-In-One-Scripts toolkit will be live on GitHub!
 
 **Share your repository:**
 ```
-https://github.com/YOUR_USERNAME/Soulitek-AIO
+https://github.com/YOUR_USERNAME/Soulitek-All-In-One-Scripts
 ```
 
 ### Next Steps:

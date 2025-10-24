@@ -15,7 +15,7 @@ The entire project has been reorganized into a professional, logical folder stru
 ## 📁 New Project Structure
 
 ```
-Soulitek-AIO/
+Soulitek-All-In-One-Scripts/
 │
 ├── 📁 scripts/                          # ✅ All PowerShell tool scripts
 │   ├── battery_report_generator.ps1

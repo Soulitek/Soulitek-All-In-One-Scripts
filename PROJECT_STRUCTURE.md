@@ -5,7 +5,7 @@ This document outlines the organized folder structure of the SouliTEK All-In-One
 ## 📁 Folder Structure
 
 ```
-Soulitek-AIO/
+Soulitek-All-In-One-Scripts/
 │
 ├── 📁 scripts/                          # PowerShell tool scripts
 │   ├── battery_report_generator.ps1     # Battery health analysis tool

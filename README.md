@@ -73,7 +73,7 @@ All scripts located in `./scripts/` folder.
 ## 📁 Project Structure
 
 ```
-Soulitek-AIO/
+Soulitek-All-In-One-Scripts/
 ├── scripts/          # All PowerShell tools
 ├── launcher/         # GUI launcher
 ├── docs/             # Documentation

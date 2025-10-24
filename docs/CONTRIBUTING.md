@@ -1,6 +1,6 @@
-# Contributing to Soulitek-AIO
+# Contributing to Soulitek-All-In-One-Scripts
 
-First off, thank you for considering contributing to Soulitek-AIO! It's people like you that make this toolkit a great resource for the IT community.
+First off, thank you for considering contributing to Soulitek-All-In-One-Scripts! It's people like you that make this toolkit a great resource for the IT community.
 
 ## 🎯 Code of Conduct
 
@@ -465,7 +465,7 @@ Contributors will be recognized in:
 
 ---
 
-**Thank you for contributing to Soulitek-AIO!**
+**Thank you for contributing to Soulitek-All-In-One-Scripts!**
 
 Together we're building better tools for the IT community.
 

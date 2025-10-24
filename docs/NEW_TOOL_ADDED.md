@@ -209,7 +209,7 @@ The HTML report includes:
 
 ## 🔗 Integration with Other Tools
 
-The Remote Support Toolkit complements other Soulitek-AIO tools:
+The Remote Support Toolkit complements other Soulitek-All-In-One-Scripts tools:
 
 | Tool | Integration |
 |------|-------------|

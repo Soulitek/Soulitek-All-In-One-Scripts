@@ -1,4 +1,4 @@
-# 📋 TODO - Soulitek-AIO Task Tracker
+# 📋 TODO - Soulitek-All-In-One-Scripts Task Tracker
 
 > **Last Updated:** 2025-10-23  
 > **Project Status:** Active Development
@@ -303,7 +303,7 @@
 ## 🎓 Training & Documentation
 
 ### Video Tutorials Needed
-- [ ] Getting Started with Soulitek-AIO
+- [ ] Getting Started with Soulitek-All-In-One-Scripts
 - [ ] Battery Report Generator walkthrough
 - [ ] PST Finder best practices
 - [ ] Printer troubleshooting with Spooler Fix
@@ -368,7 +368,7 @@
 
 Have an idea? We'd love to hear from you!
 
-- **GitHub Issues:** [Open an issue](https://github.com/YourUsername/Soulitek-AIO/issues)
+- **GitHub Issues:** [Open an issue](https://github.com/YourUsername/Soulitek-All-In-One-Scripts/issues)
 - **Email:** contact@soulitek.co.il
 - **Website:** https://soulitek.co.il
 

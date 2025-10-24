@@ -42,7 +42,7 @@ https://github.com/Soulitek/Soulitek-All-In-One-Scripts
 - ✅ `UPLOAD_NOW.txt` - Upload guide
 
 ### **Total Commits: 5**
-1. Initial commit: Soulitek-AIO PowerShell Toolkit
+1. Initial commit: Soulitek-All-In-One-Scripts PowerShell Toolkit
 2. docs: Add GitHub setup guide for repository upload
 3. docs: Add quick start guide for immediate GitHub upload
 4. docs: Add visual upload instructions

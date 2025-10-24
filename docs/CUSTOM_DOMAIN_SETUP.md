@@ -8,7 +8,7 @@ This guide shows you how to host the SouliTEK installer on your own domain: **so
 
 Instead of:
 ```powershell
-iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1 | iex
 ```
 
 Users will run:
@@ -89,19 +89,19 @@ Redirect a short URL to the GitHub raw file.
    - Go to cPanel → Domains → Redirects
    - Type: Permanent (301)
    - From: `https://get.soulitek.co.il`
-   - To: `https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1`
+   - To: `https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1`
 
    **Using .htaccess:**
    ```apache
    RewriteEngine On
-   RewriteRule ^$ https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1 [L,R=301]
+   RewriteRule ^$ https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1 [L,R=301]
    ```
 
    **Using Nginx:**
    ```nginx
    server {
        server_name get.soulitek.co.il;
-       return 301 https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1;
+       return 301 https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1;
    }
    ```
 
@@ -130,7 +130,7 @@ addEventListener('fetch', event => {
 
 async function handleRequest(request) {
   // Fetch the script from GitHub
-  const githubUrl = 'https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1'
+  const githubUrl = 'https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1'
   
   const response = await fetch(githubUrl, {
     cf: {
@@ -175,7 +175,7 @@ header('Content-Type: text/plain; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 
 // Fetch from GitHub
-$url = 'https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1';
+$url = 'https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1';
 $script = file_get_contents($url);
 
 // Log download (optional)
@@ -247,7 +247,7 @@ Pick one:
 2. Go to "Domains" → "Redirects"
 3. Add redirect:
    - From: Your chosen URL
-   - To: `https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1`
+   - To: `https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1`
    - Type: Permanent (301)
 
 **Using .htaccess (if subdomain doesn't exist):**
@@ -255,7 +255,7 @@ Pick one:
 2. Create `.htaccess`:
 ```apache
 RewriteEngine On
-RewriteRule ^$ https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1 [L,R=301]
+RewriteRule ^$ https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1 [L,R=301]
 ```
 
 ### Step 3: Test It

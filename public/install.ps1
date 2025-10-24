@@ -3,7 +3,7 @@
 # ============================================================
 # 
 # Run this script directly from URL:
-# iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1 | iex
+# iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1 | iex
 # 
 # Or with short URL (if configured):
 # iwr -useb bit.ly/soulitek-install | iex

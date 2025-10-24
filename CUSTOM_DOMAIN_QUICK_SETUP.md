@@ -26,7 +26,7 @@ In your hosting cPanel:
 1. Go to **Domains** → **Redirects**
 2. Type: **Permanent (301)**
 3. From: `https://get.soulitek.co.il`
-4. To: `https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1`
+4. To: `https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1`
 5. Click "Add"
 
 **Option B: Using .htaccess**

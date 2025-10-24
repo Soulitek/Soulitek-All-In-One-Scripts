@@ -4,14 +4,27 @@
 
 ## One-Line Installation
 
+**✅ Recommended (Direct GitHub - Always Works):**
 ```powershell
-iwr -useb get.soulitek.co.il | iex
+iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1 | iex
 ```
 
-**Alternative (GitHub direct):**
+<details>
+<summary>📌 Alternative: Custom Domain with Redirect Handling</summary>
+
+**⚠️ Note:** The simple command `iwr -useb get.soulitek.co.il | iex` does NOT work due to PowerShell's 308 redirect limitation.
+
+Use this instead if you prefer the custom domain:
 ```powershell
-iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1 | iex
+$response = iwr -useb https://get.soulitek.co.il -MaximumRedirection 0 -ErrorAction SilentlyContinue
+if ($response.StatusCode -eq 308) {
+    $redirectUri = $response.Headers['Location']
+    iwr -useb $redirectUri | iex
+} else {
+    $response.Content | iex
+}
 ```
+</details>
 
 ---
 
@@ -66,7 +79,7 @@ Simply run the install command again - it will update to the latest version auto
 
 - 🌐 Website: https://soulitek.co.il
 - 📧 Email: letstalk@soulitek.co.il
-- 💻 GitHub: https://github.com/Soulitek/Soulitek-AIO
+- 💻 GitHub: https://github.com/Soulitek/Soulitek-All-In-One-Scripts
 - 📖 Full Guide: [QUICK_INSTALL.md](docs/QUICK_INSTALL.md)
 
 ---

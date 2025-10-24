@@ -30,7 +30,7 @@ git push origin main
 1. Go to: **https://vercel.com**
 2. Click: **"Sign Up"** → **"Continue with GitHub"**
 3. Click: **"Add New..."** → **"Project"**
-4. Find: **`Soulitek-AIO`** → Click **"Import"**
+4. Find: **`Soulitek-All-In-One-Scripts`** → Click **"Import"**
 5. Click: **"Deploy"** (use all default settings)
 6. Wait 30 seconds ✅
 

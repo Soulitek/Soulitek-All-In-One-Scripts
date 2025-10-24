@@ -111,7 +111,7 @@ The **Network Test Tool** is a comprehensive PowerShell-based utility for testin
 
 **Option 1: Direct Execution**
 ```powershell
-cd C:\Users\Eitan\Soulitek-AIO\scripts
+cd C:\Users\Eitan\Soulitek-All-In-One-Scripts\scripts
 .\network_test_tool.ps1
 ```
 

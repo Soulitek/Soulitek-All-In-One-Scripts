@@ -4,21 +4,36 @@ This guide shows you how to deploy the SouliTEK installer on Vercel with your cu
 
 ---
 
-## ✅ What's Already Done
+## ⚠️ IMPORTANT: PowerShell Redirect Limitation
 
-The following file has been created for you:
-- ✅ `vercel.json` - Vercel configuration with redirect setup
+**The simple command `iwr -useb get.soulitek.co.il | iex` does NOT work!**
+
+PowerShell's `Invoke-WebRequest` with `-UseBasicParsing` flag cannot automatically follow HTTP 308 redirects. This is a PowerShell limitation that cannot be fixed server-side.
+
+**Use one of these working methods instead:**
 
 ---
 
-## 🎯 Your Install Command (After Setup)
+## ✅ Working Installation Commands
+
+### **Method 1: Direct GitHub URL (Recommended)**
 
 ```powershell
-# Method 1: Direct GitHub URL (recommended - no redirect issues)
 iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1 | iex
+```
 
-# Method 2: Custom domain with redirect handling (if you prefer branded URL)
-$response = iwr -useb get.soulitek.co.il -MaximumRedirection 0 -ErrorAction SilentlyContinue
+**Advantages:**
+- ✅ Always works (no redirect issues)
+- ✅ Faster (direct download from GitHub)
+- ✅ Simpler to remember and type
+- ✅ Best for documentation and customer communications
+
+---
+
+### **Method 2: Custom Domain with Redirect Handling**
+
+```powershell
+$response = iwr -useb https://get.soulitek.co.il -MaximumRedirection 0 -ErrorAction SilentlyContinue
 if ($response.StatusCode -eq 308) {
     $redirectUri = $response.Headers['Location']
     iwr -useb $redirectUri | iex
@@ -26,6 +41,24 @@ if ($response.StatusCode -eq 308) {
     $response.Content | iex
 }
 ```
+
+**Advantages:**
+- ✅ Uses your branded domain
+- ✅ Works reliably
+- ⚠️ More complex to type
+
+---
+
+## 💡 Recommendation
+
+**Use Method 1 (Direct GitHub URL)** in all documentation, training materials, and customer communications. It's simpler, faster, and more reliable.
+
+---
+
+## ✅ What's Already Done
+
+The following file has been created for you:
+- ✅ `vercel.json` - Vercel configuration with redirect setup (optional, for Method 2)
 
 ---
 
@@ -65,9 +98,9 @@ git push origin main
 ### Step 3: Import Your Project 📦
 
 1. **In Vercel dashboard, click:** "Add New..." → "Project"
-2. **Find:** `Soulitek-AIO` in your repository list
+2. **Find:** `Soulitek-All-In-One-Scripts` in your repository list
    - If you don't see it, click "Adjust GitHub App Permissions" and give access
-3. **Click:** "Import" next to `Soulitek-AIO`
+3. **Click:** "Import" next to `Soulitek-All-In-One-Scripts`
 
 4. **Configure Project:**
    - **Project Name:** `soulitek-installer` (or any name you like)
@@ -298,6 +331,36 @@ No manual steps needed! 🚀
 ---
 
 ## 🆘 Troubleshooting
+
+### Getting "308 Permanent Redirect" Error
+
+**Error Message:**
+```
+iwr : The remote server returned an error: (308) Permanent Redirect.
+```
+
+**Solution:**
+This is normal! PowerShell's `iwr -useb` cannot follow 308 redirects automatically.
+
+**Use one of these working commands instead:**
+
+**Option 1 (Recommended):**
+```powershell
+iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1 | iex
+```
+
+**Option 2 (Custom domain with redirect handling):**
+```powershell
+$response = iwr -useb https://get.soulitek.co.il -MaximumRedirection 0 -ErrorAction SilentlyContinue
+if ($response.StatusCode -eq 308) {
+    $redirectUri = $response.Headers['Location']
+    iwr -useb $redirectUri | iex
+} else {
+    $response.Content | iex
+}
+```
+
+---
 
 ### Domain shows "Invalid Configuration" for >24 hours
 
