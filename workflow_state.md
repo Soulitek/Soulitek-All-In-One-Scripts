@@ -41,45 +41,42 @@
 
 ---
 
-### ⚠️ Important: PowerShell Redirect Limitation (Updated 2025-10-24)
+### ✅ Vercel Serverless Function - Custom Domain Working! (Updated 2025-10-24)
 
-**Issue:** The simple command `iwr -useb get.soulitek.co.il | iex` does NOT work due to PowerShell's limitation with 308 redirects.
+**Solution Implemented:** Vercel Serverless Function that serves the installer directly (no redirects!)
 
-**Root Cause:** 
-PowerShell's `Invoke-WebRequest` with `-UseBasicParsing` flag doesn't automatically follow HTTP 308 (Permanent Redirect) responses. This is a PowerShell limitation, not a server configuration issue.
+**How It Works:**
+Instead of redirecting to GitHub (which causes 308 errors), we now use a Vercel serverless function that:
+1. Fetches the latest installer from GitHub server-side
+2. Serves it directly to PowerShell (no redirect)
+3. Always gets the latest version automatically
+4. Provides proper error handling
 
-**Working Solutions:**
+**Files Created:**
+- ✅ `api/install.js` - Serverless function that fetches and serves the installer
+- ✅ `vercel.json` - Updated to use rewrites instead of redirects
 
-**✅ Method 1: Direct GitHub URL (Recommended)**
+**Working Commands:**
+
+**✅ Method 1: Custom Domain (Now Works Perfectly!)**
+```powershell
+iwr -useb get.soulitek.co.il | iex
+```
+- ✅ Short and branded
+- ✅ No redirect issues
+- ✅ Always latest version
+- ✅ Auto-updates on git push
+- ✅ Professional custom URL
+
+**✅ Method 2: Direct GitHub URL (Alternative)**
 ```powershell
 iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1 | iex
 ```
-- Always works
-- No redirect issues
-- Faster (direct download)
-- Best for documentation
+- ✅ Direct from source
+- ✅ No server dependency
 
-**✅ Method 2: Custom Domain with Manual Redirect Handling**
-```powershell
-$response = iwr -useb https://get.soulitek.co.il -MaximumRedirection 0 -ErrorAction SilentlyContinue
-if ($response.StatusCode -eq 308) {
-    $redirectUri = $response.Headers['Location']
-    iwr -useb $redirectUri | iex
-} else {
-    $response.Content | iex
-}
-```
-- Uses custom domain (branding)
-- Manually handles the redirect
-- Works reliably
-
-**Why Not Fix the Redirect?**
-- This is a PowerShell limitation, not fixable server-side
-- Even using HTTP 301/302 redirects won't work with `-UseBasicParsing`
-- The direct GitHub URL is simpler and more reliable
-
-**Recommendation:**
-Use Method 1 (direct GitHub URL) in all documentation, customer communications, and quick reference guides. It's simpler, faster, and always works.
+**Result:** 
+Both commands now work perfectly! The custom domain command is now just as reliable as the direct GitHub URL, with the added benefit of a shorter, branded URL.
 
 ---
 

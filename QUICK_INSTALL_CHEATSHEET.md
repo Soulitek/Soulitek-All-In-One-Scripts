@@ -4,26 +4,19 @@
 
 ## One-Line Installation
 
-**✅ Recommended (Direct GitHub - Always Works):**
+**✅ Recommended (Short & Branded):**
+```powershell
+iwr -useb get.soulitek.co.il | iex
+```
+
+<details>
+<summary>📌 Alternative: Direct GitHub URL</summary>
+
 ```powershell
 iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1 | iex
 ```
 
-<details>
-<summary>📌 Alternative: Custom Domain with Redirect Handling</summary>
-
-**⚠️ Note:** The simple command `iwr -useb get.soulitek.co.il | iex` does NOT work due to PowerShell's 308 redirect limitation.
-
-Use this instead if you prefer the custom domain:
-```powershell
-$response = iwr -useb https://get.soulitek.co.il -MaximumRedirection 0 -ErrorAction SilentlyContinue
-if ($response.StatusCode -eq 308) {
-    $redirectUri = $response.Headers['Location']
-    iwr -useb $redirectUri | iex
-} else {
-    $response.Content | iex
-}
-```
+**Note:** Both commands now work perfectly! The custom domain uses a Vercel serverless function (no redirect issues).
 </details>
 
 ---

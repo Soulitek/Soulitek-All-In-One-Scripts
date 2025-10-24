@@ -4,61 +4,60 @@ This guide shows you how to deploy the SouliTEK installer on Vercel with your cu
 
 ---
 
-## ⚠️ IMPORTANT: PowerShell Redirect Limitation
+## ✅ SOLUTION: Vercel Serverless Function (No Redirect Issues!)
 
-**The simple command `iwr -useb get.soulitek.co.il | iex` does NOT work!**
+**Great news! The simple command now works perfectly:**
 
-PowerShell's `Invoke-WebRequest` with `-UseBasicParsing` flag cannot automatically follow HTTP 308 redirects. This is a PowerShell limitation that cannot be fixed server-side.
+```powershell
+iwr -useb get.soulitek.co.il | iex
+```
 
-**Use one of these working methods instead:**
+**How?** We use a Vercel serverless function that **fetches and serves** the installer directly (no redirects), avoiding PowerShell's 308 redirect limitation entirely.
 
 ---
 
 ## ✅ Working Installation Commands
 
-### **Method 1: Direct GitHub URL (Recommended)**
+### **Method 1: Custom Domain (Recommended)**
+
+```powershell
+iwr -useb get.soulitek.co.il | iex
+```
+
+**Advantages:**
+- ✅ Short and professional branded URL
+- ✅ No redirect issues (serves directly)
+- ✅ Always gets latest version from GitHub
+- ✅ Auto-deploys when you push to GitHub
+- ✅ Free hosting on Vercel
+- ✅ Built-in error handling
+
+---
+
+### **Method 2: Direct GitHub URL (Alternative)**
 
 ```powershell
 iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1 | iex
 ```
 
 **Advantages:**
-- ✅ Always works (no redirect issues)
-- ✅ Faster (direct download from GitHub)
-- ✅ Simpler to remember and type
-- ✅ Best for documentation and customer communications
-
----
-
-### **Method 2: Custom Domain with Redirect Handling**
-
-```powershell
-$response = iwr -useb https://get.soulitek.co.il -MaximumRedirection 0 -ErrorAction SilentlyContinue
-if ($response.StatusCode -eq 308) {
-    $redirectUri = $response.Headers['Location']
-    iwr -useb $redirectUri | iex
-} else {
-    $response.Content | iex
-}
-```
-
-**Advantages:**
-- ✅ Uses your branded domain
-- ✅ Works reliably
-- ⚠️ More complex to type
+- ✅ Direct from source
+- ✅ No server dependency
+- ✅ Always works
 
 ---
 
 ## 💡 Recommendation
 
-**Use Method 1 (Direct GitHub URL)** in all documentation, training materials, and customer communications. It's simpler, faster, and more reliable.
+**Use Method 1 (Custom Domain)** - it's shorter, more professional, and now works perfectly thanks to the Vercel serverless function!
 
 ---
 
 ## ✅ What's Already Done
 
-The following file has been created for you:
-- ✅ `vercel.json` - Vercel configuration with redirect setup (optional, for Method 2)
+The following files have been created for you:
+- ✅ `api/install.js` - Serverless function that fetches from GitHub and serves directly
+- ✅ `vercel.json` - Vercel configuration with rewrites (not redirects)
 
 ---
 

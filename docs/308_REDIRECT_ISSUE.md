@@ -1,13 +1,28 @@
-# 308 Permanent Redirect Error - Solution
+# 308 Permanent Redirect Error - SOLVED!
 
-## ❌ The Problem
+## ✅ **SOLUTION IMPLEMENTED - Custom Domain Now Works!**
 
-When users try to run:
+**The problem has been solved!** You can now use:
 ```powershell
 iwr -useb get.soulitek.co.il | iex
 ```
 
-They get this error:
+**How?** We implemented a Vercel serverless function that serves the installer directly (no redirect), avoiding PowerShell's limitation entirely.
+
+**See:** `api/install.js` - The serverless function that makes this work.
+
+---
+
+## 📜 Historical Context
+
+### ❌ The Original Problem
+
+When users tried to run:
+```powershell
+iwr -useb get.soulitek.co.il | iex
+```
+
+They got this error:
 ```
 iwr : The remote server returned an error: (308) Permanent Redirect.
 At line:1 char:1
@@ -32,7 +47,41 @@ PowerShell's `Invoke-WebRequest` (iwr) with the `-UseBasicParsing` (-useb) flag 
 
 ---
 
-## ✅ Solution 1: Direct GitHub URL (Recommended)
+## ✅ CURRENT SOLUTION: Vercel Serverless Function (BEST)
+
+**We've implemented a Vercel serverless function that completely eliminates the redirect issue!**
+
+### How It Works:
+```javascript
+// api/install.js
+export default async function handler(req, res) {
+  // 1. Fetch installer from GitHub server-side
+  const response = await fetch('https://raw.githubusercontent.com/...');
+  const script = await response.text();
+  
+  // 2. Serve directly to PowerShell (no redirect!)
+  res.setHeader('Content-Type', 'text/plain');
+  res.status(200).send(script);
+}
+```
+
+### Usage:
+```powershell
+# Simple command that now works perfectly!
+iwr -useb get.soulitek.co.il | iex
+```
+
+### ✅ **Advantages:**
+- Short, branded URL
+- No redirect issues
+- Always gets latest version
+- Auto-deploys on git push
+- Free hosting on Vercel
+- Professional appearance
+
+---
+
+## ✅ Alternative: Direct GitHub URL
 
 **Use the direct GitHub raw URL instead of the custom domain:**
 
