@@ -138,6 +138,8 @@ The built EXE requires these files to be distributed together:
 
 **Result:** Professional, modern launcher that significantly improves user experience while maintaining 100% functionality compatibility with existing scripts.
 
+**Note:** WPF_LAUNCHER_SUCCESS.md and WPF_MIGRATION_SUMMARY.md have been merged into this workflow_state.md for better organization.
+
 ---
 
 ### ✅ Repository Name Cleanup (2025-10-24)

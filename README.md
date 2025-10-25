@@ -102,8 +102,7 @@ Soulitek-All-In-One-Scripts/
 - **[WPF Launcher Quick Start](docs/WPF_QUICK_START.md)** - Get started with the modern GUI in 30 seconds
 - **[WPF Launcher Guide](docs/WPF_LAUNCHER_GUIDE.md)** - Complete WPF documentation and customization
 - **[Quick Install Guide](docs/QUICK_INSTALL.md)** - One-line installation & URL setup
-- **[Quick Reference](QUICK_REFERENCE.md)** - Fast lookup guide
-- **[Project Structure](PROJECT_STRUCTURE.md)** - Detailed folder info
+- **[Deployment Guide](docs/DEPLOYMENT_GUIDE.md)** - Complete deployment checklist
 - **[Full Docs](docs/)** - All documentation
 
 ---

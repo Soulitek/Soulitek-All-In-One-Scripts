@@ -357,4 +357,6 @@ See LICENSE file for full license text.
 
 **Made with ❤️ in Israel**
 
+**Note:** URL_INSTALL_SUMMARY.md and QUICK_INSTALL_CHEATSHEET.md have been merged into this comprehensive installation guide for better organization.
+
 

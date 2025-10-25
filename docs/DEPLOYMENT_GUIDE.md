@@ -1,14 +1,28 @@
-# 🚀 SouliTEK Deployment Checklist
+# 🚀 SouliTEK Deployment Guide
 
-This checklist ensures the URL-based installation works correctly.
+Complete deployment checklist for SouliTEK All-In-One Scripts with both GitHub and Vercel options.
 
 ---
 
-## ✅ Pre-Deployment Steps
+## 🎯 Deployment Options
 
-### 1. Verify Repository Name
+### Option 1: GitHub Only (Simple)
+- Direct GitHub URL installation
+- No custom domain setup required
+- Works immediately after push
 
-The installer is currently configured for:
+### Option 2: GitHub + Vercel (Professional)
+- Custom domain installation (get.soulitek.co.il)
+- Professional branded URL
+- Enhanced error handling and analytics
+
+---
+
+## ✅ Pre-Deployment Checklist
+
+### 1. Verify Repository Configuration
+
+**Current Configuration:**
 - **Repository:** `Soulitek/Soulitek-All-In-One-Scripts`
 - **Branch:** `main`
 
@@ -20,33 +34,31 @@ The installer is currently configured for:
 
 ### 2. Commit All Changes
 
-```powershell
+```bash
 git add .
 git commit -m "Add URL-based quick installer"
 ```
 
 ### 3. Push to GitHub
 
-```powershell
+```bash
 git push origin main
 ```
 
-**Important:** The `Install-SouliTEK.ps1` file MUST be in the root of your repository for the URL installation to work.
+**Important:** The `Install-SouliTEK.ps1` file MUST be in the root of your repository for URL installation to work.
 
 ---
 
-## 🧪 Testing the Installation
+## 🧪 Testing Installation
 
-### Test on a Fresh Machine
+### Test on Fresh Machine
 
 1. Open PowerShell (as Administrator recommended)
-
 2. Run the install command:
    ```powershell
    iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1 | iex
    ```
-
-3. Verify it:
+3. Verify:
    - ✅ Downloads successfully
    - ✅ Extracts to C:\SouliTEK
    - ✅ Creates desktop shortcut
@@ -62,26 +74,53 @@ git push origin main
 
 ---
 
-## 📝 Repository Name Detection
+## 🌐 Vercel Setup (Optional - For Custom Domain)
+
+### Step 1: Vercel Signup & Deploy (5 minutes)
+
+1. Go to: **https://vercel.com**
+2. Sign up with GitHub account
+3. Click "New Project"
+4. Import your `Soulitek-All-In-One-Scripts` repository
+5. Click "Deploy" (uses default settings)
+6. Wait for deployment to complete (~2 minutes)
+
+### Step 2: Custom Domain Setup (10 minutes)
+
+1. In Vercel dashboard, go to your project
+2. Click "Settings" → "Domains"
+3. Add your domain: `get.soulitek.co.il`
+4. Follow DNS configuration instructions
+5. Wait for DNS propagation (5-30 minutes)
+
+### Step 3: Test Custom Domain
+
+```powershell
+# Test the custom domain
+iwr -useb get.soulitek.co.il | iex
+```
+
+**Expected:** Should work exactly like the GitHub URL but with your branded domain.
+
+---
+
+## 📊 Repository Name Detection
 
 **To check your actual GitHub repository name:**
 
-```powershell
+```bash
 # From your project directory, run:
 git remote -v
 ```
 
 This will show you the URL. For example:
 - `https://github.com/Soulitek/Soulitek-All-In-One-Scripts.git` → Repo name is `Soulitek-All-In-One-Scripts`
-- `https://github.com/Soulitek/Soulitek-All-In-One-Scripts.git` → Repo name is `Soulitek-All-In-One-Scripts`
 
 **Update the installer accordingly!**
 
 ---
 
-## 🌐 Creating Short URLs (Optional)
-
-Make it easier to type by creating short URLs:
+## 🌐 Creating Short URLs (Alternative to Vercel)
 
 ### Using bit.ly
 
@@ -103,12 +142,6 @@ iwr -useb bit.ly/soulitek-install | iex
 2. Paste the long URL
 3. Customize the alias: `soulitek-install`
 4. Create!
-
-### Using Your Own Domain
-
-If you own `soulitek.co.il`, set up a redirect:
-- From: `https://get.soulitek.co.il/install`
-- To: `https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1`
 
 ---
 
@@ -172,6 +205,7 @@ For enterprise customers, consider:
 
 Before going live, verify:
 
+### GitHub Deployment
 - [ ] `Install-SouliTEK.ps1` is committed to your repo
 - [ ] Repository name is correct in the script
 - [ ] Script is pushed to GitHub `main` branch
@@ -180,57 +214,42 @@ Before going live, verify:
 - [ ] All 11 tools are accessible from GUI
 - [ ] README.md shows the install command
 - [ ] Documentation is up to date
+
+### Vercel Deployment (Optional)
+- [ ] Vercel project created and deployed
+- [ ] Custom domain configured
+- [ ] DNS propagation complete
+- [ ] Custom domain command tested
+- [ ] Analytics working (optional)
+
+### Marketing
 - [ ] Short URL created (optional)
 - [ ] QR code generated (optional)
 - [ ] Team members informed of new install method
-
----
-
-## 🎯 Marketing the Feature
-
-### Social Media Post Template
-
-```
-🚀 New Feature: One-Line Installation!
-
-Setting up a new PC? Just open PowerShell and run:
-iwr -useb [short-url] | iex
-
-That's it! All 11 tools installed and ready in seconds.
-
-#ITTools #PowerShell #SouliTEK #TechSupport
-```
-
-### Email Signature
-
-```
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Quick Install: bit.ly/soulitek-install
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-```
+- [ ] Customer support guides updated
 
 ---
 
 ## 🆘 Troubleshooting
 
-If installation fails, check:
+### "Cannot download from GitHub"
+- Check internet connection
+- Verify repository is public
+- Try: `Test-NetConnection raw.githubusercontent.com -Port 443`
 
-1. **GitHub Access:**
-   - Can you access https://github.com/Soulitek/Soulitek-All-In-One-Scripts ?
-   - Is the repository public or private?
-   - If private, users need authentication
+### "Access denied to C:\SouliTEK"
+- Run PowerShell as Administrator
+- Or change install path in script to user directory
 
-2. **Firewall:**
-   - Is `raw.githubusercontent.com` blocked?
-   - Try from different network
+### "Script not found after install"
+- Verify files in: `C:\SouliTEK`
+- Check if antivirus quarantined files
+- Rerun installer
 
-3. **PowerShell Version:**
-   - Run: `$PSVersionTable.PSVersion`
-   - Should be 5.1 or higher
-
-4. **Execution Policy:**
-   - Run: `Get-ExecutionPolicy`
-   - If Restricted, run as admin: `Set-ExecutionPolicy RemoteSigned`
+### "Custom domain doesn't work"
+- Wait 5-10 minutes for DNS propagation
+- Check Vercel deployment status
+- Clear DNS cache: `ipconfig /flushdns`
 
 ---
 
@@ -242,8 +261,6 @@ If you need help with deployment:
 
 ---
 
-**Ready to deploy? Let's go! 🚀**
+**© 2025 SouliTEK - Made with ❤️ in Israel**
 
-© 2025 SouliTEK - Made with ❤️ in Israel
-
-
+**Note:** DEPLOYMENT_CHECKLIST.md and VERCEL_SETUP_CHECKLIST.md have been merged into this comprehensive deployment guide for better organization.

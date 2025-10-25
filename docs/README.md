@@ -6,26 +6,34 @@ Welcome to the documentation hub for the SouliTEK All-In-One Scripts project.
 
 ### Getting Started
 - **[Quick Start Guide](QUICK_START.md)** - Get up and running in minutes
-- **[GUI Launcher Guide](GUI_LAUNCHER_GUIDE.md)** - How to use the graphical launcher
-- **[Project Structure](../PROJECT_STRUCTURE.md)** - Understanding the folder organization
+- **[WPF Launcher Quick Start](WPF_QUICK_START.md)** - Modern GUI launcher setup
+- **[WPF Launcher Guide](WPF_LAUNCHER_GUIDE.md)** - Complete WPF documentation
+- **[Quick Install Guide](QUICK_INSTALL.md)** - One-line installation setup
+
+### Deployment & Setup
+- **[Deployment Guide](DEPLOYMENT_GUIDE.md)** - Complete deployment checklist
+- **[Vercel Deployment](VERCEL_DEPLOYMENT.md)** - Custom domain setup
+- **[Custom Domain Setup](CUSTOM_DOMAIN_SETUP.md)** - Domain configuration
 
 ### Development & Contributing
 - **[Contributing Guidelines](CONTRIBUTING.md)** - How to contribute to the project
 - **[GitHub Setup](GITHUB_SETUP.md)** - Setting up the GitHub repository
 - **[TODO List](TODO.md)** - Planned features and improvements
 
-### Project History
-- **[Success Notes](SUCCESS.md)** - Project milestones and achievements
-- **[Launcher Success](LAUNCHER_SUCCESS.md)** - GUI launcher development notes
-- **[New Tool Added](NEW_TOOL_ADDED.md)** - Latest tool additions
-
-### Additional Information
-- **[Upload Instructions](UPLOAD_NOW.txt)** - Deployment and upload notes
+### Tool Documentation
+- **[License Expiration Checker](LICENSE_EXPIRATION_CHECKER.md)** - M365 license monitoring
+- **[Network Test Tool](NETWORK_TEST_TOOL.md)** - Network diagnostics
+- **[USB Device Log](USB_DEVICE_LOG.md)** - Forensic USB analysis
+- **[BitLocker Status Report](BITLOCKER_STATUS_REPORT.md)** - Encryption monitoring
+- **[Chocolatey Installer](CHOCO_INSTALLER.md)** - Package management
+- **[Event Analyzer Fix](EVENT_ANALYZER_FIX.md)** - Bug fix documentation
+- **[Encoding Fix](ENCODING_FIX.md)** - Unicode fix documentation
+- **[308 Redirect Issue](308_REDIRECT_ISSUE.md)** - Redirect problem solution
 
 ## 🔗 Quick Links
 
 - **Main README**: [../README.md](../README.md)
-- **Project Structure**: [../PROJECT_STRUCTURE.md](../PROJECT_STRUCTURE.md)
+- **Workflow State**: [../workflow_state.md](../workflow_state.md)
 - **License**: [../LICENSE](../LICENSE)
 
 ## 📁 Scripts Documentation
