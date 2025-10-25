@@ -15,7 +15,7 @@
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
 # Path to the actual launcher
-$LauncherPath = Join-Path $ScriptDir "launcher\SouliTEK-Launcher.ps1"
+$LauncherPath = Join-Path $ScriptDir "launcher\SouliTEK-Launcher-WPF.ps1"
 
 # Check if launcher exists
 if (-not (Test-Path $LauncherPath)) {

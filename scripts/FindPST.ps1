@@ -59,37 +59,29 @@ if (-not (Test-Path $Script:WorkDir)) {
     New-Item -ItemType Directory -Path $Script:WorkDir -Force | Out-Null
 }
 
+# Import SouliTEK Common Functions
+$ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$CommonPath = Join-Path (Split-Path -Parent $ScriptRoot) "modules\SouliTEK-Common.ps1"
+if (Test-Path $CommonPath) {
+    . $CommonPath
+} else {
+    Write-Warning "SouliTEK Common Functions not found at: $CommonPath"
+    Write-Warning "Some functions may not work properly."
+}
+
 # ============================================================
 # HELPER FUNCTIONS
 # ============================================================
 
-function Test-Administrator {
-    $currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
-    $principal = New-Object Security.Principal.WindowsPrincipal($currentUser)
-    return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-}
+# Function to show tool-specific banner
+function Show-Banner { Show-SouliTEKBanner }
 
-function Show-Banner {
-    Write-Host ""
-    Write-Host "  =========================================================" -ForegroundColor Cyan
-    Write-Host "   _____ ____  _    _ _      _____ _______ ______ _  __  " -ForegroundColor Cyan
-    Write-Host "  / ____/ __ \| |  | | |    |_   _|__   __|  ____| |/ /  " -ForegroundColor Cyan
-    Write-Host " | (___| |  | | |  | | |      | |    | |  | |__  | ' /   " -ForegroundColor Cyan
-    Write-Host "  \___ \ |  | | |  | | |      | |    | |  |  __| |  <    " -ForegroundColor Cyan
-    Write-Host "  ____) | |__| | |__| | |____ _| |_   | |  | |____| . \   " -ForegroundColor Cyan
-    Write-Host " |_____/ \____/ \____/|______|_____|  |_|  |______|_|\_\  " -ForegroundColor Cyan
-    Write-Host "  =========================================================" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "  PST Finder - Professional Tool" -ForegroundColor White
-    Write-Host "  =========================================================" -ForegroundColor DarkGray
-    Write-Host ""
-    Write-Host "  Website: " -NoNewline -ForegroundColor Gray
-    Write-Host "https://soulitek.co.il" -ForegroundColor Cyan
-    Write-Host "  Email: " -NoNewline -ForegroundColor Gray
-    Write-Host "letstalk@soulitek.co.il" -ForegroundColor Cyan
-    Write-Host "  (C) 2025 SouliTEK - All Rights Reserved" -ForegroundColor Gray
-    Write-Host ""
-}
+# Function to check admin privileges
+function Test-Administrator { Test-SouliTEKAdministrator }
+
+
+
+
 
 function Show-Header {
     param([string]$Title, [ConsoleColor]$Color = 'Cyan')
@@ -170,7 +162,7 @@ function Save-Summary {
 # ============================================================
 
 function Confirm-Administrator {
-    if (-not (Test-Administrator)) {
+    if (-not (Test-SouliTEKAdministrator)) {
         Show-Header "ERROR: Administrator Required" -Color Red
         Write-Host "  This script must run as Administrator." -ForegroundColor Yellow
         Write-Host ""
@@ -825,3 +817,5 @@ Show-Disclaimer
 
 # Show main menu
 Show-MainMenu
+
+

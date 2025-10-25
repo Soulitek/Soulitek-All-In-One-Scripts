@@ -34,6 +34,16 @@
 # Set window title
 $Host.UI.RawUI.WindowTitle = "Network Test Tool - Professional Edition - by Soulitek.co.il"
 
+# Import SouliTEK Common Functions
+$ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$CommonPath = Join-Path (Split-Path -Parent $ScriptRoot) "modules\SouliTEK-Common.ps1"
+if (Test-Path $CommonPath) {
+    Import-Module $CommonPath -Force
+} else {
+    Write-Warning "SouliTEK Common Functions not found at: $CommonPath"
+    Write-Warning "Some functions may not work properly."
+}
+
 # ============================================================
 # GLOBAL VARIABLES
 # ============================================================
@@ -45,27 +55,7 @@ $Script:OutputFolder = Join-Path $env:USERPROFILE "Desktop"
 # HELPER FUNCTIONS
 # ============================================================
 
-function Show-Banner {
-    Write-Host ""
-    Write-Host "  =========================================================" -ForegroundColor Cyan
-    Write-Host "   _____ ____  _    _ _      _____ _______ ______ _  __  " -ForegroundColor Cyan
-    Write-Host "  / ____/ __ \| |  | | |    |_   _|__   __|  ____| |/ /  " -ForegroundColor Cyan
-    Write-Host " | (___| |  | | |  | | |      | |    | |  | |__  | ' /   " -ForegroundColor Cyan
-    Write-Host "  \___ \ |  | | |  | | |      | |    | |  |  __| |  <    " -ForegroundColor Cyan
-    Write-Host "  ____) | |__| | |__| | |____ _| |_   | |  | |____| . \   " -ForegroundColor Cyan
-    Write-Host " |_____/ \____/ \____/|______|_____|  |_|  |______|_|\_\  " -ForegroundColor Cyan
-    Write-Host "  =========================================================" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "  Network Test Tool - Professional Edition" -ForegroundColor White
-    Write-Host "  =========================================================" -ForegroundColor DarkGray
-    Write-Host ""
-    Write-Host "  Website: " -NoNewline -ForegroundColor Gray
-    Write-Host "https://soulitek.co.il" -ForegroundColor Cyan
-    Write-Host "  Email: " -NoNewline -ForegroundColor Gray
-    Write-Host "letstalk@soulitek.co.il" -ForegroundColor Cyan
-    Write-Host "  (C) 2025 SouliTEK - All Rights Reserved" -ForegroundColor Gray
-    Write-Host ""
-}
+
 
 function Show-Header {
     param([string]$Title = "NETWORK TEST TOOL", [ConsoleColor]$Color = 'Cyan')
@@ -80,19 +70,7 @@ function Show-Header {
     Write-Host ""
 }
 
-function Write-Result {
-    param([string]$Message, [string]$Level = "INFO")
-    
-    $timestamp = Get-Date -Format "HH:mm:ss"
-    
-    switch ($Level) {
-        "SUCCESS" { Write-Host "[$timestamp] [+] $Message" -ForegroundColor Green }
-        "ERROR" { Write-Host "[$timestamp] [-] $Message" -ForegroundColor Red }
-        "WARNING" { Write-Host "[$timestamp] [!] $Message" -ForegroundColor Yellow }
-        "INFO" { Write-Host "[$timestamp] [*] $Message" -ForegroundColor Cyan }
-        default { Write-Host "[$timestamp] $Message" -ForegroundColor Gray }
-    }
-}
+function Write-SouliTEKResult { param([string]$Message, [string]$Level = "INFO") Write-SouliTEKResult -Message $Message -Level $Level }
 
 function Add-TestResult {
     param(
@@ -128,7 +106,7 @@ function Test-PingAdvanced {
     $target = Read-Host "Enter hostname or IP address (e.g., google.com, 8.8.8.8)"
     
     if ([string]::IsNullOrWhiteSpace($target)) {
-        Write-Result "No target specified" -Level ERROR
+        Write-SouliTEKResult "No target specified" -Level ERROR
         Start-Sleep -Seconds 2
         return
     }
@@ -141,7 +119,7 @@ function Test-PingAdvanced {
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Result "Starting ping test to $target..." -Level INFO
+    Write-SouliTEKResult "Starting ping test to $target..." -Level INFO
     Write-Host ""
     
     try {
@@ -219,7 +197,7 @@ function Test-PingAdvanced {
         Write-Host "============================================================" -ForegroundColor Cyan
     }
     catch {
-        Write-Result "Ping test failed: $_" -Level ERROR
+        Write-SouliTEKResult "Ping test failed: $_" -Level ERROR
         Add-TestResult -TestType "Ping Test" -Target $target -Result "Failed" -Details $_.Exception.Message -Status "Error"
     }
     
@@ -238,7 +216,7 @@ function Test-TraceRoute {
     $target = Read-Host "Enter hostname or IP address (e.g., google.com, 8.8.8.8)"
     
     if ([string]::IsNullOrWhiteSpace($target)) {
-        Write-Result "No target specified" -Level ERROR
+        Write-SouliTEKResult "No target specified" -Level ERROR
         Start-Sleep -Seconds 2
         return
     }
@@ -246,7 +224,7 @@ function Test-TraceRoute {
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Result "Starting trace route to $target..." -Level INFO
+    Write-SouliTEKResult "Starting trace route to $target..." -Level INFO
     Write-Host ""
     Write-Host "This may take 30-60 seconds..." -ForegroundColor Yellow
     Write-Host ""
@@ -294,7 +272,7 @@ function Test-TraceRoute {
         Write-Host "============================================================" -ForegroundColor Cyan
     }
     catch {
-        Write-Result "Trace route failed: $_" -Level ERROR
+        Write-SouliTEKResult "Trace route failed: $_" -Level ERROR
         Add-TestResult -TestType "Trace Route" -Target $target -Result "Failed" -Details $_.Exception.Message -Status "Error"
     }
     
@@ -313,7 +291,7 @@ function Test-DNSLookup {
     $domain = Read-Host "Enter domain name (e.g., google.com, microsoft.com)"
     
     if ([string]::IsNullOrWhiteSpace($domain)) {
-        Write-Result "No domain specified" -Level ERROR
+        Write-SouliTEKResult "No domain specified" -Level ERROR
         Start-Sleep -Seconds 2
         return
     }
@@ -321,7 +299,7 @@ function Test-DNSLookup {
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Result "Performing DNS lookup for $domain..." -Level INFO
+    Write-SouliTEKResult "Performing DNS lookup for $domain..." -Level INFO
     Write-Host ""
     
     try {
@@ -394,7 +372,7 @@ function Test-DNSLookup {
         Write-Host "============================================================" -ForegroundColor Cyan
     }
     catch {
-        Write-Result "DNS lookup failed: $_" -Level ERROR
+        Write-SouliTEKResult "DNS lookup failed: $_" -Level ERROR
         Write-Host ""
         Write-Host "Possible reasons:" -ForegroundColor Yellow
         Write-Host "  - Domain does not exist" -ForegroundColor Gray
@@ -420,7 +398,7 @@ function Test-Latency {
     $target = Read-Host "Enter hostname or IP address (e.g., 8.8.8.8)"
     
     if ([string]::IsNullOrWhiteSpace($target)) {
-        Write-Result "No target specified" -Level ERROR
+        Write-SouliTEKResult "No target specified" -Level ERROR
         Start-Sleep -Seconds 2
         return
     }
@@ -433,7 +411,7 @@ function Test-Latency {
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Result "Starting latency test to $target for $duration seconds..." -Level INFO
+    Write-SouliTEKResult "Starting latency test to $target for $duration seconds..." -Level INFO
     Write-Host ""
     Write-Host "Press Ctrl+C to stop early" -ForegroundColor Yellow
     Write-Host ""
@@ -561,7 +539,7 @@ function Test-Latency {
         Write-Host "============================================================" -ForegroundColor Cyan
     }
     catch {
-        Write-Result "Latency test failed: $_" -Level ERROR
+        Write-SouliTEKResult "Latency test failed: $_" -Level ERROR
         Add-TestResult -TestType "Latency Test" -Target $target -Result "Failed" -Details $_.Exception.Message -Status "Error"
     }
     
@@ -577,7 +555,7 @@ function Test-QuickDiagnostics {
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     
-    Write-Result "Starting quick diagnostics..." -Level INFO
+    Write-SouliTEKResult "Starting quick diagnostics..." -Level INFO
     Write-Host ""
     
     # Test 1: Local connectivity
@@ -587,14 +565,14 @@ function Test-QuickDiagnostics {
         Write-Host "  Default Gateway: $gateway" -ForegroundColor Gray
         $gwPing = Test-Connection -ComputerName $gateway -Count 2 -Quiet
         if ($gwPing) {
-            Write-Result "Local network: OK" -Level SUCCESS
+            Write-SouliTEKResult "Local network: OK" -Level SUCCESS
         }
         else {
-            Write-Result "Local network: FAILED" -Level ERROR
+            Write-SouliTEKResult "Local network: FAILED" -Level ERROR
         }
     }
     else {
-        Write-Result "No default gateway found" -Level WARNING
+        Write-SouliTEKResult "No default gateway found" -Level WARNING
     }
     
     Write-Host ""
@@ -603,10 +581,10 @@ function Test-QuickDiagnostics {
     Write-Host "[2/5] Testing internet connectivity..." -ForegroundColor Yellow
     $internetTest = Test-Connection -ComputerName 8.8.8.8 -Count 2 -Quiet
     if ($internetTest) {
-        Write-Result "Internet connectivity: OK" -Level SUCCESS
+        Write-SouliTEKResult "Internet connectivity: OK" -Level SUCCESS
     }
     else {
-        Write-Result "Internet connectivity: FAILED" -Level ERROR
+        Write-SouliTEKResult "Internet connectivity: FAILED" -Level ERROR
     }
     
     Write-Host ""
@@ -615,10 +593,10 @@ function Test-QuickDiagnostics {
     Write-Host "[3/5] Testing DNS resolution..." -ForegroundColor Yellow
     try {
         $null = Resolve-DnsName -Name "google.com" -ErrorAction Stop
-        Write-Result "DNS resolution: OK" -Level SUCCESS
+        Write-SouliTEKResult "DNS resolution: OK" -Level SUCCESS
     }
     catch {
-        Write-Result "DNS resolution: FAILED" -Level ERROR
+        Write-SouliTEKResult "DNS resolution: FAILED" -Level ERROR
     }
     
     Write-Host ""
@@ -668,7 +646,7 @@ function Export-TestResults {
     Write-Host ""
     
     if ($Script:TestResults.Count -eq 0) {
-        Write-Result "No test results to export" -Level WARNING
+        Write-SouliTEKResult "No test results to export" -Level WARNING
         Write-Host ""
         Write-Host "Run some network tests first, then export the results." -ForegroundColor Yellow
         Write-Host ""
@@ -731,7 +709,7 @@ function Export-TestResults {
                 $content | Out-File -FilePath $filePath -Encoding UTF8
                 
                 Write-Host ""
-                Write-Result "Results exported to: $filePath" -Level SUCCESS
+                Write-SouliTEKResult "Results exported to: $filePath" -Level SUCCESS
                 Start-Sleep -Seconds 1
                 Start-Process notepad.exe -ArgumentList $filePath
             }
@@ -742,7 +720,7 @@ function Export-TestResults {
                 $Script:TestResults | Export-Csv -Path $filePath -NoTypeInformation -Encoding UTF8
                 
                 Write-Host ""
-                Write-Result "Results exported to: $filePath" -Level SUCCESS
+                Write-SouliTEKResult "Results exported to: $filePath" -Level SUCCESS
                 Start-Sleep -Seconds 1
                 Start-Process $filePath
             }
@@ -815,7 +793,7 @@ function Export-TestResults {
                 Set-Content -Path $filePath -Value $html -Encoding UTF8
                 
                 Write-Host ""
-                Write-Result "Results exported to: $filePath" -Level SUCCESS
+                Write-SouliTEKResult "Results exported to: $filePath" -Level SUCCESS
                 Start-Sleep -Seconds 1
                 Start-Process $filePath
             }
@@ -823,14 +801,14 @@ function Export-TestResults {
                 return
             }
             default {
-                Write-Result "Invalid choice" -Level ERROR
+                Write-SouliTEKResult "Invalid choice" -Level ERROR
                 Start-Sleep -Seconds 2
                 return
             }
         }
     }
     catch {
-        Write-Result "Export failed: $_" -Level ERROR
+        Write-SouliTEKResult "Export failed: $_" -Level ERROR
     }
     
     Write-Host ""
@@ -842,7 +820,7 @@ function Clear-TestResults {
     $confirm = Read-Host "Clear all test results? (Y/N)"
     if ($confirm -eq 'Y' -or $confirm -eq 'y') {
         $Script:TestResults = @()
-        Write-Result "Test results cleared" -Level SUCCESS
+        Write-SouliTEKResult "Test results cleared" -Level SUCCESS
         Start-Sleep -Seconds 2
     }
 }
@@ -1060,4 +1038,7 @@ do {
         }
     }
 } while ($choice -ne "0")
+
+
+
 

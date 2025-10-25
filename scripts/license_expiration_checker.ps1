@@ -37,6 +37,16 @@
 # Set window title
 $Host.UI.RawUI.WindowTitle = "License Expiration Checker - Professional Tool - by Soulitek.co.il"
 
+# Import SouliTEK Common Functions
+$ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$CommonPath = Join-Path (Split-Path -Parent $ScriptRoot) "modules\SouliTEK-Common.ps1"
+if (Test-Path $CommonPath) {
+    Import-Module $CommonPath -Force
+} else {
+    Write-Warning "SouliTEK Common Functions not found at: $CommonPath"
+    Write-Warning "Some functions may not work properly."
+}
+
 # ============================================================
 # GLOBAL VARIABLES
 # ============================================================
@@ -51,27 +61,7 @@ $Script:Connected = $false
 # HELPER FUNCTIONS
 # ============================================================
 
-function Show-Banner {
-    Write-Host ""
-    Write-Host "  =========================================================" -ForegroundColor Cyan
-    Write-Host "   _____ ____  _    _ _      _____ _______ ______ _  __  " -ForegroundColor Cyan
-    Write-Host "  / ____/ __ \| |  | | |    |_   _|__   __|  ____| |/ /  " -ForegroundColor Cyan
-    Write-Host " | (___| |  | | |  | | |      | |    | |  | |__  | ' /   " -ForegroundColor Cyan
-    Write-Host "  \___ \ |  | | |  | | |      | |    | |  |  __| |  <    " -ForegroundColor Cyan
-    Write-Host "  ____) | |__| | |__| | |____ _| |_   | |  | |____| . \   " -ForegroundColor Cyan
-    Write-Host " |_____/ \____/ \____/|______|_____|  |_|  |______|_|\_\  " -ForegroundColor Cyan
-    Write-Host "  =========================================================" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "  License Expiration Checker - Professional Tool" -ForegroundColor White
-    Write-Host "  =========================================================" -ForegroundColor DarkGray
-    Write-Host ""
-    Write-Host "  Website: " -NoNewline -ForegroundColor Gray
-    Write-Host "https://soulitek.co.il" -ForegroundColor Cyan
-    Write-Host "  Email: " -NoNewline -ForegroundColor Gray
-    Write-Host "letstalk@soulitek.co.il" -ForegroundColor Cyan
-    Write-Host "  (C) 2025 SouliTEK - All Rights Reserved" -ForegroundColor Gray
-    Write-Host ""
-}
+
 
 function Show-Header {
     param([string]$Title = "LICENSE EXPIRATION CHECKER", [ConsoleColor]$Color = 'Cyan')
@@ -86,19 +76,7 @@ function Show-Header {
     Write-Host ""
 }
 
-function Write-Result {
-    param([string]$Message, [string]$Level = "INFO")
-    
-    $timestamp = Get-Date -Format "HH:mm:ss"
-    
-    switch ($Level) {
-        "SUCCESS" { Write-Host "[$timestamp] [+] $Message" -ForegroundColor Green }
-        "ERROR" { Write-Host "[$timestamp] [-] $Message" -ForegroundColor Red }
-        "WARNING" { Write-Host "[$timestamp] [!] $Message" -ForegroundColor Yellow }
-        "INFO" { Write-Host "[$timestamp] [*] $Message" -ForegroundColor Cyan }
-        default { Write-Host "[$timestamp] $Message" -ForegroundColor Gray }
-    }
-}
+function Write-SouliTEKResult { param([string]$Message, [string]$Level = "INFO") Write-SouliTEKResult -Message $Message -Level $Level }
 
 function Get-FriendlySkuName {
     param([string]$SkuPartNumber)
@@ -164,13 +142,13 @@ function Connect-ToMicrosoftGraph {
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     
-    Write-Result "Checking Microsoft Graph PowerShell module..." -Level INFO
+    Write-SouliTEKResult "Checking Microsoft Graph PowerShell module..." -Level INFO
     
     # Check if module is installed
     $mgModule = Get-Module -Name Microsoft.Graph.Identity.DirectoryManagement -ListAvailable
     
     if (-not $mgModule) {
-        Write-Result "Microsoft Graph PowerShell module not found" -Level ERROR
+        Write-SouliTEKResult "Microsoft Graph PowerShell module not found" -Level ERROR
         Write-Host ""
         Write-Host "INSTALLATION REQUIRED:" -ForegroundColor Yellow
         Write-Host "  Run the following command in an elevated PowerShell:" -ForegroundColor Gray
@@ -183,10 +161,10 @@ function Connect-ToMicrosoftGraph {
         return $false
     }
     
-    Write-Result "Module found: $($mgModule.Version)" -Level SUCCESS
+    Write-SouliTEKResult "Module found: $($mgModule.Version)" -Level SUCCESS
     Write-Host ""
     
-    Write-Result "Connecting to Microsoft Graph..." -Level INFO
+    Write-SouliTEKResult "Connecting to Microsoft Graph..." -Level INFO
     Write-Host ""
     Write-Host "A browser window will open for authentication..." -ForegroundColor Yellow
     Write-Host ""
@@ -199,7 +177,7 @@ function Connect-ToMicrosoftGraph {
         
         if ($context) {
             Write-Host ""
-            Write-Result "Successfully connected to Microsoft Graph" -Level SUCCESS
+            Write-SouliTEKResult "Successfully connected to Microsoft Graph" -Level SUCCESS
             Write-Host ""
             Write-Host "Connection Details:" -ForegroundColor Cyan
             Write-Host "  Tenant ID: $($context.TenantId)" -ForegroundColor White
@@ -218,14 +196,14 @@ function Connect-ToMicrosoftGraph {
             return $true
         }
         else {
-            Write-Result "Failed to establish connection" -Level ERROR
+            Write-SouliTEKResult "Failed to establish connection" -Level ERROR
             Write-Host ""
             Read-Host "Press Enter to return to main menu"
             return $false
         }
     }
     catch {
-        Write-Result "Connection failed: $_" -Level ERROR
+        Write-SouliTEKResult "Connection failed: $_" -Level ERROR
         Write-Host ""
         Write-Host "Possible reasons:" -ForegroundColor Yellow
         Write-Host "  - Authentication was cancelled" -ForegroundColor Gray
@@ -241,18 +219,18 @@ function Disconnect-FromMicrosoftGraph {
     if ($Script:Connected) {
         try {
             Disconnect-MgGraph | Out-Null
-            Write-Result "Disconnected from Microsoft Graph" -Level SUCCESS
+            Write-SouliTEKResult "Disconnected from Microsoft Graph" -Level SUCCESS
             $Script:Connected = $false
         }
         catch {
-            Write-Result "Disconnect failed: $_" -Level WARNING
+            Write-SouliTEKResult "Disconnect failed: $_" -Level WARNING
         }
     }
 }
 
 function Test-GraphConnection {
     if (-not $Script:Connected) {
-        Write-Result "Not connected to Microsoft Graph" -Level ERROR
+        Write-SouliTEKResult "Not connected to Microsoft Graph" -Level ERROR
         Write-Host ""
         Write-Host "Please connect first using option [1] from the main menu" -ForegroundColor Yellow
         Write-Host ""
@@ -266,7 +244,7 @@ function Test-GraphConnection {
     }
     catch {
         $Script:Connected = $false
-        Write-Result "Connection lost. Please reconnect." -Level ERROR
+        Write-SouliTEKResult "Connection lost. Please reconnect." -Level ERROR
         Write-Host ""
         Read-Host "Press Enter to return to main menu"
         return $false
@@ -287,14 +265,14 @@ function Get-LicenseStatus {
     
     if (-not (Test-GraphConnection)) { return }
     
-    Write-Result "Retrieving license subscriptions..." -Level INFO
+    Write-SouliTEKResult "Retrieving license subscriptions..." -Level INFO
     Write-Host ""
     
     try {
         $subscriptions = Get-MgSubscribedSku -All
         
         if ($subscriptions.Count -eq 0) {
-            Write-Result "No subscriptions found" -Level WARNING
+            Write-SouliTEKResult "No subscriptions found" -Level WARNING
             Write-Host ""
             Read-Host "Press Enter to return to main menu"
             return
@@ -394,7 +372,7 @@ function Get-LicenseStatus {
         Write-Host "============================================================" -ForegroundColor Cyan
     }
     catch {
-        Write-Result "Failed to retrieve licenses: $_" -Level ERROR
+        Write-SouliTEKResult "Failed to retrieve licenses: $_" -Level ERROR
         Write-Host ""
         Write-Host "Possible reasons:" -ForegroundColor Yellow
         Write-Host "  - Insufficient permissions (requires Organization.Read.All)" -ForegroundColor Gray
@@ -416,7 +394,7 @@ function Get-DetailedLicenseReport {
     
     if (-not (Test-GraphConnection)) { return }
     
-    Write-Result "Generating detailed license report..." -Level INFO
+    Write-SouliTEKResult "Generating detailed license report..." -Level INFO
     Write-Host ""
     
     try {
@@ -490,7 +468,7 @@ function Get-DetailedLicenseReport {
         Write-Host "============================================================" -ForegroundColor Cyan
     }
     catch {
-        Write-Result "Failed to generate report: $_" -Level ERROR
+        Write-SouliTEKResult "Failed to generate report: $_" -Level ERROR
     }
     
     Write-Host ""
@@ -507,7 +485,7 @@ function Get-LicenseUsageStatistics {
     
     if (-not (Test-GraphConnection)) { return }
     
-    Write-Result "Calculating license usage statistics..." -Level INFO
+    Write-SouliTEKResult "Calculating license usage statistics..." -Level INFO
     Write-Host ""
     
     try {
@@ -600,7 +578,7 @@ function Get-LicenseUsageStatistics {
         Write-Host "============================================================" -ForegroundColor Cyan
     }
     catch {
-        Write-Result "Failed to calculate statistics: $_" -Level ERROR
+        Write-SouliTEKResult "Failed to calculate statistics: $_" -Level ERROR
     }
     
     Write-Host ""
@@ -616,7 +594,7 @@ function Send-ExpirationAlert {
     Write-Host ""
     
     if ($Script:LicenseData.Count -eq 0) {
-        Write-Result "No license data available" -Level WARNING
+        Write-SouliTEKResult "No license data available" -Level WARNING
         Write-Host ""
         Write-Host "Please run 'License Status Check' first (option 2)" -ForegroundColor Yellow
         Write-Host ""
@@ -686,7 +664,7 @@ function Send-ExpirationAlert {
             return
         }
         default {
-            Write-Result "Invalid choice" -Level ERROR
+            Write-SouliTEKResult "Invalid choice" -Level ERROR
             Start-Sleep -Seconds 2
         }
     }
@@ -715,7 +693,7 @@ function Send-EmailAlert {
     $to = Read-Host "To Email Address"
     
     Write-Host ""
-    Write-Result "Preparing email alert..." -Level INFO
+    Write-SouliTEKResult "Preparing email alert..." -Level INFO
     
     # Build email body
     $body = @"
@@ -767,7 +745,7 @@ function Send-EmailAlert {
     try {
         # This is a placeholder - actual implementation would require credentials
         Write-Host ""
-        Write-Result "Email alert prepared" -Level SUCCESS
+        Write-SouliTEKResult "Email alert prepared" -Level SUCCESS
         Write-Host ""
         Write-Host "SMTP Configuration:" -ForegroundColor Cyan
         Write-Host "  Server: $smtpServer" -ForegroundColor White
@@ -782,10 +760,10 @@ function Send-EmailAlert {
         # Save email body for reference
         $emailFile = Join-Path $Script:OutputFolder "License_Alert_Email_$(Get-Date -Format 'yyyyMMdd_HHmmss').html"
         $body | Out-File -FilePath $emailFile -Encoding UTF8
-        Write-Result "Email template saved: $emailFile" -Level SUCCESS
+        Write-SouliTEKResult "Email template saved: $emailFile" -Level SUCCESS
     }
     catch {
-        Write-Result "Failed to prepare email: $_" -Level ERROR
+        Write-SouliTEKResult "Failed to prepare email: $_" -Level ERROR
     }
 }
 
@@ -805,12 +783,12 @@ function Send-TeamsAlert {
     $webhookUrl = Read-Host "Enter Teams Webhook URL"
     
     if ([string]::IsNullOrWhiteSpace($webhookUrl)) {
-        Write-Result "No webhook URL provided" -Level WARNING
+        Write-SouliTEKResult "No webhook URL provided" -Level WARNING
         return
     }
     
     Write-Host ""
-    Write-Result "Preparing Teams notification..." -Level INFO
+    Write-SouliTEKResult "Preparing Teams notification..." -Level INFO
     
     # Build Teams message card
     $teamsMessage = @{
@@ -862,11 +840,11 @@ function Send-TeamsAlert {
         Invoke-RestMethod -Method Post -Uri $webhookUrl -Body $jsonBody -ContentType 'application/json' | Out-Null
         
         Write-Host ""
-        Write-Result "Teams notification sent successfully" -Level SUCCESS
+        Write-SouliTEKResult "Teams notification sent successfully" -Level SUCCESS
         Write-Host ""
     }
     catch {
-        Write-Result "Failed to send Teams notification: $_" -Level ERROR
+        Write-SouliTEKResult "Failed to send Teams notification: $_" -Level ERROR
         Write-Host ""
         Write-Host "Possible reasons:" -ForegroundColor Yellow
         Write-Host "  - Invalid webhook URL" -ForegroundColor Gray
@@ -879,7 +857,7 @@ function Export-AlertReport {
     param($CriticalLicenses, $WarningLicenses)
     
     Write-Host ""
-    Write-Result "Generating alert report..." -Level INFO
+    Write-SouliTEKResult "Generating alert report..." -Level INFO
     
     $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
     $fileName = "License_Alert_Report_$timestamp.html"
@@ -961,7 +939,7 @@ function Export-AlertReport {
     Set-Content -Path $filePath -Value $html -Encoding UTF8
     
     Write-Host ""
-    Write-Result "Alert report exported: $filePath" -Level SUCCESS
+    Write-SouliTEKResult "Alert report exported: $filePath" -Level SUCCESS
     Start-Sleep -Seconds 1
     Start-Process $filePath
 }
@@ -975,7 +953,7 @@ function Export-LicenseReport {
     Write-Host ""
     
     if ($Script:LicenseData.Count -eq 0) {
-        Write-Result "No license data to export" -Level WARNING
+        Write-SouliTEKResult "No license data to export" -Level WARNING
         Write-Host ""
         Write-Host "Please run 'License Status Check' first (option 2)" -ForegroundColor Yellow
         Write-Host ""
@@ -1018,14 +996,14 @@ function Export-LicenseReport {
                 return
             }
             default {
-                Write-Result "Invalid choice" -Level ERROR
+                Write-SouliTEKResult "Invalid choice" -Level ERROR
                 Start-Sleep -Seconds 2
                 return
             }
         }
     }
     catch {
-        Write-Result "Export failed: $_" -Level ERROR
+        Write-SouliTEKResult "Export failed: $_" -Level ERROR
     }
     
     Write-Host ""
@@ -1075,7 +1053,7 @@ function Export-TextReport {
     $content | Out-File -FilePath $filePath -Encoding UTF8
     
     Write-Host ""
-    Write-Result "Text report exported: $filePath" -Level SUCCESS
+    Write-SouliTEKResult "Text report exported: $filePath" -Level SUCCESS
     Start-Sleep -Seconds 1
     Start-Process notepad.exe -ArgumentList $filePath
 }
@@ -1089,7 +1067,7 @@ function Export-CSVReport {
     $Script:LicenseData | Export-Csv -Path $filePath -NoTypeInformation -Encoding UTF8
     
     Write-Host ""
-    Write-Result "CSV report exported: $filePath" -Level SUCCESS
+    Write-SouliTEKResult "CSV report exported: $filePath" -Level SUCCESS
     Start-Sleep -Seconds 1
     Start-Process $filePath
 }
@@ -1190,7 +1168,7 @@ function Export-HTMLReport {
     Set-Content -Path $filePath -Value $html -Encoding UTF8
     
     Write-Host ""
-    Write-Result "HTML report exported: $filePath" -Level SUCCESS
+    Write-SouliTEKResult "HTML report exported: $filePath" -Level SUCCESS
     Start-Sleep -Seconds 1
     Start-Process $filePath
 }
@@ -1412,4 +1390,7 @@ do {
         }
     }
 } while ($choice -ne "0")
+
+
+
 

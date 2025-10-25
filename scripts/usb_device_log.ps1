@@ -39,6 +39,16 @@
 # Set window title
 $Host.UI.RawUI.WindowTitle = "USB Device Log - Forensic Tool - by Soulitek.co.il"
 
+# Import SouliTEK Common Functions
+$ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$CommonPath = Join-Path (Split-Path -Parent $ScriptRoot) "modules\SouliTEK-Common.ps1"
+if (Test-Path $CommonPath) {
+    Import-Module $CommonPath -Force
+} else {
+    Write-Warning "SouliTEK Common Functions not found at: $CommonPath"
+    Write-Warning "Some functions may not work properly."
+}
+
 # ============================================================
 # GLOBAL VARIABLES
 # ============================================================
@@ -57,27 +67,7 @@ $Script:MountedDevicesPath = "HKLM:\SYSTEM\MountedDevices"
 # HELPER FUNCTIONS
 # ============================================================
 
-function Show-Banner {
-    Write-Host ""
-    Write-Host "  =========================================================" -ForegroundColor Cyan
-    Write-Host "   _____ ____  _    _ _      _____ _______ ______ _  __  " -ForegroundColor Cyan
-    Write-Host "  / ____/ __ \| |  | | |    |_   _|__   __|  ____| |/ /  " -ForegroundColor Cyan
-    Write-Host " | (___| |  | | |  | | |      | |    | |  | |__  | ' /   " -ForegroundColor Cyan
-    Write-Host "  \___ \ |  | | |  | | |      | |    | |  |  __| |  <    " -ForegroundColor Cyan
-    Write-Host "  ____) | |__| | |__| | |____ _| |_   | |  | |____| . \   " -ForegroundColor Cyan
-    Write-Host " |_____/ \____/ \____/|______|_____|  |_|  |______|_|\_\  " -ForegroundColor Cyan
-    Write-Host "  =========================================================" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "  USB Device Log - Forensic Tool" -ForegroundColor White
-    Write-Host "  =========================================================" -ForegroundColor DarkGray
-    Write-Host ""
-    Write-Host "  Website: " -NoNewline -ForegroundColor Gray
-    Write-Host "https://soulitek.co.il" -ForegroundColor Cyan
-    Write-Host "  Email: " -NoNewline -ForegroundColor Gray
-    Write-Host "letstalk@soulitek.co.il" -ForegroundColor Cyan
-    Write-Host "  (C) 2025 SouliTEK - All Rights Reserved" -ForegroundColor Gray
-    Write-Host ""
-}
+
 
 function Show-Header {
     param([string]$Title = "USB DEVICE LOG - FORENSIC TOOL", [ConsoleColor]$Color = 'Cyan')
@@ -92,30 +82,9 @@ function Show-Header {
     Write-Host ""
 }
 
-function Write-Result {
-    param([string]$Message, [string]$Level = "INFO")
-    
-    $timestamp = Get-Date -Format "HH:mm:ss"
-    
-    switch ($Level) {
-        "SUCCESS" { Write-Host "[$timestamp] [+] $Message" -ForegroundColor Green }
-        "ERROR" { Write-Host "[$timestamp] [-] $Message" -ForegroundColor Red }
-        "WARNING" { Write-Host "[$timestamp] [!] $Message" -ForegroundColor Yellow }
-        "INFO" { Write-Host "[$timestamp] [*] $Message" -ForegroundColor Cyan }
-        default { Write-Host "[$timestamp] $Message" -ForegroundColor Gray }
-    }
-}
+function Write-SouliTEKResult { param([string]$Message, [string]$Level = "INFO") Write-SouliTEKResult -Message $Message -Level $Level }
 
-function Test-AdministratorPrivilege {
-    try {
-        $currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
-        $principal = New-Object Security.Principal.WindowsPrincipal($currentUser)
-        return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-    }
-    catch {
-        return $false
-    }
-}
+
 
 # ============================================================
 # USB DEVICE ANALYSIS FUNCTIONS
@@ -127,7 +96,7 @@ function Get-USBStorDevices {
         Retrieves USB storage devices from the Windows Registry.
     #>
     
-    Write-Result "Scanning USBSTOR registry..." -Level INFO
+    Write-SouliTEKResult "Scanning USBSTOR registry..." -Level INFO
     
     $devices = @()
     
@@ -268,14 +237,14 @@ function Get-USBStorDevices {
             }
         }
         else {
-            Write-Result "USBSTOR registry path not found" -Level WARNING
+            Write-SouliTEKResult "USBSTOR registry path not found" -Level WARNING
         }
         
-        Write-Result "Found $($devices.Count) USB storage devices in registry" -Level SUCCESS
+        Write-SouliTEKResult "Found $($devices.Count) USB storage devices in registry" -Level SUCCESS
         return $devices
     }
     catch {
-        Write-Result "Error scanning USBSTOR: $_" -Level ERROR
+        Write-SouliTEKResult "Error scanning USBSTOR: $_" -Level ERROR
         return @()
     }
 }
@@ -286,7 +255,7 @@ function Get-USBEventLogs {
         Retrieves USB-related events from Windows Event Logs.
     #>
     
-    Write-Result "Scanning Event Logs for USB activity..." -Level INFO
+    Write-SouliTEKResult "Scanning Event Logs for USB activity..." -Level INFO
     
     $events = @()
     
@@ -340,11 +309,11 @@ function Get-USBEventLogs {
             }
         }
         
-        Write-Result "Found $($events.Count) USB-related events (last 30 days)" -Level SUCCESS
+        Write-SouliTEKResult "Found $($events.Count) USB-related events (last 30 days)" -Level SUCCESS
         return $events
     }
     catch {
-        Write-Result "Error scanning event logs: $_" -Level ERROR
+        Write-SouliTEKResult "Error scanning event logs: $_" -Level ERROR
         return @()
     }
 }
@@ -355,7 +324,7 @@ function Get-SetupAPIDeviceLog {
         Parses the SetupAPI.dev.log file for USB device installation history.
     #>
     
-    Write-Result "Checking SetupAPI device log..." -Level INFO
+    Write-SouliTEKResult "Checking SetupAPI device log..." -Level INFO
     
     $setupApiLog = Join-Path $env:SystemRoot "inf\setupapi.dev.log"
     
@@ -365,7 +334,7 @@ function Get-SetupAPIDeviceLog {
             
             $usbLines = $content | Select-String -Pattern "USB" -Context 0, 3
             
-            Write-Result "Found $($usbLines.Count) USB-related entries in SetupAPI log" -Level SUCCESS
+            Write-SouliTEKResult "Found $($usbLines.Count) USB-related entries in SetupAPI log" -Level SUCCESS
             
             # Return count and sample
             return [PSCustomObject]@{
@@ -375,7 +344,7 @@ function Get-SetupAPIDeviceLog {
             }
         }
         else {
-            Write-Result "SetupAPI log not found at $setupApiLog" -Level WARNING
+            Write-SouliTEKResult "SetupAPI log not found at $setupApiLog" -Level WARNING
             return [PSCustomObject]@{
                 LogPath = $setupApiLog
                 TotalEntries = 0
@@ -384,7 +353,7 @@ function Get-SetupAPIDeviceLog {
         }
     }
     catch {
-        Write-Result "Error reading SetupAPI log: $_" -Level ERROR
+        Write-SouliTEKResult "Error reading SetupAPI log: $_" -Level ERROR
         return [PSCustomObject]@{
             LogPath = $setupApiLog
             TotalEntries = 0
@@ -405,13 +374,13 @@ function Start-USBAnalysis {
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     
-    Write-Result "Starting comprehensive USB device analysis..." -Level INFO
+    Write-SouliTEKResult "Starting comprehensive USB device analysis..." -Level INFO
     Write-Host ""
     
     # Check administrator privileges
-    if (-not (Test-AdministratorPrivilege)) {
+    if (-not (Test-SouliTEKAdministrator)) {
         Write-Host ""
-        Write-Result "WARNING: Running without administrator privileges" -Level WARNING
+        Write-SouliTEKResult "WARNING: Running without administrator privileges" -Level WARNING
         Write-Host "  Some information may be limited. Run as Administrator for full access." -ForegroundColor Yellow
         Write-Host ""
         Start-Sleep -Seconds 2
@@ -514,7 +483,7 @@ function Export-USBReport {
     Write-Host ""
     
     if ($Script:USBDevices.Count -eq 0) {
-        Write-Result "No USB devices to export" -Level WARNING
+        Write-SouliTEKResult "No USB devices to export" -Level WARNING
         Write-Host ""
         Write-Host "Run 'USB Device Analysis' first to scan for devices." -ForegroundColor Yellow
         Write-Host ""
@@ -549,14 +518,14 @@ function Export-USBReport {
             }
             "0" { return }
             default {
-                Write-Result "Invalid choice" -Level ERROR
+                Write-SouliTEKResult "Invalid choice" -Level ERROR
                 Start-Sleep -Seconds 2
                 return
             }
         }
     }
     catch {
-        Write-Result "Export failed: $_" -Level ERROR
+        Write-SouliTEKResult "Export failed: $_" -Level ERROR
     }
     
     Write-Host ""
@@ -617,7 +586,7 @@ function Export-TextReport {
     $content | Out-File -FilePath $filePath -Encoding UTF8
     
     Write-Host ""
-    Write-Result "Text report exported to: $filePath" -Level SUCCESS
+    Write-SouliTEKResult "Text report exported to: $filePath" -Level SUCCESS
     Start-Sleep -Seconds 1
     Start-Process notepad.exe -ArgumentList $filePath
 }
@@ -631,7 +600,7 @@ function Export-CSVReport {
     $Script:USBDevices | Export-Csv -Path $filePath -NoTypeInformation -Encoding UTF8
     
     Write-Host ""
-    Write-Result "CSV report exported to: $filePath" -Level SUCCESS
+    Write-SouliTEKResult "CSV report exported to: $filePath" -Level SUCCESS
     Start-Sleep -Seconds 1
     Start-Process $filePath
 }
@@ -877,7 +846,7 @@ function Export-HTMLReport {
     Set-Content -Path $filePath -Value $html -Encoding UTF8
     
     Write-Host ""
-    Write-Result "HTML report exported to: $filePath" -Level SUCCESS
+    Write-SouliTEKResult "HTML report exported to: $filePath" -Level SUCCESS
     Start-Sleep -Seconds 1
     Start-Process $filePath
 }
@@ -1091,4 +1060,7 @@ do {
         }
     }
 } while ($choice -ne "0")
+
+
+
 

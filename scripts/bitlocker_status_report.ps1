@@ -37,6 +37,16 @@
 # Set window title
 $Host.UI.RawUI.WindowTitle = "BitLocker Status Report - Professional Tool - by Soulitek.co.il"
 
+# Import SouliTEK Common Functions
+$ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$CommonPath = Join-Path (Split-Path -Parent $ScriptRoot) "modules\SouliTEK-Common.ps1"
+if (Test-Path $CommonPath) {
+    Import-Module $CommonPath -Force
+} else {
+    Write-Warning "SouliTEK Common Functions not found at: $CommonPath"
+    Write-Warning "Some functions may not work properly."
+}
+
 # ============================================================
 # GLOBAL VARIABLES
 # ============================================================
@@ -48,27 +58,7 @@ $Script:OutputFolder = Join-Path $env:USERPROFILE "Desktop"
 # HELPER FUNCTIONS
 # ============================================================
 
-function Show-Banner {
-    Write-Host ""
-    Write-Host "  =========================================================" -ForegroundColor Cyan
-    Write-Host "   _____ ____  _    _ _      _____ _______ ______ _  __  " -ForegroundColor Cyan
-    Write-Host "  / ____/ __ \| |  | | |    |_   _|__   __|  ____| |/ /  " -ForegroundColor Cyan
-    Write-Host " | (___| |  | | |  | | |      | |    | |  | |__  | ' /   " -ForegroundColor Cyan
-    Write-Host "  \___ \ |  | | |  | | |      | |    | |  |  __| |  <    " -ForegroundColor Cyan
-    Write-Host "  ____) | |__| | |__| | |____ _| |_   | |  | |____| . \   " -ForegroundColor Cyan
-    Write-Host " |_____/ \____/ \____/|______|_____|  |_|  |______|_|\_\  " -ForegroundColor Cyan
-    Write-Host "  =========================================================" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "  BitLocker Status Report - Professional Tool" -ForegroundColor White
-    Write-Host "  =========================================================" -ForegroundColor DarkGray
-    Write-Host ""
-    Write-Host "  Website: " -NoNewline -ForegroundColor Gray
-    Write-Host "https://soulitek.co.il" -ForegroundColor Cyan
-    Write-Host "  Email: " -NoNewline -ForegroundColor Gray
-    Write-Host "letstalk@soulitek.co.il" -ForegroundColor Cyan
-    Write-Host "  (C) 2025 SouliTEK - All Rights Reserved" -ForegroundColor Gray
-    Write-Host ""
-}
+
 
 function Show-Header {
     param([string]$Title = "BITLOCKER STATUS REPORT", [ConsoleColor]$Color = 'Cyan')
@@ -83,25 +73,9 @@ function Show-Header {
     Write-Host ""
 }
 
-function Write-Result {
-    param([string]$Message, [string]$Level = "INFO")
-    
-    $timestamp = Get-Date -Format "HH:mm:ss"
-    
-    switch ($Level) {
-        "SUCCESS" { Write-Host "[$timestamp] [+] $Message" -ForegroundColor Green }
-        "ERROR" { Write-Host "[$timestamp] [-] $Message" -ForegroundColor Red }
-        "WARNING" { Write-Host "[$timestamp] [!] $Message" -ForegroundColor Yellow }
-        "INFO" { Write-Host "[$timestamp] [*] $Message" -ForegroundColor Cyan }
-        default { Write-Host "[$timestamp] $Message" -ForegroundColor Gray }
-    }
-}
+function Write-SouliTEKResult { param([string]$Message, [string]$Level = "INFO") Write-SouliTEKResult -Message $Message -Level $Level }
 
-function Test-Administrator {
-    $currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
-    $principal = New-Object Security.Principal.WindowsPrincipal($currentUser)
-    return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-}
+
 
 # ============================================================
 # BITLOCKER CHECK FUNCTIONS
@@ -115,14 +89,14 @@ function Get-BitLockerStatus {
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     
-    Write-Result "Scanning volumes for BitLocker status..." -Level INFO
+    Write-SouliTEKResult "Scanning volumes for BitLocker status..." -Level INFO
     Write-Host ""
     
     try {
         $volumes = Get-BitLockerVolume
         
         if ($volumes.Count -eq 0) {
-            Write-Result "No volumes found or BitLocker is not available" -Level WARNING
+            Write-SouliTEKResult "No volumes found or BitLocker is not available" -Level WARNING
             Write-Host ""
             Read-Host "Press Enter to return to main menu"
             return
@@ -261,7 +235,7 @@ function Get-BitLockerStatus {
         Write-Host "============================================================" -ForegroundColor Cyan
     }
     catch {
-        Write-Result "Failed to retrieve BitLocker status: $_" -Level ERROR
+        Write-SouliTEKResult "Failed to retrieve BitLocker status: $_" -Level ERROR
         Write-Host ""
         Write-Host "Possible reasons:" -ForegroundColor Yellow
         Write-Host "  - BitLocker not available on this Windows edition" -ForegroundColor Gray
@@ -294,7 +268,7 @@ function Get-RecoveryKeys {
     }
     
     Write-Host ""
-    Write-Result "Retrieving recovery keys..." -Level INFO
+    Write-SouliTEKResult "Retrieving recovery keys..." -Level INFO
     Write-Host ""
     
     try {
@@ -326,7 +300,7 @@ function Get-RecoveryKeys {
         }
         
         if (-not $foundKeys) {
-            Write-Result "No recovery keys found on any volume" -Level WARNING
+            Write-SouliTEKResult "No recovery keys found on any volume" -Level WARNING
             Write-Host ""
             Write-Host "This could mean:" -ForegroundColor Yellow
             Write-Host "  - No volumes are BitLocker protected" -ForegroundColor Gray
@@ -338,7 +312,7 @@ function Get-RecoveryKeys {
         Write-Host "============================================================" -ForegroundColor Cyan
     }
     catch {
-        Write-Result "Failed to retrieve recovery keys: $_" -Level ERROR
+        Write-SouliTEKResult "Failed to retrieve recovery keys: $_" -Level ERROR
     }
     
     Write-Host ""
@@ -353,7 +327,7 @@ function Get-DetailedVolumeReport {
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     
-    Write-Result "Generating detailed report..." -Level INFO
+    Write-SouliTEKResult "Generating detailed report..." -Level INFO
     Write-Host ""
     
     try {
@@ -449,7 +423,7 @@ function Get-DetailedVolumeReport {
         Write-Host "============================================================" -ForegroundColor Cyan
     }
     catch {
-        Write-Result "Failed to generate detailed report: $_" -Level ERROR
+        Write-SouliTEKResult "Failed to generate detailed report: $_" -Level ERROR
     }
     
     Write-Host ""
@@ -464,7 +438,7 @@ function Test-BitLockerHealth {
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     
-    Write-Result "Running BitLocker health check..." -Level INFO
+    Write-SouliTEKResult "Running BitLocker health check..." -Level INFO
     Write-Host ""
     
     try {
@@ -481,16 +455,16 @@ function Test-BitLockerHealth {
         $osDrive = $volumes | Where-Object { $_.VolumeType -eq "OperatingSystem" }
         if ($osDrive) {
             if ($osDrive.ProtectionStatus -eq "On") {
-                Write-Result "OS drive is protected" -Level SUCCESS
+                Write-SouliTEKResult "OS drive is protected" -Level SUCCESS
                 $passed += "OS drive encryption enabled"
             }
             else {
-                Write-Result "OS drive is NOT protected" -Level ERROR
+                Write-SouliTEKResult "OS drive is NOT protected" -Level ERROR
                 $issues += "OS drive ($($osDrive.MountPoint)) is not BitLocker protected"
             }
         }
         else {
-            Write-Result "No OS drive found" -Level WARNING
+            Write-SouliTEKResult "No OS drive found" -Level WARNING
         }
         
         Write-Host ""
@@ -501,18 +475,18 @@ function Test-BitLockerHealth {
         if ($dataVolumes) {
             $unprotectedData = $dataVolumes | Where-Object { $_.ProtectionStatus -ne "On" }
             if ($unprotectedData.Count -eq 0) {
-                Write-Result "All data drives are protected" -Level SUCCESS
+                Write-SouliTEKResult "All data drives are protected" -Level SUCCESS
                 $passed += "All data drives encrypted"
             }
             else {
-                Write-Result "$($unprotectedData.Count) data drive(s) not protected" -Level WARNING
+                Write-SouliTEKResult "$($unprotectedData.Count) data drive(s) not protected" -Level WARNING
                 foreach ($vol in $unprotectedData) {
                     $warnings += "Data drive $($vol.MountPoint) is not encrypted"
                 }
             }
         }
         else {
-            Write-Result "No data drives found" -Level INFO
+            Write-SouliTEKResult "No data drives found" -Level INFO
         }
         
         Write-Host ""
@@ -530,11 +504,11 @@ function Test-BitLockerHealth {
             }
             
             if ($volumesWithoutRecovery.Count -eq 0) {
-                Write-Result "All protected volumes have recovery keys" -Level SUCCESS
+                Write-SouliTEKResult "All protected volumes have recovery keys" -Level SUCCESS
                 $passed += "Recovery keys configured"
             }
             else {
-                Write-Result "$($volumesWithoutRecovery.Count) volume(s) missing recovery keys" -Level WARNING
+                Write-SouliTEKResult "$($volumesWithoutRecovery.Count) volume(s) missing recovery keys" -Level WARNING
                 foreach ($vol in $volumesWithoutRecovery) {
                     $warnings += "Volume $vol does not have a recovery password"
                 }
@@ -547,11 +521,11 @@ function Test-BitLockerHealth {
         Write-Host "[4/5] Checking encryption completion..." -ForegroundColor Yellow
         $incompleteVolumes = $volumes | Where-Object { $_.EncryptionPercentage -lt 100 -and $_.EncryptionPercentage -gt 0 }
         if ($incompleteVolumes.Count -eq 0) {
-            Write-Result "All encryption processes completed" -Level SUCCESS
+            Write-SouliTEKResult "All encryption processes completed" -Level SUCCESS
             $passed += "No pending encryption operations"
         }
         else {
-            Write-Result "$($incompleteVolumes.Count) volume(s) still encrypting" -Level WARNING
+            Write-SouliTEKResult "$($incompleteVolumes.Count) volume(s) still encrypting" -Level WARNING
             foreach ($vol in $incompleteVolumes) {
                 $warnings += "Volume $($vol.MountPoint) encryption at $($vol.EncryptionPercentage)%"
             }
@@ -563,11 +537,11 @@ function Test-BitLockerHealth {
         Write-Host "[5/5] Checking volume lock status..." -ForegroundColor Yellow
         $lockedVolumes = $volumes | Where-Object { $_.LockStatus -eq "Locked" }
         if ($lockedVolumes.Count -eq 0) {
-            Write-Result "All volumes are unlocked" -Level SUCCESS
+            Write-SouliTEKResult "All volumes are unlocked" -Level SUCCESS
             $passed += "No locked volumes detected"
         }
         else {
-            Write-Result "$($lockedVolumes.Count) volume(s) are locked" -Level WARNING
+            Write-SouliTEKResult "$($lockedVolumes.Count) volume(s) are locked" -Level WARNING
             foreach ($vol in $lockedVolumes) {
                 $warnings += "Volume $($vol.MountPoint) is locked"
             }
@@ -621,7 +595,7 @@ function Test-BitLockerHealth {
         Write-Host "============================================================" -ForegroundColor Cyan
     }
     catch {
-        Write-Result "Health check failed: $_" -Level ERROR
+        Write-SouliTEKResult "Health check failed: $_" -Level ERROR
     }
     
     Write-Host ""
@@ -636,14 +610,14 @@ function Export-BitLockerReport {
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     
-    Write-Result "Collecting BitLocker data..." -Level INFO
+    Write-SouliTEKResult "Collecting BitLocker data..." -Level INFO
     Write-Host ""
     
     try {
         $volumes = Get-BitLockerVolume
         
         if ($volumes.Count -eq 0) {
-            Write-Result "No volumes found to export" -Level WARNING
+            Write-SouliTEKResult "No volumes found to export" -Level WARNING
             Start-Sleep -Seconds 2
             return
         }
@@ -680,14 +654,14 @@ function Export-BitLockerReport {
                 return
             }
             default {
-                Write-Result "Invalid choice" -Level ERROR
+                Write-SouliTEKResult "Invalid choice" -Level ERROR
                 Start-Sleep -Seconds 2
                 return
             }
         }
     }
     catch {
-        Write-Result "Export failed: $_" -Level ERROR
+        Write-SouliTEKResult "Export failed: $_" -Level ERROR
     }
     
     Write-Host ""
@@ -746,7 +720,7 @@ function Export-TextReport {
     $content | Out-File -FilePath $filePath -Encoding UTF8
     
     Write-Host ""
-    Write-Result "Text report exported to: $filePath" -Level SUCCESS
+    Write-SouliTEKResult "Text report exported to: $filePath" -Level SUCCESS
     Start-Sleep -Seconds 1
     Start-Process notepad.exe -ArgumentList $filePath
 }
@@ -776,7 +750,7 @@ function Export-CSVReport {
     $data | Export-Csv -Path $filePath -NoTypeInformation -Encoding UTF8
     
     Write-Host ""
-    Write-Result "CSV report exported to: $filePath" -Level SUCCESS
+    Write-SouliTEKResult "CSV report exported to: $filePath" -Level SUCCESS
     Start-Sleep -Seconds 1
     Start-Process $filePath
 }
@@ -885,7 +859,7 @@ function Export-HTMLReport {
     Set-Content -Path $filePath -Value $html -Encoding UTF8
     
     Write-Host ""
-    Write-Result "HTML report exported to: $filePath" -Level SUCCESS
+    Write-SouliTEKResult "HTML report exported to: $filePath" -Level SUCCESS
     Start-Sleep -Seconds 1
     Start-Process $filePath
 }
@@ -1060,7 +1034,7 @@ function Show-ExitMessage {
 # ============================================================
 
 # Check for administrator privileges
-if (-not (Test-Administrator)) {
+if (-not (Test-SouliTEKAdministrator)) {
     Clear-Host
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Red
@@ -1105,4 +1079,7 @@ do {
         }
     }
 } while ($choice -ne "0")
+
+
+
 

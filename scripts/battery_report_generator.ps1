@@ -34,48 +34,21 @@
 # Set window title
 $Host.UI.RawUI.WindowTitle = "Battery Report Generator - Professional Tool - by Soulitek.co.il"
 
-# Function to set console color
-function Set-ConsoleColor {
-    param([string]$Color)
-    
-    switch ($Color) {
-        "Blue" { $Host.UI.RawUI.ForegroundColor = "Cyan" }
-        "Green" { $Host.UI.RawUI.ForegroundColor = "Green" }
-        "Red" { $Host.UI.RawUI.ForegroundColor = "Red" }
-        "Yellow" { $Host.UI.RawUI.ForegroundColor = "Yellow" }
-        "Magenta" { $Host.UI.RawUI.ForegroundColor = "Magenta" }
-        "White" { $Host.UI.RawUI.ForegroundColor = "White" }
-        "Gray" { $Host.UI.RawUI.ForegroundColor = "Gray" }
-    }
+# Import SouliTEK Common Functions
+$ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$CommonPath = Join-Path (Split-Path -Parent $ScriptRoot) "modules\SouliTEK-Common.ps1"
+if (Test-Path $CommonPath) {
+    . $CommonPath
+} else {
+    Write-Warning "SouliTEK Common Functions not found at: $CommonPath"
+    Write-Warning "Some functions may not work properly."
 }
 
-# Function to check admin privileges
-function Test-Administrator {
-    $currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
-    $principal = New-Object Security.Principal.WindowsPrincipal($currentUser)
-    return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-}
-
-# Function to show ASCII banner
-function Show-Banner {
-    Write-Host ""
-    Write-Host "  =========================================================" -ForegroundColor Cyan
-    Write-Host "   _____ ____  _    _ _      _____ _______ ______ _  __  " -ForegroundColor Cyan
-    Write-Host "  / ____/ __ \| |  | | |    |_   _|__   __|  ____| |/ /  " -ForegroundColor Cyan
-    Write-Host " | (___| |  | | |  | | |      | |    | |  | |__  | ' /   " -ForegroundColor Cyan
-    Write-Host "  \___ \ |  | | |  | | |      | |    | |  |  __| |  <    " -ForegroundColor Cyan
-    Write-Host "  ____) | |__| | |__| | |____ _| |_   | |  | |____| . \   " -ForegroundColor Cyan
-    Write-Host " |_____/ \____/ \____/|______|_____|  |_|  |______|_|\_\  " -ForegroundColor Cyan
-    Write-Host "  =========================================================" -ForegroundColor Cyan
-    Write-Host ""
+# Function to show tool-specific banner
+function Show-Banner { 
+    Show-SouliTEKBanner
     Write-Host "  Battery Report Generator - Professional Tool" -ForegroundColor White
     Write-Host "  =========================================================" -ForegroundColor DarkGray
-    Write-Host ""
-    Write-Host "  Website: " -NoNewline -ForegroundColor Gray
-    Write-Host "https://soulitek.co.il" -ForegroundColor Cyan
-    Write-Host "  Email: " -NoNewline -ForegroundColor Gray
-    Write-Host "letstalk@soulitek.co.il" -ForegroundColor Cyan
-    Write-Host "  (C) 2025 SouliTEK - All Rights Reserved" -ForegroundColor Gray
     Write-Host ""
 }
 
@@ -83,7 +56,7 @@ function Show-Banner {
 function Show-Disclaimer {
     Clear-Host
     Show-Banner
-    Set-ConsoleColor "Yellow"
+    Set-SouliTEKConsoleColor "Yellow"
     Write-Host "============================================================"
     Write-Host ""
     Write-Host "                    IMPORTANT NOTICE"
@@ -109,7 +82,7 @@ function Show-Disclaimer {
 function Show-MainMenu {
     Clear-Host
     Show-Banner
-    Set-ConsoleColor "Blue"
+    Set-SouliTEKConsoleColor "Blue"
     Write-Host "Select an option:"
     Write-Host ""
     Write-Host "  [1] Quick Battery Report    - Basic health overview"
@@ -123,7 +96,7 @@ function Show-MainMenu {
     Write-Host "  [0] Exit"
     Write-Host ""
     Write-Host "========================================"
-    Set-ConsoleColor "White"
+    Set-SouliTEKConsoleColor "White"
     $choice = Read-Host "Enter your choice (0-8)"
     return $choice
 }
@@ -131,7 +104,7 @@ function Show-MainMenu {
 # Function to generate quick battery report
 function New-QuickReport {
     Clear-Host
-    Set-ConsoleColor "Yellow"
+    Set-SouliTEKConsoleColor "Yellow"
     Write-Host ""
     Write-Host "========================================"
     Write-Host "   QUICK BATTERY REPORT"
@@ -147,7 +120,7 @@ function New-QuickReport {
     [void](powercfg /batteryreport /output "$reportFile" /duration 7 2>&1)
     
     if ($LASTEXITCODE -eq 0) {
-        Set-ConsoleColor "Green"
+        Set-SouliTEKConsoleColor "Green"
         Write-Host ""
         Write-Host "========================================"
         Write-Host "   REPORT GENERATED SUCCESSFULLY"
@@ -161,7 +134,7 @@ function New-QuickReport {
         Start-Process $reportFile
     }
     else {
-        Set-ConsoleColor "Red"
+        Set-SouliTEKConsoleColor "Red"
         Write-Host ""
         Write-Host "========================================"
         Write-Host "   ERROR"
@@ -175,7 +148,7 @@ function New-QuickReport {
     }
     
     Write-Host ""
-    Set-ConsoleColor "White"
+    Set-SouliTEKConsoleColor "White"
     Write-Host "Press any key to return to main menu..."
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
@@ -183,7 +156,7 @@ function New-QuickReport {
 # Function to generate detailed battery report
 function New-DetailedReport {
     Clear-Host
-    Set-ConsoleColor "Magenta"
+    Set-SouliTEKConsoleColor "Magenta"
     Write-Host ""
     Write-Host "========================================"
     Write-Host "   DETAILED BATTERY REPORT"
@@ -202,7 +175,7 @@ function New-DetailedReport {
     [void](powercfg /batteryreport /output "$reportFile" /duration 28 2>&1)
     
     if ($LASTEXITCODE -eq 0) {
-        Set-ConsoleColor "Green"
+        Set-SouliTEKConsoleColor "Green"
         Write-Host ""
         Write-Host "========================================"
         Write-Host "   DETAILED REPORT COMPLETED"
@@ -222,7 +195,7 @@ function New-DetailedReport {
         Start-Process $reportFile
     }
     else {
-        Set-ConsoleColor "Red"
+        Set-SouliTEKConsoleColor "Red"
         Write-Host ""
         Write-Host "========================================"
         Write-Host "   ERROR"
@@ -232,7 +205,7 @@ function New-DetailedReport {
     }
     
     Write-Host ""
-    Set-ConsoleColor "White"
+    Set-SouliTEKConsoleColor "White"
     Write-Host "Press any key to return to main menu..."
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
@@ -240,7 +213,7 @@ function New-DetailedReport {
 # Function to check battery health
 function Get-BatteryHealthCheck {
     Clear-Host
-    Set-ConsoleColor "Blue"
+    Set-SouliTEKConsoleColor "Blue"
     Write-Host ""
     Write-Host "========================================"
     Write-Host "   BATTERY HEALTH CHECK"
@@ -313,13 +286,13 @@ function Get-BatteryHealthCheck {
         }
     }
     else {
-        Set-ConsoleColor "Red"
+        Set-SouliTEKConsoleColor "Red"
         Write-Host "No battery detected."
         Write-Host "This is likely a desktop PC without a battery."
     }
     
     Write-Host ""
-    Set-ConsoleColor "White"
+    Set-SouliTEKConsoleColor "White"
     Write-Host "Press any key to return to main menu..."
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
@@ -327,7 +300,7 @@ function Get-BatteryHealthCheck {
 # Function to generate sleep study report
 function New-SleepStudyReport {
     Clear-Host
-    Set-ConsoleColor "Blue"
+    Set-SouliTEKConsoleColor "Blue"
     Write-Host ""
     Write-Host "========================================"
     Write-Host "   SLEEP STUDY REPORT"
@@ -345,7 +318,7 @@ function New-SleepStudyReport {
     [void](powercfg /sleepstudy /output "$reportFile" /duration 7 2>&1)
     
     if ($LASTEXITCODE -eq 0) {
-        Set-ConsoleColor "Green"
+        Set-SouliTEKConsoleColor "Green"
         Write-Host ""
         Write-Host "========================================"
         Write-Host "   SLEEP STUDY COMPLETED"
@@ -365,7 +338,7 @@ function New-SleepStudyReport {
         Start-Process $reportFile
     }
     else {
-        Set-ConsoleColor "Yellow"
+        Set-SouliTEKConsoleColor "Yellow"
         Write-Host ""
         Write-Host "========================================"
         Write-Host "   SLEEP STUDY NOT AVAILABLE"
@@ -377,7 +350,7 @@ function New-SleepStudyReport {
     }
     
     Write-Host ""
-    Set-ConsoleColor "White"
+    Set-SouliTEKConsoleColor "White"
     Write-Host "Press any key to return to main menu..."
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
@@ -385,7 +358,7 @@ function New-SleepStudyReport {
 # Function to generate energy report
 function New-EnergyReport {
     Clear-Host
-    Set-ConsoleColor "Yellow"
+    Set-SouliTEKConsoleColor "Yellow"
     Write-Host ""
     Write-Host "========================================"
     Write-Host "   ENERGY EFFICIENCY REPORT"
@@ -412,7 +385,7 @@ function New-EnergyReport {
     powercfg /energy /output "$reportFile" /duration 60
     
     if ($LASTEXITCODE -eq 0) {
-        Set-ConsoleColor "Green"
+        Set-SouliTEKConsoleColor "Green"
         Write-Host ""
         Write-Host "========================================"
         Write-Host "   ENERGY REPORT COMPLETED"
@@ -433,7 +406,7 @@ function New-EnergyReport {
         Start-Process $reportFile
     }
     else {
-        Set-ConsoleColor "Red"
+        Set-SouliTEKConsoleColor "Red"
         Write-Host ""
         Write-Host "========================================"
         Write-Host "   ERROR"
@@ -443,7 +416,7 @@ function New-EnergyReport {
     }
     
     Write-Host ""
-    Set-ConsoleColor "White"
+    Set-SouliTEKConsoleColor "White"
     Write-Host "Press any key to return to main menu..."
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
@@ -451,7 +424,7 @@ function New-EnergyReport {
 # Function to generate all reports
 function New-AllReports {
     Clear-Host
-    Set-ConsoleColor "Magenta"
+    Set-SouliTEKConsoleColor "Magenta"
     Write-Host ""
     Write-Host "========================================"
     Write-Host "   GENERATE ALL REPORTS"
@@ -511,7 +484,7 @@ function New-AllReports {
         Write-Host "      [FAILED] Energy report" -ForegroundColor Red
     }
     
-    Set-ConsoleColor "Green"
+    Set-SouliTEKConsoleColor "Green"
     Write-Host ""
     Write-Host "========================================"
     Write-Host "   ALL REPORTS COMPLETED"
@@ -525,7 +498,7 @@ function New-AllReports {
     Start-Process explorer $folder
     
     Write-Host ""
-    Set-ConsoleColor "White"
+    Set-SouliTEKConsoleColor "White"
     Write-Host "Press any key to return to main menu..."
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
@@ -533,7 +506,7 @@ function New-AllReports {
 # Function to view recent reports
 function Show-RecentReports {
     Clear-Host
-    Set-ConsoleColor "Blue"
+    Set-SouliTEKConsoleColor "Blue"
     Write-Host ""
     Write-Host "========================================"
     Write-Host "   RECENT BATTERY REPORTS"
@@ -597,7 +570,7 @@ function Show-RecentReports {
     }
     
     Write-Host ""
-    Set-ConsoleColor "White"
+    Set-SouliTEKConsoleColor "White"
     Write-Host "Press any key to return to main menu..."
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
@@ -605,7 +578,7 @@ function Show-RecentReports {
 # Function to show help
 function Show-Help {
     Clear-Host
-    Set-ConsoleColor "Blue"
+    Set-SouliTEKConsoleColor "Blue"
     Write-Host ""
     Write-Host "========================================"
     Write-Host "   HELP GUIDE"
@@ -673,7 +646,7 @@ function Show-Help {
     Write-Host ""
     Write-Host "========================================"
     Write-Host ""
-    Set-ConsoleColor "White"
+    Set-SouliTEKConsoleColor "White"
     Write-Host "Press any key to return to main menu..."
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
@@ -681,7 +654,7 @@ function Show-Help {
 # Function to show exit message
 function Show-ExitMessage {
     Clear-Host
-    Set-ConsoleColor "Gray"
+    Set-SouliTEKConsoleColor "Gray"
     Write-Host ""
     Write-Host "============================================================"
     Write-Host ""
@@ -713,8 +686,8 @@ function Show-ExitMessage {
 # ============================================================
 
 # Check for administrator privileges
-if (-not (Test-Administrator)) {
-    Set-ConsoleColor "Red"
+if (-not (Test-SouliTEKAdministrator)) {
+    Set-SouliTEKConsoleColor "Red"
     Clear-Host
     Write-Host ""
     Write-Host "========================================"
@@ -761,3 +734,5 @@ do {
         }
     }
 } while ($choice -ne "0")
+
+

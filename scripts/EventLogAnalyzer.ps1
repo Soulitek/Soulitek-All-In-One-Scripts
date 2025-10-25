@@ -126,6 +126,16 @@ param(
 # Set window title
 $Host.UI.RawUI.WindowTitle = "EventLogAnalyzer - Professional Tool - by Soulitek.co.il"
 
+# Import SouliTEK Common Functions
+$ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$CommonPath = Join-Path (Split-Path -Parent $ScriptRoot) "modules\SouliTEK-Common.ps1"
+if (Test-Path $CommonPath) {
+    Import-Module $CommonPath -Force
+} else {
+    Write-Warning "SouliTEK Common Functions not found at: $CommonPath"
+    Write-Warning "Some functions may not work properly."
+}
+
 # ============================================================
 # GLOBAL CONFIGURATION
 # ============================================================
@@ -144,21 +154,7 @@ $script:JsonSummaryFile = $null
 .SYNOPSIS
     Tests if the current PowerShell session has Administrator privileges.
 #>
-function Test-AdministratorPrivilege {
-    [CmdletBinding()]
-    [OutputType([bool])]
-    param()
-    
-    try {
-        $currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
-        $principal = New-Object Security.Principal.WindowsPrincipal($currentUser)
-        return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-    }
-    catch {
-        Write-Error "Failed to determine administrator status: $_"
-        return $false
-    }
-}
+
 
 <#
 .SYNOPSIS
@@ -533,27 +529,7 @@ function Export-AnalysisResults {
 .SYNOPSIS
     Displays the SouliTEK ASCII banner.
 #>
-function Show-Banner {
-    Write-Host ""
-    Write-Host "  =========================================================" -ForegroundColor Cyan
-    Write-Host "   _____ ____  _    _ _      _____ _______ ______ _  __  " -ForegroundColor Cyan
-    Write-Host "  / ____/ __ \| |  | | |    |_   _|__   __|  ____| |/ /  " -ForegroundColor Cyan
-    Write-Host " | (___| |  | | |  | | |      | |    | |  | |__  | ' /   " -ForegroundColor Cyan
-    Write-Host "  \___ \ |  | | |  | | |      | |    | |  |  __| |  <    " -ForegroundColor Cyan
-    Write-Host "  ____) | |__| | |__| | |____ _| |_   | |  | |____| . \   " -ForegroundColor Cyan
-    Write-Host " |_____/ \____/ \____/|______|_____|  |_|  |______|_|\_\  " -ForegroundColor Cyan
-    Write-Host "  =========================================================" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "  Event Log Analyzer - Professional Tool" -ForegroundColor White
-    Write-Host "  =========================================================" -ForegroundColor DarkGray
-    Write-Host ""
-    Write-Host "  Website: " -NoNewline -ForegroundColor Gray
-    Write-Host "https://soulitek.co.il" -ForegroundColor Cyan
-    Write-Host "  Email: " -NoNewline -ForegroundColor Gray
-    Write-Host "letstalk@soulitek.co.il" -ForegroundColor Cyan
-    Write-Host "  (C) 2025 SouliTEK - All Rights Reserved" -ForegroundColor Gray
-    Write-Host ""
-}
+
 
 <#
 .SYNOPSIS
@@ -752,7 +728,7 @@ function Invoke-MainAnalysis {
 # ADMINISTRATOR CHECK
 # ============================================================
 
-if (-not (Test-AdministratorPrivilege)) {
+if (-not (Test-SouliTEKAdministrator)) {
     Write-Host ""
     Write-Host "========================================" -ForegroundColor Red
     Write-Host "  ERROR: Administrator Privileges Required" -ForegroundColor Red
@@ -813,4 +789,7 @@ if ($result) {
 else {
     exit 1
 }
+
+
+
 
