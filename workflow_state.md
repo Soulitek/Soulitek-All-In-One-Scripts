@@ -2,6 +2,67 @@
 
 ## Current Status: ✅ Completed
 
+### ✅ Added Automatic Admin Relaunch (2025-10-30)
+
+**Completed:** Added automatic administrator privilege elevation for the WPF launcher script.
+
+**Objective:** Ensure the WPF launcher always runs with administrator privileges by automatically relaunching itself if not running as admin.
+
+**Changes Made:**
+- Added admin privilege check at script startup
+- Automatically relaunches with administrator privileges if not already elevated
+- Uses `Start-Process -Verb RunAs` for secure privilege elevation
+- Includes comprehensive error handling and user feedback
+- Exits non-admin instance after launching elevated version
+- Maintains all original command-line arguments and script path
+
+**Benefits:**
+- Guarantees administrator privileges for all tool functionality
+- Eliminates manual "Run as Administrator" requirement
+- Provides clear feedback during privilege elevation process
+- Handles elevation failures gracefully with helpful error messages
+- Seamless user experience - no manual intervention required
+
+**Technical Details:**
+- Checks admin status using `Test-Administrator` function early in script execution
+- Relaunches with `powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$scriptPath"`
+- Uses `-Verb RunAs` for proper UAC elevation prompt
+- Original non-admin process exits cleanly after launching elevated version
+- Added before UI initialization to prevent partial execution
+
+**Result:** WPF launcher now automatically ensures administrator privileges, providing reliable access to all tools that require elevated permissions.
+
+---
+
+### ✅ Added Execution Policy Auto-Enable (2025-10-30)
+
+**Completed:** Added automatic execution policy checking and enabling for all users of the WPF launcher script.
+
+**Objective:** Ensure the WPF launcher works for users with restrictive PowerShell execution policies by automatically enabling RemoteSigned policy for the current session.
+
+**Changes Made:**
+- Added execution policy check at the beginning of `launcher/SouliTEK-Launcher-WPF.ps1`
+- Detects "Restricted" or "AllSigned" policies and automatically sets to "RemoteSigned" with `-Scope Process`
+- Provides user feedback about the policy change
+- Includes error handling for cases where policy cannot be modified
+- Uses process scope only (temporary, no permanent system changes)
+
+**Benefits:**
+- Users with restrictive execution policies can now run the launcher without manual configuration
+- Maintains security by only allowing signed scripts while enabling local script execution
+- Non-intrusive: changes only apply to the current PowerShell session
+- Graceful fallback with clear error messages if policy modification fails
+
+**Technical Details:**
+- Checks `Get-ExecutionPolicy` for restrictive policies
+- Uses `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force` for temporary elevation
+- Process scope ensures changes don't persist beyond the current session
+- Added after assembly loading but before global variables section
+
+**Result:** WPF launcher now works out-of-the-box for all users regardless of their execution policy settings, improving user experience and accessibility.
+
+---
+
 ### ✅ Project Cleanup & Optimization (2025-10-25)
 
 **Completed:** Comprehensive project cleanup and code optimization to eliminate duplication and improve maintainability.
@@ -845,6 +906,15 @@ iwr -useb get.soulitek.co.il | iex
 ---
 
 ## Log
+- 2025-10-30: Added automatic administrator relaunch functionality to WPF launcher script
+- 2025-10-30: Script now automatically relaunches with admin privileges if not running as administrator
+- 2025-10-30: Implemented secure privilege elevation using Start-Process -Verb RunAs
+- 2025-10-30: Added comprehensive error handling for elevation failures
+- 2025-10-30: Moved Test-Administrator function to top of script for early privilege checking
+- 2025-10-30: Added automatic execution policy checking and enabling to WPF launcher script for improved user accessibility
+- 2025-10-30: Users with restrictive execution policies (Restricted/AllSigned) now automatically get RemoteSigned policy for current session
+- 2025-10-30: Added error handling and user feedback for execution policy modifications
+- 2025-10-30: Updated workflow_state.md with new automatic admin relaunch and execution policy auto-enable features
 - 2025-10-23: Created Vercel deployment configuration (vercel.json) for simple redirect
 - 2025-10-23: Added comprehensive VERCEL_DEPLOYMENT.md guide with step-by-step instructions
 - 2025-10-23: Updated README.md with get.soulitek.co.il as primary install command

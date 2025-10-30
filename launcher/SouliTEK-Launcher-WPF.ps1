@@ -19,6 +19,57 @@ Add-Type -AssemblyName PresentationCore
 Add-Type -AssemblyName WindowsBase
 
 # ============================================================
+# HELPER FUNCTIONS
+# ============================================================
+
+function Test-Administrator {
+    $currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
+    $principal = New-Object Security.Principal.WindowsPrincipal($currentUser)
+    return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+}
+
+# ============================================================
+# EXECUTION POLICY CHECK
+# ============================================================
+
+# Check and set execution policy for current session
+$currentPolicy = Get-ExecutionPolicy
+if ($currentPolicy -eq "Restricted" -or $currentPolicy -eq "AllSigned") {
+    try {
+        Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
+        Write-Host "Execution policy temporarily set to RemoteSigned for this session." -ForegroundColor Green
+    }
+    catch {
+        Write-Host "Warning: Could not modify execution policy. Some features may not work properly." -ForegroundColor Yellow
+        Write-Host "Error: $_" -ForegroundColor Red
+    }
+}
+
+# Check if running as administrator, relaunch if not
+if (-not (Test-Administrator)) {
+    Write-Host "Relaunching as Administrator..." -ForegroundColor Yellow
+
+    try {
+        # Get the current script path
+        $scriptPath = $MyInvocation.MyCommand.Path
+
+        # Relaunch with admin privileges
+        Start-Process -FilePath "powershell.exe" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`"" -Verb RunAs
+
+        # Exit the current non-admin instance
+        exit
+    }
+    catch {
+        Write-Host "Failed to relaunch as Administrator. Error: $_" -ForegroundColor Red
+        Write-Host "Please run this script as Administrator manually." -ForegroundColor Yellow
+        Read-Host "Press Enter to exit"
+        exit 1
+    }
+}
+
+Write-Host "Running as Administrator." -ForegroundColor Green
+
+# ============================================================
 # GLOBAL VARIABLES
 # ============================================================
 
@@ -135,12 +186,6 @@ $Script:Tools = @(
 # HELPER FUNCTIONS
 # ============================================================
 
-function Test-Administrator {
-    $currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
-    $principal = New-Object Security.Principal.WindowsPrincipal($currentUser)
-    return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-}
-
 function Start-Tool {
     param(
         [string]$ScriptName,
@@ -206,7 +251,8 @@ function Test-ToolMatchesFilter {
 }
 
 function Update-ToolsDisplay {
-    $Script:ToolsPanel.Children.Clear()
+    Write-Host "DEBUG: Update-ToolsDisplay called" -ForegroundColor Yellow
+    $null = $Script:ToolsPanel.Children.Clear()
     
     $filteredTools = $Script:Tools | Where-Object { Test-ToolMatchesFilter $_ }
     
@@ -217,7 +263,7 @@ function Update-ToolsDisplay {
         $noResults.Foreground = "#94A3B8"
         $noResults.Margin = "20,50,20,20"
         $noResults.TextAlignment = "Center"
-        $Script:ToolsPanel.Children.Add($noResults)
+        $null = $Script:ToolsPanel.Children.Add($noResults)
         
         $Script:StatusLabel.Text = "No tools found - try a different search or category"
         $Script:StatusLabel.Foreground = "#94A3B8"
@@ -240,9 +286,9 @@ function Update-ToolsDisplay {
         $col2.Width = "*"
         $col3 = New-Object System.Windows.Controls.ColumnDefinition
         $col3.Width = "150"
-        $grid.ColumnDefinitions.Add($col1)
-        $grid.ColumnDefinitions.Add($col2)
-        $grid.ColumnDefinitions.Add($col3)
+        $null = $grid.ColumnDefinitions.Add($col1)
+        $null = $grid.ColumnDefinitions.Add($col2)
+        $null = $grid.ColumnDefinitions.Add($col3)
         
         # Icon
         $iconBorder = New-Object System.Windows.Controls.Border
@@ -251,7 +297,7 @@ function Update-ToolsDisplay {
         $iconBorder.CornerRadius = 35
         $iconBorder.Background = $tool.Color
         $iconBorder.VerticalAlignment = "Center"
-        [System.Windows.Controls.Grid]::SetColumn($iconBorder, 0)
+        $null = [System.Windows.Controls.Grid]::SetColumn($iconBorder, 0)
         
         $iconText = New-Object System.Windows.Controls.TextBlock
         $iconText.Text = $tool.Icon
@@ -264,7 +310,7 @@ function Update-ToolsDisplay {
         $infoStack = New-Object System.Windows.Controls.StackPanel
         $infoStack.Margin = "15,0,0,0"
         $infoStack.VerticalAlignment = "Center"
-        [System.Windows.Controls.Grid]::SetColumn($infoStack, 1)
+        $null = [System.Windows.Controls.Grid]::SetColumn($infoStack, 1)
         
         $nameText = New-Object System.Windows.Controls.TextBlock
         $nameText.Text = $tool.Name
@@ -279,8 +325,8 @@ function Update-ToolsDisplay {
         $descText.TextWrapping = "Wrap"
         $descText.Margin = "0,5,0,0"
         
-        $infoStack.Children.Add($nameText)
-        $infoStack.Children.Add($descText)
+        $null = $infoStack.Children.Add($nameText)
+        $null = $infoStack.Children.Add($descText)
         
         # Launch button
         $launchBtn = New-Object System.Windows.Controls.Button
@@ -290,24 +336,24 @@ function Update-ToolsDisplay {
         $launchBtn.Height = 45
         $launchBtn.Background = $tool.Color
         $launchBtn.VerticalAlignment = "Center"
-        [System.Windows.Controls.Grid]::SetColumn($launchBtn, 2)
+        $null = [System.Windows.Controls.Grid]::SetColumn($launchBtn, 2)
         
         $launchBtn.Tag = @{
             Script = $tool.Script
             Name = $tool.Name
         }
         
-        $launchBtn.Add_Click({
+        $null = $launchBtn.Add_Click({
             $toolInfo = $this.Tag
             Start-Tool -ScriptName $toolInfo.Script -ToolName $toolInfo.Name
         })
         
-        $grid.Children.Add($iconBorder)
-        $grid.Children.Add($infoStack)
-        $grid.Children.Add($launchBtn)
+        $null = $grid.Children.Add($iconBorder)
+        $null = $grid.Children.Add($infoStack)
+        $null = $grid.Children.Add($launchBtn)
         
         $card.Child = $grid
-        $Script:ToolsPanel.Children.Add($card)
+        $null = $Script:ToolsPanel.Children.Add($card)
     }
 }
 
@@ -391,31 +437,31 @@ $ExitButton = $Window.FindName("ExitButton")
 $titleBarGrid = $Window.FindName("TitleBarGrid")
 
 # Window dragging
-$titleBarGrid.Add_MouseLeftButtonDown({
-    $Window.DragMove()
+$null = $titleBarGrid.Add_MouseLeftButtonDown({
+    $null = $Window.DragMove()
 })
 
 # Window controls
-$MinimizeButton.Add_Click({ $Window.WindowState = "Minimized" })
-$CloseButton.Add_Click({ $Window.Close() })
-$ExitButton.Add_Click({ $Window.Close() })
+$null = $MinimizeButton.Add_Click({ $Window.WindowState = "Minimized" })
+$null = $CloseButton.Add_Click({ $null = $Window.Close() })
+$null = $ExitButton.Add_Click({ $null = $Window.Close() })
 
 # Search
-$SearchBox.Add_TextChanged({
+$null = $SearchBox.Add_TextChanged({
     Update-ToolsDisplay
 })
 
 # Category buttons
-$BtnCatAll.Add_Click({ Set-CategoryActive "All" })
-$BtnCatNetwork.Add_Click({ Set-CategoryActive "Network" })
-$BtnCatSecurity.Add_Click({ Set-CategoryActive "Security" })
-$BtnCatSupport.Add_Click({ Set-CategoryActive "Support" })
-$BtnCatSoftware.Add_Click({ Set-CategoryActive "Software" })
-$BtnCatM365.Add_Click({ Set-CategoryActive "M365" })
-$BtnCatHardware.Add_Click({ Set-CategoryActive "Hardware" })
+$null = $BtnCatAll.Add_Click({ Set-CategoryActive "All" })
+$null = $BtnCatNetwork.Add_Click({ Set-CategoryActive "Network" })
+$null = $BtnCatSecurity.Add_Click({ Set-CategoryActive "Security" })
+$null = $BtnCatSupport.Add_Click({ Set-CategoryActive "Support" })
+$null = $BtnCatSoftware.Add_Click({ Set-CategoryActive "Software" })
+$null = $BtnCatM365.Add_Click({ Set-CategoryActive "M365" })
+$null = $BtnCatHardware.Add_Click({ Set-CategoryActive "Hardware" })
 
 # Help button
-$HelpButton.Add_Click({
+$null = $HelpButton.Add_Click({
     $helpText = @"
 SOULITEK ALL-IN-ONE SCRIPTS LAUNCHER
 
@@ -453,7 +499,7 @@ GitHub: https://github.com/Soulitek/Soulitek-All-In-One-Scripts
 })
 
 # About button
-$AboutButton.Add_Click({
+$null = $AboutButton.Add_Click({
     $aboutText = @"
 SouliTEK All-In-One Scripts
 Version: $Script:CurrentVersion
@@ -480,12 +526,12 @@ Made with love in Israel
 })
 
 # GitHub button
-$GitHubButton.Add_Click({
+$null = $GitHubButton.Add_Click({
     Start-Process "https://github.com/Soulitek/Soulitek-All-In-One-Scripts"
 })
 
 # Website button
-$WebsiteButton.Add_Click({
+$null = $WebsiteButton.Add_Click({
     Start-Process "https://soulitek.co.il"
 })
 
@@ -517,7 +563,7 @@ if (-not (Test-Path $Script:ScriptPath)) {
 Set-CategoryActive "All"
 
 # Show welcome message
-$Window.Add_Loaded({
+$null = $Window.Add_Loaded({
     if (-not (Test-Administrator)) {
         [System.Windows.MessageBox]::Show(
             "For best results, run this launcher as Administrator.`n`nSome tools require elevated privileges to function properly.",
@@ -528,6 +574,8 @@ $Window.Add_Loaded({
     }
 })
 
-# Show window
-$Window.ShowDialog() | Out-Null
+# Show window (suppress return value to prevent random numbers in console)
+Write-Host "DEBUG: About to show window" -ForegroundColor Green
+$null = $Window.ShowDialog()
+Write-Host "DEBUG: Window closed" -ForegroundColor Green
 

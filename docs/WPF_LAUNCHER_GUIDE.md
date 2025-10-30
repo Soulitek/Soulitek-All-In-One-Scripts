@@ -311,6 +311,43 @@ $Script:ScriptPath = Join-Path $Script:RootPath "scripts"
 # Verify: Test-Path $Script:ScriptPath
 ```
 
+### **Issue: "Access denied" or tools don't work properly**
+
+**Cause:** Script is not running with administrator privileges.
+
+**Solution:** The WPF launcher automatically handles this! The script now automatically relaunches itself with administrator privileges if it's not already running as admin. You should see messages like:
+
+```
+Relaunching as Administrator...
+Running as Administrator.
+```
+
+The script will show a UAC elevation prompt, and then continue running with full administrator privileges. All your tools will now work properly without any manual intervention.
+
+If elevation fails, you'll see an error message and instructions to run manually as administrator.
+
+### **Issue: "ExecutionPolicy" errors or script won't run**
+
+**Cause:** PowerShell execution policy is set to Restricted or AllSigned.
+
+**Solution:** The WPF launcher automatically handles this! The script now checks your execution policy at startup and temporarily sets it to RemoteSigned for the current session only. You should see a green message like:
+
+```
+Execution policy temporarily set to RemoteSigned for this session.
+```
+
+If you see an error message instead, you may need to manually set the execution policy:
+
+```powershell
+# Temporarily for this session (recommended)
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
+
+# Or permanently (use with caution)
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+**Note:** The launcher uses `-Scope Process` so changes only apply to the current PowerShell session and don't affect your system permanently.
+
 ### **Issue: Emoji icons not displaying**
 
 **Cause:** Font doesn't support emoji.
