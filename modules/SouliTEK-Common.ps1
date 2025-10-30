@@ -9,7 +9,7 @@
 # IT Solutions for your business
 # 
 # (C) 2025 SouliTEK - All Rights Reserved
-# Website: https://soulitek.co.il
+# Website: www.soulitek.co.il
 # 
 # ============================================================
 
@@ -45,11 +45,16 @@ function Show-SouliTEKBanner {
     Write-Host "  =========================================================" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "  Website: " -NoNewline -ForegroundColor Gray
-    Write-Host "https://soulitek.co.il" -ForegroundColor Cyan
+    Write-Host "www.soulitek.co.il" -ForegroundColor Cyan
     Write-Host "  Email: " -NoNewline -ForegroundColor Gray
     Write-Host "letstalk@soulitek.co.il" -ForegroundColor Cyan
     Write-Host "  (C) 2025 SouliTEK - All Rights Reserved" -ForegroundColor Gray
     Write-Host ""
+}
+
+# Backward-compatibility shim: legacy function name used by older scripts
+function Show-Banner {
+    Show-SouliTEKBanner
 }
 
 function Test-SouliTEKAdministrator {

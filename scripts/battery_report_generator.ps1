@@ -6,7 +6,7 @@
 # IT Solutions for your business
 # 
 # (C) 2025 Soulitek - All Rights Reserved
-# Website: https://soulitek.co.il
+# Website: www.soulitek.co.il
 # 
 # Professional IT Solutions:
 # - Computer Repair & Maintenance
@@ -32,7 +32,7 @@
 # ============================================================
 
 # Set window title
-$Host.UI.RawUI.WindowTitle = "Battery Report Generator - Professional Tool - by Soulitek.co.il"
+$Host.UI.RawUI.WindowTitle = "BATTERY REPORT GENERATOR"
 
 # Import SouliTEK Common Functions
 $ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -45,7 +45,7 @@ if (Test-Path $CommonPath) {
 }
 
 # Function to show tool-specific banner
-function Show-Banner { 
+function Show-SouliTEKBanner { 
     Show-SouliTEKBanner
     Write-Host "  Battery Report Generator - Professional Tool" -ForegroundColor White
     Write-Host "  =========================================================" -ForegroundColor DarkGray
@@ -55,7 +55,7 @@ function Show-Banner {
 # Function to show disclaimer
 function Show-Disclaimer {
     Clear-Host
-    Show-Banner
+    Show-SouliTEKBanner
     Set-SouliTEKConsoleColor "Yellow"
     Write-Host "============================================================"
     Write-Host ""
@@ -81,7 +81,7 @@ function Show-Disclaimer {
 # Function to show main menu
 function Show-MainMenu {
     Clear-Host
-    Show-Banner
+    Show-SouliTEKBanner
     Set-SouliTEKConsoleColor "Blue"
     Write-Host "Select an option:"
     Write-Host ""
@@ -665,7 +665,7 @@ function Show-ExitMessage {
     Write-Host ""
     Write-Host "       Coded by: Soulitek.co.il"
     Write-Host "       IT Solutions for your business"
-    Write-Host "       https://soulitek.co.il"
+    Write-Host "       www.soulitek.co.il"
     Write-Host ""
     Write-Host "       (C) 2025 Soulitek - All Rights Reserved"
     Write-Host ""

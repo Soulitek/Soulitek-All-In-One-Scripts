@@ -62,7 +62,7 @@
 .NOTES
     File Name      : EventLogAnalyzer.ps1
     Author         : SouliTEK - Eitan
-    Contact        : https://soulitek.co.il
+    Contact        : www.soulitek.co.il
     Prerequisite   : PowerShell 5.1+, Administrator privileges
     Copyright      : (C) 2025 SouliTEK - All Rights Reserved
     
@@ -124,7 +124,7 @@ param(
 #Requires -Version 5.1
 
 # Set window title
-$Host.UI.RawUI.WindowTitle = "EventLogAnalyzer - Professional Tool - by Soulitek.co.il"
+$Host.UI.RawUI.WindowTitle = "EVENT LOG ANALYZER"
 
 # Import SouliTEK Common Functions
 $ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -542,7 +542,7 @@ function Show-AnalysisSummary {
         [PSCustomObject]$Results
     )
     
-    Show-Banner
+    Show-SouliTEKBanner
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host "  EVENT LOG ANALYSIS SUMMARY" -ForegroundColor Cyan
     Write-Host "============================================================" -ForegroundColor Cyan

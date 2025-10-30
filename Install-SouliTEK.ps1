@@ -36,7 +36,7 @@ Write-Host "  ___) | (_) | |_| | | | | | | |___| . \ " -ForegroundColor Cyan
 Write-Host " |____/ \___/ \__,_|_|_| |_| |_____|_|\_\" -ForegroundColor Cyan
 Write-Host "" -ForegroundColor Cyan
 Write-Host "     All-In-One Scripts - Quick Installer" -ForegroundColor White
-Write-Host "     https://soulitek.co.il" -ForegroundColor Gray
+Write-Host "     www.soulitek.co.il" -ForegroundColor Gray
 Write-Host "============================================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -196,7 +196,7 @@ else {
 
 Write-Host ""
 Write-Host "Thank you for using SouliTEK!" -ForegroundColor Green
-Write-Host "Visit: https://soulitek.co.il | letstalk@soulitek.co.il" -ForegroundColor Gray
+Write-Host "Visit: www.soulitek.co.il | letstalk@soulitek.co.il" -ForegroundColor Gray
 Write-Host ""
 
 # Keep window open if there were any errors

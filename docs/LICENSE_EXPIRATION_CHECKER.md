@@ -460,7 +460,7 @@ Export CSV data for integration with:
 ### Getting Help
 
 **Soulitek IT Solutions**  
-- Website: [https://soulitek.co.il](https://soulitek.co.il)
+- Website: [www.soulitek.co.il](www.soulitek.co.il)
 - Email: letstalk@soulitek.co.il
 - Phone: Contact via website
 

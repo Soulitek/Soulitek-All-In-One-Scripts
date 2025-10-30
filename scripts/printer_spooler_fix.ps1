@@ -7,7 +7,7 @@ Coded by: Soulitek.co.il
 IT Solutions for your business
 
 (C) 2025 Soulitek - All Rights Reserved
-Website: https://soulitek.co.il
+Website: www.soulitek.co.il
 
 Professional IT Solutions:
 - Computer Repair & Maintenance
@@ -38,7 +38,7 @@ param(
 )
 
 # Set console title and colors
-$Host.UI.RawUI.WindowTitle = "Printer Spooler Fix - All-in-One Tool - by Soulitek.co.il"
+$Host.UI.RawUI.WindowTitle = "PRINTER SPOOLER FIX"
 
 # Import SouliTEK Common Functions
 $ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -187,7 +187,7 @@ function Show-Disclaimer {
 function Show-MainMenu {
     $Host.UI.RawUI.ForegroundColor = "Cyan"
     Clear-Host
-    Show-Banner
+    Show-SouliTEKBanner
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "Select an option:" -ForegroundColor Cyan
@@ -680,7 +680,7 @@ function Show-ExitMessage {
     Write-Host ""
     Write-Host "      Coded by: Soulitek.co.il"
     Write-Host "      IT Solutions for your business"
-    Write-Host "      https://soulitek.co.il"
+    Write-Host "      www.soulitek.co.il"
     Write-Host ""
     Write-Host "      (C) 2025 Soulitek - All Rights Reserved"
     Write-Host ""

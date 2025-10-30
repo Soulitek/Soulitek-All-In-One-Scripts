@@ -472,5 +472,5 @@ Together we're building better tools for the IT community.
 ---
 
 *SouliTEK - IT Solutions for Your Business*  
-*https://soulitek.co.il*
+*www.soulitek.co.il*
 

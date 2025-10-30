@@ -238,7 +238,7 @@ Once uploaded, you can:
 ## 💡 Pro Tips
 
 1. **Star Your Own Repo** - After upload, click the ⭐ button
-2. **Add Website** - Link to https://soulitek.co.il in About section
+2. **Add Website** - Link to www.soulitek.co.il in About section
 3. **Enable Discussions** - Great for community Q&A
 4. **Pin Repository** - Showcase it on your GitHub profile
 5. **Share on LinkedIn** - Show off your professional work!

@@ -605,7 +605,7 @@ cd C:\Path\To\Scripts
 4. **GitHub Issues** - Community support
 
 ### Contact Information
-- **Website:** https://soulitek.co.il
+- **Website:** www.soulitek.co.il
 - **Email:** letstalk@soulitek.co.il
 - **GitHub:** https://github.com/Soulitek/Soulitek-All-In-One-Scripts
 
@@ -693,7 +693,7 @@ We'd love to hear from you:
 
 *Empowering IT Professionals with Better Tools*
 
-🌐 https://soulitek.co.il | 📧 letstalk@soulitek.co.il
+🌐 www.soulitek.co.il | 📧 letstalk@soulitek.co.il
 
 **© 2025 SouliTEK - All Rights Reserved**
 

@@ -370,7 +370,7 @@ Have an idea? We'd love to hear from you!
 
 - **GitHub Issues:** [Open an issue](https://github.com/YourUsername/Soulitek-All-In-One-Scripts/issues)
 - **Email:** contact@soulitek.co.il
-- **Website:** https://soulitek.co.il
+- **Website:** www.soulitek.co.il
 
 ---
 

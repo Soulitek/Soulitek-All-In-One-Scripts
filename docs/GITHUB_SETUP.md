@@ -119,7 +119,7 @@ git push -u origin main
 #### Add Description:
 In the "About" section, add:
 - **Description:** Professional PowerShell Tools for IT Technicians & Helpdesk Engineers
-- **Website:** https://soulitek.co.il
+- **Website:** www.soulitek.co.il
 
 #### Enable Issues:
 1. Go to **Settings** → **General**

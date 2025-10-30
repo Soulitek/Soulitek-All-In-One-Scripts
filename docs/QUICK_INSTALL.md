@@ -340,7 +340,7 @@ $InstallPath = "$env:USERPROFILE\SouliTEK"
 ## 📞 Support
 
 **Need Help?**
-- 🌐 Website: https://soulitek.co.il
+- 🌐 Website: www.soulitek.co.il
 - 📧 Email: letstalk@soulitek.co.il
 - 💻 GitHub: https://github.com/Soulitek/Soulitek-All-In-One-Scripts
 - 📖 Documentation: https://github.com/Soulitek/Soulitek-All-In-One-Scripts/tree/main/docs

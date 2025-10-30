@@ -140,22 +140,22 @@
                           VerticalAlignment="Center" 
                           Margin="15,0"/>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Name="MinimizeButton" 
-                            Content="─" 
+                    <Button Name="MinimizeButton"
                             Width="40" Height="40"
-                            Background="Transparent" 
+                            Background="Transparent"
                             Foreground="White"
                             BorderThickness="0"
-                            FontSize="16"
-                            Cursor="Hand"/>
-                    <Button Name="CloseButton" 
-                            Content="✕" 
+                            Cursor="Hand">
+                        <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="14" Text="&#xE921;"/>
+                    </Button>
+                    <Button Name="CloseButton"
                             Width="40" Height="40"
-                            Background="Transparent" 
+                            Background="Transparent"
                             Foreground="White"
                             BorderThickness="0"
-                            FontSize="16"
-                            Cursor="Hand"/>
+                            Cursor="Hand">
+                        <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="14" Text="&#xE8BB;"/>
+                    </Button>
                 </StackPanel>
             </Grid>
 

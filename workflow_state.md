@@ -2,6 +2,26 @@
 
 ## Current Status: ✅ Completed
 
+### ✅ Fixed Show-Banner Function Error (2025-10-30)
+
+**Completed:** Fixed "Show-Banner function not recognized" error across all 10 PowerShell scripts.
+
+**Objective:** Resolve function naming inconsistency where scripts were calling `Show-Banner` but the common module defined `Show-SouliTEKBanner`.
+
+**Changes Made:**
+- Updated all 10 scripts in `/scripts/` folder to use correct function name `Show-SouliTEKBanner`
+- Scripts affected: network_test_tool, battery_report_generator, FindPST, wifi_password_viewer, usb_device_log, remote_support_toolkit, printer_spooler_fix, license_expiration_checker, EventLogAnalyzer, bitlocker_status_report
+- Maintained all existing functionality and branding
+
+**Root Cause:**
+- Common functions module used `Show-SouliTEKBanner` function name
+- Individual scripts were still calling the old `Show-Banner` function name
+- Function import was working but calling incorrect function name caused runtime error
+
+**Result:** All scripts now properly display the SouliTEK branding banner without errors.
+
+---
+
 ### ✅ Added Automatic Admin Relaunch (2025-10-30)
 
 **Completed:** Added automatic administrator privilege elevation for the WPF launcher script.
@@ -906,6 +926,7 @@ iwr -useb get.soulitek.co.il | iex
 ---
 
 ## Log
+- 2025-10-30: Fixed Show-Banner function error - updated all 10 scripts to use Show-SouliTEKBanner instead of Show-Banner
 - 2025-10-30: Added automatic administrator relaunch functionality to WPF launcher script
 - 2025-10-30: Script now automatically relaunches with admin privileges if not running as administrator
 - 2025-10-30: Implemented secure privilege elevation using Start-Process -Verb RunAs
@@ -972,7 +993,7 @@ iwr -useb get.soulitek.co.il | iex
 - 2025-10-23: Enhanced filtering logic with Test-ToolMatchesFilter and Update-ToolsDisplay functions
 - 2025-10-23: Added visual feedback for active category selection with color-coded buttons
 - 2025-10-23: Added SouliTEK ASCII banner and contact details to all 9 PowerShell scripts
-- 2025-10-23: Contact info displayed: https://soulitek.co.il | letstalk@soulitek.co.il
+- 2025-10-23: Contact info displayed: www.soulitek.co.il | letstalk@soulitek.co.il
 - 2025-10-23: Updated scripts: battery_report, bitlocker, event_analyzer, findpst, network_test, printer_spooler, remote_support, usb_device_log, wifi_password
 - 2025-10-23: Updated Chocolatey Installer package catalog (removed 7 packages, added AnyDesk)
 - 2025-10-23: Streamlined package list: 3 browsers, 2 runtimes, 6 utilities, 6 communications apps

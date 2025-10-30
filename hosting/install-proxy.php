@@ -13,7 +13,7 @@
  * - Logs downloads
  * - Proper headers for PowerShell
  * 
- * © 2025 SouliTEK - https://soulitek.co.il
+ * © 2025 SouliTEK - www.soulitek.co.il
  */
 
 // Configuration

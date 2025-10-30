@@ -6,7 +6,7 @@
 # IT Solutions for your business
 # 
 # (C) 2025 Soulitek - All Rights Reserved
-# Website: https://soulitek.co.il
+# Website: www.soulitek.co.il
 # 
 # Professional IT Solutions:
 # - Computer Repair & Maintenance
@@ -91,12 +91,12 @@ function Get-CurrentNetwork {
 # Function to display header
 function Show-Header {
     Clear-Host
-    Show-Banner
+    Show-SouliTEKBanner
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "      Coded by: Soulitek.co.il" -ForegroundColor Yellow
     Write-Host "      IT Solutions for your business" -ForegroundColor Yellow
-    Write-Host "      https://soulitek.co.il" -ForegroundColor Yellow
+    Write-Host "      www.soulitek.co.il" -ForegroundColor Yellow
     Write-Host ""
     Write-Host "      (C) 2025 Soulitek - All Rights Reserved" -ForegroundColor Gray
     Write-Host ""
@@ -322,7 +322,7 @@ function Export-ToFile {
         $content += "Delete this file after use."
         $content += ""
         $content += "Coded by: Soulitek.co.il"
-        $content += "Website: https://soulitek.co.il"
+        $content += "Website: www.soulitek.co.il"
         
         $content | Out-File -FilePath $filePath -Encoding UTF8
         
@@ -682,7 +682,7 @@ while ($running) {
             Write-Host ""
             Write-Host "       Coded by: Soulitek.co.il" -ForegroundColor Yellow
             Write-Host "       IT Solutions for your business" -ForegroundColor Yellow
-            Write-Host "       https://soulitek.co.il" -ForegroundColor Yellow
+            Write-Host "       www.soulitek.co.il" -ForegroundColor Yellow
             Write-Host ""
             Write-Host "       (C) 2025 Soulitek - All Rights Reserved" -ForegroundColor Gray
             Write-Host ""

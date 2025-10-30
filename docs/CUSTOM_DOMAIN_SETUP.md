@@ -70,7 +70,7 @@ Host the `Install-SouliTEK.ps1` file directly on your web server.
 
 3. **Users can now run:**
    ```powershell
-   iwr -useb https://soulitek.co.il/install.ps1 | iex
+   iwr -useb www.soulitek.co.il/install.ps1 | iex
    ```
 
 ---
@@ -190,9 +190,9 @@ echo $script;
 
 **Users can run:**
 ```powershell
-iwr -useb https://soulitek.co.il/install.php | iex
+iwr -useb www.soulitek.co.il/install.php | iex
 # or
-iwr -useb https://soulitek.co.il/get | iex
+iwr -useb www.soulitek.co.il/get | iex
 ```
 
 ---
@@ -237,7 +237,7 @@ iwr -useb https://soulitek.co.il/get | iex
 
 Pick one:
 - `https://get.soulitek.co.il`
-- `https://soulitek.co.il/install`
+- `www.soulitek.co.il/install`
 - `https://tools.soulitek.co.il`
 
 ### Step 2: Set Up Redirect
@@ -444,7 +444,7 @@ Prevent abuse:
 
 **Technical Questions:**
 - 📧 Email: letstalk@soulitek.co.il
-- 🌐 Web: https://soulitek.co.il
+- 🌐 Web: www.soulitek.co.il
 
 ---
 

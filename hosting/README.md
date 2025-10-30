@@ -76,7 +76,7 @@ iwr -useb get.soulitek.co.il | iex
 1. Create subdomain or directory
 2. Upload `install-proxy.php`
 3. Rename to `index.php` (optional)
-4. Test: `curl https://soulitek.co.il/install-proxy.php`
+4. Test: `curl www.soulitek.co.il/install-proxy.php`
 
 **Command users will run:**
 ```powershell
@@ -220,7 +220,7 @@ iwr -useb https://get.soulitek.co.il | iex
 
 **Technical Support:**
 - 📧 letstalk@soulitek.co.il
-- 🌐 https://soulitek.co.il
+- 🌐 www.soulitek.co.il
 
 ---
 

@@ -256,7 +256,7 @@ Before going live, verify:
 ## 📞 Support
 
 If you need help with deployment:
-- 🌐 https://soulitek.co.il
+- 🌐 www.soulitek.co.il
 - 📧 letstalk@soulitek.co.il
 
 ---

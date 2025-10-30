@@ -799,7 +799,7 @@ function Stop-Gracefully {
 # ============================================================================
 
 try {
-    $Host.UI.RawUI.WindowTitle = "SouliTEK Chocolatey Installer"
+    $Host.UI.RawUI.WindowTitle = "SOULITEK CHOCOLATEY INSTALLER"
     
     [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
     [Console]::InputEncoding = [System.Text.Encoding]::UTF8

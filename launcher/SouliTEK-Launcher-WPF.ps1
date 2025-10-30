@@ -6,7 +6,7 @@
 # IT Solutions for your business
 # 
 # (C) 2025 Soulitek - All Rights Reserved
-# Website: https://soulitek.co.il
+# Website: www.soulitek.co.il
 # 
 # Modern WPF GUI with Material Design aesthetics
 # 
@@ -483,7 +483,7 @@ TIPS:
 
 SUPPORT:
 --------
-Website: https://soulitek.co.il
+Website: www.soulitek.co.il
 Email: letstalk@soulitek.co.il
 GitHub: https://github.com/Soulitek/Soulitek-All-In-One-Scripts
 
@@ -509,7 +509,7 @@ Professional PowerShell Tools for IT Technicians
 Total Tools: $($Script:Tools.Count)
 
 Coded by: SouliTEK
-Website: https://soulitek.co.il
+Website: www.soulitek.co.il
 Email: letstalk@soulitek.co.il
 
 (C) 2025 SouliTEK - All Rights Reserved
@@ -532,7 +532,7 @@ $null = $GitHubButton.Add_Click({
 
 # Website button
 $null = $WebsiteButton.Add_Click({
-    Start-Process "https://soulitek.co.il"
+    Start-Process "www.soulitek.co.il"
 })
 
 # Admin status

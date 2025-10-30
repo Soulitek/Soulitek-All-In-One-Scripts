@@ -518,7 +518,7 @@ $launchButton = $window.FindName("LaunchButton")
 
 ### **Issues & Questions**
 
-- **Website:** [https://soulitek.co.il](https://soulitek.co.il)
+- **Website:** [www.soulitek.co.il](www.soulitek.co.il)
 - **Email:** letstalk@soulitek.co.il
 - **GitHub:** [Soulitek/Soulitek-All-In-One-Scripts](https://github.com/Soulitek/Soulitek-All-In-One-Scripts)
 

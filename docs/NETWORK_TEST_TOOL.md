@@ -332,7 +332,7 @@ The tool uses these Windows network commands:
 ### Need Help?
 
 **Soulitek IT Solutions**
-- Website: https://soulitek.co.il
+- Website: www.soulitek.co.il
 - Services: Computer Repair, Network Setup, IT Consulting
 
 ### Services Offered

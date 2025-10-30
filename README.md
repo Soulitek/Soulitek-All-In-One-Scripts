@@ -8,7 +8,7 @@
 
 **Professional PowerShell Tools for IT Technicians**
 
-*By [SouliTEK](https://soulitek.co.il)*
+*By [SouliTEK](www.soulitek.co.il)*
 
 </div>
 
@@ -134,7 +134,7 @@ Right-click launcher → "Run as Administrator"
 
 ## 📞 Support
 
-- **Website:** https://soulitek.co.il
+- **Website:** www.soulitek.co.il
 - **Email:** letstalk@soulitek.co.il
 - **GitHub:** [Soulitek/Soulitek-All-In-One-Scripts](https://github.com/Soulitek/Soulitek-All-In-One-Scripts)
 

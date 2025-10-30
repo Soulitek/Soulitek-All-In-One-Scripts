@@ -495,7 +495,7 @@ Both will work! 🎉
 
 **Your Support:**
 - 📧 letstalk@soulitek.co.il
-- 🌐 https://soulitek.co.il
+- 🌐 www.soulitek.co.il
 
 ---
 

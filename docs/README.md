@@ -51,7 +51,7 @@ If you need assistance:
 
 1. Check the relevant documentation above
 2. Read the [Quick Start Guide](QUICK_START.md)
-3. Visit our website: [https://soulitek.co.il](https://soulitek.co.il)
+3. Visit our website: [www.soulitek.co.il](www.soulitek.co.il)
 4. Email: letstalk@soulitek.co.il
 
 ## 📝 Documentation Standards
@@ -66,5 +66,5 @@ When adding new documentation:
 
 **Last Updated:** October 2025  
 **Project:** SouliTEK All-In-One Scripts  
-**Website:** https://soulitek.co.il
+**Website:** www.soulitek.co.il
 
