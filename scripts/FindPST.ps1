@@ -73,8 +73,7 @@ if (Test-Path $CommonPath) {
 # HELPER FUNCTIONS
 # ============================================================
 
-# Function to show tool-specific banner
-function Show-SouliTEKBanner { Show-SouliTEKBanner }
+# Use shared banner from common module
 
 # Function to check admin privileges
 function Test-Administrator { Test-SouliTEKAdministrator }

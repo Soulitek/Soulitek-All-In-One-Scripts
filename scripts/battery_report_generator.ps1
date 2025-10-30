@@ -44,13 +44,7 @@ if (Test-Path $CommonPath) {
     Write-Warning "Some functions may not work properly."
 }
 
-# Function to show tool-specific banner
-function Show-SouliTEKBanner { 
-    Show-SouliTEKBanner
-    Write-Host "  Battery Report Generator - Professional Tool" -ForegroundColor White
-    Write-Host "  =========================================================" -ForegroundColor DarkGray
-    Write-Host ""
-}
+# Use shared banner from common module
 
 # Function to show disclaimer
 function Show-Disclaimer {
