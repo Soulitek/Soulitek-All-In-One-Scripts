@@ -44,7 +44,7 @@ Soulitek-AIO/
 │   └── SouliTEK-Launcher.ps1         # Old Forms launcher (deprecated)
 ├── scripts/                          # PowerShell tool scripts (unchanged)
 ├── assets/                           # Images and icons (unchanged)
-├── Build-WPF-Launcher.ps1            # Build script for creating EXE
+├── (no EXE build script)
 └── docs/
     └── WPF_LAUNCHER_GUIDE.md         # This file
 ```
@@ -60,14 +60,11 @@ Soulitek-AIO/
 .\launcher\SouliTEK-Launcher-WPF.ps1
 ```
 
-### **Method 2: Build to EXE (Distribution)**
+### **Method 2: Portable Run (No Installation)**
 
 ```powershell
-# Build the launcher into a standalone EXE
-.\Build-WPF-Launcher.ps1
-
-# Run the built executable
-.\build\SouliTEK-Launcher.exe
+# From the project root after extracting the repo
+.\launcher\SouliTEK-Launcher-WPF.ps1
 ```
 
 ### **Method 3: Run with Admin Privileges**
@@ -80,72 +77,9 @@ Start-Process powershell -Verb RunAs -ArgumentList "-ExecutionPolicy Bypass -Fil
 
 ---
 
-## 🛠️ Building as Standalone EXE
+## 🛠️ Distribution (Scripts Only)
 
-The WPF launcher can be compiled into a single executable file using PS2EXE.
-
-### **Prerequisites**
-
-1. **PS2EXE Module**
-   ```powershell
-   Install-Module ps2exe -Scope CurrentUser
-   ```
-
-2. **Icon File (Optional)**
-   - Convert `assets/images/Favicon.png` to `.ico` format
-   - Use online converter or tool like ImageMagick
-   - Place as `assets/images/Favicon.ico`
-
-### **Build Process**
-
-#### **Automatic Build (Recommended)**
-
-```powershell
-# Run the build script
-.\Build-WPF-Launcher.ps1
-
-# With options
-.\Build-WPF-Launcher.ps1 -NoConsole -RequireAdmin
-```
-
-**Build Script Features:**
-- ✅ Automatic PS2EXE module installation
-- ✅ Dependency copying (scripts, assets, XAML)
-- ✅ Icon embedding (if available)
-- ✅ Version information
-- ✅ Build summary and file size
-
-#### **Manual Build**
-
-```powershell
-# Import PS2EXE module
-Import-Module ps2exe
-
-# Build the EXE
-Invoke-ps2exe `
-    -inputFile ".\launcher\SouliTEK-Launcher-WPF.ps1" `
-    -outputFile ".\build\SouliTEK-Launcher.exe" `
-    -iconFile ".\assets\images\Favicon.ico" `
-    -title "SouliTEK All-In-One Scripts" `
-    -company "SouliTEK" `
-    -version "2.0.0" `
-    -noConsole `
-    -requireAdmin
-```
-
-### **Build Output**
-
-After building, the `build/` folder will contain:
-
-```
-build/
-├── SouliTEK-Launcher.exe      # Standalone executable
-├── MainWindow.xaml             # Required XAML file
-├── scripts/                    # All PowerShell tools
-└── assets/                     # Images and icons
-```
-
-**Important:** The entire `build/` folder must be distributed together, as the EXE requires `MainWindow.xaml`, `scripts/`, and `assets/` to function properly.
+We no longer ship or document EXE builds. Distribute the repository (or a ZIP of it) and run the launcher script directly.
 
 ---
 

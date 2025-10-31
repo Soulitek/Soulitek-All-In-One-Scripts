@@ -118,6 +118,15 @@ $Script:Tools = @(
         Color = "#f59e0b"
     },
     @{
+        Name = "M365 MFA Audit"
+        Icon = "[A]"
+        Description = "Audit Microsoft 365 MFA status across all users with detailed reports and optional weekly email"
+        Script = "m365_mfa_audit.ps1"
+        Category = "M365"
+        Tags = @("mfa", "multifactor", "authentication", "microsoft", "365", "m365", "audit", "security", "report", "compliance")
+        Color = "#f59e0b"
+    },
+    @{
         Name = "Printer Spooler Fix"
         Icon = "[P]"
         Description = "Comprehensive printer spooler troubleshooting and repair"
@@ -179,6 +188,51 @@ $Script:Tools = @(
         Category = "Software"
         Tags = @("chocolatey", "installer", "software", "packages", "apps", "install")
         Color = "#10b981"
+    },
+    @{
+        Name = "Storage Health Monitor"
+        Icon = "[SH]"
+        Description = "Monitor storage health with SMART data, detect reallocated sectors and read errors"
+        Script = "storage_health_monitor.ps1"
+        Category = "Hardware"
+        Tags = @("storage", "smart", "disk", "health", "monitor", "hdd", "ssd", "sectors", "errors")
+        Color = "#06b6d4"
+    },
+    @{
+        Name = "Hardware Inventory Report"
+        Icon = "[H]"
+        Description = "Full hardware inventory: CPU, GPU, RAM, disk, motherboard, BIOS, and serial numbers. Exports JSON/CSV for warranty tracking"
+        Script = "hardware_inventory_report.ps1"
+        Category = "Hardware"
+        Tags = @("hardware", "inventory", "warranty", "cpu", "gpu", "ram", "disk", "motherboard", "bios", "serial", "json", "csv")
+        Color = "#ef4444"
+    },
+    @{
+        Name = "System Restore Point"
+        Icon = "[T]"
+        Description = "Create Windows System Restore Points for system recovery and rollback"
+        Script = "create_system_restore_point.ps1"
+        Category = "Support"
+        Tags = @("restore", "system", "recovery", "backup", "rollback", "protection")
+        Color = "#f59e0b"
+    },
+    @{
+        Name = "RAM Slot Utilization Report"
+        Icon = "[RAM]"
+        Description = "Shows RAM slots used vs total, type (DDR3/DDR4/DDR5), speed, and capacity"
+        Script = "ram_slot_utilization_report.ps1"
+        Category = "Hardware"
+        Tags = @("ram", "memory", "hardware", "ddr", "slots", "capacity", "speed")
+        Color = "#3498db"
+    },
+    @{
+        Name = "Disk Usage Analyzer"
+        Icon = "[D]"
+        Description = "Find folders larger than 1 GB and export results sorted by size with HTML visualization"
+        Script = "disk_usage_analyzer.ps1"
+        Category = "Hardware"
+        Tags = @("disk", "usage", "storage", "folders", "size", "cleanup", "analysis")
+        Color = "#06b6d4"
     }
 )
 

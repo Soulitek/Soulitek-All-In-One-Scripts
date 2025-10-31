@@ -2,6 +2,518 @@
 
 ## Current Status: ✅ Completed
 
+### ✅ Verified & Repositioned: Disk Usage Analyzer (2025-01-15)
+
+Objective: Verified the Disk Usage Analyzer script exists and moved it to the end of the tools list in the GUI launcher as requested.
+
+Deliverables:
+- Verified `scripts/disk_usage_analyzer.ps1` exists and is fully functional
+- Repositioned Disk Usage Analyzer tool to the end of the tools list in GUI launcher
+- Confirmed all features are implemented: folder scanning (>1GB), sorted results, HTML visualization with top 10 charts
+
+Key Features Verified:
+1. **Folder Scanning:**
+   - Finds folders larger than 1 GB (configurable threshold)
+   - Recursive size calculation with progress tracking
+   - Error handling for inaccessible folders
+   - Real-time progress indicators
+
+2. **Results Display:**
+   - Sorted by size (largest first)
+   - Shows folder size, item count, last modified date
+   - Summary statistics (total folders, total size, averages)
+   - Color-coded output for easy interpretation
+
+3. **Export Functionality:**
+   - Text format (.txt) - Human-readable report
+   - CSV format (.csv) - Spreadsheet analysis
+   - HTML format (.html) - Professional web report with:
+     - Top 10 visualization chart with horizontal bars
+     - Color-coded size indicators
+     - Complete sorted table of all folders
+     - Summary statistics and metadata
+
+4. **Professional Interface:**
+   - Menu-based navigation with 6 options
+   - Interactive path selection (drives or custom paths)
+   - Configurable size threshold (default 1 GB)
+   - Comprehensive help guide
+   - SouliTEK branding throughout
+
+Commands:
+```powershell
+# Via GUI Launcher (now at the end of the tools list)
+# Select "Disk Usage Analyzer" from Hardware category
+
+# Direct execution
+.\scripts\disk_usage_analyzer.ps1
+```
+
+Result: Disk Usage Analyzer verified, fully functional, and repositioned to the end of the GUI launcher tools list.
+
+---
+
+### ✅ Enhanced: Hardware Inventory Report (2025-01-15)
+
+Objective: Enhanced the existing Hardware Inventory Report script with SouliTEK branding, professional menu interface, and common module integration.
+
+Deliverables:
+- Enhanced `scripts/hardware_inventory_report.ps1` — Professional hardware inventory tool with menu interface
+- Integrated into GUI launcher under Hardware category (already present)
+
+Key Enhancements:
+1. **SouliTEK Branding:**
+   - Added SouliTEK ASCII banner and company branding
+   - Professional header displays throughout
+   - Consistent styling with other SouliTEK tools
+
+2. **Menu Interface:**
+   - Menu-based navigation with 6 options:
+     - Collect Hardware Inventory
+     - View Summary
+     - Export Report - JSON
+     - Export Report - CSV
+     - Help
+     - Exit
+   - Color-coded output for easy interpretation
+   - Real-time progress indicators during collection
+
+3. **Common Module Integration:**
+   - Uses SouliTEK-Common.ps1 module functions
+   - Consistent logging with Write-SouliTEKResult
+   - Proper error handling and user feedback
+
+4. **Comprehensive Hardware Collection:**
+   - CPU: Name, manufacturer, cores, threads, clock speeds, cache sizes, serial numbers
+   - GPU: Name, manufacturer, driver version, resolution, adapter RAM, status
+   - RAM: Capacity, speed, manufacturer, part numbers, serial numbers, form factor, memory type
+   - Storage: Model, manufacturer, interface type, size, serial numbers, firmware, partition details
+   - Motherboard: Manufacturer, product, version, serial number
+   - BIOS: Manufacturer, version, serial number, release date, SMBIOS version
+   - Network Adapters: Name, manufacturer, MAC address, speed, status
+
+5. **Export Functionality:**
+   - JSON format: Complete nested structure with all hardware details
+   - CSV format: Flattened structure optimized for warranty tracking
+   - Columns: Category, Item, Manufacturer, Model, SerialNumber, Details, Timestamp
+   - Automatic file opening after export
+
+6. **Professional Features:**
+   - Summary display before export
+   - Comprehensive help guide
+   - Serial numbers summary collection
+   - Error handling with helpful messages
+   - Desktop export location by default
+
+Commands:
+```powershell
+# Via GUI Launcher
+# Select "Hardware Inventory Report" from Hardware category
+
+# Direct execution
+.\scripts\hardware_inventory_report.ps1
+```
+
+Features:
+- Collects comprehensive hardware information from WMI/CIM
+- Exports JSON/CSV formats for warranty tracking
+- Serial number collection across all major components
+- Detailed partition and storage analysis
+- Network adapter enumeration
+- Professional reporting with timestamps
+- Menu-driven interface for easy navigation
+
+Use Cases:
+- Warranty tracking and registration
+- Hardware inventory management
+- Asset tracking and documentation
+- IT procurement planning
+- System configuration documentation
+- Compliance and audit requirements
+
+Result: Enhanced production-ready hardware inventory tool with professional interface and full SouliTEK branding integration.
+
+### ✅ Created: RAM Slot Utilization Report (2025-01-15)
+
+Objective: Provide comprehensive RAM slot analysis showing slots used vs total, memory type (DDR3/DDR4/DDR5), speed, and capacity per slot.
+
+Deliverables:
+- `scripts/ram_slot_utilization_report.ps1` — Professional RAM slot utilization analysis tool
+- `docs/RAM_SLOT_UTILIZATION_REPORT.md` — Comprehensive usage and technical documentation
+- Integrated into GUI launcher under Hardware category
+
+Key Features:
+1. **Slot Analysis:**
+   - Total slots available vs used slots
+   - Empty slot identification
+   - Slot-by-slot detailed breakdown
+
+2. **Memory Information:**
+   - Memory type detection (DDR, DDR2, DDR3, DDR4, DDR5, LPDDR4, LPDDR5)
+   - Speed in MHz for each module
+   - Capacity per slot in GB
+   - Form factor (DIMM, SODIMM, etc.)
+
+3. **Hardware Details:**
+   - Manufacturer and part numbers
+   - Serial numbers for identification
+   - Device location/identifier
+   - Complete slot inventory
+
+4. **Reporting:**
+   - Console display with color-coded output
+   - TXT format export for documentation
+   - CSV format export for spreadsheet analysis
+   - HTML format export with professional styling
+   - All formats export option
+
+5. **Professional Interface:**
+   - Menu-based navigation with 6 options
+   - Real-time RAM slot scanning
+   - Comprehensive help documentation
+   - SouliTEK branding throughout
+
+Commands:
+```powershell
+# Via GUI Launcher
+# Select "RAM Slot Utilization Report" from Hardware category
+
+# Direct execution
+.\scripts\ram_slot_utilization_report.ps1
+```
+
+Result: Complete, production-ready RAM slot utilization tool for hardware inventory and upgrade planning.
+
+### ✅ Created: Storage Health Monitor (2025-10-30)
+
+Objective: Monitor storage device health by reading SMART data and warning about increasing reallocated sectors or read errors.
+
+Deliverables:
+- `scripts/storage_health_monitor.ps1` — Professional storage health monitoring tool with SMART data reading and trend analysis
+- `docs/STORAGE_HEALTH_MONITOR.md` — Comprehensive usage, troubleshooting, and technical documentation
+- Integrated into GUI launcher under Hardware category
+
+Key Features:
+1. **SMART Data Reading:**
+   - Uses `Get-PhysicalDisk` and `Get-StorageReliabilityCounter` for SMART data
+   - Attempts WMI access for additional SMART information
+   - Displays comprehensive disk health metrics
+
+2. **Health Monitoring:**
+   - Reallocated Sectors: Tracks bad sectors replaced by spare sectors
+   - Read Errors: Monitors data read failures
+   - Temperature: Drive temperature monitoring (if available)
+   - Power-On Hours: Total operating time tracking
+   - Power Cycles: Power-on/power-off cycle count
+   - Wear Level: SSD wear percentage (if available)
+
+3. **Trend Monitoring (Enhanced):**
+   - **Baseline Comparison:** Automatically stores and compares with previous scan values
+   - **Increasing Detection:** Warns when reallocated sectors or read errors are INCREASING (even if still low)
+   - **Trend Indicators:** Shows INCREASING, STABLE, or DECREASING trends with change values
+   - **Baseline Storage:** Stores baseline in JSON format at `%LOCALAPPDATA%\SouliTEK\StorageHealthBaseline.json`
+   - **First Scan:** Establishes baseline, subsequent scans compare trends
+   - **Auto-Update:** Baseline automatically updated after each scan
+
+4. **Warning System:**
+   - CRITICAL: Reallocated sectors > 100, Read errors > 100, Unhealthy status
+   - WARNING: Reallocated sectors > 10, Read errors > 10, Warning status
+   - **WARNING: Increasing by 5+ sectors/errors** - New! Detects trends even when values are low
+   - OK: Normal operation with low error counts and stable trends
+
+5. **Reporting:**
+   - Console summary with color-coded health status and trend indicators
+   - Previous values displayed with baseline timestamp
+   - TXT format export for human-readable reports
+   - CSV format export for spreadsheet analysis
+   - HTML format export with professional styling
+   - All formats export option
+
+6. **Professional Interface:**
+   - Menu-based navigation with 7 options
+   - Real-time disk scanning and analysis
+   - Color-coded warnings and alerts
+   - Trend visualization with change indicators
+   - Comprehensive help documentation
+
+Commands:
+```powershell
+# Via GUI Launcher
+# Select "Storage Health Monitor" from Hardware category
+
+# Direct script execution
+.\scripts\storage_health_monitor.ps1
+```
+
+Menu Options:
+1. View Storage Health Report - Scan and display SMART data for all disks with trend analysis
+2. Export Report - TXT Format - Text file export
+3. Export Report - CSV Format - Spreadsheet export
+4. Export Report - HTML Format - Web report export
+5. Export Report - All Formats - All three formats
+6. Help & Information - Comprehensive documentation
+7. Exit - Close the tool
+
+Result: Complete, production-ready storage health monitoring tool with SMART data analysis, trend monitoring, and comprehensive warning system that detects increasing errors even when absolute values are low.
+
+### ✅ Added: System Restore Point Creator (2025-10-30)
+
+Objective: Add the ability to create Windows System Restore Points via the GUI launcher.
+
+Deliverables:
+- `scripts/create_system_restore_point.ps1` — Professional System Restore Point creation tool with menu interface
+- Integrated into GUI launcher under Support category
+
+Key Features:
+1. **Restore Point Creation:**
+   - Quick create with auto-generated timestamp description
+   - Custom description option for user-defined restore points
+   - Automatic administrator privilege checking
+   - System Restore enabled status verification
+
+2. **Restore Point Management:**
+   - View all available restore points with full history
+   - Display restore point details: sequence number, description, creation time, type
+   - System Restore protection status checking
+   - Detailed status information via vssadmin
+
+3. **Professional Interface:**
+   - Menu-based navigation with 5 options
+   - Color-coded output for easy interpretation
+   - Comprehensive error handling and fallback methods
+   - Support for both Checkpoint-Computer and vssadmin methods
+   - Real-time status feedback
+
+4. **Safety Features:**
+   - Administrator privilege validation
+   - System Restore enabled status warnings
+   - Graceful error handling with detailed messages
+   - Alternative methods if primary method fails
+
+Commands:
+```powershell
+# Via GUI Launcher
+# Select "System Restore Point" from Support category
+
+# Direct script execution
+.\scripts\create_system_restore_point.ps1
+```
+
+Menu Options:
+1. Create System Restore Point (Quick) - Auto-generates timestamp description
+2. Create System Restore Point (Custom Description) - User-defined description
+3. View Restore Point History - Lists all available restore points
+4. Check System Restore Status - Shows protection status and details
+5. Exit - Closes the tool
+
+Result: Complete, production-ready System Restore Point creation tool integrated into GUI launcher.
+
+---
+
+### ✅ Created: Hardware Inventory Report Tool (2025-10-30)
+
+Objective: Create a comprehensive hardware inventory script that collects CPU, GPU, RAM, disk, motherboard, BIOS, and serial information, exporting to JSON/CSV for warranty tracking.
+
+Deliverables:
+- `scripts/hardware_inventory_report.ps1` — Comprehensive hardware inventory collection with JSON/CSV export
+- Integrated into GUI launcher under Hardware category
+
+Key Features:
+1. **Comprehensive Hardware Collection:**
+   - CPU: Name, manufacturer, cores, threads, clock speeds, cache sizes, serial numbers
+   - GPU: Name, manufacturer, driver version, resolution, adapter RAM, status
+   - RAM: Capacity, speed, manufacturer, part numbers, serial numbers, form factor, memory type
+   - Storage: Model, manufacturer, interface type, size, serial numbers, firmware, partition details
+   - Motherboard: Manufacturer, product, version, serial number
+   - BIOS: Manufacturer, version, serial number, release date, SMBIOS version
+   - Network Adapters: Name, manufacturer, MAC address, speed, status
+
+2. **Serial Number Tracking:**
+   - Computer system serial number
+   - Motherboard serial number
+   - BIOS serial number
+   - CPU serial numbers/processor IDs
+   - RAM module serial numbers
+   - Storage device serial numbers
+
+3. **Export Functionality:**
+   - JSON format: Complete nested structure with all hardware details
+   - CSV format: Flattened structure optimized for warranty tracking with columns:
+     - Category, Item, Manufacturer, Model, SerialNumber, Details, Timestamp
+   - Both formats option for comprehensive documentation
+
+4. **Detailed Information:**
+   - Partition-level storage analysis (drive letters, file systems, free space)
+   - Network adapter physical addresses
+   - Complete operating system information
+   - Memory module locations and banks
+   - GPU driver information and dates
+
+5. **Professional Interface:**
+   - Color-coded progress indicators
+   - Real-time collection status
+   - Summary statistics display
+   - Timestamped reports
+   - Comprehensive error handling
+
+Commands:
+```powershell
+# Run directly
+.\scripts\hardware_inventory_report.ps1
+
+# With custom output path
+.\scripts\hardware_inventory_report.ps1 -OutputPath "C:\Reports"
+
+# JSON only
+.\scripts\hardware_inventory_report.ps1 -Format "JSON"
+
+# CSV only
+.\scripts\hardware_inventory_report.ps1 -Format "CSV"
+```
+
+Features:
+- Collects comprehensive hardware information from WMI/CIM
+- Exports JSON/CSV formats for warranty tracking
+- Serial number collection across all major components
+- Detailed partition and storage analysis
+- Network adapter enumeration
+- Professional reporting with timestamps
+
+Use Cases:
+- Warranty tracking and registration
+- Hardware inventory management
+- Asset tracking and documentation
+- IT procurement planning
+- System configuration documentation
+- Compliance and audit requirements
+
+Result: Complete, production-ready hardware inventory tool ready for warranty tracking and asset management.
+
+### ✅ Created: Disk Usage Analyzer Tool (2025-10-30)
+
+Objective: Create a disk usage analysis tool that finds large folders (> 1 GB) and provides comprehensive reporting with HTML visualization.
+
+Deliverables:
+- `scripts/disk_usage_analyzer.ps1` — Analyzes disk usage, finds folders larger than threshold (default 1 GB), exports to multiple formats with HTML visualization of top 10 folders.
+- Integrated into GUI launcher under Hardware category.
+
+Key Features:
+1. **Flexible Path Selection:**
+   - Scan entire drives or custom paths
+   - Interactive drive selection menu
+   - Custom path input support
+
+2. **Configurable Threshold:**
+   - Default minimum size: 1 GB
+   - Adjustable size threshold
+   - Configurable per scan session
+
+3. **Comprehensive Scanning:**
+   - Recursive folder size calculation
+   - Real-time progress indicators
+   - Error handling for inaccessible folders
+   - Displays folder size, item count, last modified date
+
+4. **Results Display:**
+   - Sorted by size (largest first)
+   - Top 10 largest folders preview
+   - Summary statistics (total folders, total size, averages)
+   - Color-coded output for easy interpretation
+
+5. **Export Functionality:**
+   - Text format (.txt) - Human-readable report
+   - CSV format (.csv) - Spreadsheet analysis
+   - HTML format (.html) - Professional web report with:
+     - Top 10 visualization chart with horizontal bars
+     - Color-coded size indicators
+     - Complete sorted table of all folders
+     - Summary statistics and metadata
+
+6. **Professional Interface:**
+   - Menu-based navigation
+   - Settings management (path, threshold)
+   - Real-time scan progress
+   - Comprehensive help guide
+   - Soulitek branding throughout
+
+Commands:
+```powershell
+# Run directly
+.\scripts\disk_usage_analyzer.ps1
+
+# Or launch from GUI launcher
+.\launcher\SouliTEK-Launcher-WPF.ps1
+```
+
+Features:
+- Finds folders larger than 1 GB (configurable threshold)
+- Sorted results by size (largest first)
+- HTML visualization of top 10 biggest folders with horizontal bar chart
+- Multiple export formats (TXT, CSV, HTML)
+- Scan progress tracking and error handling
+- Professional reporting with statistics
+
+Use Cases:
+- Identify disk space consumers
+- Storage cleanup planning
+- Analyze specific directories (e.g., user folders)
+- Generate reports for storage optimization
+- Monitor disk usage trends
+
+Result: Complete, production-ready disk usage analyzer with visualization capabilities ready for storage management.
+
+### ✅ Created: Microsoft 365 MFA Audit Tool (2025-10-30)
+
+Objective: Provide an audit of Microsoft 365 MFA across all users with clear breakdowns and optional automated weekly email reports.
+
+Deliverables:
+- `scripts/m365_mfa_audit.ps1` — Audits MFA per-user (via MSOnline) and tenant-level MFA policy (via Microsoft Graph). Exports CSV and HTML, and can send the report via SMTP and register a weekly Scheduled Task.
+- `docs/M365_MFA_AUDIT.md` — Usage, permissions, scheduling, and troubleshooting guide.
+
+Key Features:
+1. Per-user MFA detection using MSOnline `Get-MsolUser`:
+   - `StrongAuthenticationRequirements` and `StrongAuthenticationMethods`
+   - Columns: MFA Enabled, Per-User Enforced, Method Count, Default Method
+2. Tenant policy status via Microsoft Graph:
+   - Security Defaults enabled/disabled
+   - Conditional Access policies that require MFA (names and status)
+3. Summary metrics:
+   - Totals and percentages for enabled/disabled
+4. Reporting:
+   - Console summary, CSV and styled HTML report
+   - Optional SMTP email with attachments
+5. Automation:
+   - Optional Windows Scheduled Task for weekly emails
+
+Commands:
+```powershell
+# Basic
+.\scripts\m365_mfa_audit.ps1
+
+# Email report
+$cred = Get-Credential
+.\scripts\m365_mfa_audit.ps1 -EmailReport -To "admin@contoso.com" -From "reports@contoso.com" -SmtpServer "smtp.office365.com" -Credential $cred
+
+# Weekly schedule
+.\scripts\m365_mfa_audit.ps1 -EmailReport -To "admin@contoso.com" -From "reports@contoso.com" -SmtpServer "smtp.office365.com" -Credential $cred -ScheduleWeekly -ScheduleDay Sunday -ScheduleTime "06:00"
+```
+
+Result: Complete, production-ready MFA auditing tool with clear reporting and optional automated delivery.
+
+### ✅ Updated URLs to www.soulitek.co.il (2025-10-30)
+
+**Objective:** Replace plain-domain URLs using `https://soulitek.co.il` with `https://www.soulitek.co.il` across the repo per branding and consistency.
+
+**Changes Made:**
+- Updated documentation references:
+  - `docs/USB_DEVICE_LOG.md` → Website link updated to `https://www.soulitek.co.il`
+  - `docs/BITLOCKER_STATUS_REPORT.md` → Website link updated to `https://www.soulitek.co.il`
+
+**Notes:**
+- A full scan found only two exact matches of `https://soulitek.co.il`. Other files already used `www.soulitek.co.il` or variants without scheme and did not require changes.
+
+**Result:** All direct `https://soulitek.co.il` references are now `https://www.soulitek.co.il`.
+
 ### ✅ Fixed Show-Banner Function Error (2025-10-30)
 
 **Completed:** Fixed "Show-Banner function not recognized" error across all 10 PowerShell scripts.
@@ -19,6 +531,19 @@
 - Function import was working but calling incorrect function name caused runtime error
 
 **Result:** All scripts now properly display the SouliTEK branding banner without errors.
+
+---
+
+### ✅ Removed EXE Build Option (2025-10-30)
+
+**Completed:** Eliminated EXE packaging workflow and documentation.
+
+**Changes Made:**
+- Deleted `Build-WPF-Launcher.ps1`
+- Updated `docs/WPF_LAUNCHER_GUIDE.md` and `docs/WPF_QUICK_START.md` to remove ps2exe/EXE instructions
+- Clarified distribution: run `launcher/SouliTEK-Launcher-WPF.ps1` directly
+
+**Reason:** Simplify distribution and avoid maintenance overhead of EXE builds.
 
 ---
 
@@ -926,6 +1451,31 @@ iwr -useb get.soulitek.co.il | iex
 ---
 
 ## Log
+- 2025-01-15: Enhanced Hardware Inventory Report script with SouliTEK branding, menu interface, and common module integration
+- 2025-01-15: Added professional menu-based navigation with 6 options (Collect, View Summary, Export JSON, Export CSV, Help, Exit)
+- 2025-01-15: Integrated SouliTEK-Common module functions for consistent logging and error handling
+- 2025-01-15: Verified script is properly integrated in GUI launcher under Hardware category
+- 2025-10-30: Created Storage Health Monitor tool - SMART data reading with reallocated sectors and read errors monitoring
+- 2025-10-30: Added Storage Health Monitor to GUI launcher under Hardware category with icon [SH]
+- 2025-10-30: Implemented warning system with CRITICAL (>100), WARNING (>10), and OK thresholds
+- 2025-10-30: Added comprehensive documentation (STORAGE_HEALTH_MONITOR.md) with troubleshooting and best practices
+- 2025-10-30: Created Hardware Inventory Report tool - comprehensive hardware collection with JSON/CSV export for warranty tracking
+- 2025-10-30: Added Hardware Inventory Report to GUI launcher under Hardware category
+- 2025-10-30: Implemented CPU, GPU, RAM, disk, motherboard, BIOS, and serial number collection
+- 2025-10-30: Added JSON export with complete nested structure for all hardware details
+- 2025-10-30: Added CSV export with flattened structure optimized for warranty tracking
+- 2025-10-30: Created comprehensive documentation (HARDWARE_INVENTORY_REPORT.md)
+- 2025-10-30: Created System Restore Point Creator tool - create Windows restore points via GUI
+- 2025-10-30: Added System Restore Point tool to GUI launcher under Support category (14 tools total)
+- 2025-10-30: Implemented menu-based interface with quick create, custom description, history view, and status check
+- 2025-10-30: Added comprehensive error handling with fallback methods (Checkpoint-Computer and vssadmin)
+- 2025-10-30: Created Disk Usage Analyzer tool - finds folders > 1 GB with HTML visualization
+- 2025-10-30: Added Disk Usage Analyzer to GUI launcher under Hardware category (13 tools total)
+- 2025-10-30: Implemented folder scanning with configurable size threshold (default 1 GB)
+- 2025-10-30: Added HTML visualization with top 10 largest folders bar chart
+- 2025-10-30: Implemented multiple export formats (TXT, CSV, HTML) for disk usage reports
+- 2025-10-30: Added interactive path selection menu (drives or custom paths)
+- 2025-10-30: Replaced `https://soulitek.co.il` → `https://www.soulitek.co.il` in docs (2 files)
 - 2025-10-30: Fixed Show-Banner function error - updated all 10 scripts to use Show-SouliTEKBanner instead of Show-Banner
 - 2025-10-30: Added automatic administrator relaunch functionality to WPF launcher script
 - 2025-10-30: Script now automatically relaunches with admin privileges if not running as administrator

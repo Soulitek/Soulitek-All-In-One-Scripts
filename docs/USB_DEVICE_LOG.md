@@ -475,7 +475,7 @@ Export CSV files can be imported into SIEM systems for:
 
 For support, questions, or feedback:
 
-- **Website**: https://soulitek.co.il
+- **Website**: https://www.soulitek.co.il
 - **Company**: Soulitek - IT Solutions
 - **Services**: Computer Repair, Network Setup, IT Consulting, Security Audits
 

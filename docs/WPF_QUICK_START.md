@@ -3,14 +3,8 @@
 ## ⚡ TL;DR - Get Started in 30 Seconds
 
 ```powershell
-# 1. Run the WPF launcher
+# Run the WPF launcher
 .\launcher\SouliTEK-Launcher-WPF.ps1
-
-# 2. Or build to EXE
-.\Build-WPF-Launcher.ps1
-
-# 3. Run the EXE
-.\build\SouliTEK-Launcher.exe
 ```
 
 ---
@@ -34,8 +28,7 @@ The **WPF (Windows Presentation Foundation) Launcher** is a modern, beautiful GU
 - **PowerShell 5.1+** (built into Windows)
 - **Administrator privileges** (for some tools)
 
-**Optional (for building EXE):**
-- PS2EXE module: `Install-Module ps2exe -Scope CurrentUser`
+**Note:** EXE builds are no longer supported or documented.
 
 ---
 
@@ -69,68 +62,13 @@ Start-Process powershell -Verb RunAs -ArgumentList "-ExecutionPolicy Bypass -Fil
 
 ## 🔨 Building to EXE
 
-### **Automatic Build (Recommended)**
-
-```powershell
-# Run the build script
-.\Build-WPF-Launcher.ps1
-```
-
-**What it does:**
-1. Checks for PS2EXE module (installs if needed)
-2. Builds the EXE file
-3. Copies all dependencies (XAML, scripts, assets)
-4. Shows build summary
-
-**Output:** `build/SouliTEK-Launcher.exe`
-
-### **Build Options**
-
-```powershell
-# Build without console window (GUI only)
-.\Build-WPF-Launcher.ps1 -NoConsole
-
-# Build with admin requirement
-.\Build-WPF-Launcher.ps1 -RequireAdmin
-
-# Both options
-.\Build-WPF-Launcher.ps1 -NoConsole -RequireAdmin
-```
-
-### **Manual Build**
-
-```powershell
-# Install PS2EXE first
-Install-Module ps2exe -Scope CurrentUser
-
-# Build manually
-Import-Module ps2exe
-Invoke-ps2exe `
-    -inputFile ".\launcher\SouliTEK-Launcher-WPF.ps1" `
-    -outputFile ".\build\SouliTEK-Launcher.exe" `
-    -title "SouliTEK All-In-One Scripts" `
-    -company "SouliTEK" `
-    -version "2.0.0" `
-    -noConsole
-```
+EXE packaging has been removed. Distribute and run the PowerShell launcher directly.
 
 ---
 
 ## 📦 Distribution
 
-### **What to Distribute**
-
-The `build/` folder contains everything needed:
-
-```
-build/
-├── SouliTEK-Launcher.exe    ← Main executable
-├── MainWindow.xaml           ← UI definition (required!)
-├── scripts/                  ← All PowerShell tools
-└── assets/                   ← Images and icons
-```
-
-**⚠️ Important:** The EXE needs `MainWindow.xaml` in the same folder to work!
+Distribute the repository (or a ZIP of it). Users run `launcher/SouliTEK-Launcher-WPF.ps1`.
 
 ### **Distribution Options**
 
@@ -301,9 +239,6 @@ Before distributing:
 - [ ] Test the launcher runs without errors
 - [ ] All 11 tools are visible and launch correctly
 - [ ] Search and category filtering work
-- [ ] Build script completes successfully
-- [ ] Built EXE runs from `build/` folder
-- [ ] `MainWindow.xaml` is included with EXE
 - [ ] Scripts and assets folders are present
 - [ ] Tested on target Windows version
 - [ ] Admin privileges prompt works (if enabled)
