@@ -231,7 +231,7 @@ function Get-RAMSlotInformation {
 function Show-RAMReport {
     Clear-Host
     Show-SouliTEKBanner
-    Set-SouliTEKConsoleColor "Cyan"
+    Set-SouliTEKConsoleColor "Blue"
     Write-Host ""
     Write-Host "========================================"
     Write-Host "   RAM SLOT UTILIZATION REPORT"
@@ -299,7 +299,7 @@ function Show-RAMReport {
 function Export-RAMReportTXT {
     Clear-Host
     Show-SouliTEKBanner
-    Set-SouliTEKConsoleColor "Cyan"
+    Set-SouliTEKConsoleColor "Blue"
     Write-Host ""
     Write-Host "========================================"
     Write-Host "   EXPORT RAM REPORT - TXT FORMAT"
@@ -410,7 +410,7 @@ END OF REPORT
 function Export-RAMReportCSV {
     Clear-Host
     Show-SouliTEKBanner
-    Set-SouliTEKConsoleColor "Cyan"
+    Set-SouliTEKConsoleColor "Blue"
     Write-Host ""
     Write-Host "========================================"
     Write-Host "   EXPORT RAM REPORT - CSV FORMAT"
@@ -480,7 +480,7 @@ function Export-RAMReportCSV {
 function Export-RAMReportHTML {
     Clear-Host
     Show-SouliTEKBanner
-    Set-SouliTEKConsoleColor "Cyan"
+    Set-SouliTEKConsoleColor "Blue"
     Write-Host ""
     Write-Host "========================================"
     Write-Host "   EXPORT RAM REPORT - HTML FORMAT"

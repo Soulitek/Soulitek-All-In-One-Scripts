@@ -838,7 +838,7 @@ function Show-Help {
 # ============================================================
 
 # Check for administrator privileges
-if (-not (Test-Administrator)) {
+if (-not (Test-SouliTEKAdministrator)) {
     Write-Host "WARNING: This tool requires Administrator privileges for full functionality." -ForegroundColor Yellow
     Write-Host "Some SMART data may not be accessible without elevation." -ForegroundColor Yellow
     Write-Host ""

@@ -31,6 +31,41 @@ if (Test-Path $CommonPath) {
 	Write-Warning "SouliTEK Common Functions not found at: $CommonPath"
 }
 
+# Ensure NuGet provider is available (required for PowerShellGet)
+$nuGetProvider = Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue
+if (-not $nuGetProvider -or ($nuGetProvider.Version -lt [version]"2.8.5.201")) {
+	Write-Host "Installing NuGet provider..." -ForegroundColor Cyan
+	try {
+		Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser -ErrorAction Stop
+		Write-Host "NuGet provider installed successfully!" -ForegroundColor Green
+	} catch {
+		Write-Warning "Failed to install NuGet provider: $($_.Exception.Message)"
+	}
+}
+
+# Ensure PowerShellGet prerequisites for module installation
+if (-not (Get-Module -ListAvailable -Name PowerShellGet -ErrorAction SilentlyContinue)) {
+	Write-Host "Installing PowerShellGet module..." -ForegroundColor Cyan
+	try {
+		Install-Module -Name PowerShellGet -Scope CurrentUser -Force -SkipPublisherCheck -ErrorAction Stop
+		Write-Host "PowerShellGet installed successfully!" -ForegroundColor Green
+	} catch {
+		Write-Warning "Failed to install PowerShellGet: $($_.Exception.Message)"
+	}
+}
+
+# Trust PSGallery for module installation
+$psGallery = Get-PSRepository -Name PSGallery -ErrorAction SilentlyContinue
+if ($null -eq $psGallery -or $psGallery.InstallationPolicy -ne 'Trusted') {
+	Write-Host "Setting PSGallery to Trusted..." -ForegroundColor Cyan
+	try {
+		Set-PSRepository -Name PSGallery -InstallationPolicy Trusted -ErrorAction Stop
+		Write-Host "PSGallery set to Trusted" -ForegroundColor Green
+	} catch {
+		Write-Warning "Failed to set PSGallery to Trusted: $($_.Exception.Message)"
+	}
+}
+
 function Show-Header {
 	param([string]$Title = "Microsoft 365 MFA Status", [ConsoleColor]$Color = 'Cyan')
 	Clear-Host
@@ -54,29 +89,51 @@ function Ensure-OutputFolder {
 	}
 }
 
+function Install-RequiredModule {
+	param(
+		[Parameter(Mandatory=$true)]
+		[string]$ModuleName
+	)
+	
+	Write-Host "$ModuleName module not installed." -ForegroundColor Yellow
+	Write-Host "Attempting to install $ModuleName..." -ForegroundColor Cyan
+	
+	try {
+		Install-Module -Name $ModuleName -Scope CurrentUser -Force -AllowClobber -ErrorAction Stop
+		Write-Host "$ModuleName installed successfully!" -ForegroundColor Green
+		return $true
+	} catch {
+		Write-Warning "Failed to install $ModuleName`: $($_.Exception.Message)"
+		Write-Host "Please install manually: Install-Module $ModuleName -Scope CurrentUser" -ForegroundColor Yellow
+		return $false
+	}
+}
+
 function Connect-GraphIfAvailable {
 	$connected = $false
-	if (Get-Module -ListAvailable -Name Microsoft.Graph -ErrorAction SilentlyContinue) {
-		try {
-			# Check if already connected
-			$context = Get-MgContext -ErrorAction SilentlyContinue
-			if ($context) {
-				Write-Host "Already connected to Microsoft Graph" -ForegroundColor Green
-				return $true
-			}
-			
-			# Scopes for policy, users, and authentication methods
-			$scopes = @('User.Read.All','Policy.Read.All','UserAuthenticationMethod.Read.All')
-			Connect-MgGraph -Scopes $scopes -ErrorAction Stop | Out-Null
-			$profile = (Get-MgContext).Scopes
-			Write-Host "Connected to Microsoft Graph (scopes: $($profile -join ', '))" -ForegroundColor Green
-			$connected = $true
-		} catch {
-			Write-Warning "Microsoft Graph connection failed: $($_.Exception.Message)"
-		}
-	} else {
+	if (-not (Get-Module -ListAvailable -Name Microsoft.Graph -ErrorAction SilentlyContinue)) {
 		Write-Host "Microsoft Graph module not installed." -ForegroundColor Yellow
-		Write-Host "Install with: Install-Module Microsoft.Graph -Scope CurrentUser" -ForegroundColor Yellow
+		if (-not (Install-RequiredModule -ModuleName "Microsoft.Graph")) {
+			return $false
+		}
+	}
+	
+	try {
+		# Check if already connected
+		$context = Get-MgContext -ErrorAction SilentlyContinue
+		if ($context) {
+			Write-Host "Already connected to Microsoft Graph" -ForegroundColor Green
+			return $true
+		}
+		
+		# Scopes for policy, users, and authentication methods
+		$scopes = @('User.Read.All','Policy.Read.All','UserAuthenticationMethod.Read.All')
+		Connect-MgGraph -Scopes $scopes -ErrorAction Stop | Out-Null
+		$profile = (Get-MgContext).Scopes
+		Write-Host "Connected to Microsoft Graph (scopes: $($profile -join ', '))" -ForegroundColor Green
+		$connected = $true
+	} catch {
+		Write-Warning "Microsoft Graph connection failed: $($_.Exception.Message)"
 	}
 	return $connected
 }
@@ -112,8 +169,9 @@ function Get-TenantPolicyMfaStatus {
 function Get-MfaUsersViaMsOnline {
 	if (-not (Get-Module -ListAvailable -Name MSOnline -ErrorAction SilentlyContinue)) {
 		Write-Host "MSOnline module not installed." -ForegroundColor Yellow
-		Write-Host "Install with: Install-Module MSOnline -Scope CurrentUser" -ForegroundColor Yellow
-		return $null
+		if (-not (Install-RequiredModule -ModuleName "MSOnline")) {
+			return $null
+		}
 	}
 	
 	try {

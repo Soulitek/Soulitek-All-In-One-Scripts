@@ -137,7 +137,7 @@ function New-SystemRestorePoint {
     Write-Host ""
     
     # Check if running as administrator
-    if (-not (Test-Administrator)) {
+    if (-not (Test-SouliTEKAdministrator)) {
         Write-Host "[!] ERROR: Administrator privileges required!" -ForegroundColor Red
         Write-Host "[!] Please run this script as Administrator." -ForegroundColor Red
         Write-Host ""
@@ -386,7 +386,7 @@ function Start-MainLoop {
 # ============================================================
 
 # Check administrator privileges
-if (-not (Test-Administrator)) {
+if (-not (Test-SouliTEKAdministrator)) {
     Show-Header
     Write-Host "[!] ERROR: Administrator privileges required!" -ForegroundColor Red
     Write-Host "[!] Please run this script as Administrator." -ForegroundColor Red

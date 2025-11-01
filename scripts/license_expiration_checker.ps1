@@ -47,6 +47,41 @@ if (Test-Path $CommonPath) {
     Write-Warning "Some functions may not work properly."
 }
 
+# Ensure NuGet provider is available (required for PowerShellGet)
+$nuGetProvider = Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue
+if (-not $nuGetProvider -or ($nuGetProvider.Version -lt [version]"2.8.5.201")) {
+    Write-Host "Installing NuGet provider..." -ForegroundColor Cyan
+    try {
+        Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser -ErrorAction Stop
+        Write-Host "NuGet provider installed successfully!" -ForegroundColor Green
+    } catch {
+        Write-Warning "Failed to install NuGet provider: $($_.Exception.Message)"
+    }
+}
+
+# Ensure PowerShellGet prerequisites for module installation
+if (-not (Get-Module -ListAvailable -Name PowerShellGet -ErrorAction SilentlyContinue)) {
+    Write-Host "Installing PowerShellGet module..." -ForegroundColor Cyan
+    try {
+        Install-Module -Name PowerShellGet -Scope CurrentUser -Force -SkipPublisherCheck -ErrorAction Stop
+        Write-Host "PowerShellGet installed successfully!" -ForegroundColor Green
+    } catch {
+        Write-Warning "Failed to install PowerShellGet: $($_.Exception.Message)"
+    }
+}
+
+# Trust PSGallery for module installation
+$psGallery = Get-PSRepository -Name PSGallery -ErrorAction SilentlyContinue
+if ($null -eq $psGallery -or $psGallery.InstallationPolicy -ne 'Trusted') {
+    Write-Host "Setting PSGallery to Trusted..." -ForegroundColor Cyan
+    try {
+        Set-PSRepository -Name PSGallery -InstallationPolicy Trusted -ErrorAction Stop
+        Write-Host "PSGallery set to Trusted" -ForegroundColor Green
+    } catch {
+        Write-Warning "Failed to set PSGallery to Trusted: $($_.Exception.Message)"
+    }
+}
+
 # ============================================================
 # GLOBAL VARIABLES
 # ============================================================
@@ -61,7 +96,25 @@ $Script:Connected = $false
 # HELPER FUNCTIONS
 # ============================================================
 
-
+function Install-RequiredModule {
+	param(
+		[Parameter(Mandatory=$true)]
+		[string]$ModuleName
+	)
+	
+	Write-Host "$ModuleName module not installed." -ForegroundColor Yellow
+	Write-Host "Attempting to install $ModuleName..." -ForegroundColor Cyan
+	
+	try {
+		Install-Module -Name $ModuleName -Scope CurrentUser -Force -AllowClobber -ErrorAction Stop
+		Write-Host "$ModuleName installed successfully!" -ForegroundColor Green
+		return $true
+	} catch {
+		Write-Warning "Failed to install $ModuleName`: $($_.Exception.Message)"
+		Write-Host "Please install manually: Install-Module $ModuleName -Scope CurrentUser" -ForegroundColor Yellow
+		return $false
+	}
+}
 
 function Show-Header {
     param([string]$Title = "LICENSE EXPIRATION CHECKER", [ConsoleColor]$Color = 'Cyan')
@@ -150,15 +203,18 @@ function Connect-ToMicrosoftGraph {
     if (-not $mgModule) {
         Write-SouliTEKResult "Microsoft Graph PowerShell module not found" -Level ERROR
         Write-Host ""
-        Write-Host "INSTALLATION REQUIRED:" -ForegroundColor Yellow
-        Write-Host "  Run the following command in an elevated PowerShell:" -ForegroundColor Gray
-        Write-Host "  Install-Module Microsoft.Graph -Scope CurrentUser" -ForegroundColor Cyan
-        Write-Host ""
-        Write-Host "  Or for all users (requires admin):" -ForegroundColor Gray
-        Write-Host "  Install-Module Microsoft.Graph -Scope AllUsers" -ForegroundColor Cyan
-        Write-Host ""
-        Read-Host "Press Enter to return to main menu"
-        return $false
+        if (-not (Install-RequiredModule -ModuleName "Microsoft.Graph")) {
+            Write-Host ""
+            Read-Host "Press Enter to return to main menu"
+            return $false
+        }
+        # Recheck after installation
+        $mgModule = Get-Module -Name Microsoft.Graph.Identity.DirectoryManagement -ListAvailable
+        if (-not $mgModule) {
+            Write-Host ""
+            Read-Host "Press Enter to return to main menu"
+            return $false
+        }
     }
     
     Write-SouliTEKResult "Module found: $($mgModule.Version)" -Level SUCCESS
