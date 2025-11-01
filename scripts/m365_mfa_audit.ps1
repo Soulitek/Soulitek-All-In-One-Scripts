@@ -22,6 +22,11 @@ param(
 
 $Host.UI.RawUI.WindowTitle = "Microsoft 365 MFA Status"
 
+# Set preferences to suppress prompts during module installation
+$ProgressPreference = 'SilentlyContinue'
+$WarningPreference = 'Continue'
+$ErrorActionPreference = 'Stop'
+
 # Import SouliTEK Common Functions
 $ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $CommonPath = Join-Path (Split-Path -Parent $ScriptRoot) "modules\SouliTEK-Common.ps1"
@@ -36,7 +41,7 @@ $nuGetProvider = Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue
 if (-not $nuGetProvider -or ($nuGetProvider.Version -lt [version]"2.8.5.201")) {
 	Write-Host "Installing NuGet provider..." -ForegroundColor Cyan
 	try {
-		Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser -ErrorAction Stop
+		Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser -ErrorAction Stop | Out-Null
 		Write-Host "NuGet provider installed successfully!" -ForegroundColor Green
 	} catch {
 		Write-Warning "Failed to install NuGet provider: $($_.Exception.Message)"
