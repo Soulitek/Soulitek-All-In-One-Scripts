@@ -116,29 +116,107 @@ function Install-RequiredModule {
 
 function Connect-GraphIfAvailable {
 	$connected = $false
+	Write-Host ""
+	Write-Host "============================================================" -ForegroundColor Cyan
+	Write-Host "  Microsoft Graph Connection Setup" -ForegroundColor Cyan
+	Write-Host "============================================================" -ForegroundColor Cyan
+	Write-Host ""
+	
 	if (-not (Get-Module -ListAvailable -Name Microsoft.Graph -ErrorAction SilentlyContinue)) {
-		Write-Host "Microsoft Graph module not installed." -ForegroundColor Yellow
+		Write-Host "[Step 1/4] Microsoft Graph module not installed." -ForegroundColor Yellow
+		Write-Host "          Attempting to install Microsoft Graph module..." -ForegroundColor Gray
 		if (-not (Install-RequiredModule -ModuleName "Microsoft.Graph")) {
+			Write-Host "          Installation failed. Please check errors above." -ForegroundColor Red
 			return $false
 		}
+		Write-Host "          ✓ Microsoft Graph module installed successfully" -ForegroundColor Green
+	} else {
+		Write-Host "[Step 1/4] ✓ Microsoft Graph module already installed" -ForegroundColor Green
 	}
 	
 	try {
+		# Import required Microsoft Graph submodules
+		Write-Host ""
+		Write-Host "[Step 2/4] Loading required submodules..." -ForegroundColor Cyan
+		$modulesToImport = @(
+			'Microsoft.Graph.Authentication',
+			'Microsoft.Graph.Users',
+			'Microsoft.Graph.Identity.SignIns'
+		)
+		
+		foreach ($module in $modulesToImport) {
+			Write-Host "          Loading $module..." -ForegroundColor Gray
+			if (-not (Get-Module -Name $module -ErrorAction SilentlyContinue)) {
+				if (Get-Module -ListAvailable -Name $module -ErrorAction SilentlyContinue) {
+					Import-Module $module -ErrorAction SilentlyContinue
+					Write-Host "          ✓ $module loaded successfully" -ForegroundColor Green
+				} else {
+					Write-Warning "          Installing $module..."
+					try {
+						Install-Module -Name $module -Scope CurrentUser -Force -AllowClobber -ErrorAction Stop
+						Import-Module $module -ErrorAction SilentlyContinue
+						Write-Host "          ✓ $module installed and loaded" -ForegroundColor Green
+					} catch {
+						Write-Warning "          Failed to install $module`: $($_.Exception.Message)"
+					}
+				}
+			} else {
+				Write-Host "          ✓ $module already loaded" -ForegroundColor Green
+			}
+		}
+		
+		Write-Host ""
+		Write-Host "[Step 3/4] Checking existing connection..." -ForegroundColor Cyan
 		# Check if already connected
 		$context = Get-MgContext -ErrorAction SilentlyContinue
 		if ($context) {
-			Write-Host "Already connected to Microsoft Graph" -ForegroundColor Green
+			Write-Host "          ✓ Already connected to Microsoft Graph" -ForegroundColor Green
+			Write-Host "          Account: $($context.Account)" -ForegroundColor Gray
+			Write-Host "          Tenant: $($context.TenantId)" -ForegroundColor Gray
+			Write-Host ""
 			return $true
 		}
+		Write-Host "          No existing connection found" -ForegroundColor Yellow
+		
+		Write-Host ""
+		Write-Host "[Step 4/4] Initiating connection to Microsoft Graph..." -ForegroundColor Cyan
+		Write-Host "          This will open a browser window for authentication" -ForegroundColor Yellow
+		Write-Host "          Required permissions:" -ForegroundColor Gray
+		Write-Host "            - User.Read.All (read user information)" -ForegroundColor Gray
+		Write-Host "            - Policy.Read.All (read security policies)" -ForegroundColor Gray
+		Write-Host "            - UserAuthenticationMethod.Read.All (read MFA status)" -ForegroundColor Gray
+		Write-Host ""
+		Write-Host "          Opening authentication browser window..." -ForegroundColor Cyan
 		
 		# Scopes for policy, users, and authentication methods
 		$scopes = @('User.Read.All','Policy.Read.All','UserAuthenticationMethod.Read.All')
 		Connect-MgGraph -Scopes $scopes -ErrorAction Stop | Out-Null
+		
+		Write-Host "          ✓ Authentication successful!" -ForegroundColor Green
+		
 		$profile = (Get-MgContext).Scopes
-		Write-Host "Connected to Microsoft Graph (scopes: $($profile -join ', '))" -ForegroundColor Green
+		Write-Host "          Connected as: $((Get-MgContext).Account)" -ForegroundColor Gray
+		Write-Host "          Tenant: $((Get-MgContext).TenantId)" -ForegroundColor Gray
+		
+		Write-Host ""
+		Write-Host "============================================================" -ForegroundColor Green
+		Write-Host "  ✓ Microsoft Graph Connected Successfully" -ForegroundColor Green
+		Write-Host "============================================================" -ForegroundColor Green
+		Write-Host ""
 		$connected = $true
 	} catch {
-		Write-Warning "Microsoft Graph connection failed: $($_.Exception.Message)"
+		Write-Host ""
+		Write-Host "============================================================" -ForegroundColor Red
+		Write-Host "  ✗ Microsoft Graph Connection Failed" -ForegroundColor Red
+		Write-Host "============================================================" -ForegroundColor Red
+		Write-Host ""
+		Write-Warning "Connection failed: $($_.Exception.Message)"
+		Write-Host ""
+		Write-Host "Troubleshooting steps:" -ForegroundColor Yellow
+		Write-Host "  1. Check your internet connection" -ForegroundColor Gray
+		Write-Host "  2. Verify you have appropriate permissions" -ForegroundColor Gray
+		Write-Host "  3. Try running the script again" -ForegroundColor Gray
+		Write-Host ""
 	}
 	return $connected
 }
@@ -172,38 +250,60 @@ function Get-TenantPolicyMfaStatus {
 }
 
 function Get-MfaUsersViaMsOnline {
+	Write-Host ""
+	Write-Host "============================================================" -ForegroundColor Cyan
+	Write-Host "  MSOnline Connection (Primary Method)" -ForegroundColor Cyan
+	Write-Host "============================================================" -ForegroundColor Cyan
+	Write-Host ""
+	
 	if (-not (Get-Module -ListAvailable -Name MSOnline -ErrorAction SilentlyContinue)) {
-		Write-Host "MSOnline module not installed." -ForegroundColor Yellow
+		Write-Host "[Step 1/3] MSOnline module not installed." -ForegroundColor Yellow
+		Write-Host "          Attempting to install MSOnline module..." -ForegroundColor Gray
 		if (-not (Install-RequiredModule -ModuleName "MSOnline")) {
+			Write-Host "          Installation failed. Will try Microsoft Graph as fallback." -ForegroundColor Red
 			return $null
 		}
+		Write-Host "          ✓ MSOnline module installed successfully" -ForegroundColor Green
+	} else {
+		Write-Host "[Step 1/3] ✓ MSOnline module already installed" -ForegroundColor Green
 	}
 	
 	try {
+		Write-Host ""
+		Write-Host "[Step 2/3] Loading MSOnline module..." -ForegroundColor Cyan
 		# Import module if not already imported
 		if (-not (Get-Module -Name MSOnline -ErrorAction SilentlyContinue)) {
 			Import-Module MSOnline -ErrorAction Stop
+			Write-Host "          ✓ MSOnline module loaded successfully" -ForegroundColor Green
+		} else {
+			Write-Host "          ✓ MSOnline module already loaded" -ForegroundColor Green
 		}
 		
+		Write-Host ""
+		Write-Host "[Step 3/3] Connecting to MSOnline..." -ForegroundColor Cyan
 		# Check if already connected
 		try {
 			$null = Get-MsolDomain -ErrorAction Stop
-			Write-Host "Already connected to MSOnline" -ForegroundColor Green
-		} catch {
-			Write-Host "Connecting to MSOnline..." -ForegroundColor Cyan
+			Write-Host "          ✓ Already connected to MSOnline" -ForegroundColor Green
+		}
+		catch {
+			Write-Host "          Establishing connection (this may open a browser)..." -ForegroundColor Yellow
 			Connect-MsolService -ErrorAction Stop
-			Write-Host "Connected to MSOnline successfully" -ForegroundColor Green
+			Write-Host "          ✓ Connected to MSOnline successfully" -ForegroundColor Green
 		}
 		
+		Write-Host ""
 		Write-Host "Retrieving users from MSOnline..." -ForegroundColor Cyan
 		$msolUsers = Get-MsolUser -All -ErrorAction Stop
 		
 		if ($null -eq $msolUsers -or $msolUsers.Count -eq 0) {
-			Write-Warning "No users found via MSOnline"
+			Write-Warning "          No users found via MSOnline"
 			return $null
 		}
 		
-		Write-Host "Processing $($msolUsers.Count) users..." -ForegroundColor Cyan
+		Write-Host "          ✓ Retrieved $($msolUsers.Count) users" -ForegroundColor Green
+		Write-Host ""
+		Write-Host "Processing user MFA status..." -ForegroundColor Cyan
 		$results = foreach ($u in $msolUsers) {
 			$req = $u.StrongAuthenticationRequirements
 			$methods = $u.StrongAuthenticationMethods
@@ -228,18 +328,41 @@ function Get-MfaUsersViaMsOnline {
 				DefaultMethod = $defaultMethod
 			}
 		}
+		
+		Write-Host "          ✓ Completed processing $($msolUsers.Count) users" -ForegroundColor Green
+		Write-Host ""
+		Write-Host "============================================================" -ForegroundColor Green
+		Write-Host "  ✓ MSOnline Retrieval Successful" -ForegroundColor Green
+		Write-Host "============================================================" -ForegroundColor Green
+		Write-Host ""
 		return ,$results
 	} catch {
+		Write-Host ""
+		Write-Host "============================================================" -ForegroundColor Red
+		Write-Host "  ✗ MSOnline Retrieval Failed" -ForegroundColor Red
+		Write-Host "============================================================" -ForegroundColor Red
+		Write-Host ""
 		Write-Warning "MSOnline retrieval failed: $($_.Exception.Message)"
 		if ($_.Exception.Message -like "*authentication*" -or $_.Exception.Message -like "*credential*") {
+			Write-Host ""
 			Write-Host "Tip: You may need to authenticate with Connect-MsolService" -ForegroundColor Yellow
 		}
+		Write-Host ""
+		Write-Host "Will attempt to retrieve users via Microsoft Graph as fallback..." -ForegroundColor Yellow
+		Write-Host ""
 		return $null
 	}
 }
 
 function Get-MfaUsersViaGraph {
+	Write-Host ""
+	Write-Host "============================================================" -ForegroundColor Cyan
+	Write-Host "  Microsoft Graph Connection (Fallback Method)" -ForegroundColor Cyan
+	Write-Host "============================================================" -ForegroundColor Cyan
+	Write-Host ""
+	
 	if (-not (Get-Command -Name Get-MgUser -ErrorAction SilentlyContinue)) {
+		Write-Host "Get-MgUser command not available" -ForegroundColor Red
 		return $null
 	}
 	
@@ -248,16 +371,18 @@ function Get-MfaUsersViaGraph {
 		$graphUsers = Get-MgUser -All -Property DisplayName,UserPrincipalName,AccountEnabled -ErrorAction Stop
 		
 		if ($null -eq $graphUsers -or $graphUsers.Count -eq 0) {
-			Write-Warning "No users found via Microsoft Graph"
+			Write-Warning "          No users found via Microsoft Graph"
 			return $null
 		}
 		
-		Write-Host "Processing $($graphUsers.Count) users..." -ForegroundColor Cyan
+		Write-Host "          ✓ Retrieved $($graphUsers.Count) users" -ForegroundColor Green
+		Write-Host ""
+		Write-Host "Processing user MFA status..." -ForegroundColor Cyan
 		$processedCount = 0
 		$results = foreach ($u in $graphUsers) {
 			$processedCount++
 			if ($processedCount % 10 -eq 0) {
-				Write-Host "  Processed $processedCount of $($graphUsers.Count) users..." -ForegroundColor Gray
+				Write-Host "          Processed $processedCount of $($graphUsers.Count) users..." -ForegroundColor Gray
 			}
 			
 			# Try to get authentication methods
@@ -310,10 +435,21 @@ function Get-MfaUsersViaGraph {
 			}
 		}
 		
-		Write-Host "Completed processing $processedCount users" -ForegroundColor Green
+		Write-Host "          ✓ Completed processing $processedCount users" -ForegroundColor Green
+		Write-Host ""
+		Write-Host "============================================================" -ForegroundColor Green
+		Write-Host "  ✓ Microsoft Graph Retrieval Successful" -ForegroundColor Green
+		Write-Host "============================================================" -ForegroundColor Green
+		Write-Host ""
 		return ,$results
 	} catch {
+		Write-Host ""
+		Write-Host "============================================================" -ForegroundColor Red
+		Write-Host "  ✗ Microsoft Graph Retrieval Failed" -ForegroundColor Red
+		Write-Host "============================================================" -ForegroundColor Red
+		Write-Host ""
 		Write-Warning "Microsoft Graph user retrieval failed: $($_.Exception.Message)"
+		Write-Host ""
 		return $null
 	}
 }
