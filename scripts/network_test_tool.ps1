@@ -711,7 +711,7 @@ function Export-TestResults {
                 Write-Host ""
                 Write-SouliTEKResult "Results exported to: $filePath" -Level SUCCESS
                 Start-Sleep -Seconds 1
-                Start-Process notepad.exe -ArgumentList $filePath
+                Start-Process $filePath
             }
             "2" {
                 $fileName = "NetworkTest_Results_$timestamp.csv"

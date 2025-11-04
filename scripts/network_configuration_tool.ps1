@@ -73,10 +73,9 @@ function Show-Header {
     Write-Host ""
 }
 
+# Use Test-SouliTEKAdministrator from common module
 function Test-Administrator {
-    $currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
-    $principal = New-Object Security.Principal.WindowsPrincipal($currentUser)
-    return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+    return Test-SouliTEKAdministrator
 }
 
 function Get-NetworkAdapters {
@@ -718,7 +717,7 @@ DHCP: $($result.DHCP)
         Write-Host ""
         
         # Open file
-        Start-Process notepad.exe -ArgumentList $filePath -ErrorAction SilentlyContinue
+        Start-Process $filePath -ErrorAction SilentlyContinue
     }
     catch {
         Write-Host "Error exporting report: $_" -ForegroundColor Red

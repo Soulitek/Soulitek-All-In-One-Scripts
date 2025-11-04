@@ -156,9 +156,9 @@ function Get-SMARTData {
         $smartData.BaselineDate = $baselineDisk.Timestamp
     }
     
-    # Try to get SMART attributes via WMI
+    # Try to get SMART attributes via CIM (modern PowerShell standard)
     try {
-        $smartInfo = Get-WmiObject -Namespace "root\wmi" -Class "MSStorageDriver_FailurePredictStatus" -ErrorAction SilentlyContinue |
+        $smartInfo = Get-CimInstance -Namespace "root\wmi" -ClassName "MSStorageDriver_FailurePredictStatus" -ErrorAction SilentlyContinue |
             Where-Object { $_.InstanceName -like "*PHYSICALDRIVE$diskNumber*" }
         
         if ($smartInfo) {
@@ -169,7 +169,7 @@ function Get-SMARTData {
         }
     }
     catch {
-        Write-Verbose "Could not read SMART status via WMI: $_"
+        Write-Verbose "Could not read SMART status via CIM: $_"
     }
     
     # Try to get SMART attributes via Get-StorageReliabilityCounter

@@ -89,22 +89,20 @@
 
         <!-- Search Box Style -->
         <Style x:Key="SearchBox" TargetType="TextBox">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="BorderBrush" Value="#E2E8F0"/>
-            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="#F8FAFC"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Setter Property="BorderThickness" Value="2"/>
             <Setter Property="FontSize" Value="14"/>
-            <Setter Property="FontFamily" Value="Segoe UI"/>
-            <Setter Property="Foreground" Value="#1E293B"/>
-            <Setter Property="Padding" Value="15,12"/>
+            <Setter Property="Padding" Value="15,10"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
                         <Border Background="{TemplateBinding Background}" 
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="25">
+                                CornerRadius="20">
                             <ScrollViewer x:Name="PART_ContentHost" 
-                                        Margin="15,0"/>
+                                        Margin="10,0"/>
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
@@ -112,10 +110,6 @@
             <Style.Triggers>
                 <Trigger Property="IsFocused" Value="True">
                     <Setter Property="BorderBrush" Value="#667eea"/>
-                    <Setter Property="BorderThickness" Value="2"/>
-                </Trigger>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="BorderBrush" Value="#CBD5E1"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -131,7 +125,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="40"/>      <!-- Title bar -->
                 <RowDefinition Height="120"/>     <!-- Header -->
-                <RowDefinition Height="Auto"/>     <!-- Search & Filter -->
+                <RowDefinition Height="100"/>     <!-- Search & Filter -->
                 <RowDefinition Height="*"/>       <!-- Tools -->
                 <RowDefinition Height="50"/>      <!-- Status bar -->
                 <RowDefinition Height="70"/>      <!-- Buttons -->
@@ -195,43 +189,25 @@
             <!-- Search & Filter Panel -->
             <Grid Grid.Row="2" Background="White">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 
                 <!-- Search Box -->
-                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="30,10" VerticalAlignment="Top">
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="30,10">
                     <TextBlock Text="Search:" 
-                              FontSize="14" 
-                              FontWeight="SemiBold"
-                              FontFamily="Segoe UI"
+                              FontSize="12" 
+                              FontWeight="Bold"
                               VerticalAlignment="Center" 
-                              Margin="0,0,15,0"
-                              Foreground="#475569"/>
-                    <Grid Width="850" Height="45">
-                        <TextBox Name="SearchBox" 
-                                Style="{StaticResource SearchBox}"
-                                Width="850"
-                                Height="45"
-                                VerticalContentAlignment="Center">
-                            <TextBox.ToolTip>
-                                <ToolTip Content="Type to search for tools by name, description, category, or tags"/>
-                            </TextBox.ToolTip>
-                        </TextBox>
-                        <TextBlock Name="SearchPlaceholder" 
-                                  Text="Search tools by name, description, category, or tags..." 
-                                  FontSize="14"
-                                  FontFamily="Segoe UI"
-                                  Foreground="#94A3B8"
-                                  VerticalAlignment="Center"
-                                  Margin="30,0,0,0"
-                                  IsHitTestVisible="False"
-                                  Panel.ZIndex="1"/>
-                    </Grid>
+                              Margin="0,0,10,0"
+                              Foreground="#64748B"/>
+                    <TextBox Name="SearchBox" 
+                            Style="{StaticResource SearchBox}"
+                            Width="850"/>
                 </StackPanel>
                 
                 <!-- Category Buttons -->
-                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="30,10" VerticalAlignment="Top">
+                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="30,5" VerticalAlignment="Center">
                     <TextBlock Text="Categories:" 
                               FontSize="11" 
                               FontWeight="Bold"

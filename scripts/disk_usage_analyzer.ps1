@@ -358,7 +358,7 @@ function Export-TextReport {
     Write-Host ""
     Write-SouliTEKResult "Text report exported to: $filePath" -Level SUCCESS
     Start-Sleep -Seconds 1
-    Start-Process notepad.exe -ArgumentList $filePath
+    Start-Process $filePath
 }
 
 function Export-CSVReport {

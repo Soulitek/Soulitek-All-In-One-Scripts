@@ -19,13 +19,26 @@ Add-Type -AssemblyName PresentationCore
 Add-Type -AssemblyName WindowsBase
 
 # ============================================================
+# IMPORT COMMON MODULE
+# ============================================================
+
+$Script:LauncherPath = Split-Path -Parent $MyInvocation.MyCommand.Path
+$Script:RootPath = Split-Path -Parent $Script:LauncherPath
+$CommonPath = Join-Path $Script:RootPath "modules\SouliTEK-Common.ps1"
+if (Test-Path $CommonPath) {
+    . $CommonPath
+} else {
+    Write-Warning "SouliTEK Common Functions not found at: $CommonPath"
+    Write-Warning "Some functions may not work properly."
+}
+
+# ============================================================
 # HELPER FUNCTIONS
 # ============================================================
 
+# Use Test-SouliTEKAdministrator from common module
 function Test-Administrator {
-    $currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
-    $principal = New-Object Security.Principal.WindowsPrincipal($currentUser)
-    return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+    return Test-SouliTEKAdministrator
 }
 
 # ============================================================
@@ -72,9 +85,6 @@ Write-Host "Running as Administrator." -ForegroundColor Green
 # ============================================================
 # GLOBAL VARIABLES
 # ============================================================
-
-$Script:LauncherPath = Split-Path -Parent $MyInvocation.MyCommand.Path
-$Script:RootPath = Split-Path -Parent $Script:LauncherPath
 $Script:ScriptPath = Join-Path $Script:RootPath "scripts"
 $Script:CurrentVersion = "2.0.0"
 $Script:CurrentCategory = "All"

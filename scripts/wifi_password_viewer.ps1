@@ -337,7 +337,7 @@ function Export-ToFile {
         Write-Host ""
         Write-Host "Opening file..." -ForegroundColor Yellow
         Start-Sleep -Seconds 2
-        Start-Process notepad.exe -ArgumentList $filePath
+        Start-Process $filePath
     }
     
     Write-Host ""

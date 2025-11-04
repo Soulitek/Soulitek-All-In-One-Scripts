@@ -191,14 +191,47 @@ function Ensure-Choco {
     try {
         [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
         
+        Write-Host "[*] Downloading Chocolatey installer script..." -ForegroundColor Cyan
         $installScript = Invoke-WebRequest -Uri "https://community.chocolatey.org/install.ps1" -UseBasicParsing
+        
+        # Verify script signature for security
+        Write-Host "[*] Verifying script signature..." -ForegroundColor Cyan
+        $tempScriptPath = Join-Path $env:TEMP "choco-install.ps1"
+        $installScript.Content | Set-Content -Path $tempScriptPath -Force
+        
+        try {
+            $signature = Get-AuthenticodeSignature -FilePath $tempScriptPath -ErrorAction Stop
+            if ($signature.Status -ne 'Valid') {
+                Write-Warning "Chocolatey installer script signature verification failed: $($signature.Status)"
+                Write-Warning "This may indicate the script has been tampered with or is unsigned."
+                $response = Read-Host "Continue anyway? (Y/N)"
+                if ($response -ne 'Y' -and $response -ne 'y') {
+                    Remove-Item -Path $tempScriptPath -Force -ErrorAction SilentlyContinue
+                    return $false
+                }
+            } else {
+                Write-Host "[+] Script signature verified successfully" -ForegroundColor Green
+            }
+        }
+        catch {
+            Write-Warning "Could not verify script signature: $($_.Exception.Message)"
+            Write-Warning "Chocolatey installer script verification unavailable. Proceeding with caution."
+            $response = Read-Host "Continue? (Y/N)"
+            if ($response -ne 'Y' -and $response -ne 'y') {
+                Remove-Item -Path $tempScriptPath -Force -ErrorAction SilentlyContinue
+                return $false
+            }
+        }
         
         if ($WhatIf) {
             Write-Host "[WhatIf] Would install Chocolatey" -ForegroundColor Magenta
+            Remove-Item -Path $tempScriptPath -Force -ErrorAction SilentlyContinue
             return $false
         }
         
-        Invoke-Expression $installScript.Content
+        # Execute verified script
+        & $tempScriptPath
+        Remove-Item -Path $tempScriptPath -Force -ErrorAction SilentlyContinue
         
         $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
         

@@ -157,13 +157,17 @@ function Clear-UserTemp {
             $totalFiles += $fileCount
             
             if ($size -gt 0) {
-                try {
-                    Get-ChildItem -Path $tempPath -Recurse -File -ErrorAction SilentlyContinue | 
-                        Remove-Item -Force -ErrorAction SilentlyContinue
-                    Write-Host "  [OK] Cleaned: $(Format-FileSize $size)" -ForegroundColor Green
-                }
-                catch {
-                    Write-Host "  [WARNING] Some files could not be deleted" -ForegroundColor Yellow
+                if (Test-Path $tempPath) {
+                    try {
+                        Get-ChildItem -Path $tempPath -Recurse -File -ErrorAction SilentlyContinue | 
+                            Remove-Item -Force -ErrorAction Stop
+                        Write-Host "  [OK] Cleaned: $(Format-FileSize $size)" -ForegroundColor Green
+                    }
+                    catch {
+                        Write-Host "  [WARNING] Some files could not be deleted: $($_.Exception.Message)" -ForegroundColor Yellow
+                    }
+                } else {
+                    Write-Host "  [INFO] Path not found: $tempPath" -ForegroundColor Gray
                 }
             }
         }
@@ -197,13 +201,17 @@ function Clear-SystemTemp {
         $totalFiles = $fileCount
         
         if ($size -gt 0) {
-            try {
-                Get-ChildItem -Path $systemTempPath -Recurse -File -ErrorAction SilentlyContinue | 
-                    Remove-Item -Force -ErrorAction SilentlyContinue
-                Write-Host "  [OK] Cleaned: $(Format-FileSize $size)" -ForegroundColor Green
-            }
-            catch {
-                Write-Host "  [WARNING] Some files could not be deleted (may require admin)" -ForegroundColor Yellow
+            if (Test-Path $systemTempPath) {
+                try {
+                    Get-ChildItem -Path $systemTempPath -Recurse -File -ErrorAction SilentlyContinue | 
+                        Remove-Item -Force -ErrorAction Stop
+                    Write-Host "  [OK] Cleaned: $(Format-FileSize $size)" -ForegroundColor Green
+                }
+                catch {
+                    Write-Host "  [WARNING] Some files could not be deleted: $($_.Exception.Message)" -ForegroundColor Yellow
+                }
+            } else {
+                Write-Host "  [INFO] Path not found: $systemTempPath" -ForegroundColor Gray
             }
         }
     }
@@ -246,10 +254,16 @@ function Clear-RecycleBin {
                     }
                     catch {
                         # Use alternative method
-                        Get-ChildItem -Path $recyclePath -Recurse -Force -ErrorAction SilentlyContinue | 
-                            Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
-                        $totalSize += $size
-                        $totalFiles += $fileCount
+                        if (Test-Path $recyclePath) {
+                            try {
+                                Get-ChildItem -Path $recyclePath -Recurse -Force -ErrorAction SilentlyContinue | 
+                                    Remove-Item -Force -Recurse -ErrorAction Stop
+                                $totalSize += $size
+                                $totalFiles += $fileCount
+                            } catch {
+                                Write-Host "  [WARNING] Could not delete all files: $($_.Exception.Message)" -ForegroundColor Yellow
+                            }
+                        }
                     }
                 }
             }
@@ -313,15 +327,17 @@ function Clear-BrowserCache {
                     $size = Get-FolderSize -Path $fullPath -FileCount ([ref]$fileCount)
                     
                     if ($size -gt 0) {
-                        try {
-                            Get-ChildItem -Path $fullPath -Recurse -File -ErrorAction SilentlyContinue | 
-                                Remove-Item -Force -ErrorAction SilentlyContinue
-                            $totalSize += $size
-                            $totalFiles += $fileCount
-                            Write-Host "  [OK] $($browser.Name): $(Format-FileSize $size)" -ForegroundColor Green
-                        }
-                        catch {
-                            Write-Host "  [SKIP] $($browser.Name): Files in use" -ForegroundColor Yellow
+                        if (Test-Path $fullPath) {
+                            try {
+                                Get-ChildItem -Path $fullPath -Recurse -File -ErrorAction SilentlyContinue | 
+                                    Remove-Item -Force -ErrorAction Stop
+                                $totalSize += $size
+                                $totalFiles += $fileCount
+                                Write-Host "  [OK] $($browser.Name): $(Format-FileSize $size)" -ForegroundColor Green
+                            }
+                            catch {
+                                Write-Host "  [SKIP] $($browser.Name): Files in use or access denied: $($_.Exception.Message)" -ForegroundColor Yellow
+                            }
                         }
                     }
                 }
@@ -335,13 +351,13 @@ function Clear-BrowserCache {
                 if ($size -gt 0) {
                     try {
                         Get-ChildItem -Path $browser.Path -Recurse -File -ErrorAction SilentlyContinue | 
-                            Remove-Item -Force -ErrorAction SilentlyContinue
+                            Remove-Item -Force -ErrorAction Stop
                         $totalSize += $size
                         $totalFiles += $fileCount
                         Write-Host "  [OK] $($browser.Name): $(Format-FileSize $size)" -ForegroundColor Green
                     }
                     catch {
-                        Write-Host "  [SKIP] $($browser.Name): Files in use" -ForegroundColor Yellow
+                        Write-Host "  [SKIP] $($browser.Name): Files in use or access denied: $($_.Exception.Message)" -ForegroundColor Yellow
                     }
                 }
             }
@@ -374,12 +390,19 @@ function Clear-WindowsUpdate {
     $totalFiles = 0
     
     try {
-        # Stop Windows Update service temporarily
+        # Stop Windows Update service temporarily (graceful shutdown)
         $wuService = Get-Service -Name wuauserv -ErrorAction SilentlyContinue
         if ($wuService -and $wuService.Status -eq 'Running') {
             Write-Host "  Stopping Windows Update service..." -ForegroundColor Gray
-            Stop-Service -Name wuauserv -Force -ErrorAction SilentlyContinue
-            $serviceStopped = $true
+            try {
+                Stop-Service -Name wuauserv -ErrorAction Stop
+                $serviceStopped = $true
+                Write-Host "  [OK] Service stopped gracefully" -ForegroundColor Green
+            } catch {
+                Write-Host "  [WARNING] Graceful stop failed, forcing..." -ForegroundColor Yellow
+                Stop-Service -Name wuauserv -Force -ErrorAction Stop
+                $serviceStopped = $true
+            }
         }
         
         foreach ($path in $updatePaths) {
@@ -390,12 +413,12 @@ function Clear-WindowsUpdate {
                 if ($size -gt 0) {
                     try {
                         Get-ChildItem -Path $path -Recurse -File -ErrorAction SilentlyContinue | 
-                            Remove-Item -Force -ErrorAction SilentlyContinue
+                            Remove-Item -Force -ErrorAction Stop
                         $totalSize += $size
                         $totalFiles += $fileCount
                     }
                     catch {
-                        Write-Host "  [WARNING] Some update files could not be deleted" -ForegroundColor Yellow
+                        Write-Host "  [WARNING] Some update files could not be deleted: $($_.Exception.Message)" -ForegroundColor Yellow
                     }
                 }
             }

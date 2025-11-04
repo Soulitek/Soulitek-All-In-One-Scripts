@@ -82,17 +82,42 @@ function Show-AdminError {
 function Invoke-SpoolerFix {
     Write-Host "[1/5] Stopping Print Spooler..."
     try {
-        Stop-Service -Name Spooler -Force -ErrorAction SilentlyContinue
-        Write-Host "      [OK] Stopped" -ForegroundColor Green
+        $service = Get-Service -Name Spooler -ErrorAction SilentlyContinue
+        if ($service) {
+            if ($service.Status -eq 'Running') {
+                # Try graceful stop first
+                try {
+                    Stop-Service -Name Spooler -ErrorAction Stop
+                    Write-Host "      [OK] Stopped gracefully" -ForegroundColor Green
+                } catch {
+                    # If graceful stop fails, force stop
+                    Write-Host "      [WARNING] Graceful stop failed, forcing..." -ForegroundColor Yellow
+                    Stop-Service -Name Spooler -Force -ErrorAction Stop
+                    Write-Host "      [OK] Force stopped" -ForegroundColor Green
+                }
+            } else {
+                Write-Host "      [INFO] Already stopped" -ForegroundColor Yellow
+            }
+        } else {
+            Write-Host "      [WARNING] Print Spooler service not found" -ForegroundColor Yellow
+        }
     } catch {
-        Write-Host "      [INFO] Already stopped" -ForegroundColor Yellow
+        Write-Host "      [ERROR] Failed to stop service: $_" -ForegroundColor Red
     }
     Start-Sleep -Seconds 2
     
     Write-Host "[2/5] Clearing stuck jobs..."
     $spoolPath = "$env:SystemRoot\System32\spool\PRINTERS\*.*"
-    Remove-Item -Path $spoolPath -Force -ErrorAction SilentlyContinue
-    Write-Host "      [OK] Queue cleared" -ForegroundColor Green
+    if (Test-Path $spoolPath) {
+        try {
+            Remove-Item -Path $spoolPath -Force -ErrorAction Stop
+            Write-Host "      [OK] Queue cleared" -ForegroundColor Green
+        } catch {
+            Write-Host "      [WARNING] Some files could not be deleted: $_" -ForegroundColor Yellow
+        }
+    } else {
+        Write-Host "      [INFO] Spool directory is empty" -ForegroundColor Gray
+    }
     
     Write-Host "[3/5] Waiting for cleanup..."
     Start-Sleep -Seconds 2
@@ -128,19 +153,33 @@ function Invoke-SpoolerFixWithLog {
     
     Add-Content -Path $LogFile -Value "[$timestamp] Stopping Print Spooler..."
     try {
-        Stop-Service -Name Spooler -Force -ErrorAction SilentlyContinue
-        Add-Content -Path $LogFile -Value "[$timestamp] Service stopped successfully"
+        $service = Get-Service -Name Spooler -ErrorAction SilentlyContinue
+        if ($service -and $service.Status -eq 'Running') {
+            try {
+                Stop-Service -Name Spooler -ErrorAction Stop
+                Add-Content -Path $LogFile -Value "[$timestamp] Service stopped gracefully"
+            } catch {
+                Stop-Service -Name Spooler -Force -ErrorAction Stop
+                Add-Content -Path $LogFile -Value "[$timestamp] Service force stopped"
+            }
+        } else {
+            Add-Content -Path $LogFile -Value "[$timestamp] Service already stopped"
+        }
     } catch {
         Add-Content -Path $LogFile -Value "[$timestamp] Error stopping service: $_"
     }
     
     Add-Content -Path $LogFile -Value "[$timestamp] Clearing stuck jobs..."
     $spoolPath = "$env:SystemRoot\System32\spool\PRINTERS\*.*"
-    try {
-        Remove-Item -Path $spoolPath -Force -ErrorAction SilentlyContinue
-        Add-Content -Path $LogFile -Value "[$timestamp] Queue cleared successfully"
-    } catch {
-        Add-Content -Path $LogFile -Value "[$timestamp] Error clearing queue: $_"
+    if (Test-Path $spoolPath) {
+        try {
+            Remove-Item -Path $spoolPath -Force -ErrorAction Stop
+            Add-Content -Path $LogFile -Value "[$timestamp] Queue cleared successfully"
+        } catch {
+            Add-Content -Path $LogFile -Value "[$timestamp] Error clearing queue: $_"
+        }
+    } else {
+        Add-Content -Path $LogFile -Value "[$timestamp] Spool directory is empty"
     }
     
     Add-Content -Path $LogFile -Value "[$timestamp] Starting Print Spooler..."
