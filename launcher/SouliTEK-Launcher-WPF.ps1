@@ -127,6 +127,15 @@ $Script:Tools = @(
         Color = "#f59e0b"
     },
     @{
+        Name = "M365 User List"
+        Icon = "[U]"
+        Description = "List all Microsoft 365 users with email, phone, MFA status, and comprehensive user information"
+        Script = "m365_user_list.ps1"
+        Category = "M365"
+        Tags = @("users", "microsoft", "365", "m365", "email", "phone", "mfa", "directory", "audit", "inventory")
+        Color = "#3b82f6"
+    },
+    @{
         Name = "Printer Spooler Fix"
         Icon = "[P]"
         Description = "Comprehensive printer spooler troubleshooting and repair"
@@ -233,6 +242,15 @@ $Script:Tools = @(
         Category = "Hardware"
         Tags = @("disk", "usage", "storage", "folders", "size", "cleanup", "analysis")
         Color = "#06b6d4"
+    },
+    @{
+        Name = "Temp Removal & Disk Cleanup"
+        Icon = "[CL]"
+        Description = "Remove temporary files, clean browser cache, empty Recycle Bin, and free up disk space"
+        Script = "temp_removal_disk_cleanup.ps1"
+        Category = "Support"
+        Tags = @("temp", "cleanup", "disk", "space", "browser", "cache", "recycle", "bin", "maintenance")
+        Color = "#10b981"
     }
 )
 
@@ -440,6 +458,113 @@ function Set-CategoryActive {
     Update-ToolsDisplay
 }
 
+function New-QuickRestorePoint {
+    <#
+    .SYNOPSIS
+        Creates a system restore point quickly from the launcher.
+    #>
+    
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $description = "SouliTEK Launcher - $timestamp"
+    
+    try {
+        # Create restore point using Checkpoint-Computer
+        # Note: Checkpoint-Computer doesn't return a value, it either succeeds or throws
+        Checkpoint-Computer -Description $description -RestorePointType "MODIFY_SETTINGS" -ErrorAction Stop
+        
+        # If we get here, the restore point was created successfully
+        return @{
+            Success = $true
+            Message = "System Restore Point created successfully!`n`nDescription: $description"
+        }
+    }
+    catch {
+        # Try alternative method using vssadmin
+        try {
+            $vssResult = Start-Process -FilePath "vssadmin" -ArgumentList "create", "shadow", "/For=$env:SystemDrive" -Wait -NoNewWindow -PassThru -ErrorAction Stop
+            
+            if ($vssResult.ExitCode -eq 0) {
+                return @{
+                    Success = $true
+                    Message = "System Restore Point created successfully via alternative method!`n`nDescription: $description"
+                }
+            } else {
+                return @{
+                    Success = $false
+                    Message = "Failed to create restore point. Exit Code: $($vssResult.ExitCode)`n`nError: $($_.Exception.Message)"
+                }
+            }
+        }
+        catch {
+            return @{
+                Success = $false
+                Message = "Failed to create restore point.`n`nError: $($_.Exception.Message)"
+            }
+        }
+    }
+    
+    return @{
+        Success = $false
+        Message = "Unknown error occurred while creating restore point."
+    }
+}
+
+function Show-RestorePointWarning {
+    <#
+    .SYNOPSIS
+        Shows a warning dialog recommending system restore point creation.
+    #>
+    
+    $warningMessage = @"
+IMPORTANT RECOMMENDATION
+
+It is highly recommended to create a System Restore Point before running system modification tools.
+
+This will allow you to restore your system to its current state if anything goes wrong.
+
+Would you like to create a restore point now?
+"@
+    
+    $result = [System.Windows.MessageBox]::Show(
+        $warningMessage,
+        "System Restore Point Recommended",
+        [System.Windows.MessageBoxButton]::YesNoCancel,
+        [System.Windows.MessageBoxImage]::Warning
+    )
+    
+    switch ($result) {
+        ([System.Windows.MessageBoxResult]::Yes) {
+            # Create restore point
+            $createResult = New-QuickRestorePoint
+            
+            if ($createResult.Success) {
+                [System.Windows.MessageBox]::Show(
+                    $createResult.Message,
+                    "Restore Point Created",
+                    [System.Windows.MessageBoxButton]::OK,
+                    [System.Windows.MessageBoxImage]::Information
+                )
+            } else {
+                [System.Windows.MessageBox]::Show(
+                    $createResult.Message,
+                    "Restore Point Creation Failed",
+                    [System.Windows.MessageBoxButton]::OK,
+                    [System.Windows.MessageBoxImage]::Warning
+                )
+            }
+        }
+        ([System.Windows.MessageBoxResult]::No) {
+            # User chose to skip, continue normally
+            return
+        }
+        ([System.Windows.MessageBoxResult]::Cancel) {
+            # User chose to cancel, exit the launcher
+            $Script:Window.Close()
+            exit 0
+        }
+    }
+}
+
 # ============================================================
 # LOAD XAML
 # ============================================================
@@ -616,8 +741,12 @@ if (-not (Test-Path $Script:ScriptPath)) {
 # Set initial category
 Set-CategoryActive "All"
 
-# Show welcome message
+# Show welcome message and restore point warning
 $null = $Window.Add_Loaded({
+    # Show restore point warning first
+    Show-RestorePointWarning
+    
+    # Then show admin warning if not running as admin
     if (-not (Test-Administrator)) {
         [System.Windows.MessageBox]::Show(
             "For best results, run this launcher as Administrator.`n`nSome tools require elevated privileges to function properly.",

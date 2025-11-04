@@ -2,6 +2,202 @@
 
 ## Current Status: ✅ Completed
 
+### ✅ Added: System Restore Point Warning Dialog (2025-01-15)
+
+Objective: Add a warning dialog on launcher startup recommending users to create a system restore point, with a quick button to create one.
+
+Deliverables:
+- Modified `launcher/SouliTEK-Launcher-WPF.ps1` — Added restore point warning dialog and quick create functionality
+- Integrated warning dialog that appears when the launcher starts
+
+Key Features:
+1. **Startup Warning Dialog:**
+   - Shows warning message when launcher starts
+   - Recommends creating a system restore point before running system tools
+   - Three-button dialog: Yes (Create), No (Skip), Cancel (Exit)
+
+2. **Quick Restore Point Creation:**
+   - `New-QuickRestorePoint` function creates restore points directly from launcher
+   - Uses `Checkpoint-Computer` with automatic timestamp description
+   - Falls back to `vssadmin` method if primary method fails
+   - Shows success/failure feedback with detailed messages
+
+3. **User Experience:**
+   - Warning appears before main window is fully displayed
+   - Non-blocking: users can skip or cancel
+   - Success confirmation dialog when restore point is created
+   - Error handling with clear error messages if creation fails
+
+4. **Integration:**
+   - Integrated into `Window.Add_Loaded` event handler
+   - Appears before admin warning dialog
+   - Works seamlessly with existing launcher functionality
+
+Commands:
+```powershell
+# Warning appears automatically when launcher starts
+.\launcher\SouliTEK-Launcher-WPF.ps1
+```
+
+User Options:
+- **Yes**: Creates restore point immediately with timestamp description
+- **No**: Skips warning and continues to launcher
+- **Cancel**: Exits launcher without opening main window
+
+Result: Complete, production-ready restore point warning system that encourages safe system tool usage with one-click restore point creation.
+
+---
+
+### ✅ Created: Temp Removal & Disk Cleanup Tool (2025-01-15)
+
+Objective: Create a comprehensive temp removal and disk cleaning script with GUI integration.
+
+Deliverables:
+- `scripts/temp_removal_disk_cleanup.ps1` — Professional temp removal and disk cleanup tool with menu interface
+- Integrated into GUI launcher under Support category
+
+Key Features:
+1. **Comprehensive Cleanup Operations:**
+   - User Temp Files: Cleans %TEMP% and %TMP% directories
+   - System Temp Files: Cleans C:\Windows\Temp
+   - Recycle Bin: Empties Recycle Bin on all drives
+   - Browser Cache: Cleans Chrome, Edge, Firefox, and IE cache
+   - Windows Update: Cleans Windows Update cache and old update files
+   - Disk Cleanup: Runs Windows Disk Cleanup utility
+
+2. **Professional Interface:**
+   - Menu-based navigation with 10 options
+   - Complete cleanup option for all operations at once
+   - Individual cleanup operations for targeted cleaning
+   - Real-time progress indicators during cleanup
+   - Color-coded output for easy interpretation
+   - Comprehensive help guide
+
+3. **Reporting & Statistics:**
+   - Cleanup summary with total space recovered
+   - Breakdown by category (User Temp, System Temp, Recycle Bin, Browser Cache, Windows Update)
+   - File count tracking per category
+   - Duration tracking for cleanup operations
+   - Export functionality: TXT, CSV, and HTML formats
+   - Reports saved to Desktop with timestamp
+
+4. **Safety Features:**
+   - Administrator privilege checking (recommended for full functionality)
+   - Error handling for files in use
+   - Graceful handling of inaccessible files
+   - Windows Update service management (stop/start during cleanup)
+   - Browser cache cleanup with in-use detection
+
+5. **Space Recovery:**
+   - Calculates space recovered per category
+   - Total space recovered across all operations
+   - File count tracking
+   - Formatted size display (GB, MB, KB, bytes)
+
+Commands:
+```powershell
+# Via GUI Launcher
+# Select "Temp Removal & Disk Cleanup" from Support category
+
+# Direct execution
+.\scripts\temp_removal_disk_cleanup.ps1
+```
+
+Menu Options:
+1. Complete Cleanup (All Operations) - Performs all cleanup operations at once
+2. Clean User Temp Files Only - Cleans user temporary directories
+3. Clean System Temp Files Only - Cleans system temporary directory
+4. Empty Recycle Bin - Empties Recycle Bin on all drives
+5. Clean Browser Cache - Cleans browser cache from installed browsers
+6. Clean Windows Update Cache - Removes Windows Update cache and old files
+7. Run Windows Disk Cleanup - Launches Windows Disk Cleanup utility
+8. View Cleanup Summary - Displays results from last cleanup operation
+9. Export Cleanup Report - Saves reports in TXT, CSV, and HTML formats
+10. Help & Information - Comprehensive documentation
+0. Exit - Closes the tool
+
+Result: Complete, production-ready temp removal and disk cleanup tool integrated into GUI launcher for system maintenance and storage optimization.
+
+---
+
+### ✅ Created: Microsoft 365 User List Tool (2025-01-15)
+
+Objective: Create a comprehensive script to list all Microsoft 365 users with their email addresses, phone numbers, MFA status, and additional user information.
+
+Deliverables:
+- `scripts/m365_user_list.ps1` — Professional M365 user listing tool with menu interface
+- `docs/M365_USER_LIST.md` — Comprehensive usage, troubleshooting, and technical documentation
+- Integrated into GUI launcher under M365 category
+
+Key Features:
+1. **Comprehensive User Information:**
+   - Email addresses (UserPrincipalName and Primary Mail)
+   - Phone numbers (Business and Mobile)
+   - MFA status (Enabled/Disabled, method count, default method)
+   - Account status (Enabled/Disabled)
+   - Job title, department, office location, company name
+   - License assignments count
+   - Last sign-in date and time
+   - Account creation date
+
+2. **Microsoft Graph Integration:**
+   - Uses Microsoft Graph PowerShell SDK
+   - Automatic module installation if missing
+   - Secure OAuth 2.0 browser-based authentication
+   - Connection status monitoring
+   - Required permissions: User.Read.All, UserAuthenticationMethod.Read.All, Organization.Read.All
+
+3. **User Retrieval:**
+   - Fetches all users from Microsoft 365 tenant
+   - Real-time progress indicator for large tenants
+   - Processes MFA status for each user
+   - Handles large tenant scenarios efficiently
+
+4. **Summary Statistics:**
+   - Total users count
+   - Enabled/Disabled account breakdown
+   - MFA enabled/disabled statistics with percentages
+   - Top 10 users preview sorted by Display Name
+
+5. **Export Functionality:**
+   - TXT format: Human-readable text report with all user details
+   - CSV format: Spreadsheet-compatible format for Excel/Google Sheets
+   - HTML format: Professional web report with styling, statistics dashboard, and color-coded badges
+   - All formats include complete user information
+   - Automatic file opening after export
+   - Files saved to Desktop with timestamp naming
+
+6. **Professional Interface:**
+   - Menu-based navigation with 8 options
+   - Connection status display
+   - User data count tracking
+   - Color-coded output for easy interpretation
+   - Comprehensive help guide
+   - SouliTEK branding throughout
+
+Commands:
+```powershell
+# Via GUI Launcher
+# Select "M365 User List" from M365 category
+
+# Direct execution
+.\scripts\m365_user_list.ps1
+```
+
+Menu Options:
+1. Connect to Microsoft Graph - Establish connection to M365 tenant
+2. Retrieve All Users - Fetch all users with details
+3. View User Summary - Display statistics and top 10 users
+4. Export Report - TXT Format - Text file export
+5. Export Report - CSV Format - Spreadsheet export
+6. Export Report - HTML Format - Web report export
+7. Help & Information - Comprehensive documentation
+8. Exit - Disconnect and close tool
+
+Result: Complete, production-ready M365 user listing tool with comprehensive user information, MFA status tracking, and multiple export formats for IT administrators and auditors.
+
+---
+
 ### ✅ Verified & Repositioned: Disk Usage Analyzer (2025-01-15)
 
 Objective: Verified the Disk Usage Analyzer script exists and moved it to the end of the tools list in the GUI launcher as requested.
@@ -1451,6 +1647,10 @@ iwr -useb get.soulitek.co.il | iex
 ---
 
 ## Log
+- 2025-01-15: Added system restore point warning dialog to launcher startup
+- 2025-01-15: Implemented quick restore point creation function (New-QuickRestorePoint) with fallback methods
+- 2025-01-15: Integrated warning dialog into Window.Add_Loaded event handler
+- 2025-01-15: Added three-button dialog (Yes/No/Cancel) with clear user options
 - 2025-01-15: Enhanced Hardware Inventory Report script with SouliTEK branding, menu interface, and common module integration
 - 2025-01-15: Added professional menu-based navigation with 6 options (Collect, View Summary, Export JSON, Export CSV, Help, Exit)
 - 2025-01-15: Integrated SouliTEK-Common module functions for consistent logging and error handling
