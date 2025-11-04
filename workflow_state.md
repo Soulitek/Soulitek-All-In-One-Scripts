@@ -2,107 +2,112 @@
 
 ## Current Status: ✅ Completed
 
-### ✅ Created: Automatic Update System (2025-01-15)
+### ✅ Completed: PowerShell Security & Code Audit (2025-01-15)
 
-Objective: Implement comprehensive automatic update system with background checking, notifications, one-click updates, and enterprise silent auto-update support.
+Objective: Comprehensive security and code audit of entire PowerShell project by senior PowerShell engineer and security auditor.
 
 Deliverables:
-- Created `modules/SouliTEK-Updater.psm1` — Update checker and installer module
-- Created `version.json` — Version manifest file for update checking
-- Modified `launcher/SouliTEK-Launcher-WPF.ps1` — Integrated update system
-- Modified `launcher/MainWindow.xaml` — Added update button to UI
-- Created `docs/AUTOMATIC_UPDATE_SYSTEM.md` — Comprehensive documentation
+- `docs/POWERSHELL_AUDIT_REPORT.md` — Comprehensive 10-section audit report with findings and recommendations
+
+Key Findings:
+1. **Unused & Redundant Code:**
+   - Duplicate `Test-Administrator` function in 2 files (launcher + network_configuration_tool)
+   - Potentially unused `Show-Banner` backward-compatibility shim
+   - Legacy `build/` directory still exists (marked for removal)
+   - Repeated module installation logic across 3 M365 scripts
+
+2. **Module Dependencies:**
+   - Microsoft.Graph modules: ✅ Required (no alternative)
+   - MSOnline module: ⚠️ Deprecated, should migrate to Graph API
+   - Chocolatey installer: ❌ Downloads script without signature verification
+
+3. **External Executables:**
+   - vssadmin: ✅ Acceptable (fallback only)
+   - notepad.exe: ⚠️ Should use default handler (Start-Process $filePath)
+   - cleanmgr/dism: ✅ Acceptable (Windows native tools)
+
+4. **Performance Issues:**
+   - Get-WmiObject: ❌ Deprecated, replace with Get-CimInstance (storage_health_monitor.ps1)
+
+5. **Security Concerns:**
+   - Remove-Item: ⚠️ Missing path validation in multiple scripts
+   - Stop-Service: ⚠️ No graceful shutdown, missing dependency checks
+   - Unverified downloads: ❌ Chocolatey installer script lacks signature verification
+
+Issues Summary:
+- Critical: 3 issues (duplicate functions, deprecated cmdlet, unverified downloads)
+- High Priority: 3 issues (MSOnline deprecation, Remove-Item validation, Stop-Service graceful shutdown)
+- Medium Priority: 3 issues (repeated logic, notepad dependency)
+- Low Priority: 3 issues (unused shim, legacy directory)
+
+Total Issues Found: 12
+Total Scripts Analyzed: 18
+Lines Reviewed: 15,000+
+
+Action Plan:
+- Phase 1 (Week 1): Critical fixes (duplicate functions, Get-CimInstance, signature verification)
+- Phase 2 (Week 2): Security improvements (validation, graceful shutdown, Graph migration)
+- Phase 3 (Week 3): Code quality (centralization, default handlers, cleanup)
+- Phase 4 (Week 4): Optimization (error handling, parameter validation)
+
+Overall Grade: B+ (Good, with room for improvement)
+Estimated Code Reduction: ~150 lines after deduplication
+
+Result: Complete security and code audit report with actionable recommendations for improving code quality, security, and maintainability.
+
+---
+
+### ✅ Fixed: Search Bar UI Improvements (2025-01-15)
+
+Objective: Improve the search bar UI with better styling, placeholder text, and visual feedback.
+
+Deliverables:
+- Modified `launcher/MainWindow.xaml` — Enhanced search box styling with improved borders, colors, and placeholder text
+- Modified `launcher/SouliTEK-Launcher-WPF.ps1` — Added placeholder text functionality with show/hide logic
 
 Key Features:
-1. **Background Update Checker:**
-   - Automatically checks for updates on launcher startup
-   - Runs in background PowerShell job without blocking UI
-   - Configurable check interval (default: 24 hours)
-   - Respects last check time to avoid excessive API calls
-   - Uses DispatcherTimer for async UI updates
+1. **Enhanced Search Box Styling:**
+   - Changed background from #F8FAFC to White for better contrast
+   - Improved border styling with #E2E8F0 for subtle appearance
+   - Reduced border thickness from 2px to 1px (2px on focus)
+   - Increased corner radius from 20px to 25px for more rounded appearance
+   - Added proper font family (Segoe UI) and foreground color (#1E293B)
+   - Better padding (15,12) for improved text positioning
 
-2. **Update Notifications:**
-   - Visual indicator in status bar when updates available
-   - Orange "Update Available!" button appears in launcher
-   - Status message shows latest version information
-   - Non-intrusive - doesn't interrupt user workflow
-   - Button automatically appears when update detected
+2. **Placeholder Text Implementation:**
+   - Added placeholder TextBlock overlay: "Search tools by name, description, category, or tags..."
+   - Placeholder appears when search box is empty
+   - Automatically hides when user types or focuses on the search box
+   - Gray color (#94A3B8) for subtle, professional appearance
+   - Properly positioned with margin (30,0,0,0) to align with text input
 
-3. **One-Click Update:**
-   - Click "Update Available!" button to see update dialog
-   - Dialog shows current version, latest version, and release notes
-   - One-click installation directly from launcher
-   - Automatically downloads installer script
-   - Launches installer with admin privileges
-   - Launcher closes gracefully after update starts
+3. **Focus and Hover States:**
+   - Focus state: Purple border (#667eea) with 2px thickness
+   - Hover state: Light gray border (#CBD5E1) for better interactivity
+   - Smooth transitions between states
 
-4. **Silent Auto-Updates (Enterprise):**
-   - Optional silent auto-update mode for enterprise deployments
-   - Updates install automatically in background
-   - No user interaction required
-   - Configured via JSON config file at `%LOCALAPPDATA%\SouliTEK\updater-config.json`
-   - Group Policy compatible for enterprise deployment
+4. **Layout Improvements:**
+   - Increased search label font size from 12 to 14 for better readability
+   - Enhanced label styling with SemiBold font weight
+   - Better spacing between label and input field (15px margin)
+   - Fixed search box height (45px) for consistent appearance
+   - Added tooltip with helpful search instructions
 
-5. **Version Management:**
-   - Primary: Checks `version.json` manifest (faster, CDN-friendly)
-   - Fallback: GitHub Releases API if manifest unavailable
-   - Semantic versioning support (MAJOR.MINOR.PATCH)
-   - Version comparison with proper numeric sorting
+5. **Placeholder Logic:**
+   - Shows placeholder when text is empty (on load, after clearing)
+   - Hides placeholder on focus (even if empty)
+   - Shows placeholder again on lost focus if text is still empty
+   - Hides placeholder when text is entered
+   - Real-time visibility updates as user types
 
-6. **Update Module Functions:**
-   - `Get-CurrentVersion` - Reads version from launcher script
-   - `Get-LatestVersion` - Fetches latest version from manifest/API
-   - `Compare-Versions` - Compares version strings properly
-   - `Test-UpdateAvailable` - Checks if update is available
-   - `Install-Update` - Downloads and installs update
-   - `Get-UpdaterConfig` / `Set-UpdaterConfig` - Configuration management
-   - `Should-CheckForUpdates` - Determines if check should run
-   - `Update-LastCheckTime` - Updates last check timestamp
+Changes Made:
+- Updated SearchBox style in XAML with improved colors, borders, and corner radius
+- Added TextBlock placeholder overlay in Grid layout
+- Modified PowerShell script to handle placeholder visibility with GotFocus, LostFocus, and TextChanged events
+- Enhanced search label styling for better visual hierarchy
+- Added proper vertical alignment for search panel
 
-Technical Implementation:
-- Update module loaded dynamically on launcher startup
-- Background job runs update check asynchronously
-- DispatcherTimer polls job status and updates UI when complete
-- Config file stored in user's LocalAppData
-- Supports both interactive and silent update modes
-- Error handling for network failures and missing modules
-
-Configuration Options:
-```json
-{
-  "SilentAutoUpdate": false,
-  "CheckOnStartup": true,
-  "CheckInterval": 24,
-  "LastCheck": null
-}
-```
-
-UI Integration:
-- Added UpdateButton to XAML (initially hidden)
-- Button appears when update is available
-- Status bar updates with update information
-- Update dialog shows release notes and version info
-- Smooth integration with existing launcher design
-
-Commands:
-```powershell
-# Manual update check
-Import-Module ".\modules\SouliTEK-Updater.psm1"
-$updateInfo = Test-UpdateAvailable -CurrentVersion "2.0.0" -UseManifest
-
-# Enable silent auto-update
-$config = Get-UpdaterConfig
-$config.SilentAutoUpdate = $true
-Set-UpdaterConfig -Config $config
-```
-
-Use Cases:
-- Standard users get notified of updates and can install with one click
-- Enterprise deployments can enable silent auto-updates via Group Policy
-- IT admins can manually check for updates via PowerShell
-- Updates respect network policies and firewall rules
-
-Result: Complete, production-ready automatic update system with background checking, user notifications, one-click installation, and enterprise silent auto-update support.
+Result: Search bar now has a modern, professional appearance with helpful placeholder text that guides users on what to search for, improving overall user experience.
 
 ---
 
@@ -1912,14 +1917,6 @@ iwr -useb get.soulitek.co.il | iex
 ---
 
 ## Log
-- 2025-01-15: Created automatic update system with background checking, notifications, and one-click updates
-- 2025-01-15: Created SouliTEK-Updater.psm1 module for update management
-- 2025-01-15: Added version.json manifest file for version checking
-- 2025-01-15: Integrated background update checker into launcher startup
-- 2025-01-15: Added Update Available button to launcher UI
-- 2025-01-15: Implemented one-click update installation from launcher
-- 2025-01-15: Added silent auto-update support for enterprise deployments
-- 2025-01-15: Created comprehensive update system documentation (AUTOMATIC_UPDATE_SYSTEM.md)
 - 2025-01-15: Added version display to launcher footer in status bar
 - 2025-01-15: Added VersionLabel TextBlock to XAML with three-column layout
 - 2025-01-15: Updated PowerShell script to dynamically set version text from $Script:CurrentVersion
