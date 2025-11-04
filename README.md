@@ -45,20 +45,30 @@ iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts
 
 ---
 
-## 🛠️ Available Tools (10 Scripts)
+## 🛠️ Available Tools (20 Scripts)
 
-| Tool | Purpose |
-|------|---------|
-| ⚡ **Battery Report** | Analyze laptop battery health |
-| 🔒 **BitLocker Status** | Check encryption & recovery keys |
-| ✉ **PST Finder** | Find Outlook PST files |
-| ⊞ **Printer Fix** | Fix printer spooler issues |
-| ≈ **WiFi Passwords** | View saved WiFi passwords |
-| ▤ **Event Log Analyzer** | Analyze Windows event logs |
-| ⚙ **Support Toolkit** | Complete system diagnostics |
-| 🌐 **Network Test Tool** | Ping, tracert, DNS, latency tests |
-| 🔍 **USB Device Log** | Forensic USB device history analysis |
-| 📦 **Chocolatey Installer** | Ninite-like package installer with TUI |
+| Tool | Category | Purpose |
+|------|----------|---------|
+| ⚡ **Battery Report Generator** | Hardware | Analyze laptop battery health |
+| 🔒 **BitLocker Status Report** | Security | Check encryption & recovery keys |
+| ✉ **PST Finder** | M365 | Find Outlook PST files |
+| 📜 **License Expiration Checker** | M365 | Monitor Microsoft 365 license subscriptions |
+| 🔐 **M365 MFA Audit** | M365 | Audit Microsoft 365 MFA status across users |
+| 👥 **M365 User List** | M365 | List all Microsoft 365 users with details |
+| ⊞ **Printer Spooler Fix** | Support | Fix printer spooler issues |
+| ≈ **WiFi Password Viewer** | Network | View saved WiFi passwords |
+| ▤ **Event Log Analyzer** | Support | Analyze Windows event logs |
+| ⚙ **Remote Support Toolkit** | Support | Complete system diagnostics |
+| 🌐 **Network Test Tool** | Network | Ping, tracert, DNS, latency tests |
+| 🔧 **Network Configuration Tool** | Network | View IP config, set static IP, flush DNS |
+| 🔍 **USB Device Log** | Security | Forensic USB device history analysis |
+| 📦 **Chocolatey Installer** | Software | Ninite-like package installer with TUI |
+| 💾 **Storage Health Monitor** | Hardware | Monitor storage health with SMART data |
+| 🖥️ **Hardware Inventory Report** | Hardware | Full hardware inventory for warranty tracking |
+| 🔄 **System Restore Point** | Support | Create Windows System Restore Points |
+| 💿 **RAM Slot Utilization Report** | Hardware | Analyze RAM slots, type, speed, capacity |
+| 📊 **Disk Usage Analyzer** | Hardware | Find large folders with HTML visualization |
+| 🧹 **Temp Removal & Disk Cleanup** | Support | Remove temp files, clean cache, free space |
 
 All scripts located in `./scripts/` folder.
 

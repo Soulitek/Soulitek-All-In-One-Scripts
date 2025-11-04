@@ -1397,27 +1397,10 @@ function Show-ExitMessage {
     
     Clear-Host
     Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Cyan
+    Write-Host "Thank you for using SouliTEK License Expiration Checker!" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "            Thank you for using" -ForegroundColor White
-    Write-Host "      LICENSE EXPIRATION CHECKER" -ForegroundColor Cyan
+    Write-Host "Website: www.soulitek.co.il" -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "       Coded by: Soulitek.co.il" -ForegroundColor Green
-    Write-Host "       IT Solutions for your business" -ForegroundColor Green
-    Write-Host "       www.soulitek.co.il" -ForegroundColor Green
-    Write-Host ""
-    Write-Host "       (C) 2025 Soulitek - All Rights Reserved" -ForegroundColor DarkGray
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "   Need help with Microsoft 365 license management?" -ForegroundColor White
-    Write-Host "   Contact Soulitek for professional services." -ForegroundColor White
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host ""
-    Start-Sleep -Seconds 3
 }
 
 # ============================================================

@@ -24,8 +24,10 @@
 #### 🔄 In Progress
 - [ ] Create unified GUI launcher for all tools
 - [ ] Add multi-language support (Hebrew/English)
-- [ ] Implement automatic update checker
 - [ ] Write comprehensive Pester unit tests
+
+#### ✅ Recently Completed
+- [x] Implement automatic update checker (2025-01-15)
 
 #### 📌 Planned - Next Sprint
 - [ ] Network diagnostics tool

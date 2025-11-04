@@ -70,14 +70,35 @@ if (-not (Test-Administrator)) {
 Write-Host "Running as Administrator." -ForegroundColor Green
 
 # ============================================================
+# IMPORT UPDATE MODULE
+# ============================================================
+
+$updaterModulePath = Join-Path $Script:ModulesPath "SouliTEK-Updater.psm1"
+if (Test-Path $updaterModulePath) {
+    try {
+        Import-Module $updaterModulePath -Force
+        Write-Host "Update module loaded successfully." -ForegroundColor Green
+    }
+    catch {
+        Write-Warning "Failed to load update module: $_"
+    }
+}
+else {
+    Write-Warning "Update module not found at: $updaterModulePath"
+}
+
+# ============================================================
 # GLOBAL VARIABLES
 # ============================================================
 
 $Script:LauncherPath = Split-Path -Parent $MyInvocation.MyCommand.Path
 $Script:RootPath = Split-Path -Parent $Script:LauncherPath
 $Script:ScriptPath = Join-Path $Script:RootPath "scripts"
+$Script:ModulesPath = Join-Path $Script:RootPath "modules"
 $Script:CurrentVersion = "2.0.0"
 $Script:CurrentCategory = "All"
+$Script:UpdateAvailable = $false
+$Script:UpdateInfo = $null
 
 # Tool definitions
 $Script:Tools = @(
@@ -179,6 +200,15 @@ $Script:Tools = @(
         Category = "Network"
         Tags = @("network", "ping", "tracert", "dns", "latency", "diagnostics")
         Color = "#3b82f6"
+    },
+    @{
+        Name = "Network Configuration Tool"
+        Icon = "[NC]"
+        Description = "View IP configuration, set static IP addresses, flush DNS cache, and reset network adapters"
+        Script = "network_configuration_tool.ps1"
+        Category = "Network"
+        Tags = @("network", "ip", "configuration", "static", "dns", "adapter", "reset", "dhcp")
+        Color = "#6366f1"
     },
     @{
         Name = "USB Device Log"
@@ -509,6 +539,203 @@ function New-QuickRestorePoint {
     }
 }
 
+function Start-BackgroundUpdateCheck {
+    <#
+    .SYNOPSIS
+        Checks for updates in the background without blocking the UI.
+    #>
+    if (-not (Get-Command "Get-UpdaterConfig" -ErrorAction SilentlyContinue)) {
+        return
+    }
+    
+    try {
+        $config = Get-UpdaterConfig
+        
+        if (-not (Should-CheckForUpdates -Config $config)) {
+            Write-Host "Skipping update check (interval not reached)" -ForegroundColor Yellow
+            return
+        }
+        
+        Write-Host "Checking for updates in background..." -ForegroundColor Cyan
+        
+        # Run update check in background job
+        $updateJob = Start-Job -ScriptBlock {
+            param($ModulePath, $CurrentVersion)
+            
+            Import-Module $ModulePath -Force
+            $updateInfo = Test-UpdateAvailable -CurrentVersion $CurrentVersion -UseManifest
+            if ($updateInfo) {
+                Update-LastCheckTime
+            }
+            return $updateInfo
+        } -ArgumentList $updaterModulePath, $Script:CurrentVersion
+        
+        # Wait for job completion asynchronously using timer
+        $timer = New-Object System.Windows.Threading.DispatcherTimer
+        $timer.Interval = [TimeSpan]::FromSeconds(1)
+        $script:updateJobRef = $updateJob
+        $timer.Add_Tick({
+            $job = $script:updateJobRef
+            if ($job -and $job.State -eq "Completed") {
+                $timer.Stop()
+                $result = Receive-Job $job
+                Remove-Job $job -Force
+                $script:updateJobRef = $null
+                
+                if ($result -and $result.Available) {
+                    $Script:UpdateAvailable = $true
+                    $Script:UpdateInfo = $result
+                    Update-UIForUpdateAvailable
+                    Write-Host "Update available: $($result.LatestVersion)" -ForegroundColor Green
+                }
+                else {
+                    Write-Host "No updates available. Current version: $Script:CurrentVersion" -ForegroundColor Green
+                }
+            }
+            elseif ($job -and $job.State -eq "Failed") {
+                $timer.Stop()
+                Remove-Job $job -Force
+                $script:updateJobRef = $null
+                Write-Warning "Update check failed"
+            }
+        })
+        $timer.Start()
+    }
+    catch {
+        Write-Warning "Background update check failed: $_"
+    }
+}
+
+function Update-UIForUpdateAvailable {
+    <#
+    .SYNOPSIS
+        Updates the UI to show update available indicator.
+    #>
+    if ($Script:UpdateButton) {
+        $Script:UpdateButton.Visibility = "Visible"
+        $Script:UpdateButton.Background = "#F59E0B"
+        $Script:UpdateButton.Content = "Update Available!"
+    }
+    
+    if ($Script:StatusLabel) {
+        $Script:StatusLabel.Text = "Update available: Version $($Script:UpdateInfo.LatestVersion) - Click 'Update Available!' to install"
+        $Script:StatusLabel.Foreground = "#F59E0B"
+    }
+}
+
+function Show-UpdateDialog {
+    <#
+    .SYNOPSIS
+        Shows the update dialog with release notes and install option.
+    #>
+    if (-not $Script:UpdateInfo -or -not $Script:UpdateInfo.Available) {
+        [System.Windows.MessageBox]::Show(
+            "No updates available.`n`nYou are running the latest version: $Script:CurrentVersion",
+            "No Updates Available",
+            [System.Windows.MessageBoxButton]::OK,
+            [System.Windows.MessageBoxImage]::Information
+        )
+        return
+    }
+    
+    $releaseNotes = $Script:UpdateInfo.ReleaseNotes
+    if ([string]::IsNullOrWhiteSpace($releaseNotes)) {
+        $releaseNotes = "No release notes available."
+    }
+    else {
+        # Limit release notes length
+        if ($releaseNotes.Length -gt 500) {
+            $releaseNotes = $releaseNotes.Substring(0, 500) + "..."
+        }
+    }
+    
+    $message = @"
+UPDATE AVAILABLE
+
+Current Version: $($Script:CurrentVersion)
+Latest Version: $($Script:UpdateInfo.LatestVersion)
+
+Release Notes:
+$releaseNotes
+
+Would you like to download and install the update now?
+"@
+    
+    $result = [System.Windows.MessageBox]::Show(
+        $message,
+        "Update Available",
+        [System.Windows.MessageBoxButton]::YesNo,
+        [System.Windows.MessageBoxImage]::Question
+    )
+    
+    if ($result -eq [System.Windows.MessageBoxResult]::Yes) {
+        Install-UpdateFromLauncher
+    }
+}
+
+function Install-UpdateFromLauncher {
+    <#
+    .SYNOPSIS
+        Installs the update from the launcher.
+    #>
+    if (-not (Get-Command "Install-Update" -ErrorAction SilentlyContinue)) {
+        [System.Windows.MessageBox]::Show(
+            "Update module not available. Please update manually from GitHub.`n`n$($Script:UpdateInfo.DownloadUrl)",
+            "Manual Update Required",
+            [System.Windows.MessageBoxButton]::OK,
+            [System.Windows.MessageBoxImage]::Warning
+        )
+        return
+    }
+    
+    $config = Get-UpdaterConfig
+    
+    # Check for silent auto-update
+    if ($config.SilentAutoUpdate) {
+        $result = Install-Update -LauncherPath $MyInvocation.MyCommand.Path -Silent
+        if ($result.Success) {
+            [System.Windows.MessageBox]::Show(
+                "Update installer has been launched in the background.`n`nThe launcher will close. Please restart after the update completes.",
+                "Update Installing",
+                [System.Windows.MessageBoxButton]::OK,
+                [System.Windows.MessageBoxImage]::Information
+            )
+            $Script:Window.Close()
+        }
+        else {
+            [System.Windows.MessageBox]::Show(
+                "Failed to install update: $($result.Message)",
+                "Update Failed",
+                [System.Windows.MessageBoxButton]::OK,
+                [System.Windows.MessageBoxImage]::Error
+            )
+        }
+    }
+    else {
+        # Interactive update
+        $result = Install-Update -LauncherPath $MyInvocation.MyCommand.Path
+        if ($result.Success) {
+            $confirm = [System.Windows.MessageBox]::Show(
+                "Update installer has been launched.`n`nThe launcher will close. Please restart after the update completes.`n`nClose launcher now?",
+                "Update Installing",
+                [System.Windows.MessageBoxButton]::YesNo,
+                [System.Windows.MessageBoxImage]::Question
+            )
+            if ($confirm -eq [System.Windows.MessageBoxResult]::Yes) {
+                $Script:Window.Close()
+            }
+        }
+        else {
+            [System.Windows.MessageBox]::Show(
+                "Failed to install update: $($result.Message)",
+                "Update Failed",
+                [System.Windows.MessageBoxButton]::OK,
+                [System.Windows.MessageBoxImage]::Error
+            )
+        }
+    }
+}
+
 function Show-RestorePointWarning {
     <#
     .SYNOPSIS
@@ -590,6 +817,7 @@ $Script:Window = [Windows.Markup.XamlReader]::Load($reader)
 $Script:SearchBox = $Window.FindName("SearchBox")
 $Script:ToolsPanel = $Window.FindName("ToolsPanel")
 $Script:StatusLabel = $Window.FindName("StatusLabel")
+$Script:VersionLabel = $Window.FindName("VersionLabel")
 $Script:AdminLabel = $Window.FindName("AdminLabel")
 
 $Script:BtnCatAll = $Window.FindName("BtnCatAll")
@@ -607,6 +835,7 @@ $AboutButton = $Window.FindName("AboutButton")
 $GitHubButton = $Window.FindName("GitHubButton")
 $WebsiteButton = $Window.FindName("WebsiteButton")
 $ExitButton = $Window.FindName("ExitButton")
+$Script:UpdateButton = $Window.FindName("UpdateButton")
 
 # ============================================================
 # EVENT HANDLERS
@@ -714,6 +943,17 @@ $null = $WebsiteButton.Add_Click({
     Start-Process "www.soulitek.co.il"
 })
 
+# Update button (initially hidden)
+if ($Script:UpdateButton) {
+    $Script:UpdateButton.Visibility = "Collapsed"
+    $null = $Script:UpdateButton.Add_Click({
+        Show-UpdateDialog
+    })
+}
+
+# Version display
+$Script:VersionLabel.Text = "Version $Script:CurrentVersion"
+
 # Admin status
 if (Test-Administrator) {
     $AdminLabel.Text = "[+] Administrator"
@@ -743,6 +983,9 @@ Set-CategoryActive "All"
 
 # Show welcome message and restore point warning
 $null = $Window.Add_Loaded({
+    # Start background update check
+    Start-BackgroundUpdateCheck
+    
     # Show restore point warning first
     Show-RestorePointWarning
     

@@ -2,6 +2,271 @@
 
 ## Current Status: ✅ Completed
 
+### ✅ Created: Automatic Update System (2025-01-15)
+
+Objective: Implement comprehensive automatic update system with background checking, notifications, one-click updates, and enterprise silent auto-update support.
+
+Deliverables:
+- Created `modules/SouliTEK-Updater.psm1` — Update checker and installer module
+- Created `version.json` — Version manifest file for update checking
+- Modified `launcher/SouliTEK-Launcher-WPF.ps1` — Integrated update system
+- Modified `launcher/MainWindow.xaml` — Added update button to UI
+- Created `docs/AUTOMATIC_UPDATE_SYSTEM.md` — Comprehensive documentation
+
+Key Features:
+1. **Background Update Checker:**
+   - Automatically checks for updates on launcher startup
+   - Runs in background PowerShell job without blocking UI
+   - Configurable check interval (default: 24 hours)
+   - Respects last check time to avoid excessive API calls
+   - Uses DispatcherTimer for async UI updates
+
+2. **Update Notifications:**
+   - Visual indicator in status bar when updates available
+   - Orange "Update Available!" button appears in launcher
+   - Status message shows latest version information
+   - Non-intrusive - doesn't interrupt user workflow
+   - Button automatically appears when update detected
+
+3. **One-Click Update:**
+   - Click "Update Available!" button to see update dialog
+   - Dialog shows current version, latest version, and release notes
+   - One-click installation directly from launcher
+   - Automatically downloads installer script
+   - Launches installer with admin privileges
+   - Launcher closes gracefully after update starts
+
+4. **Silent Auto-Updates (Enterprise):**
+   - Optional silent auto-update mode for enterprise deployments
+   - Updates install automatically in background
+   - No user interaction required
+   - Configured via JSON config file at `%LOCALAPPDATA%\SouliTEK\updater-config.json`
+   - Group Policy compatible for enterprise deployment
+
+5. **Version Management:**
+   - Primary: Checks `version.json` manifest (faster, CDN-friendly)
+   - Fallback: GitHub Releases API if manifest unavailable
+   - Semantic versioning support (MAJOR.MINOR.PATCH)
+   - Version comparison with proper numeric sorting
+
+6. **Update Module Functions:**
+   - `Get-CurrentVersion` - Reads version from launcher script
+   - `Get-LatestVersion` - Fetches latest version from manifest/API
+   - `Compare-Versions` - Compares version strings properly
+   - `Test-UpdateAvailable` - Checks if update is available
+   - `Install-Update` - Downloads and installs update
+   - `Get-UpdaterConfig` / `Set-UpdaterConfig` - Configuration management
+   - `Should-CheckForUpdates` - Determines if check should run
+   - `Update-LastCheckTime` - Updates last check timestamp
+
+Technical Implementation:
+- Update module loaded dynamically on launcher startup
+- Background job runs update check asynchronously
+- DispatcherTimer polls job status and updates UI when complete
+- Config file stored in user's LocalAppData
+- Supports both interactive and silent update modes
+- Error handling for network failures and missing modules
+
+Configuration Options:
+```json
+{
+  "SilentAutoUpdate": false,
+  "CheckOnStartup": true,
+  "CheckInterval": 24,
+  "LastCheck": null
+}
+```
+
+UI Integration:
+- Added UpdateButton to XAML (initially hidden)
+- Button appears when update is available
+- Status bar updates with update information
+- Update dialog shows release notes and version info
+- Smooth integration with existing launcher design
+
+Commands:
+```powershell
+# Manual update check
+Import-Module ".\modules\SouliTEK-Updater.psm1"
+$updateInfo = Test-UpdateAvailable -CurrentVersion "2.0.0" -UseManifest
+
+# Enable silent auto-update
+$config = Get-UpdaterConfig
+$config.SilentAutoUpdate = $true
+Set-UpdaterConfig -Config $config
+```
+
+Use Cases:
+- Standard users get notified of updates and can install with one click
+- Enterprise deployments can enable silent auto-updates via Group Policy
+- IT admins can manually check for updates via PowerShell
+- Updates respect network policies and firewall rules
+
+Result: Complete, production-ready automatic update system with background checking, user notifications, one-click installation, and enterprise silent auto-update support.
+
+---
+
+### ✅ Added: Version Display in Launcher Footer (2025-01-15)
+
+Objective: Add version display in the launcher footer for easy version identification.
+
+Deliverables:
+- Modified `launcher/MainWindow.xaml` — Added VersionLabel TextBlock to status bar footer
+- Modified `launcher/SouliTEK-Launcher-WPF.ps1` — Added version label initialization and text setting
+
+Key Features:
+1. **Footer Version Display:**
+   - Added VersionLabel TextBlock in status bar (Grid.Row="4")
+   - Displays version number from `$Script:CurrentVersion` variable (currently "2.0.0")
+   - Positioned in center of status bar between StatusLabel and AdminLabel
+   - Styled with subtle gray color (#94A3B8) for professional appearance
+
+2. **Layout Enhancement:**
+   - Converted status bar from simple Grid to three-column layout
+   - Left: StatusLabel (status messages)
+   - Center: VersionLabel (version display)
+   - Right: AdminLabel (administrator status)
+
+3. **Dynamic Version:**
+   - Version automatically pulled from `$Script:CurrentVersion` variable
+   - Easy to update version in one place (line 79)
+   - Format: "Version X.X.X"
+
+Changes Made:
+- Added Grid.ColumnDefinitions to status bar Grid for three-column layout
+- Added VersionLabel TextBlock with Grid.Column="1" for center position
+- Updated PowerShell script to find VersionLabel control
+- Added version text assignment: `$Script:VersionLabel.Text = "Version $Script:CurrentVersion"`
+
+Result: Version display now appears in launcher footer, making it easy for users to identify the current launcher version.
+
+---
+
+### ✅ Updated: Exit Messages for All Scripts (2025-01-15)
+
+Objective: Standardize exit messages across all scripts with main menus to show a consistent format when users exit.
+
+Deliverables:
+- Updated all 15 scripts with main menus to use consistent exit message format
+- All scripts now display: "Thank you for using SouliTEK <script name>!\nWebsite: www.soulitek.co.il"
+
+Scripts Updated:
+1. `battery_report_generator.ps1` - Battery Report Generator
+2. `bitlocker_status_report.ps1` - BitLocker Status Report
+3. `create_system_restore_point.ps1` - System Restore Point Creator
+4. `disk_usage_analyzer.ps1` - Disk Usage Analyzer
+5. `FindPST.ps1` - PST Finder Tool
+6. `license_expiration_checker.ps1` - License Expiration Checker
+7. `m365_user_list.ps1` - Microsoft 365 User List Tool
+8. `network_configuration_tool.ps1` - Network Configuration Tool
+9. `network_test_tool.ps1` - Network Test Tool
+10. `printer_spooler_fix.ps1` - Printer Spooler Fix
+11. `ram_slot_utilization_report.ps1` - RAM Slot Utilization Report
+12. `storage_health_monitor.ps1` - Storage Health Monitor
+13. `temp_removal_disk_cleanup.ps1` - Temp Removal & Disk Cleanup
+14. `usb_device_log.ps1` - USB Device Log
+15. `wifi_password_viewer.ps1` - WiFi Password Viewer
+
+Changes Made:
+- Replaced verbose exit messages with simple, consistent format
+- Updated scripts with existing `Show-ExitMessage` functions
+- Added `Show-ExitMessage` function to scripts that had inline exit messages
+- Updated `FindPST.ps1` `Show-Exit` function to match new format
+- All exit messages now follow format: "Thank you for using SouliTEK <script name>!\nWebsite: www.soulitek.co.il"
+
+Result: All scripts now display a consistent, professional exit message when users exit from the main menu.
+
+---
+
+### ✅ Created: Network Configuration Tool (2025-01-15)
+
+Objective: Create a comprehensive network configuration tool with IP configuration viewing, static IP setting, DNS cache flushing, and network adapter reset capabilities.
+
+Deliverables:
+- `scripts/network_configuration_tool.ps1` — Professional network configuration management tool with menu interface
+- `docs/NETWORK_CONFIGURATION_TOOL.md` — Comprehensive usage, troubleshooting, and technical documentation
+- Integrated into GUI launcher under Network category
+
+Key Features:
+1. **View IP Configuration:**
+   - Display current IP address (IPv4 and IPv6)
+   - Show subnet mask and prefix length
+   - Display default gateway
+   - List DNS servers
+   - Check DHCP vs Static IP assignment
+   - Display adapter status, MAC address, and link speed
+   - Interface description and connection details
+
+2. **Set Static IP Address:**
+   - Configure static IP address with validation
+   - Set subnet mask (prefix length or subnet mask format)
+   - Configure default gateway
+   - Set primary and secondary DNS servers
+   - Automatic DHCP disabling
+   - IP address format validation before applying
+   - Configuration confirmation before applying
+   - Comprehensive error handling
+
+3. **Flush DNS Cache:**
+   - Clear DNS resolver cache
+   - Help resolve DNS-related issues
+   - Requires Administrator privileges
+   - Confirmation before operation
+
+4. **Reset Network Adapter:**
+   - Disable and re-enable network adapter
+   - Resolve adapter connectivity issues
+   - 3-second delay between disable/enable
+   - Automatic connection restoration
+   - Requires Administrator privileges
+   - Warning about temporary connectivity loss
+
+5. **Export Configuration Report:**
+   - Export configuration history to multiple formats
+   - TXT format: Human-readable text report
+   - CSV format: Spreadsheet-compatible format
+   - HTML format: Professional web report with styling
+   - All formats option for comprehensive documentation
+   - Automatic file opening after export
+
+6. **Professional Interface:**
+   - Menu-based navigation with 6 options
+   - Network adapter selection with status display
+   - Color-coded output for easy interpretation
+   - Administrator privilege checking
+   - Comprehensive help guide
+   - SouliTEK branding throughout
+
+Commands:
+```powershell
+# Via GUI Launcher
+# Select "Network Configuration Tool" from Network category
+
+# Direct execution
+.\scripts\network_configuration_tool.ps1
+```
+
+Menu Options:
+1. View IP Configuration - Display current adapter settings
+2. Set Static IP Address - Configure static IP settings (Admin required)
+3. Flush DNS Cache - Clear DNS resolver cache (Admin required)
+4. Reset Network Adapter - Disable and re-enable adapter (Admin required)
+5. Export Configuration Report - Save history to TXT, CSV, or HTML
+6. Help & Information - Comprehensive documentation
+0. Exit - Close the tool
+
+Use Cases:
+- Troubleshoot network connectivity issues
+- Configure static IP addresses for servers
+- Resolve DNS-related problems
+- Reset network adapters to fix connection issues
+- Document network configuration changes
+- Verify network adapter settings
+
+Result: Complete, production-ready network configuration tool with comprehensive IP management, DNS cache flushing, and network adapter reset capabilities integrated into GUI launcher.
+
+---
+
 ### ✅ Added: System Restore Point Warning Dialog (2025-01-15)
 
 Objective: Add a warning dialog on launcher startup recommending users to create a system restore point, with a quick button to create one.
@@ -1647,6 +1912,17 @@ iwr -useb get.soulitek.co.il | iex
 ---
 
 ## Log
+- 2025-01-15: Created automatic update system with background checking, notifications, and one-click updates
+- 2025-01-15: Created SouliTEK-Updater.psm1 module for update management
+- 2025-01-15: Added version.json manifest file for version checking
+- 2025-01-15: Integrated background update checker into launcher startup
+- 2025-01-15: Added Update Available button to launcher UI
+- 2025-01-15: Implemented one-click update installation from launcher
+- 2025-01-15: Added silent auto-update support for enterprise deployments
+- 2025-01-15: Created comprehensive update system documentation (AUTOMATIC_UPDATE_SYSTEM.md)
+- 2025-01-15: Added version display to launcher footer in status bar
+- 2025-01-15: Added VersionLabel TextBlock to XAML with three-column layout
+- 2025-01-15: Updated PowerShell script to dynamically set version text from $Script:CurrentVersion
 - 2025-01-15: Added system restore point warning dialog to launcher startup
 - 2025-01-15: Implemented quick restore point creation function (New-QuickRestorePoint) with fallback methods
 - 2025-01-15: Integrated warning dialog into Window.Add_Loaded event handler

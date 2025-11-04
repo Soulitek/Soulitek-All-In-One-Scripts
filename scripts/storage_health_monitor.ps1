@@ -771,6 +771,19 @@ function Show-MainMenu {
     Write-Host "Select an option (1-7): " -NoNewline -ForegroundColor Yellow
 }
 
+# ============================================================
+# EXIT MESSAGE
+# ============================================================
+
+function Show-ExitMessage {
+    Clear-Host
+    Write-Host ""
+    Write-Host "Thank you for using SouliTEK Storage Health Monitor!" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "Website: www.soulitek.co.il" -ForegroundColor Yellow
+    Write-Host ""
+}
+
 function Show-Help {
     Clear-Host
     
@@ -873,10 +886,7 @@ do {
             Show-Help
         }
         "7" {
-            Write-Host ""
-            Write-Host "Thank you for using SouliTEK Storage Health Monitor!" -ForegroundColor Green
-            Write-Host "www.soulitek.co.il | letstalk@soulitek.co.il" -ForegroundColor Cyan
-            Write-Host ""
+            Show-ExitMessage
             break
         }
         default {

@@ -305,6 +305,19 @@ function Show-MainMenu {
     Write-Host ""
 }
 
+# ============================================================
+# EXIT MESSAGE
+# ============================================================
+
+function Show-ExitMessage {
+    Clear-Host
+    Write-Host ""
+    Write-Host "Thank you for using SouliTEK System Restore Point Creator!" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "Website: www.soulitek.co.il" -ForegroundColor Yellow
+    Write-Host ""
+}
+
 function Start-MainLoop {
     while ($true) {
         Show-MainMenu
@@ -362,13 +375,7 @@ function Start-MainLoop {
                 Read-Host | Out-Null
             }
             "5" {
-                Show-Header
-                Write-Host "Thank you for using SouliTEK System Restore Point Creator!" -ForegroundColor Green
-                Write-Host ""
-                Write-Host "Website: www.soulitek.co.il" -ForegroundColor Cyan
-                Write-Host "Email: letstalk@soulitek.co.il" -ForegroundColor Cyan
-                Write-Host ""
-                Start-Sleep -Seconds 2
+                Show-ExitMessage
                 exit 0
             }
             default {

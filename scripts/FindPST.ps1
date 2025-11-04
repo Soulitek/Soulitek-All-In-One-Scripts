@@ -751,27 +751,10 @@ function Show-Help {
 function Show-Exit {
     Clear-Host
     Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Cyan
+    Write-Host "Thank you for using SouliTEK PST Finder Tool!" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "               Thank you for using" -ForegroundColor White
-    Write-Host "                 PST FINDER TOOL" -ForegroundColor Cyan
+    Write-Host "Website: www.soulitek.co.il" -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "       Coded by: Soulitek.co.il" -ForegroundColor Green
-    Write-Host "       IT Solutions for your business" -ForegroundColor Green
-    Write-Host "       www.soulitek.co.il" -ForegroundColor Green
-    Write-Host ""
-    Write-Host "       (C) 2025 Soulitek - All Rights Reserved" -ForegroundColor DarkGray
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "   Need IT support? Contact SouliTEK for professional" -ForegroundColor White
-    Write-Host "   computer repair, network setup, and business IT solutions." -ForegroundColor White
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host ""
-    Start-Sleep -Seconds 3
 }
 
 # ============================================================

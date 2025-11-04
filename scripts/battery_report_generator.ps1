@@ -648,31 +648,11 @@ function Show-Help {
 # Function to show exit message
 function Show-ExitMessage {
     Clear-Host
-    Set-SouliTEKConsoleColor "Gray"
     Write-Host ""
-    Write-Host "============================================================"
+    Write-Host "Thank you for using SouliTEK Battery Report Generator!" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "            Thank you for using"
-    Write-Host "        BATTERY REPORT GENERATOR"
+    Write-Host "Website: www.soulitek.co.il" -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "============================================================"
-    Write-Host ""
-    Write-Host "       Coded by: Soulitek.co.il"
-    Write-Host "       IT Solutions for your business"
-    Write-Host "       www.soulitek.co.il"
-    Write-Host ""
-    Write-Host "       (C) 2025 Soulitek - All Rights Reserved"
-    Write-Host ""
-    Write-Host "============================================================"
-    Write-Host ""
-    Write-Host "   Need IT support? Contact Soulitek for professional"
-    Write-Host "   computer repair, network setup, and business IT solutions."
-    Write-Host ""
-    Write-Host "   Tip: Run this tool monthly to monitor battery health!"
-    Write-Host ""
-    Write-Host "============================================================"
-    Write-Host ""
-    Start-Sleep -Seconds 5
 }
 
 # ============================================================

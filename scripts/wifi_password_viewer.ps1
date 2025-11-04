@@ -654,6 +654,19 @@ if (-not (Test-SouliTEKAdministrator)) {
     exit 1
 }
 
+# ============================================================
+# EXIT MESSAGE
+# ============================================================
+
+function Show-ExitMessage {
+    Clear-Host
+    Write-Host ""
+    Write-Host "Thank you for using SouliTEK WiFi Password Viewer!" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "Website: www.soulitek.co.il" -ForegroundColor Yellow
+    Write-Host ""
+}
+
 # Show disclaimer
 Show-Disclaimer
 
@@ -671,32 +684,7 @@ while ($running) {
         "6" { Copy-PasswordToClipboard }
         "7" { Show-Help }
         "0" { 
-            Clear-Host
-            Write-Host ""
-            Write-Host "============================================================" -ForegroundColor Cyan
-            Write-Host ""
-            Write-Host "            Thank you for using" -ForegroundColor White
-            Write-Host "        WiFi PASSWORD VIEWER TOOL" -ForegroundColor Cyan
-            Write-Host ""
-            Write-Host "============================================================" -ForegroundColor Cyan
-            Write-Host ""
-            Write-Host "       Coded by: Soulitek.co.il" -ForegroundColor Yellow
-            Write-Host "       IT Solutions for your business" -ForegroundColor Yellow
-            Write-Host "       www.soulitek.co.il" -ForegroundColor Yellow
-            Write-Host ""
-            Write-Host "       (C) 2025 Soulitek - All Rights Reserved" -ForegroundColor Gray
-            Write-Host ""
-            Write-Host "============================================================" -ForegroundColor Cyan
-            Write-Host ""
-            Write-Host "   Need IT support? Contact Soulitek for professional" -ForegroundColor White
-            Write-Host "   computer repair, network setup, and business IT solutions." -ForegroundColor White
-            Write-Host ""
-            Write-Host "   SECURITY REMINDER:" -ForegroundColor Yellow
-            Write-Host "   Remember to delete any exported password files after use." -ForegroundColor Yellow
-            Write-Host ""
-            Write-Host "============================================================" -ForegroundColor Cyan
-            Write-Host ""
-            Start-Sleep -Seconds 3
+            Show-ExitMessage
             $running = $false
         }
         default {

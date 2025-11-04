@@ -234,13 +234,28 @@
 
             <!-- Status Bar -->
             <Grid Grid.Row="4" Background="#F8FAFC">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
                 <TextBlock Name="StatusLabel" 
+                          Grid.Column="0"
                           Text="Ready - Select a tool to launch" 
                           FontSize="11"
                           Foreground="#64748B" 
                           VerticalAlignment="Center" 
                           Margin="30,0"/>
+                <TextBlock Name="VersionLabel" 
+                          Grid.Column="1"
+                          Text="Version 2.0.0" 
+                          FontSize="11"
+                          Foreground="#94A3B8" 
+                          VerticalAlignment="Center" 
+                          HorizontalAlignment="Center"
+                          Margin="20,0"/>
                 <TextBlock Name="AdminLabel" 
+                          Grid.Column="2"
                           Text="Administrator" 
                           FontSize="11"
                           FontWeight="Bold"
@@ -255,6 +270,7 @@
                        Orientation="Horizontal" 
                        HorizontalAlignment="Center"
                        VerticalAlignment="Center">
+                <Button Name="UpdateButton" Content="Update Available!" Width="130" Height="40" Style="{StaticResource ModernButton}" Margin="5" Background="#F59E0B" Visibility="Collapsed"/>
                 <Button Name="HelpButton" Content="Help" Width="110" Height="40" Style="{StaticResource ModernButton}" Margin="5" Background="#6366f1"/>
                 <Button Name="AboutButton" Content="About" Width="110" Height="40" Style="{StaticResource ModernButton}" Margin="5" Background="#8b5cf6"/>
                 <Button Name="GitHubButton" Content="GitHub" Width="110" Height="40" Style="{StaticResource ModernButton}" Margin="5" Background="#1e293b"/>

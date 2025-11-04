@@ -1179,23 +1179,11 @@ function Show-Help {
 # Function to show exit message
 function Show-ExitMessage {
     Clear-Host
-    Show-SouliTEKBanner
-    Set-SouliTEKConsoleColor "Green"
     Write-Host ""
-    Write-Host "========================================"
+    Write-Host "Thank you for using SouliTEK RAM Slot Utilization Report!" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "   Thank you for using"
-    Write-Host "   RAM Slot Utilization Report"
+    Write-Host "Website: www.soulitek.co.il" -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "   Powered by SouliTEK"
-    Write-Host ""
-    Write-Host "========================================"
-    Write-Host ""
-    Write-Host "   Visit: www.soulitek.co.il"
-    Write-Host ""
-    Write-Host "========================================"
-    Write-Host ""
-    Start-Sleep -Seconds 2
 }
 
 # ============================================================

@@ -807,6 +807,27 @@ function Show-Menu {
 	Write-Host "Please select an option (1-8): " -NoNewline -ForegroundColor Yellow
 }
 
+# ============================================================
+# EXIT MESSAGE
+# ============================================================
+
+function Show-ExitMessage {
+	# Disconnect if connected
+	try {
+		if ($Script:Connected) {
+			Write-Host "Disconnecting from Microsoft Graph..." -ForegroundColor Cyan
+			Disconnect-MgGraph -ErrorAction SilentlyContinue | Out-Null
+		}
+	} catch { }
+	
+	Clear-Host
+	Write-Host ""
+	Write-Host "Thank you for using SouliTEK Microsoft 365 User List Tool!" -ForegroundColor Cyan
+	Write-Host ""
+	Write-Host "Website: www.soulitek.co.il" -ForegroundColor Yellow
+	Write-Host ""
+}
+
 # Main execution loop
 while ($true) {
 	Show-Menu
@@ -822,18 +843,7 @@ while ($true) {
 		'6' { Export-UserListHtml }
 		'7' { Show-Help }
 		'8' {
-			Show-Header "Exiting..."
-			Write-Host "Disconnecting from Microsoft Graph..." -ForegroundColor Cyan
-			try {
-				if ($Script:Connected) {
-					Disconnect-MgGraph -ErrorAction SilentlyContinue | Out-Null
-				}
-			} catch { }
-			Write-Host "Thank you for using SouliTEK Microsoft 365 User List Tool!" -ForegroundColor Green
-			Write-Host ""
-			Write-Host "Visit www.soulitek.co.il for more IT solutions" -ForegroundColor Cyan
-			Write-Host ""
-			Start-Sleep -Seconds 2
+			Show-ExitMessage
 			exit
 		}
 		default {

@@ -899,6 +899,19 @@ Email: letstalk@soulitek.co.il
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
+# ============================================================
+# EXIT MESSAGE
+# ============================================================
+
+function Show-ExitMessage {
+    Clear-Host
+    Write-Host ""
+    Write-Host "Thank you for using SouliTEK Temp Removal & Disk Cleanup!" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "Website: www.soulitek.co.il" -ForegroundColor Yellow
+    Write-Host ""
+}
+
 function Show-MainMenu {
     <#
     .SYNOPSIS
@@ -978,9 +991,7 @@ function Show-MainMenu {
                 Show-Help
             }
             "0" {
-                Write-Host "Thank you for using SouliTEK Temp Removal & Disk Cleanup!" -ForegroundColor Cyan
-                Write-Host "Website: www.soulitek.co.il" -ForegroundColor Gray
-                Write-Host ""
+                Show-ExitMessage
                 return
             }
             default {

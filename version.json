@@ -1,0 +1,15 @@
+{
+  "version": "2.0.0",
+  "releaseDate": "2025-01-15",
+  "releaseNotes": "Current stable version of SouliTEK All-In-One Scripts Launcher",
+  "downloadUrl": "https://github.com/Soulitek/Soulitek-All-In-One-Scripts/releases/latest",
+  "changelog": [
+    "Modern WPF GUI with Material Design",
+    "Search-first UX with category filtering",
+    "Automatic update system",
+    "Background update checker",
+    "One-click update from launcher",
+    "Enterprise silent auto-update support"
+  ]
+}
+
