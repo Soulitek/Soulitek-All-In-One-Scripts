@@ -86,6 +86,8 @@ Write-Host "Running as Administrator." -ForegroundColor Green
 # GLOBAL VARIABLES
 # ============================================================
 $Script:ScriptPath = Join-Path $Script:RootPath "scripts"
+$Script:AssetsPath = Join-Path $Script:RootPath "assets"
+$Script:IconsPath = Join-Path $Script:AssetsPath "icons"
 $Script:CurrentVersion = "2.0.0"
 $Script:CurrentCategory = "All"
 
@@ -157,6 +159,7 @@ $Script:Tools = @(
     @{
         Name = "WiFi Password Viewer"
         Icon = "[W]"
+        IconPath = "lan.png"
         Description = "View and export saved WiFi passwords from Windows"
         Script = "wifi_password_viewer.ps1"
         Category = "Network"
@@ -175,6 +178,7 @@ $Script:Tools = @(
     @{
         Name = "Remote Support Toolkit"
         Icon = "[R]"
+        IconPath = "computer-monitor.png"
         Description = "Comprehensive system diagnostics for remote IT support"
         Script = "remote_support_toolkit.ps1"
         Category = "Support"
@@ -184,6 +188,7 @@ $Script:Tools = @(
     @{
         Name = "Network Test Tool"
         Icon = "[N]"
+        IconPath = "lan.png"
         Description = "Ping, tracert, DNS lookup, and latency testing for network diagnostics"
         Script = "network_test_tool.ps1"
         Category = "Network"
@@ -193,6 +198,7 @@ $Script:Tools = @(
     @{
         Name = "Network Configuration Tool"
         Icon = "[NC]"
+        IconPath = "lan.png"
         Description = "View IP configuration, set static IP addresses, flush DNS cache, and reset network adapters"
         Script = "network_configuration_tool.ps1"
         Category = "Network"
@@ -220,6 +226,7 @@ $Script:Tools = @(
     @{
         Name = "Storage Health Monitor"
         Icon = "[SH]"
+        IconPath = "ssd.png"
         Description = "Monitor storage health with SMART data, detect reallocated sectors and read errors"
         Script = "storage_health_monitor.ps1"
         Category = "Hardware"
@@ -229,6 +236,7 @@ $Script:Tools = @(
     @{
         Name = "Hardware Inventory Report"
         Icon = "[H]"
+        IconPath = "pc-tower.png"
         Description = "Full hardware inventory: CPU, GPU, RAM, disk, motherboard, BIOS, and serial numbers. Exports JSON/CSV for warranty tracking"
         Script = "hardware_inventory_report.ps1"
         Category = "Hardware"
@@ -247,6 +255,7 @@ $Script:Tools = @(
     @{
         Name = "RAM Slot Utilization Report"
         Icon = "[RAM]"
+        IconPath = "ram.png"
         Description = "Shows RAM slots used vs total, type (DDR3/DDR4/DDR5), speed, and capacity"
         Script = "ram_slot_utilization_report.ps1"
         Category = "Hardware"
@@ -256,6 +265,7 @@ $Script:Tools = @(
     @{
         Name = "Disk Usage Analyzer"
         Icon = "[D]"
+        IconPath = "ssd.png"
         Description = "Find folders larger than 1 GB and export results sorted by size with HTML visualization"
         Script = "disk_usage_analyzer.ps1"
         Category = "Hardware"
@@ -342,7 +352,6 @@ function Test-ToolMatchesFilter {
 }
 
 function Update-ToolsDisplay {
-    Write-Host "DEBUG: Update-ToolsDisplay called" -ForegroundColor Yellow
     $null = $Script:ToolsPanel.Children.Clear()
     
     $filteredTools = $Script:Tools | Where-Object { Test-ToolMatchesFilter $_ }
@@ -390,12 +399,54 @@ function Update-ToolsDisplay {
         $iconBorder.VerticalAlignment = "Center"
         $null = [System.Windows.Controls.Grid]::SetColumn($iconBorder, 0)
         
-        $iconText = New-Object System.Windows.Controls.TextBlock
-        $iconText.Text = $tool.Icon
-        $iconText.FontSize = 32
-        $iconText.HorizontalAlignment = "Center"
-        $iconText.VerticalAlignment = "Center"
-        $iconBorder.Child = $iconText
+        # Try to load PNG icon if IconPath is specified, otherwise use text icon
+        if ($tool.IconPath) {
+            $iconFilePath = Join-Path $Script:IconsPath $tool.IconPath
+            if (Test-Path $iconFilePath) {
+                try {
+                    $iconImage = New-Object System.Windows.Controls.Image
+                    $iconUri = New-Object System.Uri((Resolve-Path $iconFilePath).Path)
+                    $iconBitmap = New-Object System.Windows.Media.Imaging.BitmapImage($iconUri)
+                    $iconImage.Source = $iconBitmap
+                    $iconImage.Width = 50
+                    $iconImage.Height = 50
+                    $iconImage.Stretch = "Uniform"
+                    $iconImage.HorizontalAlignment = "Center"
+                    $iconImage.VerticalAlignment = "Center"
+                    $iconBorder.Child = $iconImage
+                }
+                catch {
+                    # Fallback to text icon if image loading fails
+                    $iconText = New-Object System.Windows.Controls.TextBlock
+                    $iconText.Text = $tool.Icon
+                    $iconText.FontSize = 32
+                    $iconText.HorizontalAlignment = "Center"
+                    $iconText.VerticalAlignment = "Center"
+                    $iconText.Foreground = "White"
+                    $iconBorder.Child = $iconText
+                }
+            }
+            else {
+                # Icon file not found, use text icon
+                $iconText = New-Object System.Windows.Controls.TextBlock
+                $iconText.Text = $tool.Icon
+                $iconText.FontSize = 32
+                $iconText.HorizontalAlignment = "Center"
+                $iconText.VerticalAlignment = "Center"
+                $iconText.Foreground = "White"
+                $iconBorder.Child = $iconText
+            }
+        }
+        else {
+            # Use text icon as fallback
+            $iconText = New-Object System.Windows.Controls.TextBlock
+            $iconText.Text = $tool.Icon
+            $iconText.FontSize = 32
+            $iconText.HorizontalAlignment = "Center"
+            $iconText.VerticalAlignment = "Center"
+            $iconText.Foreground = "White"
+            $iconBorder.Child = $iconText
+        }
         
         # Info stack
         $infoStack = New-Object System.Windows.Controls.StackPanel
@@ -649,23 +700,25 @@ $null = $ExitButton.Add_Click({ $null = $Window.Close() })
 # Search
 $null = $SearchBox.Add_TextChanged({
     # Show/hide placeholder based on text content
-    if ([string]::IsNullOrWhiteSpace($Script:SearchBox.Text)) {
-        $Script:SearchPlaceholder.Visibility = "Visible"
-    } else {
-        $Script:SearchPlaceholder.Visibility = "Collapsed"
+    if ($null -ne $Script:SearchPlaceholder) {
+        if ([string]::IsNullOrWhiteSpace($Script:SearchBox.Text)) {
+            $Script:SearchPlaceholder.Visibility = "Visible"
+        } else {
+            $Script:SearchPlaceholder.Visibility = "Collapsed"
+        }
     }
     Update-ToolsDisplay
 })
 
 # Handle placeholder visibility on focus
 $null = $SearchBox.Add_GotFocus({
-    if ([string]::IsNullOrWhiteSpace($Script:SearchBox.Text)) {
+    if ($null -ne $Script:SearchPlaceholder -and [string]::IsNullOrWhiteSpace($Script:SearchBox.Text)) {
         $Script:SearchPlaceholder.Visibility = "Collapsed"
     }
 })
 
 $null = $SearchBox.Add_LostFocus({
-    if ([string]::IsNullOrWhiteSpace($Script:SearchBox.Text)) {
+    if ($null -ne $Script:SearchPlaceholder -and [string]::IsNullOrWhiteSpace($Script:SearchBox.Text)) {
         $Script:SearchPlaceholder.Visibility = "Visible"
     }
 })

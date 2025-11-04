@@ -1,6 +1,253 @@
 # Workflow State
 
-## Current Status: ✅ Completed
+## Current Status: ✅ In Progress
+
+### ✅ Updated: GUI Launcher with PNG Icons (2025-01-15)
+
+Objective: Update the GUI launcher to use PNG icons from assets/icons folder instead of text-based icons.
+
+Deliverables:
+- Updated launcher to load and display PNG icons from assets/icons folder
+- Mapped 8 tools to appropriate icons (Network, Hardware, Support tools)
+- Created fallback mechanism to text icons if PNG fails to load
+- Created comprehensive summary document of tools still needing icons
+
+Icons Successfully Assigned:
+1. **WiFi Password Viewer** → `lan.png`
+2. **Network Test Tool** → `lan.png`
+3. **Network Configuration Tool** → `lan.png`
+4. **Remote Support Toolkit** → `computer-monitor.png`
+5. **Storage Health Monitor** → `ssd.png`
+6. **Hardware Inventory Report** → `pc-tower.png`
+7. **RAM Slot Utilization Report** → `ram.png`
+8. **Disk Usage Analyzer** → `ssd.png`
+
+Technical Implementation:
+- Added `$Script:IconsPath` variable to store icons directory path
+- Modified `Update-ToolsDisplay` function to check for `IconPath` property in tool definitions
+- Implemented Image control loading with BitmapImage for PNG files
+- Added error handling with fallback to text icons if image loading fails
+- Icons displayed at 50x50 pixels within 70x70 circular border
+
+Tools Still Needing Icons (12 total):
+- Battery Report Generator, BitLocker Status Report, USB Device Log
+- PST Finder, License Expiration Checker, M365 MFA Audit, M365 User List
+- Printer Spooler Fix, Event Log Analyzer, System Restore Point
+- Temp Removal & Disk Cleanup, Chocolatey Installer
+
+Files Modified:
+- `launcher/SouliTEK-Launcher-WPF.ps1` - Added icon loading logic and IconPath properties
+- `docs/ICON_ASSIGNMENT_SUMMARY.md` - Created comprehensive summary document
+
+Result: Launcher now displays PNG icons for 8 tools with graceful fallback to text icons. Summary document created for remaining 12 tools needing icons.
+
+---
+
+### ✅ Enhanced: EventLogAnalyzer with Interactive Menu (2025-01-15)
+
+Objective: Add interactive menu interface with predefined report options for easy event log analysis.
+
+Deliverables:
+- Added interactive menu that appears when script is launched without parameters
+- 10 predefined report templates for common scenarios
+- Custom analysis option for advanced users
+- Help menu with usage guide
+
+Predefined Reports Added:
+
+1. **PC Crash Events (Last 7 Days)**
+   - System crashes (Event ID 41)
+   - Blue screen crashes (Event ID 1001)
+   - Unexpected shutdowns (Event ID 6008)
+   - Critical system errors
+
+2. **Memory Issues (Last 3 Days)**
+   - Out of memory errors
+   - Memory allocation failures
+   - Low memory warnings
+   - Memory-related application errors
+
+3. **Security Audit (Last 24 Hours)**
+   - Failed login attempts (Event ID 4625)
+   - Successful logins (Event ID 4624)
+   - Privilege escalation (Event ID 4672)
+   - Authentication failures
+
+4. **Application Errors (Last 7 Days)**
+   - Application crashes
+   - Application errors
+   - Application warnings
+
+5. **System Warnings (Last 3 Days)**
+   - System warnings
+   - System errors
+   - Service issues
+
+6. **Login Events (Last 7 Days)**
+   - Successful logins (Event ID 4624)
+   - Failed logins (Event ID 4625)
+   - Logoffs (Event ID 4634)
+   - Lock/unlock events
+
+7. **Disk Issues (Last 7 Days)**
+   - Disk I/O errors
+   - Disk corruption
+   - Disk timeout errors
+   - Storage device failures
+
+8. **Network Problems (Last 3 Days)**
+   - Network adapter errors
+   - TCP/IP issues
+   - Network connectivity problems
+   - DNS resolution failures
+
+9. **Driver Failures (Last 7 Days)**
+   - Driver crashes
+   - Driver load failures
+   - Driver timeout errors
+   - Plug and Play errors
+
+10. **Windows Update Issues (Last 14 Days)**
+    - Update installation failures
+    - Update download errors
+    - Update service issues
+    - Update rollback events
+
+Additional Menu Options:
+- **Custom Analysis**: Run with default parameters or use command-line options
+- **Help**: Comprehensive usage guide and examples
+
+Menu Features:
+- Professional menu interface with SouliTEK branding
+- Clear descriptions for each report option
+- Automatic report generation with appropriate filters
+- All reports export to JSON, CSV, and HTML formats
+- Returns to menu after each report completion
+- Easy navigation with numbered options
+
+Usage:
+- Launch script without parameters to see menu
+- Select report option (1-10)
+- Report generates automatically with predefined filters
+- Results exported to Desktop in all formats
+- Press any key to return to menu
+
+Technical Implementation:
+- Menu appears when script launched without explicit parameters
+- Each report function calls script recursively with appropriate parameters
+- Uses `$PSCommandPath` to call script with filters
+- Maintains all existing functionality for command-line usage
+
+Result: EventLogAnalyzer now provides an intuitive menu interface for quick access to common event log analysis scenarios, making it much easier for IT professionals to generate reports.
+
+---
+
+### ✅ Enhanced: EventLogAnalyzer Script (2025-01-15)
+
+Objective: Enhance the EventLogAnalyzer script with additional filtering and export options for more comprehensive event log analysis.
+
+Deliverables:
+- Added multiple new filtering options (Event IDs, Sources, Message content)
+- Added HTML export format with professional styling
+- Added Audit Success/Failure filtering for Security log
+- Added comparison mode for baseline analysis
+- Added individual log export option
+- Enhanced event level filtering with Critical, Audit Success/Failure support
+
+New Features Added:
+
+1. **Event ID Filtering:**
+   - Filter by specific Event IDs (e.g., @(1000,1001))
+   - Support for Event ID ranges (e.g., "1000-1005")
+   - Support for comma-separated values
+   - Parameter: `-EventIDs`
+
+2. **Source/Provider Filtering:**
+   - Filter events by provider/source names
+   - Example: `-Sources @("Microsoft-Windows-Kernel-General")`
+   - Parameter: `-Sources`
+
+3. **Message Content Filtering:**
+   - Search for keywords in event messages
+   - Case-insensitive search
+   - Parameter: `-MessageFilter`
+
+4. **Audit Success/Failure Support:**
+   - Include Audit Success events in Security log analysis
+   - Include Audit Failure events in Security log analysis
+   - Parameters: `-IncludeAuditSuccess`, `-IncludeAuditFailure`
+
+5. **Enhanced Event Level Filtering:**
+   - Separate Critical event tracking
+   - Control Critical inclusion with `-IncludeCritical` (default: True)
+   - Full support for all event levels: Critical, Error, Warning, Information, Audit Success, Audit Failure
+
+6. **HTML Export Format:**
+   - Professional HTML report with modern styling
+   - Color-coded statistics (Critical, Error, Warning, Information, Audit Success/Failure)
+   - Responsive grid layout for statistics
+   - Top Event IDs display
+   - Summary totals section
+   - Export format options: JSON, CSV, HTML, Both, All
+
+7. **Individual Log Export:**
+   - Export each log to separate files instead of combined export
+   - Separate files for JSON and CSV formats
+   - Parameter: `-ExportIndividualLogs`
+
+8. **Baseline Comparison:**
+   - Compare current analysis with previous baseline JSON file
+   - Shows changes in event counts (Errors, Warnings, Critical, etc.)
+   - Color-coded change indicators (Red for increases, Green for decreases)
+   - Parameter: `-CompareWithBaseline <path>`
+
+9. **Remote Machine Support:**
+   - Analyze event logs from remote machines
+   - Requires admin access to remote machine
+   - Parameter: `-MachineName <computername>`
+
+10. **Enhanced Summary Display:**
+    - Shows Critical, Audit Success, and Audit Failure counts
+    - Updated totals section with all event types
+    - Color-coded output for easy interpretation
+
+Updated Files:
+- `scripts/EventLogAnalyzer.ps1` - Enhanced with 10+ new parameters and features
+- Script version updated to 2.0.0
+
+New Parameters Summary:
+- `-EventIDs`: Filter by Event IDs (supports ranges)
+- `-Sources`: Filter by provider/source names
+- `-MessageFilter`: Filter by message content keywords
+- `-IncludeAuditSuccess`: Include Audit Success events
+- `-IncludeAuditFailure`: Include Audit Failure events
+- `-IncludeCritical`: Include Critical events (default: True)
+- `-CompareWithBaseline`: Path to baseline JSON for comparison
+- `-ExportIndividualLogs`: Export each log to separate files
+- `-MachineName`: Target machine name for remote analysis
+- `-ExportFormat`: Now supports "HTML" and "All" options
+
+Example Usage:
+```powershell
+# Filter by specific Event IDs
+.\EventLogAnalyzer.ps1 -EventIDs @(4624,4625) -IncludeAuditSuccess -IncludeAuditFailure
+
+# Filter by source and message content
+.\EventLogAnalyzer.ps1 -Sources @("Microsoft-Windows-Kernel-General") -MessageFilter "blue screen"
+
+# Export as HTML with individual log files
+.\EventLogAnalyzer.ps1 -ExportFormat "HTML" -ExportIndividualLogs
+
+# Compare with baseline
+.\EventLogAnalyzer.ps1 -CompareWithBaseline "C:\Reports\baseline.json"
+
+# Analyze remote machine
+.\EventLogAnalyzer.ps1 -MachineName "SERVER01" -LogNames "System"
+```
+
+Result: EventLogAnalyzer now provides comprehensive event log analysis with advanced filtering, multiple export formats, baseline comparison, and remote analysis capabilities.
+
+---
 
 ### ✅ Fixed: All PowerShell Audit Issues (2025-01-15)
 
