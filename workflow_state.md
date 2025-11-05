@@ -2,6 +2,43 @@
 
 ## Current Status: ✅ In Progress
 
+### ✅ Fixed: Missing Install-SouliTEK.ps1 Installer Script (2025-01-15)
+
+Objective: Fix the 404 error when accessing get.soulitek.co.il by creating the missing Install-SouliTEK.ps1 installer script.
+
+Problem:
+- Users running `iwr -useb get.soulitek.co.il | iex` were getting 404 errors
+- The Vercel serverless function and PHP proxy were trying to fetch Install-SouliTEK.ps1 from GitHub
+- The file didn't exist in the repository, causing GitHub to return 404
+
+Solution Implemented:
+- Created `Install-SouliTEK.ps1` installer script in repository root
+- Script downloads latest version from GitHub as ZIP
+- Extracts to C:\SouliTEK
+- Creates desktop shortcut
+- Offers immediate launch option
+- Includes comprehensive error handling and progress indicators
+
+Key Features:
+1. **Automatic Download**: Fetches latest version from GitHub main branch
+2. **Installation Process**: Extracts ZIP, copies to installation directory
+3. **Desktop Shortcut**: Creates convenient launcher shortcut
+4. **Error Handling**: Comprehensive error messages and cleanup
+5. **Admin Detection**: Warns if not running as administrator
+6. **Cleanup**: Removes temporary files after installation
+7. **Launch Option**: Asks user if they want to launch immediately
+
+Installation Commands:
+- Custom domain: `iwr -useb get.soulitek.co.il | iex`
+- Direct GitHub: `iwr -useb https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1 | iex`
+
+Files Created:
+- `Install-SouliTEK.ps1` - Complete installer script (300+ lines)
+
+Result: Installation now works correctly from both custom domain and direct GitHub URL. Users can now successfully install SouliTEK with one command.
+
+---
+
 ### ✅ Updated: GUI Launcher with PNG Icons (2025-01-15)
 
 Objective: Update the GUI launcher to use PNG icons from assets/icons folder instead of text-based icons.
