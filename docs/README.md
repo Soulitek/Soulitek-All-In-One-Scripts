@@ -26,14 +26,11 @@ Welcome to the documentation hub for the SouliTEK All-In-One Scripts project.
 - **[USB Device Log](USB_DEVICE_LOG.md)** - Forensic USB analysis
 - **[BitLocker Status Report](BITLOCKER_STATUS_REPORT.md)** - Encryption monitoring
 - **[Chocolatey Installer](CHOCO_INSTALLER.md)** - Package management
-- **[Event Analyzer Fix](EVENT_ANALYZER_FIX.md)** - Bug fix documentation
-- **[Encoding Fix](ENCODING_FIX.md)** - Unicode fix documentation
-- **[308 Redirect Issue](308_REDIRECT_ISSUE.md)** - Redirect problem solution
+- **[Release Readiness Audit](RELEASE_READINESS_AUDIT_2025.md)** - Pre-publication security audit
 
 ## 🔗 Quick Links
 
 - **Main README**: [../README.md](../README.md)
-- **Workflow State**: [../workflow_state.md](../workflow_state.md)
 - **License**: [../LICENSE](../LICENSE)
 
 ## 📁 Scripts Documentation

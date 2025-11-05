@@ -36,8 +36,15 @@
 # 
 # ============================================================
 
-# Function to check if running as administrator
-
+# Import SouliTEK Common Functions
+$ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$CommonPath = Join-Path (Split-Path -Parent $ScriptRoot) "modules\SouliTEK-Common.ps1"
+if (Test-Path $CommonPath) {
+    . $CommonPath
+} else {
+    Write-Warning "SouliTEK Common Functions not found at: $CommonPath"
+    Write-Warning "Some functions may not work properly."
+}
 
 # Function to get all WiFi profiles
 function Get-WiFiProfiles {
@@ -84,9 +91,6 @@ function Get-CurrentNetwork {
     
     return $currentSSID
 }
-
-# Function to display ASCII banner
-
 
 # Function to display header
 function Show-Header {
