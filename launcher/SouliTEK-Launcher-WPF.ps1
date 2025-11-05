@@ -88,7 +88,7 @@ Write-Host "Running as Administrator." -ForegroundColor Green
 $Script:ScriptPath = Join-Path $Script:RootPath "scripts"
 $Script:AssetsPath = Join-Path $Script:RootPath "assets"
 $Script:IconsPath = Join-Path $Script:AssetsPath "icons"
-$Script:CurrentVersion = "2.0.0"
+$Script:CurrentVersion = "1.0.0"
 $Script:CurrentCategory = "All"
 
 # Tool definitions

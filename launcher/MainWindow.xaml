@@ -248,7 +248,7 @@
                           Margin="30,0"/>
                 <TextBlock Name="VersionLabel" 
                           Grid.Column="1"
-                          Text="Version 2.0.0" 
+                          Text="Version 1.0.0" 
                           FontSize="11"
                           Foreground="#94A3B8" 
                           VerticalAlignment="Center" 

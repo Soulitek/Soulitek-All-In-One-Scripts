@@ -210,7 +210,7 @@ if (Test-Path $CommonPath) {
 # ============================================================
 
 $script:ScriptName = 'EventLogAnalyzer'
-$script:ScriptVersion = '2.0.0'
+$script:ScriptVersion = '1.0.0'
 $script:LogFolder = Join-Path $env:TEMP "SouliTEK-Scripts\$script:ScriptName"
 $script:VerboseLogFile = $null
 $script:JsonSummaryFile = $null
