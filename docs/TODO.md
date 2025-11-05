@@ -100,24 +100,6 @@
 
 ---
 
-#### Remote Support Toolkit
-**Priority:** Medium  
-**Status:** Planned  
-**Description:** Quick remote diagnostics and information gathering
-
-**Features:**
-- [ ] System information collector (CPU, RAM, Disk, OS)
-- [ ] Installed software list
-- [ ] Running processes with resource usage
-- [ ] Network configuration export
-- [ ] Recent errors summary
-- [ ] Generate support package (ZIP)
-- [ ] QR code generation for easy sharing
-- [ ] Secure upload to Soulitek portal (optional)
-
-**Estimated Effort:** 4-5 days  
-**Target Completion:** Q2 2025
-
 ---
 
 #### Windows Update Manager
@@ -294,7 +276,6 @@
 
 ### Version 2.0.0 (Planned - Q2 2025)
 - [ ] System Cleanup Utility
-- [ ] Remote Support Toolkit
 - [ ] Cloud integration options
 - [ ] Enterprise features
 

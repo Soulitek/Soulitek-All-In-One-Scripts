@@ -12,13 +12,11 @@ The following tools now have PNG icons assigned:
 | **WiFi Password Viewer** | `lan.png` | Network |
 | **Network Test Tool** | `lan.png` | Network |
 | **Network Configuration Tool** | `lan.png` | Network |
-| **Remote Support Toolkit** | `computer-monitor.png` | Support |
 | **Storage Health Monitor** | `ssd.png` | Hardware |
-| **Hardware Inventory Report** | `pc-tower.png` | Hardware |
 | **RAM Slot Utilization Report** | `ram.png` | Hardware |
 | **Disk Usage Analyzer** | `ssd.png` | Hardware |
 
-**Total: 8 tools with icons assigned**
+**Total: 6 tools with icons assigned**
 
 ## Tools Still Needing Icons
 
@@ -119,9 +117,9 @@ Example:
 
 ---
 
-**Last Updated:** 2025-01-15  
-**Total Tools:** 20  
-**Tools with Icons:** 8  
+**Last Updated:** 2025-11-05  
+**Total Tools:** 18  
+**Tools with Icons:** 6  
 **Tools Needing Icons:** 12
 
 

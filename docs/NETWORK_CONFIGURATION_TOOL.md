@@ -148,7 +148,7 @@ The **Network Configuration Tool** is a comprehensive PowerShell-based utility f
 
 **Option 1: Direct Execution**
 ```powershell
-cd C:\Users\Eitan\Soulitek-AIO\scripts
+cd C:\SouliTEK\scripts
 .\network_configuration_tool.ps1
 ```
 

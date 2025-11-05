@@ -253,24 +253,7 @@ Analyze Windows Event Logs:
 
 ---
 
-### 6. 🛠️ Remote Support Toolkit
-**Category:** Support | **Icon:** [R] | **Color:** Green  
-**Tags:** remote, support, diagnostics, system, troubleshoot
-
-Comprehensive system diagnostics:
-- Complete system information
-- Hardware inventory
-- Software list
-- Network configuration
-- HTML reports
-- ZIP packaging
-
-**Best For:** Remote support, documentation, diagnostics  
-**Search:** "remote", "support", "diagnostics", "system"
-
----
-
-### 7. 🌐 Network Test Tool
+### 6. 🌐 Network Test Tool
 **Category:** Network | **Icon:** [N] | **Color:** Blue  
 **Tags:** network, ping, tracert, dns, latency, diagnostics
 
@@ -346,7 +329,6 @@ Interactive package installer with Ninite-like UX:
 - **Required** for:
   - Printer Spooler Fix
   - Event Log Analyzer
-  - Some Remote Support Toolkit features
 
 ### Common Workflows:
 
@@ -368,13 +350,12 @@ Interactive package installer with Ninite-like UX:
 4. If issues persist, use Monitor mode
 ```
 
-**Scenario 3: Remote Support**
+**Scenario 3: System Diagnostics**
 ```
 1. Click "Support" category button
-2. Launch Remote Support Toolkit
-3. Create Full Support Package
-4. Create ZIP file
-5. Email to IT support
+2. Launch Event Log Analyzer
+3. Check for system errors
+4. Export report if needed
 ```
 
 **Scenario 4: Network Troubleshooting**
@@ -573,11 +554,10 @@ cd C:\Path\To\Scripts
 3. Printer Spooler Fix (Support)
 4. WiFi Password Viewer (Network)
 5. Event Log Analyzer (Support)
-6. Remote Support Toolkit (Support)
-7. Network Test Tool (Network) - NEW!
-8. BitLocker Status Report (Security) - NEW!
-9. USB Device Log (Security) - NEW!
-10. Chocolatey Installer (Software) - NEW!
+6. Network Test Tool (Network) - NEW!
+7. BitLocker Status Report (Security) - NEW!
+8. USB Device Log (Security) - NEW!
+9. Chocolatey Installer (Software) - NEW!
 
 ---
 
@@ -667,7 +647,7 @@ When reporting problems, include:
 - **TODO.md** - Roadmap and planned features
 - **CONTRIBUTING.md** - How to contribute
 - **SUCCESS.md** - Recent updates
-- **NEW_TOOL_ADDED.md** - Remote Support Toolkit guide
+- **ICON_ASSIGNMENT_SUMMARY.md** - Icon assignment guide
 
 ### Online Resources
 - **GitHub Repository** - Source code and updates

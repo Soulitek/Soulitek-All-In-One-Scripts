@@ -319,7 +319,7 @@ iwr -useb get.soulitek.co.il | iex
 **Email Signature:**
 ```
 ──────────────────────────────────
-Eitan | SouliTEK IT Solutions
+SouliTEK IT Solutions
 🚀 Quick Install: get.soulitek.co.il
 📧 letstalk@soulitek.co.il
 ──────────────────────────────────

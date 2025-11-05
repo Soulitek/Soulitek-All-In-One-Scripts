@@ -176,16 +176,6 @@ $Script:Tools = @(
         Color = "#f39c12"
     },
     @{
-        Name = "Remote Support Toolkit"
-        Icon = "[R]"
-        IconPath = "computer-monitor.png"
-        Description = "Comprehensive system diagnostics for remote IT support"
-        Script = "remote_support_toolkit.ps1"
-        Category = "Support"
-        Tags = @("remote", "support", "diagnostics", "system", "troubleshoot")
-        Color = "#2ecc71"
-    },
-    @{
         Name = "Network Test Tool"
         Icon = "[N]"
         IconPath = "lan.png"
@@ -232,16 +222,6 @@ $Script:Tools = @(
         Category = "Hardware"
         Tags = @("storage", "smart", "disk", "health", "monitor", "hdd", "ssd", "sectors", "errors")
         Color = "#06b6d4"
-    },
-    @{
-        Name = "Hardware Inventory Report"
-        Icon = "[H]"
-        IconPath = "pc-tower.png"
-        Description = "Full hardware inventory: CPU, GPU, RAM, disk, motherboard, BIOS, and serial numbers. Exports JSON/CSV for warranty tracking"
-        Script = "hardware_inventory_report.ps1"
-        Category = "Hardware"
-        Tags = @("hardware", "inventory", "warranty", "cpu", "gpu", "ram", "disk", "motherboard", "bios", "serial", "json", "csv")
-        Color = "#ef4444"
     },
     @{
         Name = "System Restore Point"
@@ -854,7 +834,5 @@ $null = $Window.Add_Loaded({
 })
 
 # Show window (suppress return value to prevent random numbers in console)
-Write-Host "DEBUG: About to show window" -ForegroundColor Green
 $null = $Window.ShowDialog()
-Write-Host "DEBUG: Window closed" -ForegroundColor Green
 

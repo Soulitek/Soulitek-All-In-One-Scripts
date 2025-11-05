@@ -103,7 +103,7 @@
 
 .NOTES
     File Name      : EventLogAnalyzer.ps1
-    Author         : SouliTEK - Eitan
+    Author         : SouliTEK
     Contact        : www.soulitek.co.il
     Prerequisite   : PowerShell 5.1+, Administrator privileges
     Copyright      : (C) 2025 SouliTEK - All Rights Reserved

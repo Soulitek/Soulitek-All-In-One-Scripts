@@ -28,13 +28,13 @@ iwr -useb get.soulitek.co.il | iex
 
 ---
 
-## 🛠️ Tools (20 Scripts)
+## 🛠️ Tools (18 Scripts)
 
-**Hardware:** Battery Report, Storage Health Monitor, Hardware Inventory, RAM Slot Utilization, Disk Usage Analyzer  
+**Hardware:** Battery Report, Storage Health Monitor, RAM Slot Utilization, Disk Usage Analyzer  
 **Security:** BitLocker Status, M365 MFA Audit, USB Device Log  
 **M365:** PST Finder, License Expiration Checker, M365 User List  
 **Network:** WiFi Password Viewer, Network Test Tool, Network Configuration Tool  
-**Support:** Printer Spooler Fix, Event Log Analyzer, Remote Support Toolkit, System Restore Point, Temp Removal & Disk Cleanup  
+**Support:** Printer Spooler Fix, Event Log Analyzer, System Restore Point, Temp Removal & Disk Cleanup  
 **Software:** Chocolatey Installer
 
 All scripts in `./scripts/` folder.
