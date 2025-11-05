@@ -86,15 +86,6 @@ if ($script === false) {
 // Output the script
 echo $script;
 
-// Optional: Track in database (uncomment if you have MySQL)
-/*
-try {
-    $pdo = new PDO('mysql:host=localhost;dbname=your_database', 'username', 'password');
-    $stmt = $pdo->prepare('INSERT INTO downloads (ip, user_agent, timestamp) VALUES (?, ?, NOW())');
-    $stmt->execute([getClientIP(), $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown']);
-} catch (PDOException $e) {
-    // Silent fail - don't break the installer if DB is down
-}
-*/
+// For optional database tracking, see: hosting/README.md#optional-database-logging
 ?>
 
