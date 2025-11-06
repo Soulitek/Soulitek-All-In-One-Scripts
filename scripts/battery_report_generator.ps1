@@ -98,7 +98,7 @@ function Invoke-SouliTEKPowerCfg {
         if (-not $details) {
             $details = "powercfg exited with code $exitCode"
         }
-        throw [System.InvalidOperationException]::new("Failed to $OperationDescription: $details")
+        throw [System.InvalidOperationException]::new("Failed to ${OperationDescription}: $details")
     }
 
     if ($ExpectedOutputPath -and -not (Test-Path -LiteralPath $ExpectedOutputPath)) {
