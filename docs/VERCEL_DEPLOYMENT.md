@@ -511,7 +511,7 @@ iwr -useb get.soulitek.co.il | iex
 
 ---
 
-**© 2025 SouliTEK - Made with ❤️ in Israel**
+**© 2025 SouliTEK - Made with ❤️ in Soulitek**
 
 **Note:** VERCEL_FUNCTION_IMPLEMENTATION_SUMMARY.md and VERCEL_FUNCTION_SETUP.md have been merged into this comprehensive deployment guide for better organization.
 

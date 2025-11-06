@@ -476,5 +476,5 @@ iwr -useb get.soulitek.co.il | iex
 
 ---
 
-**© 2025 SouliTEK - Made with ❤️ in Israel**
+**© 2025 SouliTEK - Made with ❤️ in Soulitek**
 

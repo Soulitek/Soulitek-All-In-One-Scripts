@@ -37,8 +37,7 @@
 # ============================================================
 
 # Import SouliTEK Common Functions
-$ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
-$CommonPath = Join-Path (Split-Path -Parent $ScriptRoot) "modules\SouliTEK-Common.ps1"
+$CommonPath = Join-Path (Split-Path -Parent $PSScriptRoot) "modules\SouliTEK-Common.ps1"
 if (Test-Path $CommonPath) {
     . $CommonPath
 } else {
@@ -48,15 +47,16 @@ if (Test-Path $CommonPath) {
 
 # Function to get all WiFi profiles
 function Get-WiFiProfiles {
-    $profiles = @()
     $output = netsh wlan show profiles
-    
-    foreach ($line in $output) {
-        if ($line -match "All User Profile\s+:\s+(.+)") {
-            $profiles += $matches[1].Trim()
+
+    $profiles = @(
+        foreach ($line in $output) {
+            if ($line -match "All User Profile\s+:\s+(.+)") {
+                $matches[1].Trim()
+            }
         }
-    }
-    
+    )
+
     return $profiles
 }
 
@@ -83,7 +83,7 @@ function Get-CurrentNetwork {
     $currentSSID = $null
     
     foreach ($line in $output) {
-        if ($line -match "^\s+SSID\s+:\s+(.+)$" -and $line -notmatch "BSSID") {
+        if ($line -match "^\s+SSID\s+:\s+(.+)$") {
             $currentSSID = $matches[1].Trim()
             break
         }

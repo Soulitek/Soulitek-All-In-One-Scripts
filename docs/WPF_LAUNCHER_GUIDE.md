@@ -475,5 +475,5 @@ Proprietary software for internal use and authorized distribution only.
 
 ---
 
-**Made with ❤️ in Israel by SouliTEK**
+**Made with ❤️ in Soulitek by SouliTEK**
 

@@ -249,7 +249,7 @@ Before distributing:
 
 You now have a modern, professional launcher for your PowerShell tools. Enjoy! 🚀
 
-**Made with ❤️ in Israel by SouliTEK**
+**Made with ❤️ in Soulitek by SouliTEK**
 
 ---
 

@@ -261,6 +261,6 @@ If you need help with deployment:
 
 ---
 
-**© 2025 SouliTEK - Made with ❤️ in Israel**
+**© 2025 SouliTEK - Made with ❤️ in Soulitek**
 
 **Note:** DEPLOYMENT_CHECKLIST.md and VERCEL_SETUP_CHECKLIST.md have been merged into this comprehensive deployment guide for better organization.

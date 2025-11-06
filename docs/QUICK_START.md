@@ -85,7 +85,7 @@ Click "⚙️" next to "About" on GitHub and add:
 - `helpdesk`
 - `system-administration`
 - `scripting`
-- `israel`
+- `Soulitek`
 
 ### 2. Enable Features
 Go to Settings → General → Features:

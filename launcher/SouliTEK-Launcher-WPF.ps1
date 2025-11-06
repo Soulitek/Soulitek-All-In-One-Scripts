@@ -766,7 +766,7 @@ Email: letstalk@soulitek.co.il
 
 (C) 2025 SouliTEK - All Rights Reserved
 
-Made with love in Israel
+Made with love in Soulitek
 "@
     
     [System.Windows.MessageBox]::Show(

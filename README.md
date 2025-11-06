@@ -68,7 +68,6 @@ See [docs/](docs/) folder for complete documentation.
 
 - **Website:** www.soulitek.co.il
 - **Email:** letstalk@soulitek.co.il
-- **GitHub:** [Soulitek/Soulitek-All-In-One-Scripts](https://github.com/Soulitek/Soulitek-All-In-One-Scripts)
 
 ---
 
@@ -80,7 +79,7 @@ Proprietary - © 2025 SouliTEK. All Rights Reserved.
 
 <div align="center">
 
-**Made with ❤️ in Israel**
+**Made with ❤️ in Soulitek**
 
 *Professional IT Solutions for Your Business*
 
