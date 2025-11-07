@@ -43,11 +43,6 @@ exports/
 build/
 dist/
 
-# Config (if sensitive)
-config/*.json
-config/*.xml
-!config/example.json
-
 # User-specific files
 *.user
 *.suo

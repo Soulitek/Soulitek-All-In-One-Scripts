@@ -9,6 +9,7 @@ The SouliTEK launcher has been upgraded from Windows Forms to **Windows Presenta
 ## ✨ What's New in WPF Version 2.0
 
 ### **Visual Improvements**
+- ✅ SouliTEK logo displayed in header
 - ✅ Modern gradient backgrounds
 - ✅ Rounded corners throughout the interface
 - ✅ Drop shadow effects for depth

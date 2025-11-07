@@ -36,40 +36,8 @@ if (Test-Path $CommonPath) {
 	Write-Warning "SouliTEK Common Functions not found at: $CommonPath"
 }
 
-# Ensure NuGet provider is available (required for PowerShellGet)
-$nuGetProvider = Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue
-if (-not $nuGetProvider -or ($nuGetProvider.Version -lt [version]"2.8.5.201")) {
-	Write-Host "Installing NuGet provider..." -ForegroundColor Cyan
-	try {
-		Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser -ErrorAction Stop | Out-Null
-		Write-Host "NuGet provider installed successfully!" -ForegroundColor Green
-	} catch {
-		Write-Warning "Failed to install NuGet provider: $($_.Exception.Message)"
-	}
-}
-
-# Ensure PowerShellGet prerequisites for module installation
-if (-not (Get-Module -ListAvailable -Name PowerShellGet -ErrorAction SilentlyContinue)) {
-	Write-Host "Installing PowerShellGet module..." -ForegroundColor Cyan
-	try {
-		Install-Module -Name PowerShellGet -Scope CurrentUser -Force -SkipPublisherCheck -ErrorAction Stop
-		Write-Host "PowerShellGet installed successfully!" -ForegroundColor Green
-	} catch {
-		Write-Warning "Failed to install PowerShellGet: $($_.Exception.Message)"
-	}
-}
-
-# Trust PSGallery for module installation
-$psGallery = Get-PSRepository -Name PSGallery -ErrorAction SilentlyContinue
-if ($null -eq $psGallery -or $psGallery.InstallationPolicy -ne 'Trusted') {
-	Write-Host "Setting PSGallery to Trusted..." -ForegroundColor Cyan
-	try {
-		Set-PSRepository -Name PSGallery -InstallationPolicy Trusted -ErrorAction Stop
-		Write-Host "PSGallery set to Trusted" -ForegroundColor Green
-	} catch {
-		Write-Warning "Failed to set PSGallery to Trusted: $($_.Exception.Message)"
-	}
-}
+# Module installation handled by centralized function from SouliTEK-Common.ps1
+# Microsoft Graph modules will be installed when needed during Microsoft Graph connection
 
 function Show-Header {
 	param([string]$Title = "Microsoft 365 MFA Status", [ConsoleColor]$Color = 'Cyan')
@@ -94,25 +62,7 @@ function Ensure-OutputFolder {
 	}
 }
 
-function Install-RequiredModule {
-	param(
-		[Parameter(Mandatory=$true)]
-		[string]$ModuleName
-	)
-	
-	Write-Host "$ModuleName module not installed." -ForegroundColor Yellow
-	Write-Host "Attempting to install $ModuleName..." -ForegroundColor Cyan
-	
-	try {
-		Install-Module -Name $ModuleName -Scope CurrentUser -Force -AllowClobber -ErrorAction Stop
-		Write-Host "$ModuleName installed successfully!" -ForegroundColor Green
-		return $true
-	} catch {
-		Write-Warning "Failed to install $ModuleName`: $($_.Exception.Message)"
-		Write-Host "Please install manually: Install-Module $ModuleName -Scope CurrentUser" -ForegroundColor Yellow
-		return $false
-	}
-}
+# Install-RequiredModule function has been replaced by Install-SouliTEKModule from SouliTEK-Common.ps1
 
 function Connect-GraphIfAvailable {
 	$connected = $false
@@ -122,51 +72,36 @@ function Connect-GraphIfAvailable {
 	Write-Host "============================================================" -ForegroundColor Cyan
 	Write-Host ""
 	
-	if (-not (Get-Module -ListAvailable -Name Microsoft.Graph -ErrorAction SilentlyContinue)) {
-		Write-Host "[Step 1/4] Microsoft Graph module not installed." -ForegroundColor Yellow
-		Write-Host "          Attempting to install Microsoft Graph module..." -ForegroundColor Gray
-		if (-not (Install-RequiredModule -ModuleName "Microsoft.Graph")) {
-			Write-Host "          Installation failed. Please check errors above." -ForegroundColor Red
-			return $false
+	# Use centralized module installation function
+	Write-Host "[Step 1/4] Installing/verifying Microsoft Graph modules..." -ForegroundColor Cyan
+	Write-Host ""
+	
+	$modulesToInstall = @(
+		'Microsoft.Graph.Authentication',
+		'Microsoft.Graph.Users',
+		'Microsoft.Graph.Identity.SignIns'
+	)
+	
+	$allModulesInstalled = $true
+	foreach ($module in $modulesToInstall) {
+		if (-not (Install-SouliTEKModule -ModuleName $module)) {
+			Write-Warning "Failed to install $module"
+			$allModulesInstalled = $false
 		}
-		Write-Host "          ✓ Microsoft Graph module installed successfully" -ForegroundColor Green
-	} else {
-		Write-Host "[Step 1/4] ✓ Microsoft Graph module already installed" -ForegroundColor Green
 	}
 	
+	if (-not $allModulesInstalled) {
+		Write-Host ""
+		Write-Host "[-] Some required modules failed to install" -ForegroundColor Red
+		return $false
+	}
+	
+	Write-Host ""
+	Write-Host "[+] All Microsoft Graph modules ready" -ForegroundColor Green
+	
 	try {
-		# Import required Microsoft Graph submodules
 		Write-Host ""
-		Write-Host "[Step 2/4] Loading required submodules..." -ForegroundColor Cyan
-		$modulesToImport = @(
-			'Microsoft.Graph.Authentication',
-			'Microsoft.Graph.Users',
-			'Microsoft.Graph.Identity.SignIns'
-		)
-		
-		foreach ($module in $modulesToImport) {
-			Write-Host "          Loading $module..." -ForegroundColor Gray
-			if (-not (Get-Module -Name $module -ErrorAction SilentlyContinue)) {
-				if (Get-Module -ListAvailable -Name $module -ErrorAction SilentlyContinue) {
-					Import-Module $module -ErrorAction SilentlyContinue
-					Write-Host "          ✓ $module loaded successfully" -ForegroundColor Green
-				} else {
-					Write-Warning "          Installing $module..."
-					try {
-						Install-Module -Name $module -Scope CurrentUser -Force -AllowClobber -ErrorAction Stop
-						Import-Module $module -ErrorAction SilentlyContinue
-						Write-Host "          ✓ $module installed and loaded" -ForegroundColor Green
-					} catch {
-						Write-Warning "          Failed to install $module`: $($_.Exception.Message)"
-					}
-				}
-			} else {
-				Write-Host "          ✓ $module already loaded" -ForegroundColor Green
-			}
-		}
-		
-		Write-Host ""
-		Write-Host "[Step 3/4] Checking existing connection..." -ForegroundColor Cyan
+		Write-Host "[Step 2/4] Checking existing connection..." -ForegroundColor Cyan
 		# Check if already connected
 		$context = Get-MgContext -ErrorAction SilentlyContinue
 		if ($context) {
@@ -179,7 +114,7 @@ function Connect-GraphIfAvailable {
 		Write-Host "          No existing connection found" -ForegroundColor Yellow
 		
 		Write-Host ""
-		Write-Host "[Step 4/4] Initiating connection to Microsoft Graph..." -ForegroundColor Cyan
+		Write-Host "[Step 3/3] Initiating connection to Microsoft Graph..." -ForegroundColor Cyan
 		Write-Host "          This will open a browser window for authentication" -ForegroundColor Yellow
 		Write-Host "          Required permissions:" -ForegroundColor Gray
 		Write-Host "            - User.Read.All (read user information)" -ForegroundColor Gray

@@ -643,6 +643,7 @@ $Script:ToolsPanel = $Window.FindName("ToolsPanel")
 $Script:StatusLabel = $Window.FindName("StatusLabel")
 $Script:VersionLabel = $Window.FindName("VersionLabel")
 $Script:AdminLabel = $Window.FindName("AdminLabel")
+$Script:LogoImage = $Window.FindName("LogoImage")
 
 $Script:BtnCatAll = $Window.FindName("BtnCatAll")
 $Script:BtnCatNetwork = $Window.FindName("BtnCatNetwork")
@@ -659,6 +660,25 @@ $AboutButton = $Window.FindName("AboutButton")
 $GitHubButton = $Window.FindName("GitHubButton")
 $WebsiteButton = $Window.FindName("WebsiteButton")
 $ExitButton = $Window.FindName("ExitButton")
+
+# ============================================================
+# LOAD LOGO IMAGE
+# ============================================================
+
+$logoPath = Join-Path $Script:AssetsPath "images\Final-Logo_Soulitek (1).png"
+if (Test-Path $logoPath) {
+    try {
+        $logoUri = New-Object System.Uri((Resolve-Path $logoPath).Path)
+        $logoBitmap = New-Object System.Windows.Media.Imaging.BitmapImage($logoUri)
+        $Script:LogoImage.Source = $logoBitmap
+    }
+    catch {
+        Write-Warning "Failed to load logo image: $_"
+    }
+}
+else {
+    Write-Warning "Logo image not found at: $logoPath"
+}
 
 # ============================================================
 # EVENT HANDLERS

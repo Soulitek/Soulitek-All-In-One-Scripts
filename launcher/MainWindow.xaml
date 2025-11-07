@@ -159,30 +159,26 @@
                 </StackPanel>
             </Grid>
 
-            <!-- Header with Gradient -->
-            <Grid Grid.Row="1">
-                <Grid.Background>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                        <GradientStop Color="#667eea" Offset="0"/>
-                        <GradientStop Color="#764ba2" Offset="1"/>
-                    </LinearGradientBrush>
-                </Grid.Background>
-                
-                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                    <TextBlock Text="SouliTEK All-In-One Scripts" 
+            <!-- Header with White Background -->
+            <Grid Grid.Row="1" Background="White">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,15,0,15">
+                    <!-- SouliTEK Logo -->
+                    <Image Name="LogoImage" 
+                           Height="80" 
+                           Stretch="Uniform"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,15"/>
+                    
+                    <TextBlock Text="All-In-One Scripts" 
                               FontSize="32" 
                               FontWeight="Bold"
-                              Foreground="White"
-                              HorizontalAlignment="Center">
-                        <TextBlock.Effect>
-                            <DropShadowEffect ShadowDepth="2" BlurRadius="8" Opacity="0.5"/>
-                        </TextBlock.Effect>
-                    </TextBlock>
+                              Foreground="#1E293B"
+                              HorizontalAlignment="Center"
+                              Margin="0,0,0,5"/>
                     <TextBlock Text="Professional PowerShell Tools for IT Professionals" 
                               FontSize="14" 
-                              Foreground="#E0E7FF"
-                              HorizontalAlignment="Center"
-                              Margin="0,5,0,0"/>
+                              Foreground="#64748B"
+                              HorizontalAlignment="Center"/>
                 </StackPanel>
             </Grid>
 

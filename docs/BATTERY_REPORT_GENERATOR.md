@@ -26,3 +26,6 @@
 - When the energy phase is skipped due to insufficient privileges, users can re-run just that feature from an elevated session without repeating the full workflow.
 
 
+
+
+

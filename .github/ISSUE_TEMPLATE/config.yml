@@ -1,0 +1,15 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 📧 Support Email
+    url: mailto:letstalk@soulitek.co.il
+    about: Contact us directly for general support or questions
+  - name: 🌐 SouliTEK Website
+    url: https://www.soulitek.co.il
+    about: Visit our website for more information about our IT services
+  - name: 📚 Documentation
+    url: https://github.com/Soulitek/Soulitek-All-In-One-Scripts/tree/main/docs
+    about: Browse our comprehensive documentation
+  - name: 💬 Discussions
+    url: https://github.com/Soulitek/Soulitek-All-In-One-Scripts/discussions
+    about: Join the community discussion
+
