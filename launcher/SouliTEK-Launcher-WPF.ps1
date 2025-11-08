@@ -244,6 +244,16 @@ $Script:Tools = @(
         Color = "#06b6d4"
     },
     @{
+        Name = "Startup & Boot Time Analyzer"
+        Icon = "[⚡]"
+        IconPath = "cpu.png"
+        Description = "Analyze startup programs, boot performance, and get optimization recommendations with HTML reports"
+        Script = "startup_boot_analyzer.ps1"
+        Category = "Performance"
+        Tags = @("startup", "boot", "performance", "optimization", "services", "task scheduler", "analysis", "speed")
+        Color = "#f59e0b"
+    },
+    @{
         Name = "Temp Removal & Disk Cleanup"
         Icon = "[CL]"
         Description = "Remove temporary files, clean browser cache, empty Recycle Bin, and free up disk space"

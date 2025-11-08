@@ -28,9 +28,9 @@ iwr -useb get.soulitek.co.il | iex
 
 ---
 
-## 🛠️ Tools (17 Scripts)
+## 🛠️ Tools (18 Scripts)
 
-**Hardware:** Battery Report, Storage Health Monitor, RAM Slot Utilization, Disk Usage Analyzer  
+**Performance:** Startup & Boot Time Analyzer, Battery Report, Storage Health Monitor, RAM Slot Utilization, Disk Usage Analyzer  
 **Security:** BitLocker Status, USB Device Log  
 **M365:** PST Finder, License Expiration Checker, M365 User List  
 **Network:** WiFi Password Viewer, Network Test Tool, Network Configuration Tool  

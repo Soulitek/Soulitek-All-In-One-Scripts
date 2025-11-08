@@ -26,6 +26,7 @@ Welcome to the documentation hub for the SouliTEK All-In-One Scripts project.
 - **[USB Device Log](USB_DEVICE_LOG.md)** - Forensic USB analysis
 - **[BitLocker Status Report](BITLOCKER_STATUS_REPORT.md)** - Encryption monitoring
 - **[Chocolatey Installer](CHOCO_INSTALLER.md)** - Package management
+- **[Startup & Boot Time Analyzer](STARTUP_BOOT_ANALYZER.md)** - Startup performance analysis
 - **[Release Readiness Audit](RELEASE_READINESS_AUDIT_2025.md)** - Pre-publication security audit
 
 ## 🔗 Quick Links
