@@ -635,9 +635,9 @@ function Show-PerformanceSummary {
             Write-Host "  Trend: " -NoNewline
             if ($diff -lt -2) {
                 $absDiff = [math]::Abs($diff)
-                Write-Host "Improving (${absDiff}s faster)" -ForegroundColor Green
+                Write-Host "Improving ($absDiff seconds faster)" -ForegroundColor Green
             } elseif ($diff -gt 2) {
-                Write-Host "Degrading (+${diff}s slower)" -ForegroundColor Red
+                Write-Host "Degrading (+$diff seconds slower)" -ForegroundColor Red
             } else {
                 Write-Host "Stable" -ForegroundColor White
             }
@@ -661,7 +661,7 @@ function Show-PerformanceSummary {
     
     if ($highImpactCount -gt 0) {
         Write-Host "  High Impact: " -NoNewline
-        Write-Host "$highImpactCount (!)"-ForegroundColor Red
+        Write-Host "$highImpactCount (!)" -ForegroundColor Red
     }
     
     if ($mediumImpactCount -gt 0) {
@@ -1492,10 +1492,10 @@ function Show-BootTimeHistory {
             $diff = $duration - $previousDuration
             if ($diff -gt 3) {
                 $absDiff = [math]::Abs($diff)
-                $trendIndicator = "+${absDiff}s"
+                $trendIndicator = "+$absDiff" + "s"
             } elseif ($diff -lt -3) {
                 $absDiff = [math]::Abs($diff)
-                $trendIndicator = "-${absDiff}s"
+                $trendIndicator = "-$absDiff" + "s"
             } else {
                 $trendIndicator = "="
             }

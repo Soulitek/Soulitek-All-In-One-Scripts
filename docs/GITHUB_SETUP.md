@@ -392,7 +392,7 @@ https://github.com/YOUR_USERNAME/Soulitek-All-In-One-Scripts
 If you encounter any issues:
 1. Check the [Troubleshooting](#-troubleshooting) section above
 2. Search GitHub Docs: https://docs.github.com
-3. Contact SouliTEK: contact@soulitek.co.il
+3. Contact SouliTEK: letstalk@soulitek.co.il
 
 ---
 

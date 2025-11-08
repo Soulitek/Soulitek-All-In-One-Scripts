@@ -193,7 +193,7 @@ https://github.com/YOUR_USERNAME/Soulitek-All-In-One-Scripts
 1. **Detailed Guide:** See [GITHUB_SETUP.md](GITHUB_SETUP.md)
 2. **Git Issues:** https://docs.github.com
 3. **Project Issues:** https://github.com/YOUR_USERNAME/Soulitek-All-In-One-Scripts/issues
-4. **Contact:** contact@soulitek.co.il
+4. **Contact:** letstalk@soulitek.co.il
 
 ---
 
