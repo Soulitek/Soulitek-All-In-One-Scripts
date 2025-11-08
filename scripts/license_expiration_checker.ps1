@@ -84,8 +84,6 @@ function Show-Header {
     Write-Host ""
 }
 
-function Write-SouliTEKResult { param([string]$Message, [string]$Level = "INFO") Write-SouliTEKResult -Message $Message -Level $Level }
-
 function Get-FriendlySkuName {
     param([string]$SkuPartNumber)
     
@@ -150,7 +148,7 @@ function Connect-ToMicrosoftGraph {
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     
-    Write-SouliTEKResult "Checking Microsoft Graph PowerShell module..." -Level INFO
+    Write-Host "[Step 1/3] Installing/verifying Microsoft Graph modules..." -ForegroundColor Cyan
     Write-Host ""
     
     # Install required Microsoft Graph modules using centralized function
@@ -169,41 +167,68 @@ function Connect-ToMicrosoftGraph {
     }
     
     Write-Host ""
-    Write-SouliTEKResult "All required modules installed successfully" -Level "SUCCESS"
-    Write-Host ""
+    Write-Host "[+] All Microsoft Graph modules ready" -ForegroundColor Green
     
-    Write-SouliTEKResult "Connecting to Microsoft Graph..." -Level INFO
     Write-Host ""
-    Write-Host "A browser window will open for authentication..." -ForegroundColor Yellow
+    Write-Host "[Step 2/3] Checking existing connection..." -ForegroundColor Cyan
+    # Check if already connected
+    $context = Get-MgContext -ErrorAction SilentlyContinue
+    if ($context) {
+        Write-Host "          [+] Already connected to Microsoft Graph" -ForegroundColor Green
+        Write-Host "          Account: $($context.Account)" -ForegroundColor Gray
+        Write-Host "          Tenant: $($context.TenantId)" -ForegroundColor Gray
+        Write-Host ""
+        $Script:Connected = $true
+        Write-Host "============================================================" -ForegroundColor Green
+        Write-Host "  [+] Microsoft Graph Connected Successfully" -ForegroundColor Green
+        Write-Host "============================================================" -ForegroundColor Green
+        Write-Host ""
+        Write-Host "[*] Returning to main menu..." -ForegroundColor Cyan
+        Write-Host ""
+        Start-Sleep -Seconds 2
+        return $true
+    }
+    Write-Host "          No existing connection found" -ForegroundColor Yellow
+    
+    Write-Host ""
+    Write-Host "[Step 3/3] Initiating connection to Microsoft Graph..." -ForegroundColor Cyan
+    Write-Host "          This will open a browser window for authentication" -ForegroundColor Yellow
+    Write-Host "          Required permissions:" -ForegroundColor Gray
+    Write-Host "            - Organization.Read.All (read license information)" -ForegroundColor Gray
+    Write-Host ""
+    Write-Host "          Opening authentication browser window..." -ForegroundColor Cyan
     Write-Host ""
     
     try {
         # Connect with required scopes
         Connect-MgGraph -Scopes "Organization.Read.All" -ErrorAction Stop | Out-Null
         
+        Write-Host "          [+] Authentication successful!" -ForegroundColor Green
+        
         $context = Get-MgContext
         
         if ($context) {
+            Write-Host "          Connected as: $($context.Account)" -ForegroundColor Gray
+            Write-Host "          Tenant: $($context.TenantId)" -ForegroundColor Gray
             Write-Host ""
-            Write-SouliTEKResult "Successfully connected to Microsoft Graph" -Level SUCCESS
-            Write-Host ""
-            Write-Host "Connection Details:" -ForegroundColor Cyan
-            Write-Host "  Tenant ID: $($context.TenantId)" -ForegroundColor White
-            Write-Host "  Account: $($context.Account)" -ForegroundColor White
-            Write-Host "  Scopes: $($context.Scopes -join ', ')" -ForegroundColor Gray
+            Write-Host "============================================================" -ForegroundColor Green
+            Write-Host "  [+] Microsoft Graph Connected Successfully" -ForegroundColor Green
+            Write-Host "============================================================" -ForegroundColor Green
             Write-Host ""
             
             $Script:Connected = $true
             
-            Write-Host "============================================================" -ForegroundColor Cyan
-            Write-Host ""
-            Write-Host "[*] Connection established successfully" -ForegroundColor Green
             Write-Host "[*] Returning to main menu..." -ForegroundColor Cyan
             Write-Host ""
             Start-Sleep -Seconds 2
             return $true
         }
         else {
+            Write-Host ""
+            Write-Host "============================================================" -ForegroundColor Red
+            Write-Host "  [-] Microsoft Graph Connection Failed" -ForegroundColor Red
+            Write-Host "============================================================" -ForegroundColor Red
+            Write-Host ""
             Write-SouliTEKResult "Failed to establish connection" -Level ERROR
             Write-Host ""
             Read-Host "Press Enter to return to main menu"
@@ -211,12 +236,18 @@ function Connect-ToMicrosoftGraph {
         }
     }
     catch {
-        Write-SouliTEKResult "Connection failed: $_" -Level ERROR
         Write-Host ""
-        Write-Host "Possible reasons:" -ForegroundColor Yellow
-        Write-Host "  - Authentication was cancelled" -ForegroundColor Gray
-        Write-Host "  - Insufficient permissions" -ForegroundColor Gray
-        Write-Host "  - Network connectivity issue" -ForegroundColor Gray
+        Write-Host "============================================================" -ForegroundColor Red
+        Write-Host "  [-] Microsoft Graph Connection Failed" -ForegroundColor Red
+        Write-Host "============================================================" -ForegroundColor Red
+        Write-Host ""
+        Write-Warning "Connection failed: $($_.Exception.Message)"
+        Write-Host ""
+        Write-Host "Troubleshooting steps:" -ForegroundColor Yellow
+        Write-Host "  1. Check your internet connection" -ForegroundColor Gray
+        Write-Host "  2. Verify you have appropriate permissions (Global Administrator or Global Reader)" -ForegroundColor Gray
+        Write-Host "  3. Complete authentication in the browser window" -ForegroundColor Gray
+        Write-Host "  4. Try running the script again" -ForegroundColor Gray
         Write-Host ""
         Read-Host "Press Enter to return to main menu"
         return $false

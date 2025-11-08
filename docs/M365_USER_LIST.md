@@ -333,12 +333,6 @@ Files are saved to the Desktop by default (`%USERPROFILE%\Desktop`).
 
 ## Integration with Other Tools
 
-### M365 MFA Audit Tool
-
-- Use this tool to get comprehensive user information
-- Use M365 MFA Audit for detailed MFA policy analysis
-- Both tools complement each other for complete security audit
-
 ### License Expiration Checker
 
 - User list shows license assignments per user

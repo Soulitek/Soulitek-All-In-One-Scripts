@@ -130,15 +130,6 @@ $Script:Tools = @(
         Color = "#f59e0b"
     },
     @{
-        Name = "M365 MFA Audit"
-        Icon = "[A]"
-        Description = "Audit Microsoft 365 MFA status across all users with detailed reports and optional weekly email"
-        Script = "m365_mfa_audit.ps1"
-        Category = "M365"
-        Tags = @("mfa", "multifactor", "authentication", "microsoft", "365", "m365", "audit", "security", "report", "compliance")
-        Color = "#f59e0b"
-    },
-    @{
         Name = "M365 User List"
         Icon = "[U]"
         Description = "List all Microsoft 365 users with email, phone, MFA status, and comprehensive user information"

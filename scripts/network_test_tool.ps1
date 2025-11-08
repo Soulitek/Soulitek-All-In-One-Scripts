@@ -70,8 +70,6 @@ function Show-Header {
     Write-Host ""
 }
 
-function Write-SouliTEKResult { param([string]$Message, [string]$Level = "INFO") Write-SouliTEKResult -Message $Message -Level $Level }
-
 function Add-TestResult {
     param(
         [string]$TestType,

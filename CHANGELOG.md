@@ -58,18 +58,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Export sorted by size
   - Space optimization suggestions
 
-#### Tools - Security (3 tools)
+#### Tools - Security (2 tools)
 - 🔒 **BitLocker Status Report** - BitLocker encryption status and recovery keys
   - Encryption status for all volumes
   - Recovery password display
   - Protection method analysis
   - Export recovery keys securely
-  
-- 🔐 **M365 MFA Audit** - Microsoft 365 MFA status audit
-  - Complete MFA status across all users
-  - Detailed compliance reports
-  - Optional weekly email reports
-  - CSV/HTML export with statistics
   
 - 💽 **USB Device Log** - Forensic USB device history analysis
   - Complete USB connection history
@@ -176,7 +170,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Documentation
 - 📚 Created comprehensive README.md with quick start
-- 📖 Individual documentation for all 18 tools
+- 📖 Individual documentation for all 17 tools
 - 🚀 Installation guides (Quick Install, Deployment Guide)
 - 🌐 Vercel and custom domain setup documentation
 - 🔧 WPF Launcher user guide

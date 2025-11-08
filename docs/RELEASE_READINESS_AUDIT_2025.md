@@ -306,7 +306,6 @@ try {
 
 **Found:** PowerShellGet and Microsoft Graph module installation logic repeated in:
 - `scripts/m365_user_list.ps1`
-- `scripts/m365_mfa_audit.ps1`
 - `scripts/license_expiration_checker.ps1`
 
 **Recommendation:** Consider creating centralized `Install-SouliTEKModule` function in common module.

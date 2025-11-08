@@ -45,37 +45,33 @@ The following tools are currently using text-based icons (letters in brackets) a
    - *Suggested icon type:* License/document icon, calendar icon, alert/bell icon
    - *Purpose:* Monitor Microsoft 365 license subscriptions
 
-6. **M365 MFA Audit** - Currently: `[A]`
-   - *Suggested icon type:* Security shield, authentication icon, key icon
-   - *Purpose:* Audit Microsoft 365 MFA status across users
-
-7. **M365 User List** - Currently: `[U]`
+6. **M365 User List** - Currently: `[U]`
    - *Suggested icon type:* Users/people icon, directory icon, list icon
    - *Purpose:* List all Microsoft 365 users with details
 
 ### Support Category
-8. **Printer Spooler Fix** - Currently: `[P]`
+7. **Printer Spooler Fix** - Currently: `[P]`
    - *Suggested icon type:* Printer icon, print icon
    - *Purpose:* Comprehensive printer spooler troubleshooting
 
-9. **Event Log Analyzer** - Currently: `[E]`
+8. **Event Log Analyzer** - Currently: `[E]`
    - *Suggested icon type:* Log file icon, document icon, chart/graph icon
    - *Purpose:* Analyze Windows Event Logs with statistical summaries
 
-10. **System Restore Point** - Currently: `[T]`
-    - *Suggested icon type:* Restore/backup icon, clock icon, recovery icon
-    - *Purpose:* Create Windows System Restore Points
+9. **System Restore Point** - Currently: `[T]`
+   - *Suggested icon type:* Restore/backup icon, clock icon, recovery icon
+   - *Purpose:* Create Windows System Restore Points
 
-11. **Temp Removal & Disk Cleanup** - Currently: `[CL]`
+10. **Temp Removal & Disk Cleanup** - Currently: `[CL]`
     - *Suggested icon type:* Trash/cleanup icon, broom icon, disk icon
     - *Purpose:* Remove temporary files and clean up disk space
 
 ### Software Category
-12. **Chocolatey Installer** - Currently: `[C]`
+11. **Chocolatey Installer** - Currently: `[C]`
     - *Suggested icon type:* Package/box icon, installer icon, download icon
     - *Purpose:* Interactive package installer with Ninite-like UX
 
-**Total: 12 tools still need icons**
+**Total: 11 tools still need icons**
 
 ## Available Icons Not Yet Used
 
@@ -117,10 +113,10 @@ Example:
 
 ---
 
-**Last Updated:** 2025-11-05  
-**Total Tools:** 18  
+**Last Updated:** 2025-11-08  
+**Total Tools:** 17  
 **Tools with Icons:** 6  
-**Tools Needing Icons:** 12
+**Tools Needing Icons:** 11
 
 
 

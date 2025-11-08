@@ -124,8 +124,8 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="40"/>      <!-- Title bar -->
-                <RowDefinition Height="120"/>     <!-- Header -->
-                <RowDefinition Height="100"/>     <!-- Search & Filter -->
+                <RowDefinition Height="160"/>     <!-- Header -->
+                <RowDefinition Height="120"/>     <!-- Search & Filter -->
                 <RowDefinition Height="*"/>       <!-- Tools -->
                 <RowDefinition Height="50"/>      <!-- Status bar -->
                 <RowDefinition Height="70"/>      <!-- Buttons -->
@@ -173,11 +173,6 @@
                               FontSize="32" 
                               FontWeight="Bold"
                               Foreground="#1E293B"
-                              HorizontalAlignment="Center"
-                              Margin="0,0,0,5"/>
-                    <TextBlock Text="Professional PowerShell Tools for IT Professionals" 
-                              FontSize="14" 
-                              Foreground="#64748B"
                               HorizontalAlignment="Center"/>
                 </StackPanel>
             </Grid>
