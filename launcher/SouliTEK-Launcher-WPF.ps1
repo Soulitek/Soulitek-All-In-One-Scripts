@@ -261,6 +261,15 @@ $Script:Tools = @(
         Category = "Support"
         Tags = @("temp", "cleanup", "disk", "space", "browser", "cache", "recycle", "bin", "maintenance")
         Color = "#10b981"
+    },
+    @{
+        Name = "McAfee Removal Tool"
+        Icon = "[MCPR]"
+        Description = "Complete removal of McAfee products using MCPR (McAfee Consumer Product Removal) tool"
+        Script = "mcafee_removal_tool.ps1"
+        Category = "Support"
+        Tags = @("mcafee", "removal", "mcpr", "antivirus", "uninstall", "cleanup", "security", "removal tool")
+        Color = "#ef4444"
     }
 )
 
