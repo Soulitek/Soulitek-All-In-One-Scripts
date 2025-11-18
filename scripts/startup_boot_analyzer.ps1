@@ -569,9 +569,9 @@ function Show-PerformanceSummary {
     
     Clear-Host
     Write-Host ""
-    Write-Host "╔══════════════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-    Write-Host "║           BOOT PERFORMANCE SUMMARY                                   ║" -ForegroundColor Cyan
-    Write-Host "╚══════════════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+    Write-Host "====================================================================" -ForegroundColor Cyan
+    Write-Host "           BOOT PERFORMANCE SUMMARY" -ForegroundColor Cyan
+    Write-Host "====================================================================" -ForegroundColor Cyan
     Write-Host ""
     
     # Get last boot info
@@ -635,9 +635,9 @@ function Show-PerformanceSummary {
             Write-Host "  Trend: " -NoNewline
             if ($diff -lt -2) {
                 $absDiff = [math]::Abs($diff)
-                Write-Host "Improving ($absDiff seconds faster)" -ForegroundColor Green
+                Write-Host "Improving - $absDiff seconds faster" -ForegroundColor Green
             } elseif ($diff -gt 2) {
-                Write-Host "Degrading (+$diff seconds slower)" -ForegroundColor Red
+                Write-Host "Degrading - $diff seconds slower" -ForegroundColor Red
             } else {
                 Write-Host "Stable" -ForegroundColor White
             }
@@ -661,7 +661,7 @@ function Show-PerformanceSummary {
     
     if ($highImpactCount -gt 0) {
         Write-Host "  High Impact: " -NoNewline
-        Write-Host "$highImpactCount (!)" -ForegroundColor Red
+        Write-Host "$highImpactCount items" -ForegroundColor Red
     }
     
     if ($mediumImpactCount -gt 0) {
@@ -713,9 +713,11 @@ function Show-StartupItemsByCategory {
     
     # Startup Folder Items
     if ($folderItems.Count -gt 0) {
-        Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
-        Write-Host "STARTUP FOLDER ITEMS ($($folderItems.Count) found)" -ForegroundColor Cyan
-        Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
+        Write-Host "====================================================================" -ForegroundColor Cyan
+        Write-Host "STARTUP FOLDER ITEMS (" -NoNewline -ForegroundColor Cyan
+        Write-Host $folderItems.Count -NoNewline -ForegroundColor White
+        Write-Host " found)" -ForegroundColor Cyan
+        Write-Host "====================================================================" -ForegroundColor Cyan
         Write-Host ""
         
         foreach ($item in $folderItems) {
@@ -750,9 +752,11 @@ function Show-StartupItemsByCategory {
     
     # Task Scheduler Items
     if ($taskItems.Count -gt 0) {
-        Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
-        Write-Host "TASK SCHEDULER STARTUP ITEMS ($($taskItems.Count) found)" -ForegroundColor Cyan
-        Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
+        Write-Host "====================================================================" -ForegroundColor Cyan
+        Write-Host "TASK SCHEDULER STARTUP ITEMS (" -NoNewline -ForegroundColor Cyan
+        Write-Host $taskItems.Count -NoNewline -ForegroundColor White
+        Write-Host " found)" -ForegroundColor Cyan
+        Write-Host "====================================================================" -ForegroundColor Cyan
         Write-Host ""
         
         foreach ($item in $taskItems) {
@@ -793,9 +797,13 @@ function Show-StartupItemsByCategory {
             $_.Name -notmatch "Windows|Microsoft"
         }
         
-        Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
-        Write-Host "AUTO-START SERVICES ($($serviceItems.Count) total, showing $($nonMSServices.Count) non-Microsoft)" -ForegroundColor Cyan
-        Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
+        Write-Host "====================================================================" -ForegroundColor Cyan
+        Write-Host "AUTO-START SERVICES (" -NoNewline -ForegroundColor Cyan
+        Write-Host $serviceItems.Count -NoNewline -ForegroundColor White
+        Write-Host " total, showing " -NoNewline -ForegroundColor Cyan
+        Write-Host $nonMSServices.Count -NoNewline -ForegroundColor White
+        Write-Host " non-Microsoft)" -ForegroundColor Cyan
+        Write-Host "====================================================================" -ForegroundColor Cyan
         Write-Host ""
         
         if ($nonMSServices.Count -eq 0) {
@@ -805,10 +813,10 @@ function Show-StartupItemsByCategory {
         } else {
             foreach ($item in $nonMSServices) {
                 $impactIcon = switch ($item.Impact) {
-                    "High" { "🔴" }
-                    "Medium" { "🟡" }
-                    "Low" { "🟢" }
-                    default { "⚪" }
+                    "High" { "(HIGH)" }
+                    "Medium" { "(MED)" }
+                    "Low" { "(LOW)" }
+                    default { "(?)" }
                 }
                 
                 Write-Host "[$itemNumber] " -NoNewline -ForegroundColor White
@@ -835,9 +843,9 @@ function Show-OptimizationGuidance {
     
     if ($Recommendations.Count -eq 0) {
         Write-Host ""
-        Write-Host "╔══════════════════════════════════════════════════════════════════════╗" -ForegroundColor Green
-        Write-Host "║           OPTIMIZATION RECOMMENDATIONS                               ║" -ForegroundColor Green
-        Write-Host "╚══════════════════════════════════════════════════════════════════════╝" -ForegroundColor Green
+        Write-Host "====================================================================" -ForegroundColor Green
+        Write-Host "           OPTIMIZATION RECOMMENDATIONS" -ForegroundColor Green
+        Write-Host "====================================================================" -ForegroundColor Green
         Write-Host ""
         Write-Host "(OK) " -NoNewline -ForegroundColor Green
         Write-Host "Your system is well optimized!" -ForegroundColor White
@@ -847,9 +855,9 @@ function Show-OptimizationGuidance {
     }
     
     Write-Host ""
-    Write-Host "╔══════════════════════════════════════════════════════════════════════╗" -ForegroundColor Yellow
-    Write-Host "║           OPTIMIZATION RECOMMENDATIONS                               ║" -ForegroundColor Yellow
-    Write-Host "╚══════════════════════════════════════════════════════════════════════╝" -ForegroundColor Yellow
+    Write-Host "====================================================================" -ForegroundColor Yellow
+    Write-Host "           OPTIMIZATION RECOMMENDATIONS" -ForegroundColor Yellow
+    Write-Host "====================================================================" -ForegroundColor Yellow
     Write-Host ""
     
     $recNumber = 1
@@ -884,7 +892,7 @@ function Show-OptimizationGuidance {
         }
         
         Write-Host ""
-        Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
+        Write-Host "====================================================================" -ForegroundColor DarkGray
         Write-Host ""
         
         $recNumber++
@@ -1359,10 +1367,10 @@ function Show-MainMenu {
     #>
     Clear-Host
     Write-Host ""
-    Write-Host "╔══════════════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-    Write-Host "║      STARTUP PROGRAMS & BOOT TIME ANALYZER                           ║" -ForegroundColor Cyan
-    Write-Host "║      Coded by: Soulitek.co.il                                        ║" -ForegroundColor Cyan
-    Write-Host "╚══════════════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+    Write-Host "====================================================================" -ForegroundColor Cyan
+    Write-Host "      STARTUP PROGRAMS & BOOT TIME ANALYZER" -ForegroundColor Cyan
+    Write-Host "      Coded by: Soulitek.co.il" -ForegroundColor Cyan
+    Write-Host "====================================================================" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "[1] Analyze All Startup Items (Full Scan)" -ForegroundColor White
     Write-Host "[2] View Boot Time History & Trends" -ForegroundColor White
@@ -1380,9 +1388,9 @@ function Invoke-FullAnalysis {
     #>
     Clear-Host
     Write-Host ""
-    Write-Host "╔══════════════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-    Write-Host "║      ANALYZING STARTUP ITEMS...                                      ║" -ForegroundColor Cyan
-    Write-Host "╚══════════════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+    Write-Host "====================================================================" -ForegroundColor Cyan
+    Write-Host "      ANALYZING STARTUP ITEMS..." -ForegroundColor Cyan
+    Write-Host "====================================================================" -ForegroundColor Cyan
     Write-Host ""
     
     Write-Host "Scanning startup sources..." -ForegroundColor Cyan
@@ -1455,9 +1463,9 @@ function Show-BootTimeHistory {
     #>
     Clear-Host
     Write-Host ""
-    Write-Host "╔══════════════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-    Write-Host "║           BOOT TIME HISTORY (Last 30 Boots)                          ║" -ForegroundColor Cyan
-    Write-Host "╚══════════════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+    Write-Host "====================================================================" -ForegroundColor Cyan
+    Write-Host "           BOOT TIME HISTORY (Last 30 Boots)" -ForegroundColor Cyan
+    Write-Host "====================================================================" -ForegroundColor Cyan
     Write-Host ""
     
     $history = Get-BootTimeHistory
@@ -1478,7 +1486,7 @@ function Show-BootTimeHistory {
     
     # Display table
     Write-Host "Date & Time              | Duration | Source" -ForegroundColor White
-    Write-Host "─────────────────────────┼──────────┼────────────" -ForegroundColor DarkGray
+    Write-Host "-------------------------+----------+------------" -ForegroundColor DarkGray
     
     $previousDuration = $null
     foreach ($record in $history) {
@@ -1492,21 +1500,21 @@ function Show-BootTimeHistory {
             $diff = $duration - $previousDuration
             if ($diff -gt 3) {
                 $absDiff = [math]::Abs($diff)
-                $trendIndicator = "+$absDiff" + "s"
+                $trendIndicator = "+" + $absDiff + "s"
             } elseif ($diff -lt -3) {
                 $absDiff = [math]::Abs($diff)
-                $trendIndicator = "-$absDiff" + "s"
+                $trendIndicator = "-" + $absDiff + "s"
             } else {
-                $trendIndicator = "="
+                $trendIndicator = "stable"
             }
         }
         
         $durationColor = if ($duration -lt 30) { "Green" } elseif ($duration -lt 60) { "Yellow" } else { "Red" }
         
         Write-Host "$dateStr" -NoNewline -ForegroundColor White
-        Write-Host " | " -NoNewline -ForegroundColor DarkGray
+        Write-Host " - " -NoNewline -ForegroundColor DarkGray
         Write-Host "$duration sec " -NoNewline -ForegroundColor $durationColor
-        Write-Host " | " -NoNewline -ForegroundColor DarkGray
+        Write-Host " - " -NoNewline -ForegroundColor DarkGray
         Write-Host "$($record.Source)" -NoNewline -ForegroundColor Gray
         if ($trendIndicator) {
             Write-Host "  $trendIndicator" -ForegroundColor Gray
@@ -1553,16 +1561,17 @@ function Show-BootTimeHistory {
         
         Write-Host "  Last 7 boots: " -NoNewline
         if ($diff -lt -5) {
-            Write-Host "↓ Improving ($([math]::Abs($diff))s faster than average)" -ForegroundColor Green
+            $absDiffTrend = [math]::Abs($diff)
+            Write-Host "Improving - $absDiffTrend seconds faster than average" -ForegroundColor Green
         } elseif ($diff -gt 5) {
-            Write-Host "↑ Degrading (+$($diff)s slower than average)" -ForegroundColor Red
+            Write-Host ("Degrading - " + $diff + " seconds slower than average") -ForegroundColor Red
         } else {
-            Write-Host "→ Stable" -ForegroundColor White
+            Write-Host "Stable compared to average" -ForegroundColor White
         }
     }
     
     if ($history.Count -ge 30) {
-        Write-Host "  Last 30 boots: → Showing complete history" -ForegroundColor White
+        Write-Host "  Last 30 boots: full history available" -ForegroundColor White
     } else {
         Write-Host "  Total boots tracked: $($history.Count) (need 30 for full trend analysis)" -ForegroundColor Gray
     }
@@ -1597,9 +1606,9 @@ function Show-OptimizationRecommendations {
     # Check if analysis has been run
     if ($Global:AllStartupItems.Count -eq 0) {
         Write-Host ""
-        Write-Host "╔══════════════════════════════════════════════════════════════════════╗" -ForegroundColor Yellow
-        Write-Host "║           OPTIMIZATION RECOMMENDATIONS                               ║" -ForegroundColor Yellow
-        Write-Host "╚══════════════════════════════════════════════════════════════════════╝" -ForegroundColor Yellow
+        Write-Host "====================================================================" -ForegroundColor Yellow
+        Write-Host "           OPTIMIZATION RECOMMENDATIONS" -ForegroundColor Yellow
+        Write-Host "====================================================================" -ForegroundColor Yellow
         Write-Host ""
         Write-Host "No startup items loaded yet." -ForegroundColor Yellow
         Write-Host "Please run 'Analyze All Startup Items' (Option 1) first." -ForegroundColor Gray
@@ -1625,9 +1634,9 @@ function Invoke-ExportReport {
     #>
     Clear-Host
     Write-Host ""
-    Write-Host "╔══════════════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-    Write-Host "║           EXPORT FULL REPORT TO HTML                                 ║" -ForegroundColor Cyan
-    Write-Host "╚══════════════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+    Write-Host "====================================================================" -ForegroundColor Cyan
+    Write-Host "           EXPORT FULL REPORT TO HTML" -ForegroundColor Cyan
+    Write-Host "====================================================================" -ForegroundColor Cyan
     Write-Host ""
     
     # Check if analysis has been run
