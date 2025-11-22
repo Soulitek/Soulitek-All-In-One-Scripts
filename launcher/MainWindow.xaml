@@ -206,6 +206,7 @@
                               Margin="0,0,10,0"
                               Foreground="#64748B"/>
                     <Button Name="BtnCatAll" Content="All" Style="{StaticResource CategoryButton}" Width="100"/>
+                    <Button Name="BtnCatSetup" Content="Setup" Style="{StaticResource CategoryButton}" Width="100"/>
                     <Button Name="BtnCatNetwork" Content="Network" Style="{StaticResource CategoryButton}" Width="100"/>
                     <Button Name="BtnCatSecurity" Content="Security" Style="{StaticResource CategoryButton}" Width="100"/>
                     <Button Name="BtnCatSupport" Content="Support" Style="{StaticResource CategoryButton}" Width="100"/>
