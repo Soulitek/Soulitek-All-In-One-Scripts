@@ -270,6 +270,15 @@ $Script:Tools = @(
         Category = "Support"
         Tags = @("mcafee", "removal", "mcpr", "antivirus", "uninstall", "cleanup", "security", "removal tool")
         Color = "#ef4444"
+    },
+    @{
+        Name = "Win11Debloat"
+        Icon = "[W11]"
+        Description = "Remove bloatware, disable telemetry, and optimize Windows 10/11 systems using Win11Debloat by Raphire"
+        Script = "win11_debloat.ps1"
+        Category = "Software"
+        Tags = @("debloat", "bloatware", "telemetry", "optimization", "windows", "privacy", "cleanup", "registry", "win11", "win10")
+        Color = "#8b5cf6"
     }
 )
 

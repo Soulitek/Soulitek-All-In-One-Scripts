@@ -32,6 +32,8 @@ if (Test-Path $CommonPath) {
 $Script:UserData = @()
 $Script:OutputFolder = $OutputFolder
 $Script:Connected = $false
+$Script:TenantDomain = "Unknown"
+$Script:TenantName = "Unknown"
 
 function Show-Header {
 	param([string]$Title = "Microsoft 365 User List", [ConsoleColor]$Color = 'Cyan')
@@ -91,19 +93,73 @@ function Connect-ToMicrosoftGraph {
 	Write-Host "[+] All Microsoft Graph modules ready" -ForegroundColor Green
 	
 	try {
+	Write-Host ""
+	Write-Host "[Step 2/4] Checking existing connection..." -ForegroundColor Cyan
+	# Check if already connected
+	$context = Get-MgContext -ErrorAction SilentlyContinue
+	if ($context) {
+		Write-Host "          [+] Already connected to Microsoft Graph" -ForegroundColor Green
+		Write-Host "          Account: $($context.Account)" -ForegroundColor Gray
+		Write-Host "          Tenant: $($context.TenantId)" -ForegroundColor Gray
+		
+		# Get organization/domain information if not already set
+		if ($Script:TenantDomain -eq "Unknown") {
+			try {
+				$org = Get-MgOrganization -ErrorAction Stop | Select-Object -First 1
+				if ($org) {
+					$Script:TenantName = if ($org.DisplayName) { $org.DisplayName } else { "Unknown" }
+					$Script:TenantDomain = if ($org.VerifiedDomains) { 
+						($org.VerifiedDomains | Where-Object { $_.IsDefault -eq $true }).Name 
+					} else { 
+						"Unknown" 
+					}
+				}
+			} catch {
+				# Silent fail - not critical
+			}
+		}
+		if ($Script:TenantDomain -ne "Unknown") {
+			Write-Host "          Organization: $($Script:TenantName)" -ForegroundColor Gray
+			Write-Host "          Domain: $($Script:TenantDomain)" -ForegroundColor Gray
+		}
 		Write-Host ""
-		Write-Host "[Step 2/4] Checking existing connection..." -ForegroundColor Cyan
-		# Check if already connected
-		$context = Get-MgContext -ErrorAction SilentlyContinue
-		if ($context) {
-			Write-Host "          [+] Already connected to Microsoft Graph" -ForegroundColor Green
-			Write-Host "          Account: $($context.Account)" -ForegroundColor Gray
-			Write-Host "          Tenant: $($context.TenantId)" -ForegroundColor Gray
-			Write-Host ""
+		Write-Host "------------------------------------------------------------" -ForegroundColor Yellow
+		Write-Host "Would you like to:" -ForegroundColor Yellow
+		Write-Host "  1. Keep current connection" -ForegroundColor White
+		Write-Host "  2. Disconnect and connect to a different tenant" -ForegroundColor White
+		Write-Host ""
+		Write-Host "Select option (1-2): " -NoNewline -ForegroundColor Cyan
+		$reconnectChoice = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+		Write-Host $reconnectChoice.Character
+		Write-Host ""
+		
+		if ($reconnectChoice.Character -eq '2') {
+			Write-Host "Disconnecting from current tenant..." -ForegroundColor Yellow
+			try {
+				Disconnect-MgGraph -ErrorAction SilentlyContinue | Out-Null
+				$Script:Connected = $false
+				$Script:TenantDomain = "Unknown"
+				$Script:TenantName = "Unknown"
+				Write-Host "[+] Disconnected successfully" -ForegroundColor Green
+				Write-Host ""
+				# Continue to new connection below
+			} catch {
+				Write-Warning "Disconnect failed: $($_.Exception.Message)"
+				Write-Host ""
+				Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+				$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+				return $false
+			}
+		} else {
+			Write-Host "[+] Using existing connection" -ForegroundColor Green
 			$Script:Connected = $true
+			Write-Host ""
+			Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+			$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 			return $true
 		}
-		Write-Host "          No existing connection found" -ForegroundColor Yellow
+	}
+	Write-Host "          No existing connection found" -ForegroundColor Yellow
 		
 		Write-Host ""
 		Write-Host "[Step 3/3] Initiating connection to Microsoft Graph..." -ForegroundColor Cyan
@@ -124,6 +180,26 @@ function Connect-ToMicrosoftGraph {
 		$context = Get-MgContext
 		Write-Host "          Connected as: $($context.Account)" -ForegroundColor Gray
 		Write-Host "          Tenant: $($context.TenantId)" -ForegroundColor Gray
+		
+		# Get organization/domain information
+		Write-Host ""
+		Write-Host "[Step 4/4] Retrieving organization details..." -ForegroundColor Cyan
+		try {
+			$org = Get-MgOrganization -ErrorAction Stop | Select-Object -First 1
+			if ($org) {
+				$Script:TenantName = if ($org.DisplayName) { $org.DisplayName } else { "Unknown" }
+				$Script:TenantDomain = if ($org.VerifiedDomains) { 
+					($org.VerifiedDomains | Where-Object { $_.IsDefault -eq $true }).Name 
+				} else { 
+					"Unknown" 
+				}
+				Write-Host "          Organization: $($Script:TenantName)" -ForegroundColor Gray
+				Write-Host "          Domain: $($Script:TenantDomain)" -ForegroundColor Gray
+			}
+		} catch {
+			Write-Warning "Could not retrieve organization details: $($_.Exception.Message)"
+		}
+		
 		Write-Host ""
 		Write-Host "============================================================" -ForegroundColor Green
 		Write-Host "  [+] Microsoft Graph Connected Successfully" -ForegroundColor Green
@@ -211,6 +287,68 @@ function Get-UserLicenses {
 		return "$licenseCount license(s)"
 	}
 	return "No licenses"
+}
+
+function Disconnect-FromMicrosoftGraph {
+	Show-Header "Disconnect from Microsoft 365"
+	
+	if (-not $Script:Connected) {
+		Write-Host "Not currently connected to Microsoft Graph." -ForegroundColor Yellow
+		Write-Host ""
+		Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+		$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+		return
+	}
+	
+	Write-Host "Current connection:" -ForegroundColor Cyan
+	Write-Host ""
+	if ($Script:TenantDomain -ne "Unknown") {
+		Write-Host "  Organization: $($Script:TenantName)" -ForegroundColor Gray
+		Write-Host "  Domain: $($Script:TenantDomain)" -ForegroundColor Gray
+	}
+	$context = Get-MgContext -ErrorAction SilentlyContinue
+	if ($context) {
+		Write-Host "  Account: $($context.Account)" -ForegroundColor Gray
+		Write-Host "  Tenant: $($context.TenantId)" -ForegroundColor Gray
+	}
+	Write-Host ""
+	Write-Host "------------------------------------------------------------" -ForegroundColor Yellow
+	Write-Host "Are you sure you want to disconnect? (Y/N): " -NoNewline -ForegroundColor Yellow
+	$confirm = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+	Write-Host $confirm.Character
+	Write-Host ""
+	
+	if ($confirm.Character -eq 'Y' -or $confirm.Character -eq 'y') {
+		try {
+			Write-Host "Disconnecting from Microsoft Graph..." -ForegroundColor Cyan
+			Disconnect-MgGraph -ErrorAction Stop | Out-Null
+			$Script:Connected = $false
+			$Script:TenantDomain = "Unknown"
+			$Script:TenantName = "Unknown"
+			$Script:UserData = @()
+			Write-Host ""
+			Write-Host "============================================================" -ForegroundColor Green
+			Write-Host "  [+] Disconnected Successfully" -ForegroundColor Green
+			Write-Host "============================================================" -ForegroundColor Green
+			Write-Host ""
+			Write-Host "User data has been cleared." -ForegroundColor Gray
+			Write-Host ""
+		} catch {
+			Write-Host ""
+			Write-Host "============================================================" -ForegroundColor Red
+			Write-Host "  [-] Disconnect Failed" -ForegroundColor Red
+			Write-Host "============================================================" -ForegroundColor Red
+			Write-Host ""
+			Write-Warning "Disconnect failed: $($_.Exception.Message)"
+			Write-Host ""
+		}
+	} else {
+		Write-Host "Disconnect cancelled." -ForegroundColor Yellow
+		Write-Host ""
+	}
+	
+	Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+	$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
 function Get-AllUsers {
@@ -329,6 +467,11 @@ function Show-UserSummary {
 	Write-Host "SUMMARY STATISTICS" -ForegroundColor Cyan
 	Write-Host "------------------------------------------------------------" -ForegroundColor Gray
 	Write-Host ""
+	if ($Script:TenantDomain -ne "Unknown") {
+		Write-SummaryLine "Organization" $Script:TenantName "Cyan"
+		Write-SummaryLine "Domain" $Script:TenantDomain "Cyan"
+		Write-Host ""
+	}
 	Write-SummaryLine "Total Users" $Script:UserData.Count "White"
 	Write-SummaryLine "Enabled Accounts" "$enabledUsers ($([math]::Round(($enabledUsers / $Script:UserData.Count) * 100, 2))%)" "Green"
 	Write-SummaryLine "Disabled Accounts" "$disabledUsers ($([math]::Round(($disabledUsers / $Script:UserData.Count) * 100, 2))%)" "Yellow"
@@ -384,6 +527,10 @@ function Export-UserListTxt {
 		$output += "============================================================"
 		$output += "Microsoft 365 User List Report"
 		$output += "Generated: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
+		if ($Script:TenantDomain -ne "Unknown") {
+			$output += "Organization: $($Script:TenantName)"
+			$output += "Domain: $($Script:TenantDomain)"
+		}
 		$output += "Total Users: $($Script:UserData.Count)"
 		$output += "============================================================"
 		$output += ""
@@ -587,6 +734,7 @@ h2 { color: #4a5568; margin-top: 30px; }
 		<h1>Microsoft 365 User List Report</h1>
 		<div class="meta">
 			<strong>Generated:</strong> $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')<br>
+			$(if ($Script:TenantDomain -ne "Unknown") { "<strong>Organization:</strong> $($Script:TenantName)<br><strong>Domain:</strong> $($Script:TenantDomain)<br>" })
 			<strong>Total Users:</strong> $($Script:UserData.Count)
 		</div>
 		$statsHtml
@@ -682,15 +830,21 @@ function Show-Help {
 	Write-Host "  1. Connect to Microsoft Graph" -ForegroundColor White
 	Write-Host "     - First-time users will need to authenticate via browser" -ForegroundColor Gray
 	Write-Host "     - Grant permissions when prompted" -ForegroundColor Gray
+	Write-Host "     - If already connected, you can keep or switch tenants" -ForegroundColor Gray
 	Write-Host ""
-	Write-Host "  2. Retrieve Users" -ForegroundColor White
+	Write-Host "  2. Disconnect from Current Tenant" -ForegroundColor White
+	Write-Host "     - Disconnects from the current Microsoft 365 tenant" -ForegroundColor Gray
+	Write-Host "     - Clears all cached user data" -ForegroundColor Gray
+	Write-Host "     - Use this to switch to a different tenant" -ForegroundColor Gray
+	Write-Host ""
+	Write-Host "  3. Retrieve Users" -ForegroundColor White
 	Write-Host "     - Fetches all users from your Microsoft 365 tenant" -ForegroundColor Gray
 	Write-Host "     - May take a few moments for large tenants" -ForegroundColor Gray
 	Write-Host ""
-	Write-Host "  3. View Summary" -ForegroundColor White
+	Write-Host "  4. View Summary" -ForegroundColor White
 	Write-Host "     - Displays statistics and top 10 users" -ForegroundColor Gray
 	Write-Host ""
-	Write-Host "  4. Export Reports" -ForegroundColor White
+	Write-Host "  5. Export Reports" -ForegroundColor White
 	Write-Host "     - TXT: Human-readable text format" -ForegroundColor Gray
 	Write-Host "     - CSV: Spreadsheet format for Excel/Google Sheets" -ForegroundColor Gray
 	Write-Host "     - HTML: Professional web report with styling" -ForegroundColor Gray
@@ -723,23 +877,30 @@ function Show-Menu {
 	
 	Write-Host "Connection Status: " -NoNewline -ForegroundColor Gray
 	Write-Host "$status" -ForegroundColor $statusColor
+	if ($Script:Connected -and $Script:TenantDomain -ne "Unknown") {
+		Write-Host "Organization: " -NoNewline -ForegroundColor Gray
+		Write-Host "$($Script:TenantName)" -ForegroundColor Cyan
+		Write-Host "Domain: " -NoNewline -ForegroundColor Gray
+		Write-Host "$($Script:TenantDomain)" -ForegroundColor Cyan
+	}
 	Write-Host "User Data: " -NoNewline -ForegroundColor Gray
 	Write-Host "$($Script:UserData.Count) users$userCount" -ForegroundColor $(if ($Script:UserData.Count -gt 0) { "Green" } else { "Yellow" })
 	Write-Host ""
 	Write-Host "============================================================" -ForegroundColor Cyan
 	Write-Host ""
 	Write-Host "  1. Connect to Microsoft Graph" -ForegroundColor White
-	Write-Host "  2. Retrieve All Users" -ForegroundColor White
-	Write-Host "  3. View User Summary" -ForegroundColor White
-	Write-Host "  4. Export Report - TXT Format" -ForegroundColor White
-	Write-Host "  5. Export Report - CSV Format" -ForegroundColor White
-	Write-Host "  6. Export Report - HTML Format" -ForegroundColor White
-	Write-Host "  7. Help & Information" -ForegroundColor White
-	Write-Host "  8. Exit" -ForegroundColor White
+	Write-Host "  2. Disconnect from Current Tenant" -ForegroundColor White
+	Write-Host "  3. Retrieve All Users" -ForegroundColor White
+	Write-Host "  4. View User Summary" -ForegroundColor White
+	Write-Host "  5. Export Report - TXT Format" -ForegroundColor White
+	Write-Host "  6. Export Report - CSV Format" -ForegroundColor White
+	Write-Host "  7. Export Report - HTML Format" -ForegroundColor White
+	Write-Host "  8. Help & Information" -ForegroundColor White
+	Write-Host "  9. Exit" -ForegroundColor White
 	Write-Host ""
 	Write-Host "============================================================" -ForegroundColor Cyan
 	Write-Host ""
-	Write-Host "Please select an option (1-8): " -NoNewline -ForegroundColor Yellow
+	Write-Host "Please select an option (1-9): " -NoNewline -ForegroundColor Yellow
 }
 
 # ============================================================
@@ -771,19 +932,20 @@ while ($true) {
 	
 	switch ($choice.Character) {
 		'1' { Connect-ToMicrosoftGraph }
-		'2' { Get-AllUsers }
-		'3' { Show-UserSummary }
-		'4' { Export-UserListTxt }
-		'5' { Export-UserListCsv }
-		'6' { Export-UserListHtml }
-		'7' { Show-Help }
-		'8' {
+		'2' { Disconnect-FromMicrosoftGraph }
+		'3' { Get-AllUsers }
+		'4' { Show-UserSummary }
+		'5' { Export-UserListTxt }
+		'6' { Export-UserListCsv }
+		'7' { Export-UserListHtml }
+		'8' { Show-Help }
+		'9' {
 			Show-ExitMessage
 			exit
 		}
 		default {
 			Write-Host ""
-			Write-Host "Invalid option. Please select 1-8." -ForegroundColor Red
+			Write-Host "Invalid option. Please select 1-9." -ForegroundColor Red
 			Write-Host ""
 			Write-Host "Press any key to continue..." -ForegroundColor Cyan
 			$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
