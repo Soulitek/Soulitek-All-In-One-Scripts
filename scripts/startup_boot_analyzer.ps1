@@ -1751,6 +1751,10 @@ while ($true) {
             Write-Host "Thank you for using SouliTEK Startup & Boot Time Analyzer!" -ForegroundColor Cyan
             Write-Host "Visit www.soulitek.co.il for more professional IT solutions." -ForegroundColor Gray
             Write-Host ""
+            
+            # Self-destruct: Remove script file after execution
+            Invoke-SouliTEKSelfDestruct -ScriptPath $PSCommandPath -Silent
+            
             exit
         }
         default {

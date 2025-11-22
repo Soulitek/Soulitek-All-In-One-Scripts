@@ -916,6 +916,9 @@ function Show-ExitMessage {
 		}
 	} catch { }
 	
+	# Self-destruct: Remove script file after execution
+	Invoke-SouliTEKSelfDestruct -ScriptPath $PSCommandPath -Silent
+	
 	Clear-Host
 	Write-Host ""
 	Write-Host "Thank you for using SouliTEK Microsoft 365 User List Tool!" -ForegroundColor Cyan

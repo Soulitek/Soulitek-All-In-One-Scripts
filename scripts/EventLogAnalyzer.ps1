@@ -1714,6 +1714,10 @@ function Invoke-MainMenu {
                 Write-Host "Thank you for using SouliTEK EventLogAnalyzer!" -ForegroundColor Green
                 Write-Host "Website: www.soulitek.co.il" -ForegroundColor Cyan
                 Write-Host ""
+                
+                # Self-destruct: Remove script file after execution
+                Invoke-SouliTEKSelfDestruct -ScriptPath $PSCommandPath -Silent
+                
                 exit 0
             }
             default {

@@ -289,6 +289,72 @@ function Write-SouliTEKError {
 # MODULE MANAGEMENT FUNCTIONS
 # ============================================================
 
+function Invoke-SouliTEKSelfDestruct {
+    <#
+    .SYNOPSIS
+        Deletes the current script file after execution (self-destruct).
+    
+    .DESCRIPTION
+        This function deletes the script file that is currently running.
+        It is designed to be called when scripts are deployed to client PCs
+        and should clean up after execution. The deletion is performed with
+        a slight delay to ensure the script can complete its exit routine.
+    
+    .PARAMETER ScriptPath
+        The full path to the script file to delete. Typically $PSCommandPath.
+    
+    .PARAMETER Silent
+        If specified, suppresses confirmation prompts.
+    
+    .EXAMPLE
+        Invoke-SouliTEKSelfDestruct -ScriptPath $PSCommandPath
+        Deletes the current script file after a brief delay.
+    #>
+    
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$ScriptPath,
+        
+        [Parameter(Mandatory = $false)]
+        [switch]$Silent
+    )
+    
+    try {
+        if (-not (Test-Path $ScriptPath)) {
+            Write-SouliTEKWarning "Script file not found: $ScriptPath"
+            return
+        }
+        
+        if (-not $Silent) {
+            Write-Host ""
+            Write-Host "========================================" -ForegroundColor Yellow
+            Write-Host "  CLEANUP IN PROGRESS" -ForegroundColor Yellow
+            Write-Host "========================================" -ForegroundColor Yellow
+            Write-Host ""
+            Write-Host "This script will now remove itself from the system..." -ForegroundColor Cyan
+            Write-Host ""
+        }
+        
+        # Create a self-deleting command that will execute after the script exits
+        $deleteCommand = @"
+Start-Sleep -Seconds 2
+Remove-Item -Path '$ScriptPath' -Force -ErrorAction SilentlyContinue
+"@
+        
+        # Execute the deletion command in a new hidden process
+        $encodedCommand = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($deleteCommand))
+        Start-Process powershell.exe -ArgumentList "-WindowStyle Hidden -EncodedCommand $encodedCommand" -NoNewWindow
+        
+        if (-not $Silent) {
+            Write-SouliTEKSuccess "Cleanup scheduled successfully"
+            Write-Host ""
+        }
+    }
+    catch {
+        Write-SouliTEKError "Failed to schedule cleanup: $($_.Exception.Message)"
+    }
+}
+
 function Install-SouliTEKModule {
     <#
     .SYNOPSIS

@@ -2,14 +2,24 @@
 
 **Date:** 2025-11-22  
 **Project Status:** Production Ready - v1.0.2  
-**Current Task:** Adding 1-Click PC Install Tool
+**Current Task:** Adding Self-Destruction Feature to Scripts
 
 ---
 
 ## Current Status
 
 ✅ **Project Ready for Publication**  
-🆕 **New Tool Added: 1-Click PC Install**
+✅ **Self-Destruction Feature Implemented**
+
+### Latest Completion
+- **Feature:** Self-destruction capability added to all scripts
+- **Purpose:** Scripts delete themselves after execution when run locally on client PCs
+- **Trigger:** Executes before user exits (when clicking option 0 or Exit)
+- **Scope:** All 20 scripts in the scripts/ directory + common module
+- **Implementation:** 
+  - Added `Invoke-SouliTEKSelfDestruct` function to common module
+  - Updated all 20 scripts to call self-destruct on exit
+  - Silent execution with 2-second delay for clean termination
 
 ### Completed
 - ✅ All 21 tools developed and tested
@@ -18,8 +28,16 @@
 - ✅ WPF launcher functional
 - ✅ Installation system ready
 - ✅ No PII or security issues
+- ✅ Self-destruction feature implemented (2025-11-22)
 
 ### Recent Changes (2025-11-22)
+- ✅ **Self-Destruction Feature** (Latest)
+  - Added `Invoke-SouliTEKSelfDestruct` to common module
+  - All scripts now self-delete after execution on client PCs
+  - Silent operation with hidden background process
+  - 2-second delay ensures clean script termination
+  - Applies to all 20 scripts in the scripts/ directory
+
 - ✅ 1-Click PC Install Tool implemented (21st tool)
 - ✅ Complete PC setup automation
 - ✅ Time zone configuration (Jerusalem)
@@ -97,12 +115,14 @@
 
 ## Next Steps
 
-1. **Test 1-Click PC Install Tool** - Verify script works on clean Windows installations
-2. **Add to WPF Launcher** - Integrate into GUI launcher (Setup category)
-3. **Update Documentation** - Create user guide for 1-Click PC Install
-4. **Publish to GitHub** - Push v1.0.2 release with new tool
-5. **User Testing** - Gather feedback from technicians using the tool
-6. **Monitor Issues** - Address any reported bugs
+1. **Test Self-Destruct Feature** - Verify scripts self-delete properly on client PCs
+2. **Integration Testing** - Test all 20 scripts with self-destruct functionality
+3. **Test 1-Click PC Install Tool** - Verify script works on clean Windows installations
+4. **Add to WPF Launcher** - Integrate into GUI launcher (Setup category)
+5. **Update Documentation** - Create user guide for 1-Click PC Install
+6. **Publish to GitHub** - Push v1.0.2 release with new features
+7. **User Testing** - Gather feedback from technicians using the tools
+8. **Monitor Issues** - Address any reported bugs
 
 ---
 

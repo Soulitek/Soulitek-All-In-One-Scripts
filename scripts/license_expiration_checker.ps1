@@ -1373,6 +1373,9 @@ function Show-ExitMessage {
     # Disconnect if connected
     Disconnect-FromMicrosoftGraph
     
+    # Self-destruct: Remove script file after execution
+    Invoke-SouliTEKSelfDestruct -ScriptPath $PSCommandPath -Silent
+    
     Clear-Host
     Write-Host ""
     Write-Host "Thank you for using SouliTEK License Expiration Checker!" -ForegroundColor Cyan

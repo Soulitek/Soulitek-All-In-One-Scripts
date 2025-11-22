@@ -316,6 +316,9 @@ function Show-ExitMessage {
     Write-Host ""
     Write-Host "Website: www.soulitek.co.il" -ForegroundColor Yellow
     Write-Host ""
+    
+    # Self-destruct: Remove script file after execution
+    Invoke-SouliTEKSelfDestruct -ScriptPath $PSCommandPath -Silent
 }
 
 function Start-MainLoop {
