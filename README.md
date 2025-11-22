@@ -28,8 +28,9 @@ iwr -useb get.soulitek.co.il | iex
 
 ---
 
-## 🛠️ Tools (20 Scripts)
+## 🛠️ Tools (21 Scripts)
 
+**Setup:** 1-Click PC Install  
 **Performance:** Startup & Boot Time Analyzer, Battery Report, Storage Health Monitor, RAM Slot Utilization, Disk Usage Analyzer  
 **Security:** BitLocker Status, USB Device Log  
 **M365:** PST Finder, License Expiration Checker, M365 User List  

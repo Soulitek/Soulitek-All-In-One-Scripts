@@ -94,6 +94,15 @@ $Script:CurrentCategory = "All"
 # Tool definitions
 $Script:Tools = @(
     @{
+        Name = "1-Click PC Install"
+        Icon = "[1C]"
+        Description = "Complete PC setup automation - Configure time zone, regional settings, updates, power plan, bloatware removal, and install essential software"
+        Script = "1-click_pc_install.ps1"
+        Category = "Setup"
+        Tags = @("setup", "install", "automation", "configure", "timezone", "regional", "updates", "power", "bloatware", "chrome", "anydesk", "office", "winget", "restore point")
+        Color = "#10b981"
+    },
+    @{
         Name = "Battery Report Generator"
         Icon = "[B]"
         Description = "Generate comprehensive battery health reports for laptops"
@@ -196,12 +205,12 @@ $Script:Tools = @(
         Color = "#8b5cf6"
     },
     @{
-        Name = "Chocolatey Installer"
-        Icon = "[C]"
-        Description = "Interactive package installer with Ninite-like UX - Install apps via Chocolatey"
-        Script = "SouliTEK-Choco-Installer.ps1"
+        Name = "WinGet Package Installer"
+        Icon = "[W]"
+        Description = "Interactive package installer - Install essential business apps via WinGet"
+        Script = "SouliTEK-WinGet-Installer.ps1"
         Category = "Software"
-        Tags = @("chocolatey", "installer", "software", "packages", "apps", "install")
+        Tags = @("winget", "installer", "software", "packages", "apps", "install", "microsoft", "package manager")
         Color = "#10b981"
     },
     @{
