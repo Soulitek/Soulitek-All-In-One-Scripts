@@ -222,14 +222,21 @@ DETAILED TASK LOG
 - **Safety:** Only removes non-essential apps
 
 ### 7-9. Install Applications
-- **Duration:** 5-15 minutes per app
+- **Duration:** 5-15 minutes per app (max 7 minutes per app)
 - **Applications:**
   - **Google Chrome:** Latest stable version
   - **AnyDesk:** Latest stable version
   - **Microsoft Office:** Latest version available
-- **Method:** WinGet package manager
-- **Note:** Office may require manual installation
+- **Method:** WinGet package manager with enhanced timeout protection
+- **Features:**
+  - 7-minute timeout per application
+  - Real-time progress indicators (dots every 2 seconds)
+  - Time remaining updates every 30 seconds
+  - Automatic process termination if timeout occurs
+  - Detailed installation logs for troubleshooting
+  - Clear user guidance if manual installation needed
 - **Optimized:** No pre-installation checks (designed for new PCs)
+- **Note:** If timeout occurs, manual installation instructions are provided
 
 ### 10. Create Desktop Shortcuts
 - **Duration:** ~2 seconds
@@ -344,6 +351,27 @@ $bloatwareApps = @(
 2. Install manually from: https://www.office.com/setup
 3. Or use your organization's Office deployment method
 
+### Application Installation Timeout
+**Warning:** "Installation timeout after 7 minutes"
+
+**Cause:**
+- Slow internet connection
+- Large download size
+- WinGet server delays
+- Network connectivity issues
+
+**Solution:**
+1. The script automatically terminates the hung process
+2. Check your internet connection speed
+3. Follow the provided manual installation command
+4. Example: `winget install --id Google.Chrome`
+5. Or download directly from the software vendor's website
+
+**Prevention:**
+- Ensure stable, fast internet connection before running
+- Consider running during off-peak hours for better speeds
+- Use wired connection instead of WiFi if possible
+
 ## Output Files
 
 ### Installation Summary
@@ -442,6 +470,16 @@ When reporting issues, include:
 5. Steps to reproduce
 
 ## Version History
+
+### v1.0.2 (2025-11-22)
+- Enhanced WinGet installation with timeout protection
+- Added 7-minute timeout per application installation
+- Real-time progress indicators with dots and time remaining
+- Automatic process termination on timeout
+- Installation log capture for troubleshooting
+- Better error handling with specific exit code recognition
+- Clear user guidance for manual installation when needed
+- Prevents indefinite hanging during app installations
 
 ### v1.0.1 (2025-11-22)
 - Optimized for new PC installations

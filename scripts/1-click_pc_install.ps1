@@ -459,24 +459,129 @@ function Install-WinGetApplication {
         [string]$AppName,
         
         [Parameter(Mandatory = $true)]
-        [string]$WinGetId
+        [string]$WinGetId,
+        
+        [Parameter(Mandatory = $false)]
+        [int]$TimeoutMinutes = 7
     )
     
     Write-Host "  [*] Installing $AppName..." -ForegroundColor Cyan
+    Write-Host "      -> This may take up to $TimeoutMinutes minutes. Please be patient..." -ForegroundColor Gray
     
     try {
-        $result = winget install --id $WinGetId --silent --accept-package-agreements --accept-source-agreements 2>&1
+        # Create log file for this installation
+        $timestamp = Get-Date -Format 'yyyyMMdd_HHmmss'
+        $logPath = "$env:TEMP\winget_install_${AppName}_${timestamp}.log"
         
-        if ($LASTEXITCODE -eq 0) {
+        # Build winget command with all necessary flags
+        $wingetArgs = @(
+            "install",
+            "--id", $WinGetId,
+            "--silent",
+            "--accept-package-agreements",
+            "--accept-source-agreements",
+            "--disable-interactivity",
+            "--no-upgrade",
+            "--log", $logPath
+        )
+        
+        # Start the installation process
+        $process = Start-Process -FilePath "winget.exe" -ArgumentList $wingetArgs -PassThru -NoNewWindow -ErrorAction Stop
+        
+        # Wait for process with timeout and progress indication
+        $timeout = (Get-Date).AddMinutes($TimeoutMinutes)
+        $completed = $false
+        $dotCount = 0
+        
+        Write-Host "      -> Progress: " -NoNewline -ForegroundColor Gray
+        
+        while ((Get-Date) -lt $timeout) {
+            if ($process.HasExited) {
+                $completed = $true
+                break
+            }
+            
+            # Show progress dots
+            Write-Host "." -NoNewline -ForegroundColor Cyan
+            $dotCount++
+            
+            # Show time remaining every 30 seconds
+            if ($dotCount % 15 -eq 0) {
+                $remaining = [math]::Round(($timeout - (Get-Date)).TotalMinutes, 1)
+                Write-Host " ($remaining min left) " -NoNewline -ForegroundColor Gray
+            }
+            
+            Start-Sleep -Seconds 2
+        }
+        
+        Write-Host "" # New line after progress dots
+        
+        if (-not $completed) {
+            # Timeout occurred - kill the process
+            Write-Host ""
+            Write-Host "      [!] INSTALLATION TIMEOUT NOTICE:" -ForegroundColor Yellow
+            Write-Host "      -> The installation exceeded the $TimeoutMinutes minute limit" -ForegroundColor Yellow
+            Write-Host "      -> This may be due to slow internet or large download size" -ForegroundColor Yellow
+            Write-Host "      -> The process has been terminated to prevent indefinite waiting" -ForegroundColor Yellow
+            Write-Host ""
+            Write-Host "      RECOMMENDED ACTION:" -ForegroundColor Cyan
+            Write-Host "      -> Install $AppName manually after setup completes" -ForegroundColor White
+            Write-Host "      -> Command: winget install --id $WinGetId" -ForegroundColor Gray
+            Write-Host ""
+            
+            try {
+                Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+            } catch {}
+            
+            return "TIMEOUT"
+        }
+        
+        # Check exit code
+        $exitCode = $process.ExitCode
+        
+        if ($exitCode -eq 0) {
             Write-Host "      -> $AppName installed successfully" -ForegroundColor Green
             return "SUCCESS"
+        } elseif ($exitCode -eq -1978335189) {
+            # 0x8A15000B - No applicable update found (already installed)
+            Write-Host "      -> $AppName is already up to date" -ForegroundColor Yellow
+            return "SUCCESS"
+        } elseif ($exitCode -eq -1978335212) {
+            # 0x8A150014 - Install failed
+            Write-Host "      -> Installation failed" -ForegroundColor Red
+            Show-InstallationLog -LogPath $logPath -AppName $AppName
+            return "ERROR"
         } else {
-            Write-Host "      -> Failed to install $AppName" -ForegroundColor Red
+            Write-Host "      -> Installation failed (Exit Code: $exitCode)" -ForegroundColor Red
+            Show-InstallationLog -LogPath $logPath -AppName $AppName
             return "ERROR"
         }
     } catch {
         Write-Host "      -> Error installing $AppName : $($_.Exception.Message)" -ForegroundColor Red
         return "ERROR"
+    }
+}
+
+function Show-InstallationLog {
+    param(
+        [string]$LogPath,
+        [string]$AppName
+    )
+    
+    if (Test-Path $LogPath) {
+        Write-Host "      -> Installation log details:" -ForegroundColor Gray
+        
+        $logContent = Get-Content $LogPath -Tail 10 -ErrorAction SilentlyContinue
+        if ($logContent) {
+            $logContent | Select-Object -Last 5 | ForEach-Object {
+                $line = $_.Trim()
+                if ($line -and $line -notmatch "^[-=]+$") {
+                    Write-Host "         $line" -ForegroundColor DarkGray
+                }
+            }
+        }
+        
+        Write-Host "      -> Full log saved: $LogPath" -ForegroundColor DarkGray
     }
 }
 
