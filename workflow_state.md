@@ -1,17 +1,27 @@
 # Workflow State - SouliTEK All-In-One Scripts
 
 **Date:** 2025-11-22  
-**Project Status:** Production Ready - v1.0.2  
-**Current Task:** Adding Self-Destruction Feature to Scripts
+**Project Status:** Production Ready - v1.0.3  
+**Current Task:** Optimizing 1-Click PC Install Tool
 
 ---
 
 ## Current Status
 
 ✅ **Project Ready for Publication**  
-✅ **Self-Destruction Feature Implemented**
+✅ **1-Click PC Install Tool Optimized for New PCs**
 
-### Latest Completion
+### Latest Completion (2025-11-22 - v1.0.3)
+- **Feature:** 1-Click PC Install Tool optimization and desktop shortcuts
+- **Purpose:** Enhanced new PC setup automation with better performance
+- **Changes:**
+  - Removed application pre-installation checks (optimized for new PCs)
+  - Added desktop shortcuts feature (This PC & Documents)
+  - Improved installation speed by eliminating redundant checks
+  - Updated task count from 10 to 11 tasks
+  - Updated documentation with v1.0.1 release notes
+
+### Previous Completion (2025-11-22 - v1.0.2)
 - **Feature:** Self-destruction capability added to all scripts
 - **Purpose:** Scripts delete themselves after execution when run locally on client PCs
 - **Trigger:** Executes before user exits (when clicking option 0 or Exit)
@@ -31,14 +41,21 @@
 - ✅ Self-destruction feature implemented (2025-11-22)
 
 ### Recent Changes (2025-11-22)
-- ✅ **Self-Destruction Feature** (Latest)
+- ✅ **1-Click PC Install Tool Optimization** (v1.0.3 - Latest)
+  - Removed application pre-installation checks for faster execution
+  - Added desktop shortcuts creation (This PC & Documents)
+  - Optimized for new PC installations
+  - Updated from 10 to 11 tasks
+  - Documentation updated with v1.0.1 tool release notes
+
+- ✅ **Self-Destruction Feature** (v1.0.2)
   - Added `Invoke-SouliTEKSelfDestruct` to common module
   - All scripts now self-delete after execution on client PCs
   - Silent operation with hidden background process
   - 2-second delay ensures clean script termination
   - Applies to all 20 scripts in the scripts/ directory
 
-- ✅ 1-Click PC Install Tool implemented (21st tool)
+- ✅ 1-Click PC Install Tool implemented (21st tool - v1.0.1)
 - ✅ Complete PC setup automation
 - ✅ Time zone configuration (Jerusalem)
 - ✅ Regional settings (Israel/Hebrew)
@@ -78,6 +95,7 @@
 ## New Tool Details
 
 ### 1-Click PC Install Tool (`scripts/1-click_pc_install.ps1`)
+- **Version:** v1.0.1 (optimized for new PCs)
 - **Purpose:** Complete PC setup automation for new installations
 - **Requirements:** Administrator privileges, active internet connection
 - **Features:**
@@ -87,14 +105,16 @@
   - Windows updates check and installation
   - Power plan optimization (High Performance)
   - Bloatware removal (pre-installed Windows apps)
-  - Application installation via WinGet:
+  - Application installation via WinGet (no pre-checks):
     - Google Chrome
     - AnyDesk
     - Microsoft Office
+  - Desktop shortcuts (This PC & Documents)
   - Detailed installation summary (saved to desktop)
 - **User Control:** Displays all tasks with approval prompt before execution
 - **Safety:** Creates system restore point before making changes
 - **Duration:** Approximately 30-60 minutes depending on updates
+- **Optimization:** Removes redundant pre-installation checks for faster setup
 
 ### Win11Debloat Tool (`scripts/win11_debloat.ps1`)
 - **Purpose:** Remove bloatware, disable telemetry, optimize Windows 10/11
@@ -115,14 +135,13 @@
 
 ## Next Steps
 
-1. **Test Self-Destruct Feature** - Verify scripts self-delete properly on client PCs
-2. **Integration Testing** - Test all 20 scripts with self-destruct functionality
-3. **Test 1-Click PC Install Tool** - Verify script works on clean Windows installations
-4. **Add to WPF Launcher** - Integrate into GUI launcher (Setup category)
-5. **Update Documentation** - Create user guide for 1-Click PC Install
-6. **Publish to GitHub** - Push v1.0.2 release with new features
-7. **User Testing** - Gather feedback from technicians using the tools
-8. **Monitor Issues** - Address any reported bugs
+1. ✅ **Optimize 1-Click PC Install** - Removed pre-installation checks, added shortcuts
+2. **Test on Clean Windows** - Verify optimized script on new PC installations
+3. **Verify Desktop Shortcuts** - Test This PC and Documents shortcuts creation
+4. **Publish to GitHub** - Push v1.0.3 release with optimizations
+5. **User Testing** - Gather feedback from technicians using the tools
+6. **Monitor Performance** - Measure installation time improvements
+7. **Monitor Issues** - Address any reported bugs
 
 ---
 
@@ -134,5 +153,5 @@
 
 ---
 
-**Last Updated:** 2025-11-22
+**Last Updated:** 2025-11-22 (v1.0.3)
 

@@ -51,15 +51,21 @@ Removes unnecessary pre-installed Windows applications:
 - And more...
 
 ### 📦 **Software Installation**
-Installs essential applications via WinGet:
+Installs essential applications via WinGet (optimized for new PCs):
 1. **Google Chrome** - Web browser
 2. **AnyDesk** - Remote desktop software
-3. **Microsoft Office** - Office suite (checks for existing installation)
+3. **Microsoft Office** - Office suite
 
 ### 🛡️ **System Protection**
 - Creates system restore point before making changes
 - Enables System Restore if disabled
 - Timestamp in restore point description
+
+### 🖥️ **Desktop Shortcuts**
+- Creates "This PC" shortcut on desktop
+- Creates "Documents" folder shortcut on desktop
+- Quick access to commonly used locations
+- Enhances user productivity
 
 ### 📊 **Detailed Summary**
 - Real-time progress display
@@ -115,7 +121,16 @@ The script displays all tasks that will be performed:
 [3]  Create System Restore Point
      └─ Create a backup point before making system changes
 
+[4]  Check and Install Windows Updates
+     └─ Download and install all available Windows updates
+
 ... (and more)
+
+[10] Create Desktop Shortcuts
+     └─ Create shortcuts for This PC and Documents folder on desktop
+
+[11] Generate Installation Summary
+     └─ Create detailed report of all actions performed
 ```
 
 #### Step 2: User Approval
@@ -211,9 +226,18 @@ DETAILED TASK LOG
 - **Applications:**
   - **Google Chrome:** Latest stable version
   - **AnyDesk:** Latest stable version
-  - **Microsoft Office:** Checks for existing installation
+  - **Microsoft Office:** Latest version available
 - **Method:** WinGet package manager
 - **Note:** Office may require manual installation
+- **Optimized:** No pre-installation checks (designed for new PCs)
+
+### 10. Create Desktop Shortcuts
+- **Duration:** ~2 seconds
+- **Actions:**
+  - Creates "This PC" shortcut for easy access to drives
+  - Creates "Documents" folder shortcut for quick document access
+- **Impact:** Improved desktop productivity and navigation
+- **Location:** Shortcuts placed directly on desktop
 
 ## Configuration
 
@@ -418,6 +442,13 @@ When reporting issues, include:
 5. Steps to reproduce
 
 ## Version History
+
+### v1.0.1 (2025-11-22)
+- Optimized for new PC installations
+- Removed application pre-installation checks
+- Added desktop shortcuts (This PC, Documents)
+- 11 integrated tasks
+- Improved installation speed
 
 ### v1.0.0 (2025-11-22)
 - Initial release

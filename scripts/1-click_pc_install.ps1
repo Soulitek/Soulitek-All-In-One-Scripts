@@ -130,7 +130,10 @@ function Show-TaskList {
     Write-Host "  [9]  Install Microsoft Office" -ForegroundColor Cyan
     Write-Host "       -> Install Microsoft Office suite (if available)" -ForegroundColor Gray
     Write-Host ""
-    Write-Host "  [10] Generate Installation Summary" -ForegroundColor Cyan
+    Write-Host "  [10] Create Desktop Shortcuts" -ForegroundColor Cyan
+    Write-Host "       -> Create shortcuts for This PC and Documents folder on desktop" -ForegroundColor Gray
+    Write-Host ""
+    Write-Host "  [11] Generate Installation Summary" -ForegroundColor Cyan
     Write-Host "       -> Create detailed report of all actions performed" -ForegroundColor Gray
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Yellow
@@ -459,15 +462,6 @@ function Install-WinGetApplication {
         [string]$WinGetId
     )
     
-    Write-Host "  [*] Checking if $AppName is already installed..." -ForegroundColor Cyan
-    
-    $installedApps = winget list --id $WinGetId 2>&1
-    
-    if ($installedApps -match $WinGetId) {
-        Write-Host "      -> $AppName is already installed" -ForegroundColor Yellow
-        return "ALREADY_INSTALLED"
-    }
-    
     Write-Host "  [*] Installing $AppName..." -ForegroundColor Cyan
     
     try {
@@ -544,37 +538,20 @@ function Install-Applications {
         
         Write-Host ""
         
-        Write-Host "  [3/3] Microsoft Office" -ForegroundColor Yellow
-        Write-Host "  [*] Checking for Office installation..." -ForegroundColor Cyan
-        
-        $officeInstalled = $false
-        $officePath1 = "C:\Program Files\Microsoft Office"
-        $officePath2 = "C:\Program Files (x86)\Microsoft Office"
-        $officePath3 = "${env:ProgramFiles}\Microsoft Office\root\Office16"
-        $officePath4 = "${env:ProgramFiles(x86)}\Microsoft Office\root\Office16"
-        
-        if ((Test-Path $officePath1) -or (Test-Path $officePath2) -or (Test-Path $officePath3) -or (Test-Path $officePath4)) {
-            Write-Host "      -> Microsoft Office is already installed" -ForegroundColor Yellow
-            $officeInstalled = $true
-            Add-LogEntry -Task "Install Microsoft Office" -Status "ALREADY_INSTALLED" -Details "Office installation detected"
-        }
-        
-        if (-not $officeInstalled) {
-            Write-Host "  [*] Office not found. Attempting installation..." -ForegroundColor Cyan
-            Write-Host "  [!] Note: Office installation via WinGet may require manual setup" -ForegroundColor Yellow
-            
-            $officeResult = Install-WinGetApplication -AppName "Microsoft Office" -WinGetId "Microsoft.Office"
-            
-            if ($officeResult -eq "ERROR") {
-                Write-Host ""
-                Write-Host "  [!] Automatic Office installation failed" -ForegroundColor Yellow
-                Write-Host "  [!] Please install Office manually from:" -ForegroundColor Yellow
-                Write-Host "      https://www.office.com/setup" -ForegroundColor Cyan
-                Add-LogEntry -Task "Install Microsoft Office" -Status "WARNING" -Details "Manual installation required"
-            } else {
-                Add-LogEntry -Task "Install Microsoft Office" -Status $officeResult -Details "WinGet ID: Microsoft.Office"
-            }
-        }
+    Write-Host "  [3/3] Microsoft Office" -ForegroundColor Yellow
+    Write-Host "  [!] Note: Office installation via WinGet may require manual setup" -ForegroundColor Yellow
+    
+    $officeResult = Install-WinGetApplication -AppName "Microsoft Office" -WinGetId "Microsoft.Office"
+    
+    if ($officeResult -eq "ERROR") {
+        Write-Host ""
+        Write-Host "  [!] Automatic Office installation failed" -ForegroundColor Yellow
+        Write-Host "  [!] Please install Office manually from:" -ForegroundColor Yellow
+        Write-Host "      https://www.office.com/setup" -ForegroundColor Cyan
+        Add-LogEntry -Task "Install Microsoft Office" -Status "WARNING" -Details "Manual installation required"
+    } else {
+        Add-LogEntry -Task "Install Microsoft Office" -Status $officeResult -Details "WinGet ID: Microsoft.Office"
+    }
         
         Write-Host ""
         Write-SouliTEKSuccess "Application installation process complete"
@@ -584,6 +561,48 @@ function Install-Applications {
     } catch {
         Write-SouliTEKError "Error during application installation: $($_.Exception.Message)"
         Add-LogEntry -Task "Install Applications" -Status "ERROR" -Details $_.Exception.Message
+        Start-Sleep -Seconds 3
+        return $false
+    }
+}
+
+function New-DesktopShortcuts {
+    Show-Header "CREATING DESKTOP SHORTCUTS"
+    Write-SouliTEKInfo "Creating desktop shortcuts for This PC and Documents..."
+    
+    try {
+        $desktopPath = [Environment]::GetFolderPath("Desktop")
+        $shell = New-Object -ComObject WScript.Shell
+        
+        # Create This PC shortcut
+        Write-Host "  [*] Creating This PC shortcut..." -ForegroundColor Cyan
+        $thisPCShortcut = $shell.CreateShortcut("$desktopPath\This PC.lnk")
+        $thisPCShortcut.TargetPath = "::{20D04FE0-3AEA-1069-A2D8-08002B30309D}"
+        $thisPCShortcut.WindowStyle = 1
+        $thisPCShortcut.Description = "This PC - Access your computer, drives, and network locations"
+        $thisPCShortcut.Save()
+        
+        Write-Host "      -> This PC shortcut created successfully" -ForegroundColor Green
+        
+        # Create Documents folder shortcut
+        Write-Host "  [*] Creating Documents folder shortcut..." -ForegroundColor Cyan
+        $documentsPath = [Environment]::GetFolderPath("MyDocuments")
+        $documentsShortcut = $shell.CreateShortcut("$desktopPath\Documents.lnk")
+        $documentsShortcut.TargetPath = $documentsPath
+        $documentsShortcut.WindowStyle = 1
+        $documentsShortcut.Description = "Documents - Access your Documents folder"
+        $documentsShortcut.Save()
+        
+        Write-Host "      -> Documents shortcut created successfully" -ForegroundColor Green
+        
+        Write-SouliTEKSuccess "Desktop shortcuts created successfully"
+        Add-LogEntry -Task "Create Desktop Shortcuts" -Status "SUCCESS" -Details "Created This PC and Documents shortcuts"
+        
+        Start-Sleep -Seconds 2
+        return $true
+    } catch {
+        Write-SouliTEKError "Failed to create desktop shortcuts: $($_.Exception.Message)"
+        Add-LogEntry -Task "Create Desktop Shortcuts" -Status "ERROR" -Details $_.Exception.Message
         Start-Sleep -Seconds 3
         return $false
     }
@@ -747,6 +766,7 @@ function Start-OneClickPCInstall {
     Set-PowerPlanToBest
     Remove-Bloatware
     Install-Applications
+    New-DesktopShortcuts
     
     Show-InstallationSummary
     
