@@ -104,42 +104,42 @@ function Show-TaskList {
     Write-Host "  The following tasks will be performed:" -ForegroundColor Yellow
     Write-Host ""
     Write-Host "  [1]  Set Time Zone" -ForegroundColor Cyan
-    Write-Host "       └─ Configure time zone to Jerusalem (Israel Standard Time)" -ForegroundColor Gray
+    Write-Host "       -> Configure time zone to Jerusalem (Israel Standard Time)" -ForegroundColor Gray
     Write-Host ""
     Write-Host "  [2]  Configure Regional Settings" -ForegroundColor Cyan
-    Write-Host "       └─ Set regional format, location, and language to Israel/Hebrew" -ForegroundColor Gray
+    Write-Host "       -> Set regional format, location, and language to Israel/Hebrew" -ForegroundColor Gray
     Write-Host ""
     Write-Host "  [3]  Create System Restore Point" -ForegroundColor Cyan
-    Write-Host "       └─ Create a backup point before making system changes" -ForegroundColor Gray
+    Write-Host "       -> Create a backup point before making system changes" -ForegroundColor Gray
     Write-Host ""
     Write-Host "  [4]  Check and Install Windows Updates" -ForegroundColor Cyan
-    Write-Host "       └─ Download and install all available Windows updates" -ForegroundColor Gray
+    Write-Host "       -> Download and install all available Windows updates" -ForegroundColor Gray
     Write-Host ""
     Write-Host "  [5]  Configure Power Plan" -ForegroundColor Cyan
-    Write-Host "       └─ Set power plan to High Performance for best performance" -ForegroundColor Gray
+    Write-Host "       -> Set power plan to High Performance for best performance" -ForegroundColor Gray
     Write-Host ""
     Write-Host "  [6]  Remove Bloatware" -ForegroundColor Cyan
-    Write-Host "       └─ Remove unnecessary pre-installed Windows applications" -ForegroundColor Gray
+    Write-Host "       -> Remove unnecessary pre-installed Windows applications" -ForegroundColor Gray
     Write-Host ""
     Write-Host "  [7]  Install Google Chrome" -ForegroundColor Cyan
-    Write-Host "       └─ Install Google Chrome web browser via WinGet" -ForegroundColor Gray
+    Write-Host "       -> Install Google Chrome web browser via WinGet" -ForegroundColor Gray
     Write-Host ""
     Write-Host "  [8]  Install AnyDesk" -ForegroundColor Cyan
-    Write-Host "       └─ Install AnyDesk remote desktop software via WinGet" -ForegroundColor Gray
+    Write-Host "       -> Install AnyDesk remote desktop software via WinGet" -ForegroundColor Gray
     Write-Host ""
     Write-Host "  [9]  Install Microsoft Office" -ForegroundColor Cyan
-    Write-Host "       └─ Install Microsoft Office suite (if available)" -ForegroundColor Gray
+    Write-Host "       -> Install Microsoft Office suite (if available)" -ForegroundColor Gray
     Write-Host ""
     Write-Host "  [10] Generate Installation Summary" -ForegroundColor Cyan
-    Write-Host "       └─ Create detailed report of all actions performed" -ForegroundColor Gray
+    Write-Host "       -> Create detailed report of all actions performed" -ForegroundColor Gray
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Yellow
     Write-Host ""
     Write-Host "  IMPORTANT NOTES:" -ForegroundColor Red
-    Write-Host "  • This process may take 30-60 minutes to complete" -ForegroundColor Yellow
-    Write-Host "  • Your computer may restart during Windows updates" -ForegroundColor Yellow
-    Write-Host "  • Administrator privileges are required" -ForegroundColor Yellow
-    Write-Host "  • Active internet connection is required" -ForegroundColor Yellow
+    Write-Host "  * This process may take 30-60 minutes to complete" -ForegroundColor Yellow
+    Write-Host "  * Your computer may restart during Windows updates" -ForegroundColor Yellow
+    Write-Host "  * Administrator privileges are required" -ForegroundColor Yellow
+    Write-Host "  * Active internet connection is required" -ForegroundColor Yellow
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Yellow
     Write-Host ""
@@ -419,14 +419,14 @@ function Remove-Bloatware {
             if ($package) {
                 $removeResult = Remove-AppxPackage -Package $package.PackageFullName -ErrorAction SilentlyContinue
                 if ($?) {
-                    Write-Host "      └─ Removed" -ForegroundColor Green
+                    Write-Host "      -> Removed" -ForegroundColor Green
                     $removedCount++
                 } else {
-                    Write-Host "      └─ Failed to remove" -ForegroundColor Red
+                    Write-Host "      -> Failed to remove" -ForegroundColor Red
                     $failedCount++
                 }
             } else {
-                Write-Host "      └─ Not installed" -ForegroundColor Gray
+                Write-Host "      -> Not installed" -ForegroundColor Gray
             }
         }
         
@@ -464,7 +464,7 @@ function Install-WinGetApplication {
     $installedApps = winget list --id $WinGetId 2>&1
     
     if ($installedApps -match $WinGetId) {
-        Write-Host "      └─ $AppName is already installed" -ForegroundColor Yellow
+        Write-Host "      -> $AppName is already installed" -ForegroundColor Yellow
         return "ALREADY_INSTALLED"
     }
     
@@ -474,14 +474,14 @@ function Install-WinGetApplication {
         $result = winget install --id $WinGetId --silent --accept-package-agreements --accept-source-agreements 2>&1
         
         if ($LASTEXITCODE -eq 0) {
-            Write-Host "      └─ $AppName installed successfully" -ForegroundColor Green
+            Write-Host "      -> $AppName installed successfully" -ForegroundColor Green
             return "SUCCESS"
         } else {
-            Write-Host "      └─ Failed to install $AppName" -ForegroundColor Red
+            Write-Host "      -> Failed to install $AppName" -ForegroundColor Red
             return "ERROR"
         }
     } catch {
-        Write-Host "      └─ Error installing $AppName : $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host "      -> Error installing $AppName : $($_.Exception.Message)" -ForegroundColor Red
         return "ERROR"
     }
 }
@@ -491,11 +491,11 @@ function Ensure-WinGet {
     
     $wingetCmd = Get-Command winget.exe -ErrorAction SilentlyContinue
     if ($wingetCmd) {
-        Write-Host "      └─ WinGet is available" -ForegroundColor Green
+        Write-Host "      -> WinGet is available" -ForegroundColor Green
         return $true
     }
     
-    Write-Host "      └─ WinGet not found" -ForegroundColor Yellow
+    Write-Host "      -> WinGet not found" -ForegroundColor Yellow
     Write-Host "  [*] Attempting to install WinGet..." -ForegroundColor Cyan
     
     try {
@@ -509,10 +509,10 @@ function Ensure-WinGet {
         
         Repair-WinGetPackageManager -ErrorAction Stop
         
-        Write-Host "      └─ WinGet installed successfully" -ForegroundColor Green
+        Write-Host "      -> WinGet installed successfully" -ForegroundColor Green
         return $true
     } catch {
-        Write-Host "      └─ Failed to install WinGet: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host "      -> Failed to install WinGet: $($_.Exception.Message)" -ForegroundColor Red
         return $false
     }
 }
@@ -554,7 +554,7 @@ function Install-Applications {
         $officePath4 = "${env:ProgramFiles(x86)}\Microsoft Office\root\Office16"
         
         if ((Test-Path $officePath1) -or (Test-Path $officePath2) -or (Test-Path $officePath3) -or (Test-Path $officePath4)) {
-            Write-Host "      └─ Microsoft Office is already installed" -ForegroundColor Yellow
+            Write-Host "      -> Microsoft Office is already installed" -ForegroundColor Yellow
             $officeInstalled = $true
             Add-LogEntry -Task "Install Microsoft Office" -Status "ALREADY_INSTALLED" -Details "Office installation detected"
         }
@@ -644,7 +644,7 @@ function Show-InstallationSummary {
             Write-Host "$($entry.Task)" -ForegroundColor White
             
             if ($entry.Details) {
-                Write-Host "      └─ $($entry.Details)" -ForegroundColor Gray
+                Write-Host "      -> $($entry.Details)" -ForegroundColor Gray
             }
         }
         
@@ -673,7 +673,7 @@ function Show-InstallationSummary {
         $Script:InstallLog | ForEach-Object {
             $summaryContent += "[$($_.Time)] [$($_.Status)] $($_.Task)`r`n"
             if ($_.Details) {
-                $summaryContent += "  └─ $($_.Details)`r`n"
+                $summaryContent += "  -> $($_.Details)`r`n"
             }
             $summaryContent += "`r`n"
         }
@@ -697,9 +697,9 @@ function Show-InstallationSummary {
         
         Write-Host ""
         Write-Host "  RECOMMENDED NEXT STEPS:" -ForegroundColor Yellow
-        Write-Host "  • Restart your computer to apply all changes" -ForegroundColor White
-        Write-Host "  • Review the installation summary above" -ForegroundColor White
-        Write-Host "  • Verify all installed applications work correctly" -ForegroundColor White
+        Write-Host "  * Restart your computer to apply all changes" -ForegroundColor White
+        Write-Host "  * Review the installation summary above" -ForegroundColor White
+        Write-Host "  * Verify all installed applications work correctly" -ForegroundColor White
         Write-Host ""
         Write-Host "============================================================" -ForegroundColor Cyan
         Write-Host ""
