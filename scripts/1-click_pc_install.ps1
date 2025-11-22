@@ -181,8 +181,7 @@ function Set-TimeZoneToJerusalem {
         
         Start-Sleep -Seconds 2
         return $true
-    }
-    catch {
+    } catch {
         Write-SouliTEKError "Failed to set time zone: $($_.Exception.Message)"
         Add-LogEntry -Task "Set Time Zone" -Status "ERROR" -Details $_.Exception.Message
         Start-Sleep -Seconds 3
@@ -219,8 +218,7 @@ function Set-RegionalSettingsToIsrael {
         
         Start-Sleep -Seconds 3
         return $true
-    }
-    catch {
+    } catch {
         Write-SouliTEKError "Failed to set regional settings: $($_.Exception.Message)"
         Add-LogEntry -Task "Regional Settings" -Status "ERROR" -Details $_.Exception.Message
         Start-Sleep -Seconds 3
@@ -240,12 +238,11 @@ function New-SystemRestorePoint {
             Write-SouliTEKWarning "System Restore may not be enabled"
             Write-Host "  Attempting to enable System Restore..." -ForegroundColor Yellow
             
-            try {
-                Enable-ComputerRestore -Drive "$systemDrive\" -ErrorAction Stop
-                Start-Sleep -Seconds 2
-            }
-            catch {
+            $enableResult = Enable-ComputerRestore -Drive "$systemDrive\" -ErrorAction SilentlyContinue
+            if (-not $?) {
                 Write-SouliTEKWarning "Could not enable System Restore automatically"
+            } else {
+                Start-Sleep -Seconds 2
             }
         }
         
@@ -259,8 +256,7 @@ function New-SystemRestorePoint {
         
         Start-Sleep -Seconds 2
         return $true
-    }
-    catch {
+    } catch {
         Write-SouliTEKWarning "Could not create system restore point: $($_.Exception.Message)"
         Add-LogEntry -Task "System Restore Point" -Status "WARNING" -Details $_.Exception.Message
         
@@ -314,8 +310,7 @@ function Install-WindowsUpdates {
         
         Start-Sleep -Seconds 3
         return $true
-    }
-    catch {
+    } catch {
         Write-SouliTEKWarning "Could not install Windows updates: $($_.Exception.Message)"
         Add-LogEntry -Task "Windows Updates" -Status "WARNING" -Details $_.Exception.Message
         
@@ -370,8 +365,7 @@ function Set-PowerPlanToBest {
         
         Start-Sleep -Seconds 2
         return $true
-    }
-    catch {
+    } catch {
         Write-SouliTEKError "Failed to set power plan: $($_.Exception.Message)"
         Add-LogEntry -Task "Power Plan" -Status "ERROR" -Details $_.Exception.Message
         Start-Sleep -Seconds 3
@@ -448,8 +442,7 @@ function Remove-Bloatware {
         
         Start-Sleep -Seconds 3
         return $true
-    }
-    catch {
+    } catch {
         Write-SouliTEKError "Error during bloatware removal: $($_.Exception.Message)"
         Add-LogEntry -Task "Remove Bloatware" -Status "ERROR" -Details $_.Exception.Message
         Start-Sleep -Seconds 3
@@ -487,8 +480,7 @@ function Install-WinGetApplication {
             Write-Host "      └─ Failed to install $AppName" -ForegroundColor Red
             return "ERROR"
         }
-    }
-    catch {
+    } catch {
         Write-Host "      └─ Error installing $AppName : $($_.Exception.Message)" -ForegroundColor Red
         return "ERROR"
     }
@@ -519,8 +511,7 @@ function Ensure-WinGet {
         
         Write-Host "      └─ WinGet installed successfully" -ForegroundColor Green
         return $true
-    }
-    catch {
+    } catch {
         Write-Host "      └─ Failed to install WinGet: $($_.Exception.Message)" -ForegroundColor Red
         return $false
     }
@@ -529,71 +520,73 @@ function Ensure-WinGet {
 function Install-Applications {
     Show-Header "INSTALLING APPLICATIONS"
     
-    if (-not (Ensure-WinGet)) {
-        Write-SouliTEKError "WinGet is not available. Cannot install applications."
-        Add-LogEntry -Task "Install Applications" -Status "ERROR" -Details "WinGet not available"
+    try {
+        if (-not (Ensure-WinGet)) {
+            Write-SouliTEKError "WinGet is not available. Cannot install applications."
+            Add-LogEntry -Task "Install Applications" -Status "ERROR" -Details "WinGet not available"
+            Start-Sleep -Seconds 3
+            return $false
+        }
+        
+        Write-Host ""
+        Write-SouliTEKInfo "Installing applications via WinGet..."
+        Write-Host ""
+        
+        Write-Host "  [1/3] Google Chrome" -ForegroundColor Yellow
+        $chromeResult = Install-WinGetApplication -AppName "Google Chrome" -WinGetId "Google.Chrome"
+        Add-LogEntry -Task "Install Google Chrome" -Status $chromeResult -Details "WinGet ID: Google.Chrome"
+        
+        Write-Host ""
+        
+        Write-Host "  [2/3] AnyDesk" -ForegroundColor Yellow
+        $anydeskResult = Install-WinGetApplication -AppName "AnyDesk" -WinGetId "AnyDeskSoftwareGmbH.AnyDesk"
+        Add-LogEntry -Task "Install AnyDesk" -Status $anydeskResult -Details "WinGet ID: AnyDeskSoftwareGmbH.AnyDesk"
+        
+        Write-Host ""
+        
+        Write-Host "  [3/3] Microsoft Office" -ForegroundColor Yellow
+        Write-Host "  [*] Checking for Office installation..." -ForegroundColor Cyan
+        
+        $officeInstalled = $false
+        $officePath1 = "C:\Program Files\Microsoft Office"
+        $officePath2 = "C:\Program Files (x86)\Microsoft Office"
+        $officePath3 = "${env:ProgramFiles}\Microsoft Office\root\Office16"
+        $officePath4 = "${env:ProgramFiles(x86)}\Microsoft Office\root\Office16"
+        
+        if ((Test-Path $officePath1) -or (Test-Path $officePath2) -or (Test-Path $officePath3) -or (Test-Path $officePath4)) {
+            Write-Host "      └─ Microsoft Office is already installed" -ForegroundColor Yellow
+            $officeInstalled = $true
+            Add-LogEntry -Task "Install Microsoft Office" -Status "ALREADY_INSTALLED" -Details "Office installation detected"
+        }
+        
+        if (-not $officeInstalled) {
+            Write-Host "  [*] Office not found. Attempting installation..." -ForegroundColor Cyan
+            Write-Host "  [!] Note: Office installation via WinGet may require manual setup" -ForegroundColor Yellow
+            
+            $officeResult = Install-WinGetApplication -AppName "Microsoft Office" -WinGetId "Microsoft.Office"
+            
+            if ($officeResult -eq "ERROR") {
+                Write-Host ""
+                Write-Host "  [!] Automatic Office installation failed" -ForegroundColor Yellow
+                Write-Host "  [!] Please install Office manually from:" -ForegroundColor Yellow
+                Write-Host "      https://www.office.com/setup" -ForegroundColor Cyan
+                Add-LogEntry -Task "Install Microsoft Office" -Status "WARNING" -Details "Manual installation required"
+            } else {
+                Add-LogEntry -Task "Install Microsoft Office" -Status $officeResult -Details "WinGet ID: Microsoft.Office"
+            }
+        }
+        
+        Write-Host ""
+        Write-SouliTEKSuccess "Application installation process complete"
+        
+        Start-Sleep -Seconds 3
+        return $true
+    } catch {
+        Write-SouliTEKError "Error during application installation: $($_.Exception.Message)"
+        Add-LogEntry -Task "Install Applications" -Status "ERROR" -Details $_.Exception.Message
         Start-Sleep -Seconds 3
         return $false
     }
-    
-    Write-Host ""
-    Write-SouliTEKInfo "Installing applications via WinGet..."
-    Write-Host ""
-    
-    Write-Host "  [1/3] Google Chrome" -ForegroundColor Yellow
-    $chromeResult = Install-WinGetApplication -AppName "Google Chrome" -WinGetId "Google.Chrome"
-    Add-LogEntry -Task "Install Google Chrome" -Status $chromeResult -Details "WinGet ID: Google.Chrome"
-    
-    Write-Host ""
-    
-    Write-Host "  [2/3] AnyDesk" -ForegroundColor Yellow
-    $anydeskResult = Install-WinGetApplication -AppName "AnyDesk" -WinGetId "AnyDeskSoftwareGmbH.AnyDesk"
-    Add-LogEntry -Task "Install AnyDesk" -Status $anydeskResult -Details "WinGet ID: AnyDeskSoftwareGmbH.AnyDesk"
-    
-    Write-Host ""
-    
-    Write-Host "  [3/3] Microsoft Office" -ForegroundColor Yellow
-    Write-Host "  [*] Checking for Office installation..." -ForegroundColor Cyan
-    
-    $officeInstalled = $false
-    $officePaths = @(
-        "C:\Program Files\Microsoft Office",
-        "C:\Program Files (x86)\Microsoft Office",
-        "${env:ProgramFiles}\Microsoft Office\root\Office16",
-        "${env:ProgramFiles(x86)}\Microsoft Office\root\Office16"
-    )
-    
-    foreach ($path in $officePaths) {
-        if (Test-Path $path) {
-            Write-Host "      └─ Microsoft Office is already installed" -ForegroundColor Yellow
-            $officeInstalled = $true
-            Add-LogEntry -Task "Install Microsoft Office" -Status "ALREADY_INSTALLED" -Details "Office found at: $path"
-            break
-        }
-    }
-    
-    if (-not $officeInstalled) {
-        Write-Host "  [*] Office not found. Attempting installation..." -ForegroundColor Cyan
-        Write-Host "  [!] Note: Office installation via WinGet may require manual setup" -ForegroundColor Yellow
-        
-        $officeResult = Install-WinGetApplication -AppName "Microsoft Office" -WinGetId "Microsoft.Office"
-        
-        if ($officeResult -eq "ERROR") {
-            Write-Host ""
-            Write-Host "  [!] Automatic Office installation failed" -ForegroundColor Yellow
-            Write-Host "  [!] Please install Office manually from:" -ForegroundColor Yellow
-            Write-Host "      https://www.office.com/setup" -ForegroundColor Cyan
-            Add-LogEntry -Task "Install Microsoft Office" -Status "WARNING" -Details "Manual installation required"
-        } else {
-            Add-LogEntry -Task "Install Microsoft Office" -Status $officeResult -Details "WinGet ID: Microsoft.Office"
-        }
-    }
-    
-    Write-Host ""
-    Write-SouliTEKSuccess "Application installation process complete"
-    
-    Start-Sleep -Seconds 3
-    return $true
 }
 
 function Show-InstallationSummary {
@@ -677,10 +670,10 @@ function Show-InstallationSummary {
         $summaryContent += "============================================================`r`n"
         $summaryContent += "`r`n"
         
-        foreach ($entry in $Script:InstallLog) {
-            $summaryContent += "[$($entry.Time)] [$($entry.Status)] $($entry.Task)`r`n"
-            if ($entry.Details) {
-                $summaryContent += "  └─ $($entry.Details)`r`n"
+        $Script:InstallLog | ForEach-Object {
+            $summaryContent += "[$($_.Time)] [$($_.Status)] $($_.Task)`r`n"
+            if ($_.Details) {
+                $summaryContent += "  └─ $($_.Details)`r`n"
             }
             $summaryContent += "`r`n"
         }
@@ -697,8 +690,7 @@ function Show-InstallationSummary {
         Write-Host "  Summary saved to: " -NoNewline -ForegroundColor Gray
         Write-Host "$summaryPath" -ForegroundColor Cyan
         Write-Host ""
-    }
-    catch {
+    } catch {
         Write-Host "  [!] Could not save summary to desktop" -ForegroundColor Yellow
     }
     
@@ -756,4 +748,3 @@ function Start-OneClickPCInstall {
 }
 
 Start-OneClickPCInstall
-
