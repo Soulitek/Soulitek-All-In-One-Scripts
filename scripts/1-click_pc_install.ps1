@@ -592,68 +592,68 @@ function Install-Applications {
 function Show-InstallationSummary {
     Show-Header "INSTALLATION SUMMARY"
     
-    $endTime = Get-Date
-    $duration = $endTime - $Script:StartTime
-    
-    Write-Host "  Installation completed at: " -NoNewline -ForegroundColor Gray
-    Write-Host "$($endTime.ToString('yyyy-MM-dd HH:mm:ss'))" -ForegroundColor Cyan
-    
-    Write-Host "  Total duration: " -NoNewline -ForegroundColor Gray
-    Write-Host "$([math]::Round($duration.TotalMinutes, 2)) minutes" -ForegroundColor Cyan
-    
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "  RESULTS SUMMARY" -ForegroundColor White
-    Write-Host ""
-    Write-Host "  Successful: " -NoNewline -ForegroundColor Gray
-    Write-Host "$Script:SuccessCount task(s)" -ForegroundColor Green
-    
-    Write-Host "  Warnings: " -NoNewline -ForegroundColor Gray
-    Write-Host "$Script:WarningCount task(s)" -ForegroundColor Yellow
-    
-    Write-Host "  Errors: " -NoNewline -ForegroundColor Gray
-    Write-Host "$Script:ErrorCount task(s)" -ForegroundColor Red
-    
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "  DETAILED TASK LOG" -ForegroundColor White
-    Write-Host ""
-    
-    foreach ($entry in $Script:InstallLog) {
-        $statusColor = switch ($entry.Status) {
-            "SUCCESS" { "Green" }
-            "ALREADY_INSTALLED" { "Yellow" }
-            "WARNING" { "Yellow" }
-            "ERROR" { "Red" }
-            default { "Gray" }
-        }
-        
-        $statusSymbol = switch ($entry.Status) {
-            "SUCCESS" { "[+]" }
-            "ALREADY_INSTALLED" { "[~]" }
-            "WARNING" { "[!]" }
-            "ERROR" { "[-]" }
-            default { "[*]" }
-        }
-        
-        Write-Host "  [$($entry.Time)] " -NoNewline -ForegroundColor Gray
-        Write-Host "$statusSymbol " -NoNewline -ForegroundColor $statusColor
-        Write-Host "$($entry.Task)" -ForegroundColor White
-        
-        if ($entry.Details) {
-            Write-Host "      └─ $($entry.Details)" -ForegroundColor Gray
-        }
-    }
-    
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host ""
-    
-    $summaryPath = "$env:USERPROFILE\Desktop\1-Click-PC-Install-Summary.txt"
-    
     try {
+        $endTime = Get-Date
+        $duration = $endTime - $Script:StartTime
+        
+        Write-Host "  Installation completed at: " -NoNewline -ForegroundColor Gray
+        Write-Host "$($endTime.ToString('yyyy-MM-dd HH:mm:ss'))" -ForegroundColor Cyan
+        
+        Write-Host "  Total duration: " -NoNewline -ForegroundColor Gray
+        Write-Host "$([math]::Round($duration.TotalMinutes, 2)) minutes" -ForegroundColor Cyan
+        
+        Write-Host ""
+        Write-Host "============================================================" -ForegroundColor Cyan
+        Write-Host ""
+        Write-Host "  RESULTS SUMMARY" -ForegroundColor White
+        Write-Host ""
+        Write-Host "  Successful: " -NoNewline -ForegroundColor Gray
+        Write-Host "$Script:SuccessCount task(s)" -ForegroundColor Green
+        
+        Write-Host "  Warnings: " -NoNewline -ForegroundColor Gray
+        Write-Host "$Script:WarningCount task(s)" -ForegroundColor Yellow
+        
+        Write-Host "  Errors: " -NoNewline -ForegroundColor Gray
+        Write-Host "$Script:ErrorCount task(s)" -ForegroundColor Red
+        
+        Write-Host ""
+        Write-Host "============================================================" -ForegroundColor Cyan
+        Write-Host ""
+        Write-Host "  DETAILED TASK LOG" -ForegroundColor White
+        Write-Host ""
+        
+        foreach ($entry in $Script:InstallLog) {
+            $statusColor = switch ($entry.Status) {
+                "SUCCESS" { "Green" }
+                "ALREADY_INSTALLED" { "Yellow" }
+                "WARNING" { "Yellow" }
+                "ERROR" { "Red" }
+                default { "Gray" }
+            }
+            
+            $statusSymbol = switch ($entry.Status) {
+                "SUCCESS" { "[+]" }
+                "ALREADY_INSTALLED" { "[~]" }
+                "WARNING" { "[!]" }
+                "ERROR" { "[-]" }
+                default { "[*]" }
+            }
+            
+            Write-Host "  [$($entry.Time)] " -NoNewline -ForegroundColor Gray
+            Write-Host "$statusSymbol " -NoNewline -ForegroundColor $statusColor
+            Write-Host "$($entry.Task)" -ForegroundColor White
+            
+            if ($entry.Details) {
+                Write-Host "      └─ $($entry.Details)" -ForegroundColor Gray
+            }
+        }
+        
+        Write-Host ""
+        Write-Host "============================================================" -ForegroundColor Cyan
+        Write-Host ""
+        
+        $summaryPath = "$env:USERPROFILE\Desktop\1-Click-PC-Install-Summary.txt"
+        
         $summaryContent = "============================================================`r`n"
         $summaryContent += "1-CLICK PC INSTALL - INSTALLATION SUMMARY`r`n"
         $summaryContent += "============================================================`r`n"
@@ -685,23 +685,30 @@ function Show-InstallationSummary {
         $summaryContent += "(C) 2025 SouliTEK - All Rights Reserved`r`n"
         $summaryContent += "============================================================`r`n"
         
-        $summaryContent | Out-File -FilePath $summaryPath -Encoding UTF8
+        $saveResult = $summaryContent | Out-File -FilePath $summaryPath -Encoding UTF8 -ErrorAction SilentlyContinue
         
-        Write-Host "  Summary saved to: " -NoNewline -ForegroundColor Gray
-        Write-Host "$summaryPath" -ForegroundColor Cyan
+        if ($?) {
+            Write-Host "  Summary saved to: " -NoNewline -ForegroundColor Gray
+            Write-Host "$summaryPath" -ForegroundColor Cyan
+            Write-Host ""
+        } else {
+            Write-Host "  [!] Could not save summary to desktop" -ForegroundColor Yellow
+        }
+        
+        Write-Host ""
+        Write-Host "  RECOMMENDED NEXT STEPS:" -ForegroundColor Yellow
+        Write-Host "  • Restart your computer to apply all changes" -ForegroundColor White
+        Write-Host "  • Review the installation summary above" -ForegroundColor White
+        Write-Host "  • Verify all installed applications work correctly" -ForegroundColor White
+        Write-Host ""
+        Write-Host "============================================================" -ForegroundColor Cyan
         Write-Host ""
     } catch {
-        Write-Host "  [!] Could not save summary to desktop" -ForegroundColor Yellow
+        Write-SouliTEKWarning "Error displaying installation summary: $($_.Exception.Message)"
+        Write-Host ""
+        Write-Host "  Summary could not be displayed due to an error." -ForegroundColor Yellow
+        Write-Host ""
     }
-    
-    Write-Host ""
-    Write-Host "  RECOMMENDED NEXT STEPS:" -ForegroundColor Yellow
-    Write-Host "  • Restart your computer to apply all changes" -ForegroundColor White
-    Write-Host "  • Review the installation summary above" -ForegroundColor White
-    Write-Host "  • Verify all installed applications work correctly" -ForegroundColor White
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host ""
 }
 
 # ============================================================
