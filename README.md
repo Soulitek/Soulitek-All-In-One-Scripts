@@ -3,7 +3,7 @@
 <div align="center">
 
 ![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue?style=for-the-badge&logo=powershell)
-![Windows](https://img.shields.io/badge/Windows-8.1%2B-0078D6?style=for-the-badge&logo=windows)
+![Windows](https://img.shields.io/badge/Windows-10%2B-0078D6?style=for-the-badge&logo=windows)
 ![License](https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge)
 
 **Professional PowerShell Tools for IT Technicians**
@@ -18,25 +18,62 @@
 
 ### Install
 ```powershell
-iwr -useb get.soulitek.co.il | iex
+iwr -useb https://get.soulitek.co.il | iex
 ```
 
-### Launch
+### Launch GUI Launcher
 ```powershell
 .\SouliTEK-Launcher.ps1
 ```
+
+### Run Individual Tools
+```powershell
+# Run 1-Click PC Install (requires admin)
+.\scripts\1-click_pc_install.ps1
+
+# Or launch via WPF GUI for easier access
+```
+
+**Note:** Most tools require Administrator privileges. Right-click and select "Run with PowerShell as administrator" if needed.
 
 ---
 
 ## 🛠️ Tools (21 Scripts)
 
-**Setup:** 1-Click PC Install  
-**Performance:** Startup & Boot Time Analyzer, Battery Report, Storage Health Monitor, RAM Slot Utilization, Disk Usage Analyzer  
-**Security:** BitLocker Status, USB Device Log  
-**M365:** PST Finder, License Expiration Checker, M365 User List  
-**Network:** WiFi Password Viewer, Network Test Tool, Network Configuration Tool  
-**Support:** Printer Spooler Fix, Event Log Analyzer, System Restore Point, Temp Removal & Disk Cleanup  
-**Software:** Chocolatey Installer, Win11Debloat, McAfee Removal Tool
+### 🚀 Setup
+- **1-Click PC Install** - Complete PC setup automation: Configure time zone (Jerusalem), regional settings (Israel), Windows updates, power plan, bloatware removal, and install essential software (Chrome, AnyDesk, Office) via WinGet. Includes system restore point creation and detailed installation summary.
+
+### ⚡ Performance
+- **Startup & Boot Time Analyzer** - Analyze startup programs, boot performance, and get optimization recommendations with HTML reports
+- **Battery Report Generator** - Generate comprehensive battery health reports for laptops
+- **Storage Health Monitor** - Monitor storage health with SMART data, detect reallocated sectors and read errors
+- **RAM Slot Utilization Report** - Shows RAM slots used vs total, type (DDR3/DDR4/DDR5), speed, and capacity
+- **Disk Usage Analyzer** - Find folders larger than 1 GB and export results sorted by size with HTML visualization
+
+### 🔒 Security
+- **BitLocker Status Report** - Check BitLocker encryption status and recovery keys for all volumes
+- **USB Device Log** - Forensic USB device history analysis for security audits
+
+### ☁️ M365
+- **PST Finder** - Locate and analyze Outlook PST files across the system
+- **License Expiration Checker** - Monitor Microsoft 365 license subscriptions and get alerts for capacity issues
+- **M365 User List** - List all Microsoft 365 users with email, phone, MFA status, and comprehensive user information
+
+### 🌐 Network
+- **WiFi Password Viewer** - View and export saved WiFi passwords from Windows
+- **Network Test Tool** - Ping, tracert, DNS lookup, and latency testing for network diagnostics
+- **Network Configuration Tool** - View IP configuration, set static IP addresses, flush DNS cache, and reset network adapters
+
+### 🛠️ Support
+- **Printer Spooler Fix** - Comprehensive printer spooler troubleshooting and repair
+- **Event Log Analyzer** - Analyze Windows Event Logs with statistical summaries
+- **System Restore Point** - Create Windows System Restore Points for system recovery and rollback
+- **Temp Removal & Disk Cleanup** - Remove temporary files, clean browser cache, empty Recycle Bin, and free up disk space
+
+### 💻 Software
+- **WinGet Package Installer** - Interactive package installer - Install essential business apps via WinGet
+- **Win11Debloat** - Remove bloatware, disable telemetry, and optimize Windows 10/11 systems
+- **McAfee Removal Tool** - Complete removal of McAfee products using MCPR (McAfee Consumer Product Removal) tool
 
 All scripts in `./scripts/` folder.
 
@@ -44,16 +81,20 @@ All scripts in `./scripts/` folder.
 
 ## 💡 Features
 
-- ✨ Modern WPF GUI Launcher with Material Design
-- 🔍 Search-first interface with category filtering
-- 📊 Export to CSV/HTML/JSON/TXT
-- ✅ Windows 8.1, 10, 11 compatible
+- ✨ **Modern WPF GUI Launcher** - Beautiful Material Design interface with category filtering
+- 🔍 **Search-First Interface** - Find tools instantly with real-time search
+- 🚀 **1-Click PC Setup** - Automate complete PC configuration for new installations
+- 📊 **Export Capabilities** - Export results to CSV/HTML/JSON/TXT formats
+- 🛡️ **System Protection** - Built-in restore point creation for safe operations
+- ⚡ **Performance Tools** - Comprehensive system analysis and optimization
+- ☁️ **M365 Management** - Full Microsoft 365 user and license management
+- ✅ **Windows 10, 11 Compatible** - Works on all modern Windows versions
 
 ---
 
 ## 📋 Requirements
 
-- Windows 8.1 or higher
+- Windows 10 or higher
 - PowerShell 5.1 or higher
 - Administrator privileges (for most tools)
 
