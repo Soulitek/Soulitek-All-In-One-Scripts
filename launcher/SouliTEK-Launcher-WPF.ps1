@@ -88,7 +88,7 @@ Write-Host "Running as Administrator." -ForegroundColor Green
 $Script:ScriptPath = Join-Path $Script:RootPath "scripts"
 $Script:AssetsPath = Join-Path $Script:RootPath "assets"
 $Script:IconsPath = Join-Path $Script:AssetsPath "icons"
-$Script:CurrentVersion = "1.0.0"
+$Script:CurrentVersion = "2.0.0"
 $Script:CurrentCategory = "All"
 
 # Tool definitions
@@ -367,7 +367,7 @@ function Update-ToolsDisplay {
     if ($filteredTools.Count -eq 0) {
         $noResults = New-Object System.Windows.Controls.TextBlock
         $noResults.Text = "No tools match your search criteria"
-        $noResults.FontSize = 16
+        $noResults.FontSize = 14
         $noResults.Foreground = "#94A3B8"
         $noResults.Margin = "20,50,20,20"
         $noResults.TextAlignment = "Center"
@@ -382,127 +382,56 @@ function Update-ToolsDisplay {
     $Script:StatusLabel.Foreground = "#64748B"
     
     foreach ($tool in $filteredTools) {
-        # Create tool card
+        # Create compact tool card for grid layout (clickable, no button)
         $card = New-Object System.Windows.Controls.Border
         $card.Style = $Script:Window.FindResource("ToolCard")
-        $card.Height = 110
+        $card.Width = 300
+        $card.Height = 90
+        $card.Cursor = "Hand"
         
-        $grid = New-Object System.Windows.Controls.Grid
-        $col1 = New-Object System.Windows.Controls.ColumnDefinition
-        $col1.Width = "80"
-        $col2 = New-Object System.Windows.Controls.ColumnDefinition
-        $col2.Width = "*"
-        $col3 = New-Object System.Windows.Controls.ColumnDefinition
-        $col3.Width = "150"
-        $null = $grid.ColumnDefinitions.Add($col1)
-        $null = $grid.ColumnDefinitions.Add($col2)
-        $null = $grid.ColumnDefinitions.Add($col3)
-        
-        # Icon
-        $iconBorder = New-Object System.Windows.Controls.Border
-        $iconBorder.Width = 70
-        $iconBorder.Height = 70
-        $iconBorder.CornerRadius = 35
-        $iconBorder.Background = $tool.Color
-        $iconBorder.VerticalAlignment = "Center"
-        $null = [System.Windows.Controls.Grid]::SetColumn($iconBorder, 0)
-        
-        # Try to load PNG icon if IconPath is specified, otherwise use text icon
-        if ($tool.IconPath) {
-            $iconFilePath = Join-Path $Script:IconsPath $tool.IconPath
-            if (Test-Path $iconFilePath) {
-                try {
-                    $iconImage = New-Object System.Windows.Controls.Image
-                    $iconUri = New-Object System.Uri((Resolve-Path $iconFilePath).Path)
-                    $iconBitmap = New-Object System.Windows.Media.Imaging.BitmapImage($iconUri)
-                    $iconImage.Source = $iconBitmap
-                    $iconImage.Width = 50
-                    $iconImage.Height = 50
-                    $iconImage.Stretch = "Uniform"
-                    $iconImage.HorizontalAlignment = "Center"
-                    $iconImage.VerticalAlignment = "Center"
-                    $iconBorder.Child = $iconImage
-                }
-                catch {
-                    # Fallback to text icon if image loading fails
-                    $iconText = New-Object System.Windows.Controls.TextBlock
-                    $iconText.Text = $tool.Icon
-                    $iconText.FontSize = 32
-                    $iconText.HorizontalAlignment = "Center"
-                    $iconText.VerticalAlignment = "Center"
-                    $iconText.Foreground = "White"
-                    $iconBorder.Child = $iconText
-                }
-            }
-            else {
-                # Icon file not found, use text icon
-                $iconText = New-Object System.Windows.Controls.TextBlock
-                $iconText.Text = $tool.Icon
-                $iconText.FontSize = 32
-                $iconText.HorizontalAlignment = "Center"
-                $iconText.VerticalAlignment = "Center"
-                $iconText.Foreground = "White"
-                $iconBorder.Child = $iconText
-            }
-        }
-        else {
-            # Use text icon as fallback
-            $iconText = New-Object System.Windows.Controls.TextBlock
-            $iconText.Text = $tool.Icon
-            $iconText.FontSize = 32
-            $iconText.HorizontalAlignment = "Center"
-            $iconText.VerticalAlignment = "Center"
-            $iconText.Foreground = "White"
-            $iconBorder.Child = $iconText
-        }
-        
-        # Info stack
+        # Info stack with truncated description (no icon, no button)
         $infoStack = New-Object System.Windows.Controls.StackPanel
-        $infoStack.Margin = "15,0,0,0"
+        $infoStack.Margin = "10,0,10,0"
         $infoStack.VerticalAlignment = "Center"
-        $null = [System.Windows.Controls.Grid]::SetColumn($infoStack, 1)
         
         $nameText = New-Object System.Windows.Controls.TextBlock
         $nameText.Text = $tool.Name
-        $nameText.FontSize = 16
+        $nameText.FontSize = 13
         $nameText.FontWeight = "Bold"
         $nameText.Foreground = "#1E293B"
+        $nameText.TextWrapping = "NoWrap"
+        $nameText.TextTrimming = "CharacterEllipsis"
         
+        # Truncate description to ~60 characters
         $descText = New-Object System.Windows.Controls.TextBlock
-        $descText.Text = $tool.Description
-        $descText.FontSize = 12
+        $truncatedDesc = if ($tool.Description.Length -gt 60) {
+            $tool.Description.Substring(0, 57) + "..."
+        } else {
+            $tool.Description
+        }
+        $descText.Text = $truncatedDesc
+        $descText.FontSize = 10
         $descText.Foreground = "#64748B"
         $descText.TextWrapping = "Wrap"
-        $descText.Margin = "0,5,0,0"
+        $descText.Margin = "0,3,0,0"
+        $descText.MaxHeight = 28
         
         $null = $infoStack.Children.Add($nameText)
         $null = $infoStack.Children.Add($descText)
         
-        # Launch button
-        $launchBtn = New-Object System.Windows.Controls.Button
-        $launchBtn.Content = "Launch"
-        $launchBtn.Style = $Script:Window.FindResource("ModernButton")
-        $launchBtn.Width = 130
-        $launchBtn.Height = 45
-        $launchBtn.Background = $tool.Color
-        $launchBtn.VerticalAlignment = "Center"
-        $null = [System.Windows.Controls.Grid]::SetColumn($launchBtn, 2)
+        $card.Child = $infoStack
         
-        $launchBtn.Tag = @{
+        # Make entire card clickable
+        $card.Tag = @{
             Script = $tool.Script
             Name = $tool.Name
         }
         
-        $null = $launchBtn.Add_Click({
+        $null = $card.Add_MouseLeftButtonUp({
             $toolInfo = $this.Tag
             Start-Tool -ScriptName $toolInfo.Script -ToolName $toolInfo.Name
         })
         
-        $null = $grid.Children.Add($iconBorder)
-        $null = $grid.Children.Add($infoStack)
-        $null = $grid.Children.Add($launchBtn)
-        
-        $card.Child = $grid
         $null = $Script:ToolsPanel.Children.Add($card)
     }
 }

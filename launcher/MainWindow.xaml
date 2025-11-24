@@ -14,7 +14,7 @@
             <Setter Property="Background" Value="#667eea"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontFamily" Value="Segoe UI"/>
-            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -22,8 +22,8 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}" 
-                                CornerRadius="22" 
-                                Padding="20,12">
+                                CornerRadius="18" 
+                                Padding="12,8">
                             <ContentPresenter HorizontalAlignment="Center" 
                                             VerticalAlignment="Center"/>
                         </Border>
@@ -44,19 +44,19 @@
         <Style x:Key="CategoryButton" TargetType="Button">
             <Setter Property="Background" Value="White"/>
             <Setter Property="FontFamily" Value="Segoe UI"/>
-            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontSize" Value="9"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="Margin" Value="5,0"/>
+            <Setter Property="Margin" Value="3,0"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}" 
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="18" 
-                                Padding="15,8">
+                                CornerRadius="12" 
+                                Padding="10,5">
                             <ContentPresenter HorizontalAlignment="Center" 
                                             VerticalAlignment="Center"/>
                         </Border>
@@ -73,14 +73,14 @@
         <!-- Tool Card Style -->
         <Style x:Key="ToolCard" TargetType="Border">
             <Setter Property="Background" Value="White"/>
-            <Setter Property="CornerRadius" Value="15"/>
-            <Setter Property="Margin" Value="10"/>
-            <Setter Property="Padding" Value="20"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="12"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Effect">
                         <Setter.Value>
-                            <DropShadowEffect Color="#667eea" BlurRadius="15" ShadowDepth="0" Opacity="0.3"/>
+                            <DropShadowEffect Color="#667eea" BlurRadius="12" ShadowDepth="0" Opacity="0.3"/>
                         </Setter.Value>
                     </Setter>
                 </Trigger>
@@ -92,17 +92,17 @@
             <Setter Property="Background" Value="#F8FAFC"/>
             <Setter Property="BorderBrush" Value="#CBD5E1"/>
             <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Padding" Value="15,10"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="10,6"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
                         <Border Background="{TemplateBinding Background}" 
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="20">
+                                CornerRadius="15">
                             <ScrollViewer x:Name="PART_ContentHost" 
-                                        Margin="10,0"/>
+                                        Margin="8,0"/>
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
@@ -124,11 +124,11 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="40"/>      <!-- Title bar -->
-                <RowDefinition Height="160"/>     <!-- Header -->
-                <RowDefinition Height="120"/>     <!-- Search & Filter -->
-                <RowDefinition Height="*"/>       <!-- Tools -->
-                <RowDefinition Height="50"/>      <!-- Status bar -->
-                <RowDefinition Height="70"/>      <!-- Buttons -->
+                <RowDefinition Height="70"/>      <!-- Logo (Compact) -->
+                <RowDefinition Height="80"/>      <!-- Search & Filter (Compact) -->
+                <RowDefinition Height="*"/>       <!-- Tools (Grid) -->
+                <RowDefinition Height="30"/>      <!-- Status bar (Compact) -->
+                <RowDefinition Height="50"/>      <!-- Buttons (Compact) -->
             </Grid.RowDefinitions>
 
             <!-- Custom Title Bar -->
@@ -159,72 +159,65 @@
                 </StackPanel>
             </Grid>
 
-            <!-- Header with White Background -->
+            <!-- Compact Logo Section -->
             <Grid Grid.Row="1" Background="White">
-                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,15,0,15">
-                    <!-- SouliTEK Logo -->
-                    <Image Name="LogoImage" 
-                           Height="80" 
-                           Stretch="Uniform"
-                           HorizontalAlignment="Center"
-                           Margin="0,0,0,15"/>
-                    
-                    <TextBlock Text="All-In-One Scripts" 
-                              FontSize="32" 
-                              FontWeight="Bold"
-                              Foreground="#1E293B"
-                              HorizontalAlignment="Center"/>
-                </StackPanel>
+                <Image Name="LogoImage" 
+                       Height="50" 
+                       Stretch="Uniform"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       Margin="0,10,0,10"/>
             </Grid>
 
-            <!-- Search & Filter Panel -->
+            <!-- Compact Search & Filter Panel -->
             <Grid Grid.Row="2" Background="White">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="40"/>
                 </Grid.RowDefinitions>
                 
                 <!-- Search Box -->
-                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="30,10">
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="15,8" VerticalAlignment="Center">
                     <TextBlock Text="Search:" 
-                              FontSize="12" 
+                              FontSize="10" 
                               FontWeight="Bold"
                               VerticalAlignment="Center" 
-                              Margin="0,0,10,0"
+                              Margin="0,0,8,0"
                               Foreground="#64748B"/>
                     <TextBox Name="SearchBox" 
                             Style="{StaticResource SearchBox}"
-                            Width="850"/>
+                            Width="890"
+                            Height="28"/>
                 </StackPanel>
                 
                 <!-- Category Buttons -->
-                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="30,5" VerticalAlignment="Center">
+                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="15,2" VerticalAlignment="Center">
                     <TextBlock Text="Categories:" 
-                              FontSize="11" 
+                              FontSize="9" 
                               FontWeight="Bold"
                               VerticalAlignment="Center" 
-                              Margin="0,0,10,0"
+                              Margin="0,0,6,0"
                               Foreground="#64748B"/>
-                    <Button Name="BtnCatAll" Content="All" Style="{StaticResource CategoryButton}" Width="100"/>
-                    <Button Name="BtnCatSetup" Content="Setup" Style="{StaticResource CategoryButton}" Width="100"/>
-                    <Button Name="BtnCatNetwork" Content="Network" Style="{StaticResource CategoryButton}" Width="100"/>
-                    <Button Name="BtnCatSecurity" Content="Security" Style="{StaticResource CategoryButton}" Width="100"/>
-                    <Button Name="BtnCatSupport" Content="Support" Style="{StaticResource CategoryButton}" Width="100"/>
-                    <Button Name="BtnCatSoftware" Content="Software" Style="{StaticResource CategoryButton}" Width="100"/>
-                    <Button Name="BtnCatM365" Content="M365" Style="{StaticResource CategoryButton}" Width="100"/>
-                    <Button Name="BtnCatHardware" Content="Hardware" Style="{StaticResource CategoryButton}" Width="100"/>
+                    <Button Name="BtnCatAll" Content="All" Style="{StaticResource CategoryButton}" Width="80" Height="24"/>
+                    <Button Name="BtnCatSetup" Content="Setup" Style="{StaticResource CategoryButton}" Width="80" Height="24"/>
+                    <Button Name="BtnCatNetwork" Content="Network" Style="{StaticResource CategoryButton}" Width="80" Height="24"/>
+                    <Button Name="BtnCatSecurity" Content="Security" Style="{StaticResource CategoryButton}" Width="80" Height="24"/>
+                    <Button Name="BtnCatSupport" Content="Support" Style="{StaticResource CategoryButton}" Width="80" Height="24"/>
+                    <Button Name="BtnCatSoftware" Content="Software" Style="{StaticResource CategoryButton}" Width="80" Height="24"/>
+                    <Button Name="BtnCatM365" Content="M365" Style="{StaticResource CategoryButton}" Width="80" Height="24"/>
+                    <Button Name="BtnCatHardware" Content="Hardware" Style="{StaticResource CategoryButton}" Width="80" Height="24"/>
                 </StackPanel>
             </Grid>
 
-            <!-- Tools ScrollViewer -->
+            <!-- Tools ScrollViewer with WrapPanel for Grid Layout -->
             <ScrollViewer Grid.Row="3" 
                          VerticalScrollBarVisibility="Auto"
-                         Margin="20,10"
+                         Margin="10,5"
                          Background="#F8FAFC">
-                <StackPanel Name="ToolsPanel" Margin="10"/>
+                <WrapPanel Name="ToolsPanel" Orientation="Horizontal"/>
             </ScrollViewer>
 
-            <!-- Status Bar -->
+            <!-- Compact Status Bar -->
             <Grid Grid.Row="4" Background="#F8FAFC">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -234,39 +227,39 @@
                 <TextBlock Name="StatusLabel" 
                           Grid.Column="0"
                           Text="Ready - Select a tool to launch" 
-                          FontSize="11"
+                          FontSize="9"
                           Foreground="#64748B" 
                           VerticalAlignment="Center" 
-                          Margin="30,0"/>
+                          Margin="15,0"/>
                 <TextBlock Name="VersionLabel" 
                           Grid.Column="1"
-                          Text="Version 1.0.0" 
-                          FontSize="11"
+                          Text="Version 2.0.0" 
+                          FontSize="9"
                           Foreground="#94A3B8" 
                           VerticalAlignment="Center" 
                           HorizontalAlignment="Center"
-                          Margin="20,0"/>
+                          Margin="15,0"/>
                 <TextBlock Name="AdminLabel" 
                           Grid.Column="2"
                           Text="Administrator" 
-                          FontSize="11"
+                          FontSize="9"
                           FontWeight="Bold"
                           Foreground="#10B981" 
                           VerticalAlignment="Center" 
                           HorizontalAlignment="Right"
-                          Margin="0,0,30,0"/>
+                          Margin="0,0,15,0"/>
             </Grid>
 
-            <!-- Bottom Buttons -->
+            <!-- Compact Bottom Buttons -->
             <StackPanel Grid.Row="5" 
                        Orientation="Horizontal" 
                        HorizontalAlignment="Center"
                        VerticalAlignment="Center">
-                <Button Name="HelpButton" Content="Help" Width="110" Height="40" Style="{StaticResource ModernButton}" Margin="5" Background="#6366f1"/>
-                <Button Name="AboutButton" Content="About" Width="110" Height="40" Style="{StaticResource ModernButton}" Margin="5" Background="#8b5cf6"/>
-                <Button Name="GitHubButton" Content="GitHub" Width="110" Height="40" Style="{StaticResource ModernButton}" Margin="5" Background="#1e293b"/>
-                <Button Name="WebsiteButton" Content="Website" Width="110" Height="40" Style="{StaticResource ModernButton}" Margin="5" Background="#14b8a6"/>
-                <Button Name="ExitButton" Content="Exit" Width="110" Height="40" Style="{StaticResource ModernButton}" Margin="5" Background="#ef4444"/>
+                <Button Name="HelpButton" Content="Help" Width="90" Height="35" Style="{StaticResource ModernButton}" Margin="3" Background="#6366f1"/>
+                <Button Name="AboutButton" Content="About" Width="90" Height="35" Style="{StaticResource ModernButton}" Margin="3" Background="#8b5cf6"/>
+                <Button Name="GitHubButton" Content="GitHub" Width="90" Height="35" Style="{StaticResource ModernButton}" Margin="3" Background="#1e293b"/>
+                <Button Name="WebsiteButton" Content="Website" Width="90" Height="35" Style="{StaticResource ModernButton}" Margin="3" Background="#14b8a6"/>
+                <Button Name="ExitButton" Content="Exit" Width="90" Height="35" Style="{StaticResource ModernButton}" Margin="3" Background="#ef4444"/>
             </StackPanel>
         </Grid>
     </Border>
