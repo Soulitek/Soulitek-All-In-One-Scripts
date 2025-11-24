@@ -168,7 +168,6 @@ $Script:Tools = @(
     @{
         Name = "WiFi Password Viewer"
         Icon = "[W]"
-        IconPath = "lan.png"
         Description = "View and export saved WiFi passwords from Windows"
         Script = "wifi_password_viewer.ps1"
         Category = "Network"
@@ -187,7 +186,6 @@ $Script:Tools = @(
     @{
         Name = "Network Test Tool"
         Icon = "[N]"
-        IconPath = "lan.png"
         Description = "Ping, tracert, DNS lookup, and latency testing for network diagnostics"
         Script = "network_test_tool.ps1"
         Category = "Network"
@@ -197,7 +195,6 @@ $Script:Tools = @(
     @{
         Name = "Network Configuration Tool"
         Icon = "[NC]"
-        IconPath = "lan.png"
         Description = "View IP configuration, set static IP addresses, flush DNS cache, and reset network adapters"
         Script = "network_configuration_tool.ps1"
         Category = "Network"
@@ -225,7 +222,6 @@ $Script:Tools = @(
     @{
         Name = "Storage Health Monitor"
         Icon = "[SH]"
-        IconPath = "ssd.png"
         Description = "Monitor storage health with SMART data, detect reallocated sectors and read errors"
         Script = "storage_health_monitor.ps1"
         Category = "Hardware"
@@ -244,7 +240,6 @@ $Script:Tools = @(
     @{
         Name = "RAM Slot Utilization Report"
         Icon = "[RAM]"
-        IconPath = "ram.png"
         Description = "Shows RAM slots used vs total, type (DDR3/DDR4/DDR5), speed, and capacity"
         Script = "ram_slot_utilization_report.ps1"
         Category = "Hardware"
@@ -254,7 +249,6 @@ $Script:Tools = @(
     @{
         Name = "Disk Usage Analyzer"
         Icon = "[D]"
-        IconPath = "ssd.png"
         Description = "Find folders larger than 1 GB and export results sorted by size with HTML visualization"
         Script = "disk_usage_analyzer.ps1"
         Category = "Hardware"
@@ -264,7 +258,6 @@ $Script:Tools = @(
     @{
         Name = "Startup & Boot Time Analyzer"
         Icon = "[⚡]"
-        IconPath = "cpu.png"
         Description = "Analyze startup programs, boot performance, and get optimization recommendations with HTML reports"
         Script = "startup_boot_analyzer.ps1"
         Category = "Performance"

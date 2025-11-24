@@ -157,17 +157,13 @@ function Clear-UserTemp {
             $totalFiles += $fileCount
             
             if ($size -gt 0) {
-                if (Test-Path $tempPath) {
-                    try {
-                        Get-ChildItem -Path $tempPath -Recurse -File -ErrorAction SilentlyContinue | 
-                            Remove-Item -Force -ErrorAction Stop
-                        Write-Host "  [OK] Cleaned: $(Format-FileSize $size)" -ForegroundColor Green
-                    }
-                    catch {
-                        Write-Host "  [WARNING] Some files could not be deleted: $($_.Exception.Message)" -ForegroundColor Yellow
-                    }
-                } else {
-                    Write-Host "  [INFO] Path not found: $tempPath" -ForegroundColor Gray
+                try {
+                    Get-ChildItem -Path $tempPath -Recurse -File -ErrorAction SilentlyContinue | 
+                        Remove-Item -Force -ErrorAction Stop
+                    Write-Host "  [OK] Cleaned: $(Format-FileSize $size)" -ForegroundColor Green
+                }
+                catch {
+                    Write-Host "  [WARNING] Some files could not be deleted: $($_.Exception.Message)" -ForegroundColor Yellow
                 }
             }
         }
@@ -201,17 +197,13 @@ function Clear-SystemTemp {
         $totalFiles = $fileCount
         
         if ($size -gt 0) {
-            if (Test-Path $systemTempPath) {
-                try {
-                    Get-ChildItem -Path $systemTempPath -Recurse -File -ErrorAction SilentlyContinue | 
-                        Remove-Item -Force -ErrorAction Stop
-                    Write-Host "  [OK] Cleaned: $(Format-FileSize $size)" -ForegroundColor Green
-                }
-                catch {
-                    Write-Host "  [WARNING] Some files could not be deleted: $($_.Exception.Message)" -ForegroundColor Yellow
-                }
-            } else {
-                Write-Host "  [INFO] Path not found: $systemTempPath" -ForegroundColor Gray
+            try {
+                Get-ChildItem -Path $systemTempPath -Recurse -File -ErrorAction SilentlyContinue | 
+                    Remove-Item -Force -ErrorAction Stop
+                Write-Host "  [OK] Cleaned: $(Format-FileSize $size)" -ForegroundColor Green
+            }
+            catch {
+                Write-Host "  [WARNING] Some files could not be deleted: $($_.Exception.Message)" -ForegroundColor Yellow
             }
         }
     }
@@ -1042,5 +1034,3 @@ if (-not (Test-Administrator)) {
 
 # Start the main menu
 Show-MainMenu
-
-
