@@ -54,7 +54,7 @@ All scripts in `scripts/` directory:
 | 11 | network_test_tool.ps1 | ✅ | Exit function |
 | 12 | printer_spooler_fix.ps1 | ✅ | Exit function |
 | 13 | ram_slot_utilization_report.ps1 | ✅ | Exit function |
-| 14 | SouliTEK-WinGet-Installer.ps1 | ✅ | Both exit paths |
+| 14 | SouliTEK-Softwares-Installer.ps1 | ✅ | Both exit paths |
 | 15 | startup_boot_analyzer.ps1 | ✅ | Menu exit case |
 | 16 | storage_health_monitor.ps1 | ✅ | Exit function |
 | 17 | temp_removal_disk_cleanup.ps1 | ✅ | Exit function |
@@ -65,7 +65,7 @@ All scripts in `scripts/` directory:
 ### Verification
 
 ```
-✅ 21 matches found across 20 scripts (SouliTEK-WinGet-Installer has 2: normal + error)
+✅ 21 matches found across 20 scripts (SouliTEK-Softwares-Installer has 2: normal + error)
 ✅ 2 matches in modules (function definition + documentation)
 ✅ All scripts successfully updated
 ```
@@ -273,5 +273,6 @@ Self-destruction feature successfully implemented across all SouliTEK scripts. T
 **Coded by:** Soulitek.co.il  
 **Website:** www.soulitek.co.il  
 **© 2025 SouliTEK - All Rights Reserved**
+
 
 

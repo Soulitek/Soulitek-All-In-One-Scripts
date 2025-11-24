@@ -70,7 +70,7 @@ The following scripts now include self-destruction:
 11. network_test_tool.ps1
 12. printer_spooler_fix.ps1
 13. ram_slot_utilization_report.ps1
-14. SouliTEK-WinGet-Installer.ps1
+14. SouliTEK-Softwares-Installer.ps1
 15. startup_boot_analyzer.ps1
 16. storage_health_monitor.ps1
 17. temp_removal_disk_cleanup.ps1
@@ -159,7 +159,7 @@ The self-destruct function is called **only** when:
 
 - User explicitly selects "Exit" option
 - Script completes normally (for non-menu scripts)
-- Error scenarios with explicit exit (SouliTEK-WinGet-Installer)
+- Error scenarios with explicit exit (SouliTEK-Softwares-Installer)
 
 ### When Self-Destruct Does NOT Execute
 
@@ -222,5 +222,6 @@ The self-destruct function is called **only** when:
 **Coded by:** Soulitek.co.il  
 **Website:** www.soulitek.co.il  
 **© 2025 SouliTEK - All Rights Reserved**
+
 
 

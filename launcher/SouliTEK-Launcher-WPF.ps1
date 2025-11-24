@@ -205,10 +205,10 @@ $Script:Tools = @(
         Color = "#8b5cf6"
     },
     @{
-        Name = "WinGet Package Installer"
+        Name = "Softwares Installer"
         Icon = "[W]"
         Description = "Interactive package installer - Install essential business apps via WinGet"
-        Script = "SouliTEK-WinGet-Installer.ps1"
+        Script = "SouliTEK-Softwares-Installer.ps1"
         Category = "Software"
         Tags = @("winget", "installer", "software", "packages", "apps", "install", "microsoft", "package manager")
         Color = "#10b981"
@@ -288,6 +288,15 @@ $Script:Tools = @(
         Category = "Software"
         Tags = @("debloat", "bloatware", "telemetry", "optimization", "windows", "privacy", "cleanup", "registry", "win11", "win10")
         Color = "#8b5cf6"
+    },
+    @{
+        Name = "Software Updater"
+        Icon = "[UPD]"
+        Description = "Manage software updates via WinGet - Check for updates, auto-update all software, or review updates interactively"
+        Script = "software_updater.ps1"
+        Category = "Software"
+        Tags = @("winget", "update", "software", "upgrade", "maintenance", "packages", "automatic", "interactive")
+        Color = "#10b981"
     }
 )
 

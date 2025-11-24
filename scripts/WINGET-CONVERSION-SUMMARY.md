@@ -1,6 +1,6 @@
 # WinGet Conversion Summary
 
-## Script: SouliTEK-WinGet-Installer.ps1 (formerly SouliTEK-Choco-Installer.ps1)
+## Script: SouliTEK-Softwares-Installer.ps1 (formerly SouliTEK-WinGet-Installer.ps1, originally SouliTEK-Choco-Installer.ps1)
 
 ### Changes Made
 
@@ -65,15 +65,15 @@ winget install -e --id <PackageId> --silent --accept-package-agreements --accept
 
 #### 8. Updated Paths and Branding
 - Log folder: `$env:ProgramData\SouliTEK\WinGetInstaller\Logs`
-- Summary file: `SouliTEK-WinGet-Installer-Result.json`
-- Window title: "SOULITEK WINGET INSTALLER"
-- Banner: "WinGet Package Installer"
+- Summary file: `SouliTEK-Softwares-Installer-Result.json`
+- Window title: "SOULITEK SOFTWARES INSTALLER"
+- Banner: "Softwares Installer"
 
 ### Testing Requirements
 
 To test the script:
 1. Run PowerShell as Administrator
-2. Execute: `.\SouliTEK-WinGet-Installer.ps1`
+2. Execute: `.\SouliTEK-Softwares-Installer.ps1`
 3. Verify WinGet is detected or installed
 4. Test interactive menu navigation with 15 apps in 2-column grid
 5. Select packages and install
@@ -82,7 +82,7 @@ To test the script:
 8. Verify summary JSON output on desktop
 
 ### Recent Updates
-- **File renamed** from `SouliTEK-Choco-Installer.ps1` to `SouliTEK-WinGet-Installer.ps1`
+- **File renamed** from `SouliTEK-Choco-Installer.ps1` to `SouliTEK-WinGet-Installer.ps1` (later renamed to `SouliTEK-Softwares-Installer.ps1`)
 - **Transcript logging removed** - No longer creates log files in ProgramData
 - **Banner simplified** - Removed "Ninite-like UX" tagline
 - **Verbose installation progress** - Shows percentage progress (0%, 25%, 50%, 75%, 90%, 100%) during app installations

@@ -1,16 +1,16 @@
 ﻿<#
 .SYNOPSIS
-    SouliTEK WinGet Package Installer
+    SouliTEK Softwares Installer
 .DESCRIPTION
     Interactive TUI menu to select and install applications via WinGet.
     Auto-installs WinGet if missing. Installs essential business applications.
 .PARAMETER Preset
     Path to JSON preset file containing package IDs to install
 .EXAMPLE
-    .\SouliTEK-WinGet-Installer.ps1
+    .\SouliTEK-Softwares-Installer.ps1
     Opens interactive menu
 .EXAMPLE
-    .\SouliTEK-WinGet-Installer.ps1 -Preset .\my-preset.json
+    .\SouliTEK-Softwares-Installer.ps1 -Preset .\my-preset.json
     Installs packages from preset file
 .NOTES
     Author: SouliTEK
@@ -27,7 +27,7 @@ param(
 # GLOBAL CONFIGURATION
 # ============================================================================
 
-$Script:SummaryPath = "$env:USERPROFILE\Desktop\SouliTEK-WinGet-Installer-Result.json"
+$Script:SummaryPath = "$env:USERPROFILE\Desktop\SouliTEK-Softwares-Installer-Result.json"
 $Script:PresetFolder = "$env:USERPROFILE\Desktop"
 $Script:RebootRequired = $false
 $Script:InstallResults = @()
@@ -67,7 +67,7 @@ function Write-Banner {
     Write-Host " |_____/ \____/ \____/|______|_____|  |_|  |______|_|\_\" -ForegroundColor Cyan
     Write-Host "  =========================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "  WinGet Package Installer" -ForegroundColor White
+    Write-Host "  Softwares Installer" -ForegroundColor White
     Write-Host "  =========================================================" -ForegroundColor DarkGray
     Write-Host ""
 }
@@ -685,7 +685,7 @@ function Write-Summary {
         $rebootChoice = Read-Host
         if ($rebootChoice -eq "Y" -or $rebootChoice -eq "y") {
             Write-Host "  [*] Rebooting in 10 seconds..." -ForegroundColor Cyan
-            shutdown /r /t 10 /c "SouliTEK WinGet Installer - Reboot Required"
+            shutdown /r /t 10 /c "SouliTEK Softwares Installer - Reboot Required"
         }
     }
 }
@@ -707,7 +707,7 @@ function Stop-Gracefully {
 # ============================================================================
 
 try {
-    $Host.UI.RawUI.WindowTitle = "SOULITEK WINGET INSTALLER"
+    $Host.UI.RawUI.WindowTitle = "SOULITEK SOFTWARES INSTALLER"
     
     [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
     [Console]::InputEncoding = [System.Text.Encoding]::UTF8

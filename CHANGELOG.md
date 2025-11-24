@@ -20,6 +20,73 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.1.0] - 2025-11-24
+
+### Added
+
+#### New Tool - Software Updater (22nd Tool)
+- 🔄 **Software Updater** - Streamlined software update management using WinGet
+  - Check for available software updates
+  - List all packages with pending updates
+  - Automatic update mode (silent, non-interactive)
+  - Interactive update mode (review each package)
+  - Update history tracking (last 50 sessions)
+  - Export detailed update reports to Desktop
+  - Duration tracking for each update session
+  - Success/failure status recording
+  - Category: Software
+  - WinGet integration with automation flags
+  - Easy-to-use 5-option menu system
+
+#### Features
+- **Update Checking**: Lists all available software updates via WinGet
+- **Automatic Updates**: Silent, non-interactive updates for all software
+- **Interactive Updates**: Review and approve each update individually
+- **History Tracking**: Maintains record of last 50 update sessions
+- **Report Generation**: Export detailed reports to Desktop with timestamps
+
+#### WinGet Integration
+- Automatic software update detection
+- Silent, non-interactive update mode with flags:
+  - `--silent` - No UI or prompts
+  - `--accept-package-agreements` - Auto-accept licenses
+  - `--accept-source-agreements` - Auto-accept source terms
+  - `--disable-interactivity` - Prevent user prompts
+- Interactive mode for selective updates
+- Based on [Microsoft WinGet documentation](https://learn.microsoft.com/en-us/windows/package-manager/winget/upgrade)
+- Exit code handling (0 and -1978335189 for success/partial success)
+
+### Changed
+- Updated SouliTEK Launcher to include Software Updater tool
+- Positioned in Software category for easy access
+
+### Documentation
+- Created comprehensive documentation: `docs/software_updater.md`
+- Includes usage examples, comparison tables, and troubleshooting guide
+- Updated workflow_state.md with v2.1.0 release information
+
+---
+
+## [2.0.0] - 2025-11-24
+
+### Changed
+
+#### GUI Redesign - Compact Grid Layout
+- Redesigned launcher with 3-column grid layout
+- Shows 3x more tools without scrolling (6-8 vs 2-3)
+- Compact tool cards: 300px × 90px (text-only, no icons)
+- Removed launch buttons - entire card is clickable
+- Hand cursor on hover indicates clickability
+- Truncated descriptions for one-line display (~60 chars)
+- Compact logo at top (50px height, 70px row)
+- Combined search and categories (80px row)
+- Reduced font sizes throughout (9-13px)
+- Compact status bar (30px) and buttons (50px)
+- Kept blue title bar (#667eea) and action button colors
+- Clean, professional appearance with minimal distractions
+
+---
+
 ## [1.0.0] - 2025-11-05
 
 ### Added

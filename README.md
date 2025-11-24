@@ -71,7 +71,7 @@ iwr -useb https://get.soulitek.co.il | iex
 - **Temp Removal & Disk Cleanup** - Remove temporary files, clean browser cache, empty Recycle Bin, and free up disk space
 
 ### 💻 Software
-- **WinGet Package Installer** - Interactive package installer - Install essential business apps via WinGet
+- **Softwares Installer** - Interactive package installer - Install essential business apps via WinGet
 - **Win11Debloat** - Remove bloatware, disable telemetry, and optimize Windows 10/11 systems
 - **McAfee Removal Tool** - Complete removal of McAfee products using MCPR (McAfee Consumer Product Removal) tool
 

@@ -1,17 +1,53 @@
 # Workflow State - SouliTEK All-In-One Scripts
 
-**Date:** 2025-11-24  
-**Project Status:** Production Ready - v2.0.0  
-**Current Task:** Compact GUI Redesign
+**Date:** 2025-01-XX  
+**Project Status:** Production Ready - v2.1.0  
+**Current Task:** Script Renaming - Softwares Installer
 
 ---
 
 ## Current Status
 
 ✅ **Project Ready for Publication**  
-✅ **GUI Redesigned for Compact Grid Layout - Version 2.0.0**
+✅ **GUI Redesigned for Compact Grid Layout - Version 2.0.0**  
+✅ **Software Updater Tool Implemented - Version 2.1.0**  
+✅ **Script Renamed: WinGet Package Installer → Softwares Installer**
 
-### Latest Completion (2025-11-24 - v2.0.0)
+### Latest Completion (2025-01-XX - Script Rename)
+- **Change:** Renamed "WinGet Package Installer" to "Softwares Installer"
+- **Files Updated:**
+  - Script file: `SouliTEK-WinGet-Installer.ps1` → `SouliTEK-Softwares-Installer.ps1`
+  - Updated script header, banner, window title, and summary path
+  - Updated launcher GUI reference
+  - Updated README.md
+  - Updated documentation files
+- **Purpose:** Simplified naming for better clarity
+
+### Previous Completion (2025-11-24 - v2.1.0)
+- **Feature:** Software Updater Tool (22nd tool)
+- **Purpose:** Streamlined software update management using Windows Package Manager
+- **Features:**
+  - Check for available software updates via WinGet
+  - Automatic update mode: Silent, non-interactive updates for all software
+  - Interactive update mode: Review and approve each update individually
+  - Update history tracking (last 50 sessions)
+  - Export detailed update reports to Desktop
+  - 5-option menu system
+  - Duration tracking for update sessions
+  - Success/failure status recording
+- **Integration:**
+  - Added to WPF Launcher in Software category
+  - Complete documentation created (docs/software_updater.md)
+  - Updated CHANGELOG.md with v2.1.0 release notes
+  - Self-destruct feature implemented
+- **Technical:**
+  - WinGet integration with automation flags
+  - Flags used: --silent, --accept-package-agreements, --accept-source-agreements, --disable-interactivity
+  - JSON-based update history storage
+  - Automatic cleanup of old history (keeps last 50)
+  - Exit code handling (0, -1978335189 for success/partial success)
+
+### Previous Completion (2025-11-24 - v2.0.0)
 - **Feature:** Compact GUI redesign with grid layout and simplified interaction
 - **Purpose:** Show more scripts with less scrolling and cleaner, simpler design
 - **Changes:**
@@ -67,16 +103,30 @@
   - Silent execution with 2-second delay for clean termination
 
 ### Completed
-- ✅ All 21 tools developed and tested
+- ✅ All 22 tools developed and tested
 - ✅ Security audit passed (2025-11-05)
 - ✅ Documentation complete
 - ✅ WPF launcher functional with compact grid layout (2025-11-24)
 - ✅ Installation system ready
 - ✅ No PII or security issues
 - ✅ Self-destruction feature implemented (2025-11-22)
+- ✅ Software Updater tool implemented (2025-11-24)
 
 ### Recent Changes (2025-11-24)
-- ✅ **Compact GUI Redesign** (v2.0.0 - Latest)
+- ✅ **Software Updater Tool** (v2.1.0 - Latest)
+  - 22nd tool added to SouliTEK toolkit
+  - Streamlined software update management via WinGet
+  - Check for available updates
+  - Automatic update mode (silent, non-interactive)
+  - Interactive update mode (review each package)
+  - Update history tracking (last 50 sessions)
+  - Export detailed reports to Desktop
+  - Duration tracking and status recording
+  - Added to Software category in launcher
+  - Complete documentation created
+  - Self-destruct feature implemented
+
+- ✅ **Compact GUI Redesign** (v2.0.0)
   - Redesigned launcher with grid layout showing 3 columns
   - Compact logo restored at top (50px height)
   - Compact tool cards (300px × 90px) - text only, no icons
@@ -86,7 +136,7 @@
   - Truncated descriptions for one-line display
   - Result: 3x more scripts visible without scrolling
   - Search and category filters preserved
-  - All 21 tools accessible in compact format
+  - All 22 tools accessible in compact format
   - Clean, professional appearance with minimal distractions
 
 ### Previous Changes (2025-11-22)
@@ -152,6 +202,35 @@
 
 ## New Tool Details
 
+### Software Updater Tool (`scripts/software_updater.ps1`)
+- **Version:** v1.0.0
+- **Purpose:** Streamlined software update management using Windows Package Manager
+- **Requirements:** Administrator privileges, Windows 10/11, WinGet installed
+- **Features:**
+  - Check for available software updates
+  - List all packages with pending updates
+  - Automatic update mode (silent, non-interactive)
+  - Interactive update mode (review each package)
+  - Update history tracking (last 50 sessions)
+  - Export detailed update reports to Desktop
+  - Duration tracking for each update session
+  - Success/failure status recording
+  - WinGet command: `winget upgrade --all --silent --accept-package-agreements --accept-source-agreements --disable-interactivity`
+  - Saves history to: `%LOCALAPPDATA%\SouliTEK\UpdateHistory.json`
+  - Export reports saved to Desktop with timestamps
+- **Menu Options:**
+  1. Check for Available Updates
+  2. Update All Software (Automatic)
+  3. Update Software (Interactive)
+  4. View Update History
+  5. Export Update Report
+  0. Exit (with self-destruct)
+- **Category:** Software
+- **Documentation:** `docs/software_updater.md`
+- **Safety:** Uses official WinGet sources, optional automatic updates
+
+---
+
 ### 1-Click PC Install Tool (`scripts/1-click_pc_install.ps1`)
 - **Version:** v1.0.2 (with timeout protection)
 - **Purpose:** Complete PC setup automation for new installations
@@ -200,13 +279,13 @@
 1. ✅ **Optimize 1-Click PC Install** - Removed pre-installation checks, added shortcuts
 2. ✅ **Enhanced WinGet Installation** - Added timeout protection and progress indicators
 3. ✅ **Compact GUI Redesign** - Grid layout with 3x more visible tools
-4. **User Feedback on GUI** - Gather feedback on new compact design
-5. **Test on Clean Windows** - Verify enhanced script on new PC installations
-6. **Verify Timeout Mechanism** - Test 7-minute timeout and error handling
-7. **Verify Desktop Shortcuts** - Test This PC and Documents shortcuts creation
-8. **Publish to GitHub** - Push v2.0.0 release with compact GUI
+4. ✅ **Software Updater Tool** - Streamlined software update management
+5. **Test Software Updater** - Verify WinGet integration and update functionality
+6. **User Feedback on New Tool** - Gather feedback on software updater utility
+7. **Test on Multiple Systems** - Verify compatibility across Windows versions
+8. **Publish to GitHub** - Push v2.1.0 release with Driver Integrity Scan
 9. **User Testing** - Gather feedback from technicians using the tools
-10. **Monitor Performance** - Measure installation time and timeout effectiveness
+10. **Monitor WinGet Updates** - Track software update success rates
 11. **Monitor Issues** - Address any reported bugs
 
 ---
@@ -219,5 +298,5 @@
 
 ---
 
-**Last Updated:** 2025-11-24 (v2.0.0)
+**Last Updated:** 2025-11-24 (v2.1.0)
 
