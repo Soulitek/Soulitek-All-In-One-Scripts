@@ -103,6 +103,15 @@ $Script:Tools = @(
         Color = "#10b981"
     },
     @{
+        Name = "Essential Tweaks"
+        Icon = "[ET]"
+        Description = "Essential Windows tweaks - Default apps, keyboards, language, taskbar settings"
+        Script = "essential_tweaks.ps1"
+        Category = "Setup"
+        Tags = @("tweaks", "settings", "default", "browser", "keyboard", "language", "taskbar", "chrome", "hebrew", "copilot", "acrobat", "pdf")
+        Color = "#10b981"
+    },
+    @{
         Name = "Battery Report Generator"
         Icon = "[B]"
         Description = "Generate comprehensive battery health reports for laptops"

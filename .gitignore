@@ -5,6 +5,16 @@ Desktop.ini
 $RECYCLE.BIN/
 *.lnk
 
+# Windows reserved device names (cannot be used as filenames)
+nul
+NUL
+con
+CON
+aux
+AUX
+prn
+PRN
+
 # PowerShell
 *.ps1~
 *.psm1~
