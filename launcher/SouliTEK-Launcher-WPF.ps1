@@ -299,6 +299,15 @@ $Script:Tools = @(
         Category = "Software"
         Tags = @("winget", "update", "software", "upgrade", "maintenance", "packages", "automatic", "interactive")
         Color = "#10b981"
+    },
+    @{
+        Name = "Domain & DNS Analyzer"
+        Icon = "[DNS]"
+        Description = "WHOIS lookup, DNS records analysis, and email security check (SPF, DKIM, DMARC)"
+        Script = "domain_dns_analyzer.ps1"
+        Category = "Internet"
+        Tags = @("dns", "whois", "domain", "spf", "dkim", "dmarc", "email", "security", "mx", "records", "rdap")
+        Color = "#0ea5e9"
     }
 )
 
@@ -457,6 +466,7 @@ function Set-CategoryActive {
         "All" = @{ Button = $Script:BtnCatAll; Color = "#6366f1" }
         "Setup" = @{ Button = $Script:BtnCatSetup; Color = "#10b981" }
         "Network" = @{ Button = $Script:BtnCatNetwork; Color = "#3b82f6" }
+        "Internet" = @{ Button = $Script:BtnCatInternet; Color = "#0ea5e9" }
         "Security" = @{ Button = $Script:BtnCatSecurity; Color = "#dc2626" }
         "Support" = @{ Button = $Script:BtnCatSupport; Color = "#10b981" }
         "Software" = @{ Button = $Script:BtnCatSoftware; Color = "#8b5cf6" }
@@ -617,6 +627,7 @@ $Script:LogoImage = $Window.FindName("LogoImage")
 $Script:BtnCatAll = $Window.FindName("BtnCatAll")
 $Script:BtnCatSetup = $Window.FindName("BtnCatSetup")
 $Script:BtnCatNetwork = $Window.FindName("BtnCatNetwork")
+$Script:BtnCatInternet = $Window.FindName("BtnCatInternet")
 $Script:BtnCatSecurity = $Window.FindName("BtnCatSecurity")
 $Script:BtnCatSupport = $Window.FindName("BtnCatSupport")
 $Script:BtnCatSoftware = $Window.FindName("BtnCatSoftware")
@@ -697,6 +708,7 @@ $null = $SearchBox.Add_LostFocus({
 $null = $BtnCatAll.Add_Click({ Set-CategoryActive "All" })
 $null = $BtnCatSetup.Add_Click({ Set-CategoryActive "Setup" })
 $null = $BtnCatNetwork.Add_Click({ Set-CategoryActive "Network" })
+$null = $BtnCatInternet.Add_Click({ Set-CategoryActive "Internet" })
 $null = $BtnCatSecurity.Add_Click({ Set-CategoryActive "Security" })
 $null = $BtnCatSupport.Add_Click({ Set-CategoryActive "Support" })
 $null = $BtnCatSoftware.Add_Click({ Set-CategoryActive "Software" })
