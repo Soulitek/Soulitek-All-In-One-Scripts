@@ -1,8 +1,8 @@
 # Workflow State - SouliTEK All-In-One Scripts
 
 **Date:** 2025-11-26  
-**Project Status:** Production Ready - v2.4.0  
-**Current Task:** Domain & DNS Analyzer Complete
+**Project Status:** Production Ready - v2.5.0  
+**Current Task:** Local Admin Users Checker Complete
 
 ---
 
@@ -13,9 +13,105 @@
 ✅ **Software Updater Tool Implemented - Version 2.1.0**  
 ✅ **Essential Tweaks Tool Implemented - Version 2.2.0**  
 ✅ **Code Optimization & Refactoring - Version 2.3.0**  
-✅ **Domain & DNS Analyzer Tool Implemented - Version 2.4.0**
+✅ **Domain & DNS Analyzer Tool Implemented - Version 2.4.0**  
+✅ **VirusTotal Checker Tool Implemented - Version 2.5.0**  
+✅ **Browser Plugin Checker Tool Implemented - Version 2.5.0**  
+✅ **Local Admin Users Checker Tool Implemented - Version 2.5.0**
 
-### Latest Completion (2025-11-26 - v2.4.0)
+### Latest Completion (2025-11-26 - v2.5.0)
+- **Feature:** Local Admin Users Checker Tool (27th tool)
+- **Purpose:** Identify unnecessary admin accounts - Common attack vector detection
+- **Category:** Security
+- **Features:**
+  1. **Account Enumeration:**
+     - Lists all members of local Administrators group
+     - Detects local and domain accounts
+     - Retrieves account details (enabled, password policy, last logon)
+  2. **Risk Assessment:**
+     - High, Medium, Low risk levels
+     - Flags disabled accounts in admin group
+     - Detects generic/suspicious account names
+     - Identifies password policy issues
+  3. **Export Capabilities:**
+     - Text file reports (.txt)
+     - CSV data export (.csv)
+     - HTML formatted reports (.html)
+- **Technical:**
+  - Uses Get-LocalGroupMember and Get-LocalUser
+  - Requires administrator privileges
+  - No external API required
+- **Integration:**
+  - Added to WPF Launcher in "Security" category
+  - Complete documentation created (docs/local_admin_checker.md)
+  - Self-destruct feature implemented
+
+### Previous Completion (2025-11-26 - v2.5.0)
+- **Feature:** Browser Plugin Checker Tool (26th tool)
+- **Purpose:** Scan browser extensions for security risks
+- **Category:** Security
+- **Features:**
+  1. **Multi-Browser Support:**
+     - Google Chrome
+     - Microsoft Edge
+     - Mozilla Firefox
+     - Brave Browser
+     - Opera
+     - Vivaldi
+  2. **Security Analysis:**
+     - Risk level assessment (High, Medium, Low)
+     - Permission analysis (risky permissions flagged)
+     - Pattern matching (suspicious extension names)
+     - Multi-profile support
+  3. **Export Capabilities:**
+     - Text file reports (.txt)
+     - CSV data export (.csv)
+     - HTML formatted reports (.html)
+- **Technical:**
+  - Reads extension manifests directly
+  - No external API required
+  - No admin privileges required
+- **Integration:**
+  - Added to WPF Launcher in "Security" category
+  - Complete documentation created (docs/browser_plugin_checker.md)
+  - Self-destruct feature implemented
+
+### Previous Completion (2025-11-26 - v2.5.0)
+- **Feature:** VirusTotal Checker Tool (25th tool)
+- **Purpose:** Check files and URLs against VirusTotal's malware database
+- **New Category:** Security (first tool in new category)
+- **Features:**
+  1. **File Checking:**
+     - Check files by path (auto-calculates MD5, SHA1, SHA256)
+     - Check files by hash directly
+     - Batch check multiple files in a folder
+     - Automatic rate limiting for API compliance
+  2. **URL Checking:**
+     - Check URL reputation against VirusTotal
+     - Submit new URLs for scanning
+     - View categories and threat classifications
+  3. **Results Display:**
+     - Color-coded threat levels (Clean, Low Risk, Medium Risk, High Risk)
+     - Detection breakdown (malicious, suspicious, harmless, undetected)
+     - Direct links to full VirusTotal reports
+  4. **API Key Management:**
+     - Secure local storage of API key
+     - API key validation on first use
+     - Option to save/remove stored key
+  5. **Export Capabilities:**
+     - Text file reports (.txt)
+     - CSV data export (.csv)
+     - HTML formatted reports (.html)
+- **Technical:**
+  - Uses VirusTotal API v3
+  - Requires free API key (4 req/min, 500/day)
+  - Privacy-focused: Only sends file hashes, never actual files
+  - No admin privileges required
+- **Integration:**
+  - Added to WPF Launcher in new "Security" category
+  - Complete documentation created (docs/virustotal_checker.md)
+  - Self-destruct feature implemented
+
+### Previous Completion (2025-11-26 - v2.4.0)
 - **Feature:** Domain & DNS Analyzer Tool (24th tool)
 - **Purpose:** Comprehensive domain WHOIS lookup and DNS record analysis
 - **New Category:** Internet (first tool in new category)
@@ -174,7 +270,7 @@
   - Simpler, cleaner interaction - just click the card
 
 ### Completed
-- ✅ All 24 tools developed and tested
+- ✅ All 27 tools developed and tested
 - ✅ Security audit passed (2025-11-05)
 - ✅ Documentation complete
 - ✅ WPF launcher functional with compact grid layout (2025-11-24)
@@ -186,9 +282,49 @@
 - ✅ Code optimization & refactoring completed (2025-11-24)
 - ✅ Domain & DNS Analyzer tool implemented (2025-11-26)
 - ✅ New "Internet" category added to launcher (2025-11-26)
+- ✅ VirusTotal Checker tool implemented (2025-11-26)
+- ✅ Browser Plugin Checker tool implemented (2025-11-26)
+- ✅ Local Admin Users Checker tool implemented (2025-11-26)
+- ✅ USB Device Log moved to Security category (2025-11-26)
+- ✅ All security tools consolidated in Security category (2025-11-26)
 
 ### Recent Changes (2025-11-26)
-- ✅ **Domain & DNS Analyzer Tool** (v2.4.0 - Latest)
+- ✅ **Local Admin Users Checker Tool** (v2.5.0 - Latest)
+  - 27th tool added to SouliTEK toolkit
+  - Added to "Security" category
+  - Identifies unnecessary admin accounts (common attack vector)
+  - Risk level assessment (High, Medium, Low)
+  - Flags disabled accounts, generic names, password policy issues
+  - Supports local and domain accounts
+  - Export to TXT, CSV, HTML formats
+  - Complete documentation created
+  - Self-destruct feature implemented
+
+- ✅ **Browser Plugin Checker Tool** (v2.5.0)
+  - 26th tool added to SouliTEK toolkit
+  - Added to "Security" category
+  - Multi-browser support (Chrome, Edge, Firefox, Brave, Opera, Vivaldi)
+  - Risk level assessment (High, Medium, Low)
+  - Permission analysis (risky permissions flagged)
+  - Pattern matching (suspicious extension names)
+  - Export to TXT, CSV, HTML formats
+  - Complete documentation created
+  - Self-destruct feature implemented
+
+- ✅ **VirusTotal Checker Tool** (v2.5.0)
+  - 25th tool added to SouliTEK toolkit
+  - Added to "Security" category
+  - Check files by path or hash against VirusTotal
+  - Check URLs for malicious content
+  - Batch file scanning with rate limiting
+  - Color-coded threat levels
+  - API key management with secure storage
+  - Export to TXT, CSV, HTML formats
+  - Added to launcher with new Security category button
+  - Complete documentation created
+  - Self-destruct feature implemented
+
+- ✅ **Domain & DNS Analyzer Tool** (v2.4.0)
   - 24th tool added to SouliTEK toolkit
   - New "Internet" category created
   - WHOIS lookup via RDAP API (no external dependencies)
@@ -257,6 +393,93 @@
 ---
 
 ## New Tool Details
+
+### VirusTotal Checker Tool (`scripts/virustotal_checker.ps1`)
+- **Version:** v1.0.0
+- **Purpose:** Check files and URLs against VirusTotal's malware database
+- **Requirements:** Windows 10/11, Internet connection, Free VirusTotal API key
+- **Category:** Security
+- **Features:**
+  - Check files by path (auto-calculates hashes)
+  - Check files by hash (MD5, SHA1, SHA256)
+  - Check URLs for malicious content
+  - Submit new URLs for scanning
+  - Batch check multiple files
+  - Color-coded threat levels
+  - API key management
+  - Export to TXT, CSV, HTML
+- **Menu Options:**
+  1. Check File by Path
+  2. Check File by Hash
+  3. Check URL
+  4. Batch Check Files
+  5. View Scan Results
+  6. Export Results
+  7. Configure API Key
+  8. Help
+  0. Exit (with self-destruct)
+- **Documentation:** `docs/virustotal_checker.md`
+- **Technical:**
+  - Uses VirusTotal API v3
+  - Privacy-focused: Only sends hashes, not files
+  - Free API: 4 req/min, 500/day
+  - API key stored at: `%LOCALAPPDATA%\SouliTEK\VTApiKey.txt`
+
+---
+
+### Browser Plugin Checker Tool (`scripts/browser_plugin_checker.ps1`)
+- **Version:** v1.0.0
+- **Purpose:** Scan browser extensions for security risks
+- **Requirements:** Windows 10/11 (No admin required)
+- **Category:** Security
+- **Features:**
+  - Multi-browser support (Chrome, Edge, Firefox, Brave, Opera, Vivaldi)
+  - Risk level assessment (High, Medium, Low)
+  - Permission analysis (risky permissions flagged)
+  - Pattern matching (suspicious extension names)
+  - Multi-profile support
+  - Export to TXT, CSV, HTML
+- **Menu Options:**
+  1. Full Scan
+  2. View All Extensions
+  3. View Risky Extensions
+  4. Export Results
+  5. Help
+  0. Exit (with self-destruct)
+- **Documentation:** `docs/browser_plugin_checker.md`
+- **Technical:**
+  - Reads extension manifests directly
+  - No external API required
+  - Flags risky permissions (all_urls, cookies, history, etc.)
+  - Detects suspicious patterns (adware, crypto miners, PUPs)
+
+---
+
+### Local Admin Users Checker Tool (`scripts/local_admin_checker.ps1`)
+- **Version:** v1.0.0
+- **Purpose:** Identify unnecessary admin accounts - Common attack vector detection
+- **Requirements:** Windows 10/11, Administrator privileges
+- **Category:** Security
+- **Features:**
+  - Lists all local Administrators group members
+  - Risk level assessment (High, Medium, Low)
+  - Flags disabled accounts, generic names, password policy issues
+  - Supports local and domain accounts
+  - Export to TXT, CSV, HTML
+- **Menu Options:**
+  1. Full Scan
+  2. View Suspicious Admins
+  3. Export Results
+  4. Help
+  0. Exit (with self-destruct)
+- **Documentation:** `docs/local_admin_checker.md`
+- **Technical:**
+  - Uses Get-LocalGroupMember and Get-LocalUser
+  - Requires administrator privileges
+  - Detects suspicious patterns (test, temp, demo, etc.)
+  - Identifies security misconfigurations
+
+---
 
 ### Domain & DNS Analyzer Tool (`scripts/domain_dns_analyzer.ps1`)
 - **Version:** v1.0.0
@@ -409,4 +632,4 @@
 
 ---
 
-**Last Updated:** 2025-11-24 (v2.3.0)
+**Last Updated:** 2025-11-26 (v2.5.0)

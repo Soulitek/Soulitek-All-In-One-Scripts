@@ -198,15 +198,15 @@
                               VerticalAlignment="Center" 
                               Margin="0,0,6,0"
                               Foreground="#64748B"/>
-                    <Button Name="BtnCatAll" Content="All" Style="{StaticResource CategoryButton}" Width="70" Height="24"/>
-                    <Button Name="BtnCatSetup" Content="Setup" Style="{StaticResource CategoryButton}" Width="70" Height="24"/>
-                    <Button Name="BtnCatNetwork" Content="Network" Style="{StaticResource CategoryButton}" Width="75" Height="24"/>
-                    <Button Name="BtnCatInternet" Content="Internet" Style="{StaticResource CategoryButton}" Width="75" Height="24"/>
-                    <Button Name="BtnCatSecurity" Content="Security" Style="{StaticResource CategoryButton}" Width="75" Height="24"/>
-                    <Button Name="BtnCatSupport" Content="Support" Style="{StaticResource CategoryButton}" Width="75" Height="24"/>
-                    <Button Name="BtnCatSoftware" Content="Software" Style="{StaticResource CategoryButton}" Width="75" Height="24"/>
-                    <Button Name="BtnCatM365" Content="M365" Style="{StaticResource CategoryButton}" Width="60" Height="24"/>
-                    <Button Name="BtnCatHardware" Content="Hardware" Style="{StaticResource CategoryButton}" Width="80" Height="24"/>
+                    <Button Name="BtnCatAll" Content="All" Style="{StaticResource CategoryButton}" Width="50" Height="24"/>
+                    <Button Name="BtnCatSetup" Content="Setup" Style="{StaticResource CategoryButton}" Width="60" Height="24"/>
+                    <Button Name="BtnCatNetwork" Content="Network" Style="{StaticResource CategoryButton}" Width="70" Height="24"/>
+                    <Button Name="BtnCatInternet" Content="Internet" Style="{StaticResource CategoryButton}" Width="70" Height="24"/>
+                    <Button Name="BtnCatSecurity" Content="Security" Style="{StaticResource CategoryButton}" Width="70" Height="24"/>
+                    <Button Name="BtnCatSupport" Content="Support" Style="{StaticResource CategoryButton}" Width="70" Height="24"/>
+                    <Button Name="BtnCatSoftware" Content="Software" Style="{StaticResource CategoryButton}" Width="72" Height="24"/>
+                    <Button Name="BtnCatM365" Content="M365" Style="{StaticResource CategoryButton}" Width="55" Height="24"/>
+                    <Button Name="BtnCatHardware" Content="Hardware" Style="{StaticResource CategoryButton}" Width="75" Height="24"/>
                 </StackPanel>
             </Grid>
 

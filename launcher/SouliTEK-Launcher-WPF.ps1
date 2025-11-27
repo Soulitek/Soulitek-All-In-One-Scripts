@@ -88,7 +88,7 @@ Write-Host "Running as Administrator." -ForegroundColor Green
 $Script:ScriptPath = Join-Path $Script:RootPath "scripts"
 $Script:AssetsPath = Join-Path $Script:RootPath "assets"
 $Script:IconsPath = Join-Path $Script:AssetsPath "icons"
-$Script:CurrentVersion = "2.0.0"
+$Script:CurrentVersion = "2.5.0"
 $Script:CurrentCategory = "All"
 
 # Tool definitions
@@ -208,7 +208,16 @@ $Script:Tools = @(
         Script = "usb_device_log.ps1"
         Category = "Security"
         Tags = @("usb", "forensics", "security", "audit", "device", "history")
-        Color = "#8b5cf6"
+        Color = "#ef4444"
+    },
+    @{
+        Name = "Local Admin Users Checker"
+        Icon = "[LA]"
+        Description = "Identify unnecessary admin accounts - Common attack vector detection"
+        Script = "local_admin_checker.ps1"
+        Category = "Security"
+        Tags = @("admin", "administrator", "security", "privileges", "users", "attack vector", "audit", "permissions")
+        Color = "#ef4444"
     },
     @{
         Name = "Softwares Installer"
@@ -308,6 +317,24 @@ $Script:Tools = @(
         Category = "Internet"
         Tags = @("dns", "whois", "domain", "spf", "dkim", "dmarc", "email", "security", "mx", "records", "rdap")
         Color = "#0ea5e9"
+    },
+    @{
+        Name = "VirusTotal Checker"
+        Icon = "[VT]"
+        Description = "Check files and URLs against VirusTotal - Malware detection, hash lookup, batch scanning"
+        Script = "virustotal_checker.ps1"
+        Category = "Security"
+        Tags = @("virustotal", "malware", "virus", "scan", "hash", "url", "security", "threat", "detection", "file check")
+        Color = "#ef4444"
+    },
+    @{
+        Name = "Browser Plugin Checker"
+        Icon = "[BP]"
+        Description = "Scan browser extensions for security risks - Chrome, Edge, Firefox, Brave, Opera, Vivaldi"
+        Script = "browser_plugin_checker.ps1"
+        Category = "Security"
+        Tags = @("browser", "extension", "plugin", "addon", "chrome", "firefox", "edge", "security", "permissions", "malware")
+        Color = "#ef4444"
     }
 )
 
@@ -722,19 +749,30 @@ SOULITEK ALL-IN-ONE SCRIPTS LAUNCHER
 
 USAGE:
 ------
-1. Click on any tool button to launch it
-2. Each tool will open in a new PowerShell window
-3. Use the search box to filter tools
+1. Click on any tool card to launch it
+2. Each tool opens in a new PowerShell window
+3. Use the search box to find tools by name or keyword
 4. Click category buttons to filter by category
 
 TOOLS AVAILABLE: $($Script:Tools.Count)
+
+CATEGORIES:
+-----------
+- Setup: PC configuration and initial setup
+- Network: Network diagnostics and configuration
+- Internet: Domain and DNS analysis
+- Security: Security audits, malware scanning, admin checks
+- Support: System maintenance and troubleshooting
+- Software: App installation and updates
+- M365: Microsoft 365 management
+- Hardware: Hardware health and performance
 
 TIPS:
 -----
 - Run as Administrator for full functionality
 - All tools can run independently
-- Some tools require Administrator privileges
-- Check each tool's help menu for detailed instructions
+- Most tools include export to TXT/CSV/HTML
+- Scripts self-delete after execution (security)
 
 SUPPORT:
 --------
@@ -742,7 +780,7 @@ Website: www.soulitek.co.il
 Email: letstalk@soulitek.co.il
 GitHub: https://github.com/Soulitek/Soulitek-All-In-One-Scripts
 
-====================================
+(C) 2025 SouliTEK - All Rights Reserved
 "@
     
     [System.Windows.MessageBox]::Show(

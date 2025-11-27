@@ -38,10 +38,11 @@ iwr -useb https://get.soulitek.co.il | iex
 
 ---
 
-## 🛠️ Tools (21 Scripts)
+## 🛠️ Tools (27 Scripts)
 
 ### 🚀 Setup
 - **1-Click PC Install** - Complete PC setup automation: Configure time zone (Jerusalem), regional settings (Israel), Windows updates, power plan, bloatware removal, and install essential software (Chrome, AnyDesk, Office) via WinGet. Includes system restore point creation and detailed installation summary.
+- **Essential Tweaks** - Essential Windows tweaks - Default apps, keyboards, language, taskbar settings
 
 ### ⚡ Performance
 - **Startup & Boot Time Analyzer** - Analyze startup programs, boot performance, and get optimization recommendations with HTML reports
@@ -52,7 +53,10 @@ iwr -useb https://get.soulitek.co.il | iex
 
 ### 🔒 Security
 - **BitLocker Status Report** - Check BitLocker encryption status and recovery keys for all volumes
+- **VirusTotal Checker** - Check files and URLs against VirusTotal - Malware detection, hash lookup, batch scanning
+- **Browser Plugin Checker** - Scan browser extensions for security risks - Chrome, Edge, Firefox, Brave, Opera, Vivaldi
 - **USB Device Log** - Forensic USB device history analysis for security audits
+- **Local Admin Users Checker** - Identify unnecessary admin accounts - Common attack vector detection
 
 ### ☁️ M365
 - **PST Finder** - Locate and analyze Outlook PST files across the system
@@ -64,6 +68,9 @@ iwr -useb https://get.soulitek.co.il | iex
 - **Network Test Tool** - Ping, tracert, DNS lookup, and latency testing for network diagnostics
 - **Network Configuration Tool** - View IP configuration, set static IP addresses, flush DNS cache, and reset network adapters
 
+### 🌍 Internet
+- **Domain & DNS Analyzer** - WHOIS lookup, DNS records analysis, and email security check (SPF, DKIM, DMARC)
+
 ### 🛠️ Support
 - **Printer Spooler Fix** - Comprehensive printer spooler troubleshooting and repair
 - **Event Log Analyzer** - Analyze Windows Event Logs with statistical summaries
@@ -72,6 +79,7 @@ iwr -useb https://get.soulitek.co.il | iex
 
 ### 💻 Software
 - **Softwares Installer** - Interactive package installer - Install essential business apps via WinGet
+- **Software Updater** - Manage software updates via WinGet - Check, auto-update, or interactive mode
 - **Win11Debloat** - Remove bloatware, disable telemetry, and optimize Windows 10/11 systems
 - **McAfee Removal Tool** - Complete removal of McAfee products using MCPR (McAfee Consumer Product Removal) tool
 
