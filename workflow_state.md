@@ -1,8 +1,8 @@
 # Workflow State - SouliTEK All-In-One Scripts
 
-**Date:** 2025-11-26  
-**Project Status:** Production Ready - v2.5.0  
-**Current Task:** Local Admin Users Checker Complete
+**Date:** 2025-11-27  
+**Project Status:** Production Ready - v2.7.0  
+**Current Task:** OneDrive Status Checker Complete
 
 ---
 
@@ -16,9 +16,111 @@
 ✅ **Domain & DNS Analyzer Tool Implemented - Version 2.4.0**  
 ✅ **VirusTotal Checker Tool Implemented - Version 2.5.0**  
 ✅ **Browser Plugin Checker Tool Implemented - Version 2.5.0**  
-✅ **Local Admin Users Checker Tool Implemented - Version 2.5.0**
+✅ **Local Admin Users Checker Tool Implemented - Version 2.5.0**  
+✅ **Product Key Retriever Tool Implemented - Version 2.6.0**  
+✅ **BSOD History Scanner Tool Implemented - Version 2.6.0**  
+✅ **OneDrive Status Checker Tool Implemented - Version 2.7.0**
 
-### Latest Completion (2025-11-26 - v2.5.0)
+### Latest Completion (2025-11-27 - v2.7.0)
+- **Feature:** OneDrive Status Checker Tool (30th tool)
+- **Purpose:** Check OneDrive sync status by examining Registry, process, and logs
+- **Category:** Support
+- **Features:**
+  1. **Multi-Source Status Detection:**
+     - Registry-based account and configuration detection
+     - Process status verification (OneDrive.exe)
+     - Sync status determination (Up To Date, Syncing, Error, etc.)
+     - Folder statistics (file count, total size)
+  2. **Error Detection:**
+     - Scans OneDrive logs from last 7 days
+     - Identifies 14+ common error patterns
+     - Shows detailed error messages with timestamps
+     - Troubleshooting recommendations
+  3. **Account Details:**
+     - Lists Personal and Business accounts
+     - Shows email, folder path, tenant ID
+     - Last sign-in time
+     - Folder statistics per account
+  4. **Quick Status:**
+     - One-line summary of OneDrive health
+     - Overall verdict (working/needs attention)
+  5. **Export Capabilities:**
+     - Text file reports (.txt)
+     - CSV data export (.csv)
+     - HTML formatted reports (.html)
+- **Technical:**
+  - Checks Registry paths (HKCU, HKLM)
+  - Scans log files in %LOCALAPPDATA%\Microsoft\OneDrive\logs
+  - No admin privileges required
+  - Multi-account support (Personal + Business)
+- **Integration:**
+  - Added to WPF Launcher in "Support" category
+  - Complete documentation created (docs/onedrive_status_checker.md)
+  - Self-destruct feature implemented
+
+### Previous Completion (2025-11-26 - v2.6.0)
+- **Feature:** BSOD History Scanner Tool (29th tool)
+- **Purpose:** Scan Minidump files and event logs to report BSOD history and BugCheck codes
+- **Category:** Support
+- **Features:**
+  1. **Dual-Source Scanning:**
+     - Scans Minidump files in C:\Windows\Minidump
+     - Checks System event log for BugCheck events (Event ID 1001)
+     - Combines data from both sources
+  2. **BugCheck Code Analysis:**
+     - Extracts BugCheck codes from event logs
+     - Provides human-readable descriptions for 30+ common error codes
+     - Formats codes with proper 0x prefix
+  3. **Detailed Information:**
+     - Timestamp of each BSOD occurrence
+     - BugCheck code and description
+     - Source (Minidump file or Event Log)
+     - File size and path (for Minidump files)
+     - BugCheck parameters (when available)
+  4. **Export Capabilities:**
+     - Text file reports (.txt)
+     - CSV data export (.csv)
+     - HTML formatted reports (.html)
+- **Technical:**
+  - Uses Get-WinEvent to query System event log
+  - Scans Minidump directory for .dmp files
+  - No external dependencies required
+  - Administrator privileges recommended (for full event log access)
+- **Integration:**
+  - Added to WPF Launcher in "Support" category
+  - Complete documentation created (docs/bsod_history_scanner.md)
+  - Self-destruct feature implemented
+
+### Previous Completion (2025-11-26 - v2.6.0)
+- **Feature:** Product Key Retriever Tool (28th tool)
+- **Purpose:** Retrieve Windows and Office product keys from system registry and WMI
+- **Category:** Support
+- **Features:**
+  1. **Windows Key Retrieval:**
+     - WMI methods (SoftwareLicensingProduct/Service)
+     - Registry method (DigitalProductId decoding)
+     - Version detection (Windows version, edition, build)
+     - Multiple fallback methods
+  2. **Office Key Retrieval:**
+     - Multi-version support (2010, 2013, 2016, 2019, 2021, 365)
+     - 32-bit and 64-bit registry paths
+     - Product identification (name, version, Product ID)
+     - Key decoding from DigitalProductId
+  3. **Export Capabilities:**
+     - Text file reports (.txt)
+     - CSV data export (.csv)
+     - HTML formatted reports (.html)
+- **Technical:**
+  - Uses WMI queries for Windows keys
+  - Registry queries for Office keys
+  - Proprietary key decoding algorithm
+  - No admin privileges required (most operations)
+- **Integration:**
+  - Added to WPF Launcher in "Support" category
+  - Complete documentation created (docs/product_key_retriever.md)
+  - Self-destruct feature implemented
+
+### Previous Completion (2025-11-26 - v2.5.0)
 - **Feature:** Local Admin Users Checker Tool (27th tool)
 - **Purpose:** Identify unnecessary admin accounts - Common attack vector detection
 - **Category:** Security
@@ -270,7 +372,7 @@
   - Simpler, cleaner interaction - just click the card
 
 ### Completed
-- ✅ All 27 tools developed and tested
+- ✅ All 30 tools developed and tested
 - ✅ Security audit passed (2025-11-05)
 - ✅ Documentation complete
 - ✅ WPF launcher functional with compact grid layout (2025-11-24)
@@ -285,11 +387,48 @@
 - ✅ VirusTotal Checker tool implemented (2025-11-26)
 - ✅ Browser Plugin Checker tool implemented (2025-11-26)
 - ✅ Local Admin Users Checker tool implemented (2025-11-26)
+- ✅ BSOD History Scanner tool implemented (2025-11-26)
 - ✅ USB Device Log moved to Security category (2025-11-26)
 - ✅ All security tools consolidated in Security category (2025-11-26)
+- ✅ Product Key Retriever tool implemented (2025-11-26)
+- ✅ BSOD History Scanner tool implemented (2025-11-26)
+- ✅ OneDrive Status Checker tool implemented (2025-11-27)
 
-### Recent Changes (2025-11-26)
-- ✅ **Local Admin Users Checker Tool** (v2.5.0 - Latest)
+### Recent Changes (2025-11-27)
+- ✅ **OneDrive Status Checker Tool** (v2.7.0 - Latest)
+  - 30th tool added to SouliTEK toolkit
+  - Added to "Support" category
+  - Checks OneDrive sync status via Registry, process, and logs
+  - Detects sync errors from last 7 days
+  - Supports Personal and Business accounts
+  - Quick status summary feature
+  - Export to TXT, CSV, HTML formats
+  - Complete documentation created
+  - Self-destruct feature implemented
+
+### Previous Changes (2025-11-26)
+- ✅ **BSOD History Scanner Tool** (v2.6.0)
+  - 29th tool added to SouliTEK toolkit
+  - Added to "Support" category
+  - Scans Minidump files and System event logs
+  - Reports BSOD history with BugCheck codes
+  - Identifies last BSOD occurrence with detailed information
+  - BugCheck code descriptions for 30+ common errors
+  - Export to TXT, CSV, HTML formats
+  - Complete documentation created
+  - Self-destruct feature implemented
+
+- ✅ **Product Key Retriever Tool** (v2.6.0)
+  - 28th tool added to SouliTEK toolkit
+  - Added to "Support" category
+  - Retrieve Windows product keys (WMI and registry methods)
+  - Retrieve Office product keys (2010, 2013, 2016, 2019, 2021, 365)
+  - Key decoding algorithm for DigitalProductId
+  - Export to TXT, CSV, HTML formats
+  - Complete documentation created
+  - Self-destruct feature implemented
+
+- ✅ **Local Admin Users Checker Tool** (v2.5.0)
   - 27th tool added to SouliTEK toolkit
   - Added to "Security" category
   - Identifies unnecessary admin accounts (common attack vector)
@@ -455,6 +594,33 @@
 
 ---
 
+### BSOD History Scanner Tool (`scripts/bsod_history_scanner.ps1`)
+- **Version:** v1.0.0
+- **Purpose:** Scan Minidump files and event logs to report BSOD history and BugCheck codes
+- **Requirements:** Windows 10/11, Administrator privileges (recommended)
+- **Category:** Support
+- **Features:**
+  - Dual-source scanning (Minidump files + System event log)
+  - BugCheck code extraction and description
+  - Last BSOD occurrence details
+  - All BSOD history display
+  - Export to TXT, CSV, HTML
+- **Menu Options:**
+  1. Full Scan
+  2. View Last BSOD
+  3. View All Results
+  4. Export Results
+  5. Help
+  0. Exit (with self-destruct)
+- **Documentation:** `docs/bsod_history_scanner.md`
+- **Technical:**
+  - Uses Get-WinEvent for System event log (Event ID 1001)
+  - Scans C:\Windows\Minidump for .dmp files
+  - Maps 30+ common BugCheck codes to descriptions
+  - No external dependencies required
+
+---
+
 ### Local Admin Users Checker Tool (`scripts/local_admin_checker.ps1`)
 - **Version:** v1.0.0
 - **Purpose:** Identify unnecessary admin accounts - Common attack vector detection
@@ -478,6 +644,61 @@
   - Requires administrator privileges
   - Detects suspicious patterns (test, temp, demo, etc.)
   - Identifies security misconfigurations
+
+---
+
+### BSOD History Scanner Tool (`scripts/bsod_history_scanner.ps1`)
+- **Version:** v1.0.0
+- **Purpose:** Scan Minidump files and event logs to report BSOD history and BugCheck codes
+- **Requirements:** Windows 10/11, Administrator privileges (recommended)
+- **Category:** Support
+- **Features:**
+  - Dual-source scanning (Minidump files + System event log)
+  - BugCheck code extraction and description
+  - Last BSOD occurrence details
+  - All BSOD history display
+  - Export to TXT, CSV, HTML
+- **Menu Options:**
+  1. Full Scan
+  2. View Last BSOD
+  3. View All Results
+  4. Export Results
+  5. Help
+  0. Exit (with self-destruct)
+- **Documentation:** `docs/bsod_history_scanner.md`
+- **Technical:**
+  - Uses Get-WinEvent for System event log (Event ID 1001)
+  - Scans C:\Windows\Minidump for .dmp files
+  - Maps 30+ common BugCheck codes to descriptions
+  - No external dependencies required
+
+---
+
+### Product Key Retriever Tool (`scripts/product_key_retriever.ps1`)
+- **Version:** v1.0.0
+- **Purpose:** Retrieve Windows and Office product keys from system registry and WMI
+- **Requirements:** Windows 10/11 (No admin required for most operations)
+- **Category:** Support
+- **Features:**
+  - Windows product key retrieval (WMI and registry methods)
+  - Office product key retrieval (2010, 2013, 2016, 2019, 2021, 365)
+  - Key decoding algorithm for DigitalProductId
+  - Version detection (Windows version, edition, build)
+  - Multi-method fallback system
+  - Export to TXT, CSV, HTML
+- **Menu Options:**
+  1. Full Scan
+  2. View Results
+  3. Export Results
+  4. Help
+  0. Exit (with self-destruct)
+- **Documentation:** `docs/product_key_retriever.md`
+- **Technical:**
+  - Uses WMI queries (SoftwareLicensingProduct/Service)
+  - Registry queries for Windows and Office keys
+  - Proprietary key decoding algorithm
+  - Checks both 32-bit and 64-bit Office registry paths
+  - No admin privileges required (most operations)
 
 ---
 
@@ -632,4 +853,4 @@
 
 ---
 
-**Last Updated:** 2025-11-26 (v2.5.0)
+**Last Updated:** 2025-11-27 (v2.7.0)

@@ -88,7 +88,7 @@ Write-Host "Running as Administrator." -ForegroundColor Green
 $Script:ScriptPath = Join-Path $Script:RootPath "scripts"
 $Script:AssetsPath = Join-Path $Script:RootPath "assets"
 $Script:IconsPath = Join-Path $Script:AssetsPath "icons"
-$Script:CurrentVersion = "2.5.0"
+$Script:CurrentVersion = "2.7.0"
 $Script:CurrentCategory = "All"
 
 # Tool definitions
@@ -184,6 +184,15 @@ $Script:Tools = @(
         Color = "#f39c12"
     },
     @{
+        Name = "BSOD History Scanner"
+        Icon = "[BSOD]"
+        Description = "Scan Minidump files and event logs to report BSOD history and BugCheck codes"
+        Script = "bsod_history_scanner.ps1"
+        Category = "Support"
+        Tags = @("bsod", "blue screen", "minidump", "bugcheck", "crash", "diagnostics", "troubleshoot", "error")
+        Color = "#f39c12"
+    },
+    @{
         Name = "Network Test Tool"
         Icon = "[N]"
         Description = "Ping, tracert, DNS lookup, and latency testing for network diagnostics"
@@ -218,6 +227,15 @@ $Script:Tools = @(
         Category = "Security"
         Tags = @("admin", "administrator", "security", "privileges", "users", "attack vector", "audit", "permissions")
         Color = "#ef4444"
+    },
+    @{
+        Name = "Product Key Retriever"
+        Icon = "[PK]"
+        Description = "Retrieve Windows and Office product keys from system registry and WMI"
+        Script = "product_key_retriever.ps1"
+        Category = "Support"
+        Tags = @("product key", "windows", "office", "license", "activation", "registry", "wmi", "backup", "recovery")
+        Color = "#10b981"
     },
     @{
         Name = "Softwares Installer"
@@ -335,6 +353,15 @@ $Script:Tools = @(
         Category = "Security"
         Tags = @("browser", "extension", "plugin", "addon", "chrome", "firefox", "edge", "security", "permissions", "malware")
         Color = "#ef4444"
+    },
+    @{
+        Name = "OneDrive Status Checker"
+        Icon = "[OD]"
+        Description = "Check OneDrive sync status - Detect sync errors, account issues, and verify files are up-to-date"
+        Script = "onedrive_status_checker.ps1"
+        Category = "Support"
+        Tags = @("onedrive", "sync", "cloud", "backup", "microsoft", "status", "error", "troubleshoot", "files", "upload", "download")
+        Color = "#0078d4"
     }
 )
 
@@ -762,7 +789,7 @@ CATEGORIES:
 - Network: Network diagnostics and configuration
 - Internet: Domain and DNS analysis
 - Security: Security audits, malware scanning, admin checks
-- Support: System maintenance and troubleshooting
+- Support: System maintenance, troubleshooting, OneDrive status
 - Software: App installation and updates
 - M365: Microsoft 365 management
 - Hardware: Hardware health and performance

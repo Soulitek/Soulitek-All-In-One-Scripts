@@ -38,7 +38,7 @@ iwr -useb https://get.soulitek.co.il | iex
 
 ---
 
-## 🛠️ Tools (27 Scripts)
+## 🛠️ Tools (28 Scripts)
 
 ### 🚀 Setup
 - **1-Click PC Install** - Complete PC setup automation: Configure time zone (Jerusalem), regional settings (Israel), Windows updates, power plan, bloatware removal, and install essential software (Chrome, AnyDesk, Office) via WinGet. Includes system restore point creation and detailed installation summary.
@@ -72,6 +72,7 @@ iwr -useb https://get.soulitek.co.il | iex
 - **Domain & DNS Analyzer** - WHOIS lookup, DNS records analysis, and email security check (SPF, DKIM, DMARC)
 
 ### 🛠️ Support
+- **Product Key Retriever** - Retrieve Windows and Office product keys from system registry and WMI
 - **Printer Spooler Fix** - Comprehensive printer spooler troubleshooting and repair
 - **Event Log Analyzer** - Analyze Windows Event Logs with statistical summaries
 - **System Restore Point** - Create Windows System Restore Points for system recovery and rollback
