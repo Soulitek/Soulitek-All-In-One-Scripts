@@ -59,19 +59,6 @@ $Script:WinGetAvailable = $false
 # HELPER FUNCTIONS
 # ============================================================
 
-function Show-Header {
-    param([string]$Title = "SOFTWARE UPDATER", [ConsoleColor]$Color = 'Cyan')
-    
-    Clear-Host
-    Show-SouliTEKBanner
-    Write-Host "============================================================" -ForegroundColor $Color
-    Write-Host ""
-    Write-Host "  $Title" -ForegroundColor $Color
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor $Color
-    Write-Host ""
-}
-
 function Get-WinGetAvailability {
     <#
     .SYNOPSIS
@@ -384,7 +371,7 @@ function Show-UpdateHistory {
     try {
         $history = Get-Content -Path $Script:UpdateHistoryFile -Raw | ConvertFrom-Json
         
-        Show-Header "UPDATE HISTORY"
+        Show-SouliTEKHeader -Title "UPDATE HISTORY" -ClearHost -ShowBanner
         
         Write-Host "  Showing last $($history.Count) update(s):" -ForegroundColor Yellow
         Write-Host ""
@@ -498,7 +485,7 @@ function Show-Menu {
     .SYNOPSIS
         Displays the main menu
     #>
-    Show-Header "SOFTWARE UPDATER"
+    Show-SouliTEKHeader -Title "SOFTWARE UPDATER" -ClearHost -ShowBanner
     
     Write-Host "  Select an option:" -ForegroundColor Yellow
     Write-Host ""
@@ -529,7 +516,7 @@ function Show-Menu {
 
 function Main {
     # Check WinGet availability at startup
-    Show-Header "INITIALIZING"
+    Show-SouliTEKHeader -Title "INITIALIZING" -ClearHost -ShowBanner
     $Script:WinGetAvailable = Get-WinGetAvailability
     Write-Host ""
     
@@ -550,7 +537,7 @@ function Main {
         switch ($choice) {
             "1" {
                 # Check for Available Updates
-                Show-Header "CHECK FOR UPDATES"
+                Show-SouliTEKHeader -Title "CHECK FOR UPDATES" -ClearHost -ShowBanner
                 
                 $updates = Get-AvailableUpdates
                 
@@ -565,7 +552,7 @@ function Main {
             
             "2" {
                 # Update All Software (Automatic)
-                Show-Header "AUTOMATIC SOFTWARE UPDATE"
+                Show-SouliTEKHeader -Title "AUTOMATIC SOFTWARE UPDATE" -ClearHost -ShowBanner
                 
                 Write-Host "  [!] This will automatically update all software on your system" -ForegroundColor Yellow
                 Write-Host "  [!] The process will run silently without prompts" -ForegroundColor Yellow
@@ -586,7 +573,7 @@ function Main {
             
             "3" {
                 # Update Software (Interactive)
-                Show-Header "INTERACTIVE SOFTWARE UPDATE"
+                Show-SouliTEKHeader -Title "INTERACTIVE SOFTWARE UPDATE" -ClearHost -ShowBanner
                 
                 Write-Host "  [!] This will open an interactive update interface" -ForegroundColor Yellow
                 Write-Host "  [!] You can review and approve each update individually" -ForegroundColor Yellow
@@ -615,7 +602,7 @@ function Main {
             
             "5" {
                 # Export Update Report
-                Show-Header "EXPORT UPDATE REPORT"
+                Show-SouliTEKHeader -Title "EXPORT UPDATE REPORT" -ClearHost -ShowBanner
                 
                 Export-UpdateReport
                 

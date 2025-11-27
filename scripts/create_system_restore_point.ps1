@@ -48,18 +48,7 @@ if (Test-Path $CommonPath) {
 # HELPER FUNCTIONS
 # ============================================================
 
-function Show-Header {
-    param([string]$Title = "SYSTEM RESTORE POINT CREATOR", [ConsoleColor]$Color = 'Cyan')
-    
-    Clear-Host
-    Show-SouliTEKBanner
-    Write-Host "============================================================" -ForegroundColor $Color
-    Write-Host ""
-    Write-Host "  $Title" -ForegroundColor $Color
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor $Color
-    Write-Host ""
-}
+# Show-Header function removed - using Show-SouliTEKHeader from common module
 
 function Test-SystemRestoreEnabled {
     <#
@@ -132,7 +121,7 @@ function New-SystemRestorePoint {
         [string]$Description = "SouliTEK Manual Restore Point"
     )
     
-    Show-Header
+    Show-SouliTEKHeader -Title "SYSTEM RESTORE POINT CREATOR" -ClearHost -ShowBanner
     Write-Host "Creating System Restore Point..." -ForegroundColor Cyan
     Write-Host ""
     
@@ -204,7 +193,7 @@ function Show-RestorePoints {
         Displays all available system restore points.
     #>
     
-    Show-Header "RESTORE POINT HISTORY"
+    Show-SouliTEKHeader -Title "RESTORE POINT HISTORY" -ClearHost -ShowBanner
     
     Write-Host "Retrieving restore points..." -ForegroundColor Cyan
     Write-Host ""
@@ -242,7 +231,7 @@ function Show-SystemRestoreStatus {
         Shows the current System Restore protection status.
     #>
     
-    Show-Header "SYSTEM RESTORE STATUS"
+    Show-SouliTEKHeader -Title "SYSTEM RESTORE STATUS" -ClearHost -ShowBanner
     
     $systemDrive = $env:SystemDrive
     
@@ -290,7 +279,7 @@ function Show-SystemRestoreStatus {
 # ============================================================
 
 function Show-MainMenu {
-    Show-Header
+    Show-SouliTEKHeader -Title "SYSTEM RESTORE POINT CREATOR" -ClearHost -ShowBanner
     
     Write-Host "MAIN MENU" -ForegroundColor Cyan
     Write-Host ("=" * 60) -ForegroundColor Gray
@@ -309,16 +298,9 @@ function Show-MainMenu {
 # EXIT MESSAGE
 # ============================================================
 
+# Show-ExitMessage function - using Show-SouliTEKExitMessage from common module
 function Show-ExitMessage {
-    Clear-Host
-    Write-Host ""
-    Write-Host "Thank you for using SouliTEK System Restore Point Creator!" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "Website: www.soulitek.co.il" -ForegroundColor Yellow
-    Write-Host ""
-    
-    # Self-destruct: Remove script file after execution
-    Invoke-SouliTEKSelfDestruct -ScriptPath $PSCommandPath -Silent
+    Show-SouliTEKExitMessage -ScriptPath $PSCommandPath -ToolName "SouliTEK System Restore Point Creator"
 }
 
 function Start-MainLoop {
@@ -397,7 +379,7 @@ function Start-MainLoop {
 
 # Check administrator privileges
 if (-not (Test-SouliTEKAdministrator)) {
-    Show-Header
+    Show-SouliTEKHeader -Title "SYSTEM RESTORE POINT CREATOR" -ClearHost -ShowBanner
     Write-Host "[!] ERROR: Administrator privileges required!" -ForegroundColor Red
     Write-Host "[!] Please run this script as Administrator." -ForegroundColor Red
     Write-Host ""

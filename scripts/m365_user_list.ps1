@@ -35,14 +35,10 @@ $Script:Connected = $false
 $Script:TenantDomain = "Unknown"
 $Script:TenantName = "Unknown"
 
+# Show-Header function - wrapper using Show-SouliTEKHeader from common module
 function Show-Header {
 	param([string]$Title = "Microsoft 365 User List", [ConsoleColor]$Color = 'Cyan')
-	Clear-Host
-	if (Get-Command -Name Show-SouliTEKBanner -ErrorAction SilentlyContinue) { Show-SouliTEKBanner }
-	Write-Host "============================================================" -ForegroundColor $Color
-	Write-Host "  $Title" -ForegroundColor $Color
-	Write-Host "============================================================" -ForegroundColor $Color
-	Write-Host ""
+	Show-SouliTEKHeader -Title $Title -Color $Color -ClearHost -ShowBanner
 }
 
 function Write-SummaryLine {
@@ -907,6 +903,7 @@ function Show-Menu {
 # EXIT MESSAGE
 # ============================================================
 
+# Show-ExitMessage function - using Show-SouliTEKExitMessage from common module
 function Show-ExitMessage {
 	# Disconnect if connected
 	try {
@@ -916,15 +913,7 @@ function Show-ExitMessage {
 		}
 	} catch { }
 	
-	# Self-destruct: Remove script file after execution
-	Invoke-SouliTEKSelfDestruct -ScriptPath $PSCommandPath -Silent
-	
-	Clear-Host
-	Write-Host ""
-	Write-Host "Thank you for using SouliTEK Microsoft 365 User List Tool!" -ForegroundColor Cyan
-	Write-Host ""
-	Write-Host "Website: www.soulitek.co.il" -ForegroundColor Yellow
-	Write-Host ""
+	Show-SouliTEKExitMessage -ScriptPath $PSCommandPath -ToolName "SouliTEK Microsoft 365 User List Tool"
 }
 
 # Main execution loop

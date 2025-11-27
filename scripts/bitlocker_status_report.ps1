@@ -60,25 +60,14 @@ $Script:OutputFolder = Join-Path $env:USERPROFILE "Desktop"
 
 
 
-function Show-Header {
-    param([string]$Title = "BITLOCKER STATUS REPORT", [ConsoleColor]$Color = 'Cyan')
-    
-    Clear-Host
-    Show-SouliTEKBanner
-    Write-Host "============================================================" -ForegroundColor $Color
-    Write-Host ""
-    Write-Host "  $Title" -ForegroundColor $Color
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor $Color
-    Write-Host ""
-}
+# Show-Header function removed - using Show-SouliTEKHeader from common module
 
 # ============================================================
 # BITLOCKER CHECK FUNCTIONS
 # ============================================================
 
 function Get-BitLockerStatus {
-    Show-Header "BITLOCKER STATUS - ALL VOLUMES" -Color Green
+    Show-SouliTEKHeader -Title "BITLOCKER STATUS - ALL VOLUMES" -Color Green -ClearHost -ShowBanner
     
     Write-Host "      Checking BitLocker encryption status on all volumes" -ForegroundColor Gray
     Write-Host ""
@@ -244,7 +233,7 @@ function Get-BitLockerStatus {
 }
 
 function Get-RecoveryKeys {
-    Show-Header "RECOVERY KEY REPORT" -Color Yellow
+    Show-SouliTEKHeader -Title "RECOVERY KEY REPORT" -Color Yellow -ClearHost -ShowBanner
     
     Write-Host "      Display BitLocker recovery keys for all volumes" -ForegroundColor Gray
     Write-Host ""
@@ -316,7 +305,7 @@ function Get-RecoveryKeys {
 }
 
 function Get-DetailedVolumeReport {
-    Show-Header "DETAILED VOLUME REPORT" -Color Magenta
+    Show-SouliTEKHeader -Title "DETAILED VOLUME REPORT" -Color Magenta -ClearHost -ShowBanner
     
     Write-Host "      Comprehensive BitLocker analysis for all volumes" -ForegroundColor Gray
     Write-Host ""
@@ -427,7 +416,7 @@ function Get-DetailedVolumeReport {
 }
 
 function Test-BitLockerHealth {
-    Show-Header "BITLOCKER HEALTH CHECK" -Color Blue
+    Show-SouliTEKHeader -Title "BITLOCKER HEALTH CHECK" -Color Blue -ClearHost -ShowBanner
     
     Write-Host "      Quick security audit of BitLocker configuration" -ForegroundColor Gray
     Write-Host ""
@@ -599,7 +588,7 @@ function Test-BitLockerHealth {
 }
 
 function Export-BitLockerReport {
-    Show-Header "EXPORT BITLOCKER REPORT" -Color Yellow
+    Show-SouliTEKHeader -Title "EXPORT BITLOCKER REPORT" -Color Yellow -ClearHost -ShowBanner
     
     Write-Host "      Save BitLocker status to file" -ForegroundColor Gray
     Write-Host ""
@@ -865,7 +854,7 @@ function Export-HTMLReport {
 # ============================================================
 
 function Show-MainMenu {
-    Show-Header "BITLOCKER STATUS REPORT - Professional Tool" -Color Cyan
+    Show-SouliTEKHeader -Title "BITLOCKER STATUS REPORT - Professional Tool" -Color Cyan -ClearHost -ShowBanner
     
     Write-Host "      Coded by: Soulitek.co.il" -ForegroundColor Green
     Write-Host "      IT Solutions for your business" -ForegroundColor Green
@@ -892,7 +881,7 @@ function Show-MainMenu {
 }
 
 function Show-Help {
-    Show-Header "HELP GUIDE" -Color Cyan
+    Show-SouliTEKHeader -Title "HELP GUIDE" -Color Cyan -ClearHost -ShowBanner
     
     Write-Host "BITLOCKER STATUS REPORT - USAGE GUIDE" -ForegroundColor Yellow
     Write-Host "============================================================" -ForegroundColor Cyan
@@ -970,43 +959,14 @@ function Show-Help {
     Read-Host "Press Enter to return to main menu"
 }
 
+# Show-Disclaimer function - using Show-SouliTEKDisclaimer from common module
 function Show-Disclaimer {
-    Clear-Host
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "                    IMPORTANT NOTICE" -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "  This tool is provided `"AS IS`" without warranty." -ForegroundColor White
-    Write-Host ""
-    Write-Host "  USE AT YOUR OWN RISK" -ForegroundColor Red
-    Write-Host ""
-    Write-Host "  By continuing, you acknowledge that:" -ForegroundColor White
-    Write-Host "  - You are solely responsible for any outcomes" -ForegroundColor Gray
-    Write-Host "  - You will protect recovery keys appropriately" -ForegroundColor Gray
-    Write-Host "  - You accept full responsibility for its use" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "  WARNING: Recovery keys provide full access to encrypted" -ForegroundColor Yellow
-    Write-Host "  drives. Keep them secure and confidential!" -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "Press any key to continue or Ctrl+C to cancel..." -ForegroundColor Cyan
-    $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
+    Show-SouliTEKDisclaimer
 }
 
+# Show-ExitMessage function - using Show-SouliTEKExitMessage from common module
 function Show-ExitMessage {
-    Clear-Host
-    Write-Host ""
-    Write-Host "Thank you for using SouliTEK BitLocker Status Report!" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "Website: www.soulitek.co.il" -ForegroundColor Yellow
-    Write-Host ""
-    
-    # Self-destruct: Remove script file after execution
-    Invoke-SouliTEKSelfDestruct -ScriptPath $PSCommandPath -Silent
+    Show-SouliTEKExitMessage -ScriptPath $PSCommandPath -ToolName "SouliTEK BitLocker Status Report"
 }
 
 # ============================================================

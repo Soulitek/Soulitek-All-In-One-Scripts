@@ -775,16 +775,9 @@ function Show-MainMenu {
 # EXIT MESSAGE
 # ============================================================
 
+# Show-ExitMessage function - using Show-SouliTEKExitMessage from common module
 function Show-ExitMessage {
-    Clear-Host
-    Write-Host ""
-    Write-Host "Thank you for using SouliTEK Storage Health Monitor!" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "Website: www.soulitek.co.il" -ForegroundColor Yellow
-    Write-Host ""
-    
-    # Self-destruct: Remove script file after execution
-    Invoke-SouliTEKSelfDestruct -ScriptPath $PSCommandPath -Silent
+    Show-SouliTEKExitMessage -ScriptPath $PSCommandPath -ToolName "SouliTEK Storage Health Monitor"
 }
 
 function Show-Help {

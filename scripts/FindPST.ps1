@@ -82,17 +82,11 @@ function Test-Administrator { Test-SouliTEKAdministrator }
 
 
 
+# Show-Header function - wrapper using Show-SouliTEKHeader from common module
 function Show-Header {
     param([string]$Title, [ConsoleColor]$Color = 'Cyan')
     
-    Clear-Host
-    Show-SouliTEKBanner
-    Write-Host "============================================================" -ForegroundColor $Color
-    Write-Host ""
-    Write-Host "  $Title" -ForegroundColor $Color
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor $Color
-    Write-Host ""
+    Show-SouliTEKHeader -Title $Title -Color $Color -ClearHost -ShowBanner
 }
 
 function Get-PSTFiles {
@@ -182,22 +176,9 @@ function Confirm-Administrator {
 # DISCLAIMER
 # ============================================================
 
+# Show-Disclaimer function - using Show-SouliTEKDisclaimer from common module
 function Show-Disclaimer {
-    Show-Header "IMPORTANT NOTICE" -Color Yellow
-    
-    Write-Host "  This tool is provided `"AS IS`" without warranty." -ForegroundColor White
-    Write-Host ""
-    Write-Host "  USE AT YOUR OWN RISK" -ForegroundColor Red
-    Write-Host ""
-    Write-Host "  By continuing, you acknowledge that:" -ForegroundColor White
-    Write-Host "  - You are solely responsible for any outcomes" -ForegroundColor Gray
-    Write-Host "  - You understand the actions this tool will perform" -ForegroundColor Gray
-    Write-Host "  - You accept full responsibility for its use" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "Press any key to continue or Ctrl+C to cancel..." -ForegroundColor Cyan
-    $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
+    Show-SouliTEKDisclaimer
 }
 
 # ============================================================

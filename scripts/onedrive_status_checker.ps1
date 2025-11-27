@@ -77,17 +77,11 @@ $Script:ErrorPatterns = @(
 # HELPER FUNCTIONS
 # ============================================================
 
+# Show-Header function - wrapper using Show-SouliTEKHeader from common module
 function Show-Header {
     param([string]$Title = "ONEDRIVE STATUS CHECKER", [ConsoleColor]$Color = 'Cyan')
     
-    Clear-Host
-    Show-SouliTEKBanner
-    Write-Host "============================================================" -ForegroundColor $Color
-    Write-Host ""
-    Write-Host "  $Title" -ForegroundColor $Color
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor $Color
-    Write-Host ""
+    Show-SouliTEKHeader -Title $Title -Color $Color -ClearHost -ShowBanner
 }
 
 function Test-OneDriveInstalled {

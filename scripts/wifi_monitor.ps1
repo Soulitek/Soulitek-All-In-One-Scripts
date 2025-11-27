@@ -46,12 +46,9 @@ $Host.UI.RawUI.WindowTitle = "WiFi Monitor - SouliTEK"
 $Script:WiFiData = @()
 $Script:DisconnectionHistory = @()
 
-# Function to display header
+# Function to display header - uses centralized module function
 function Show-Header {
-    Clear-Host
-    Show-SouliTEKBanner
-    Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host ""
+    Show-SouliTEKHeader -Title "WIFI MONITOR" -ClearHost -ShowBanner
     Write-Host "      Coded by: Soulitek.co.il" -ForegroundColor Yellow
     Write-Host "      IT Solutions for your business" -ForegroundColor Yellow
     Write-Host "      www.soulitek.co.il" -ForegroundColor Yellow

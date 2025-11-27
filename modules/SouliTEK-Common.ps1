@@ -205,7 +205,8 @@ function Show-SouliTEKHeader {
     
     .DESCRIPTION
         Creates consistent section headers across all SouliTEK tools
-        with customizable titles and color coding.
+        with customizable titles and color coding. Can optionally clear
+        the host and show the SouliTEK banner for full-screen headers.
     
     .PARAMETER Title
         The main title to display.
@@ -216,9 +217,19 @@ function Show-SouliTEKHeader {
     .PARAMETER Color
         The color for the header (default: Cyan).
     
+    .PARAMETER ClearHost
+        If specified, clears the console before displaying the header.
+    
+    .PARAMETER ShowBanner
+        If specified, shows the SouliTEK banner before the header.
+    
     .EXAMPLE
         Show-SouliTEKHeader "SYSTEM ANALYSIS" "Gathering system information..."
         Displays a formatted header with title and subtitle.
+    
+    .EXAMPLE
+        Show-SouliTEKHeader -Title "NETWORK TEST TOOL" -ClearHost -ShowBanner
+        Clears screen, shows banner, then displays header (replaces Show-Header pattern).
     #>
     
     param(
@@ -229,10 +240,23 @@ function Show-SouliTEKHeader {
         [string]$Subtitle = "",
         
         [Parameter(Mandatory = $false)]
-        [ConsoleColor]$Color = 'Cyan'
+        [ConsoleColor]$Color = 'Cyan',
+        
+        [Parameter(Mandatory = $false)]
+        [switch]$ClearHost,
+        
+        [Parameter(Mandatory = $false)]
+        [switch]$ShowBanner
     )
     
-    Write-Host ""
+    if ($ClearHost) {
+        Clear-Host
+    }
+    
+    if ($ShowBanner) {
+        Show-SouliTEKBanner
+    }
+    
     Write-Host "============================================================" -ForegroundColor $Color
     Write-Host ""
     Write-Host "  $Title" -ForegroundColor $Color

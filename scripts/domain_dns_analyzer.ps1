@@ -70,19 +70,6 @@ $Script:DKIMSelectors = @(
 # HELPER FUNCTIONS
 # ============================================================
 
-function Show-Header {
-    param([string]$Title = "DOMAIN & DNS ANALYZER", [ConsoleColor]$Color = 'Cyan')
-    
-    Clear-Host
-    Show-SouliTEKBanner
-    Write-Host "============================================================" -ForegroundColor $Color
-    Write-Host ""
-    Write-Host "  $Title" -ForegroundColor $Color
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor $Color
-    Write-Host ""
-}
-
 function Get-ValidDomain {
     param([string]$Prompt = "Enter domain name (e.g., example.com)")
     
@@ -182,7 +169,7 @@ function Initialize-WhoisModule {
 function Get-DomainWhois {
     param([string]$Domain)
     
-    Show-Header "WHOIS LOOKUP" -Color Yellow
+    Show-SouliTEKHeader -Title "WHOIS LOOKUP" -Color Yellow -ClearHost -ShowBanner
     
     Write-Host "      Query domain registration information" -ForegroundColor Gray
     Write-Host ""
@@ -458,7 +445,7 @@ function Get-DomainWhois {
 function Get-DNSRecords {
     param([string]$Domain)
     
-    Show-Header "DNS RECORDS LOOKUP" -Color Green
+    Show-SouliTEKHeader -Title "DNS RECORDS LOOKUP" -Color Green -ClearHost -ShowBanner
     
     Write-Host "      Query all DNS record types for a domain" -ForegroundColor Gray
     Write-Host ""
@@ -569,7 +556,7 @@ function Get-DNSRecords {
 function Get-EmailSecurityRecords {
     param([string]$Domain)
     
-    Show-Header "EMAIL SECURITY CHECK" -Color Magenta
+    Show-SouliTEKHeader -Title "EMAIL SECURITY CHECK" -Color Magenta -ClearHost -ShowBanner
     
     Write-Host "      Analyze SPF, DKIM, and DMARC records" -ForegroundColor Gray
     Write-Host ""
@@ -845,7 +832,7 @@ function Get-EmailSecurityRecords {
 function Get-FullDomainAnalysis {
     param([string]$Domain)
     
-    Show-Header "FULL DOMAIN ANALYSIS" -Color Cyan
+    Show-SouliTEKHeader -Title "FULL DOMAIN ANALYSIS" -Color Cyan -ClearHost -ShowBanner
     
     Write-Host "      Complete WHOIS and DNS analysis" -ForegroundColor Gray
     Write-Host ""
@@ -1110,7 +1097,7 @@ function Get-FullDomainAnalysis {
 # ============================================================
 
 function Export-AnalysisResults {
-    Show-Header "EXPORT RESULTS" -Color Yellow
+    Show-SouliTEKHeader -Title "EXPORT RESULTS" -Color Yellow -ClearHost -ShowBanner
     
     Write-Host "      Save analysis results to file" -ForegroundColor Gray
     Write-Host ""
@@ -1299,7 +1286,7 @@ function Export-AnalysisResults {
 # ============================================================
 
 function Show-Help {
-    Show-Header "HELP GUIDE" -Color Cyan
+    Show-SouliTEKHeader -Title "HELP GUIDE" -Color Cyan -ClearHost -ShowBanner
     
     Write-Host "DOMAIN & DNS ANALYZER - USAGE GUIDE" -ForegroundColor Yellow
     Write-Host "============================================================" -ForegroundColor Cyan
@@ -1400,7 +1387,7 @@ function Show-Help {
 function Get-GeoIPLocation {
     param([string]$Target)
     
-    Show-Header "GEOIP LOOKUP" -Color Magenta
+    Show-SouliTEKHeader -Title "GEOIP LOOKUP" -Color Magenta -ClearHost -ShowBanner
     
     Write-Host "      Find the geographic location of an IP or domain" -ForegroundColor Gray
     Write-Host ""
@@ -1571,7 +1558,7 @@ function Get-GeoIPLocation {
 # ============================================================
 
 function Get-MyExternalIP {
-    Show-Header "MY EXTERNAL IP" -Color Green
+    Show-SouliTEKHeader -Title "MY EXTERNAL IP" -Color Green -ClearHost -ShowBanner
     
     Write-Host "      Discover your public IP address and location" -ForegroundColor Gray
     Write-Host ""
@@ -1733,7 +1720,7 @@ function Get-MyExternalIP {
 # ============================================================
 
 function Test-InternetSpeed {
-    Show-Header "INTERNET SPEED TEST" -Color Blue
+    Show-SouliTEKHeader -Title "INTERNET SPEED TEST" -Color Blue -ClearHost -ShowBanner
     
     Write-Host "      Test your internet connection speed" -ForegroundColor Gray
     Write-Host ""
@@ -2000,7 +1987,7 @@ function Test-InternetSpeed {
 function Get-SSLCertificate {
     param([string]$Domain)
     
-    Show-Header "SSL CERTIFICATE CHECK" -Color DarkYellow
+    Show-SouliTEKHeader -Title "SSL CERTIFICATE CHECK" -Color DarkYellow -ClearHost -ShowBanner
     
     Write-Host "      Analyze SSL/TLS certificate for a domain" -ForegroundColor Gray
     Write-Host ""
@@ -2193,7 +2180,7 @@ function Get-SSLCertificate {
 # ============================================================
 
 function Show-MainMenu {
-    Show-Header "DOMAIN & DNS ANALYZER - Professional Edition" -Color Cyan
+    Show-SouliTEKHeader -Title "DOMAIN & DNS ANALYZER - Professional Edition" -Color Cyan -ClearHost -ShowBanner
     
     Write-Host "      Coded by: Soulitek.co.il" -ForegroundColor Green
     Write-Host "      IT Solutions for your business" -ForegroundColor Green
@@ -2249,43 +2236,14 @@ function Clear-AnalysisResults {
     }
 }
 
+# Show-Disclaimer function - using Show-SouliTEKDisclaimer from common module
 function Show-Disclaimer {
-    Clear-Host
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "                    IMPORTANT NOTICE" -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "  This tool is provided `"AS IS`" without warranty." -ForegroundColor White
-    Write-Host ""
-    Write-Host "  USE AT YOUR OWN RISK" -ForegroundColor Red
-    Write-Host ""
-    Write-Host "  By continuing, you acknowledge that:" -ForegroundColor White
-    Write-Host "  - You are solely responsible for any outcomes" -ForegroundColor Gray
-    Write-Host "  - You will use this tool responsibly" -ForegroundColor Gray
-    Write-Host "  - You accept full responsibility for its use" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "  This tool queries public WHOIS and DNS data." -ForegroundColor Yellow
-    Write-Host "  Only use on domains you are authorized to analyze." -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "Press any key to continue or Ctrl+C to cancel..." -ForegroundColor Cyan
-    $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
+    Show-SouliTEKDisclaimer
 }
 
+# Show-ExitMessage function - using Show-SouliTEKExitMessage from common module
 function Show-ExitMessage {
-    Clear-Host
-    Write-Host ""
-    Write-Host "Thank you for using SouliTEK Domain & DNS Analyzer!" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "Website: www.soulitek.co.il" -ForegroundColor Yellow
-    Write-Host ""
-    
-    # Self-destruct: Remove script file after execution
-    Invoke-SouliTEKSelfDestruct -ScriptPath $PSCommandPath -Silent
+    Show-SouliTEKExitMessage -ScriptPath $PSCommandPath -ToolName "SouliTEK Domain & DNS Analyzer"
 }
 
 # ============================================================

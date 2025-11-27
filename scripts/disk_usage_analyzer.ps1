@@ -60,37 +60,10 @@ $Script:TopFoldersCount = 10
 # HELPER FUNCTIONS
 # ============================================================
 
-function Show-Header {
-    param([string]$Title = "DISK USAGE ANALYZER", [ConsoleColor]$Color = 'Cyan')
-    
-    Clear-Host
-    Show-SouliTEKBanner
-    Write-Host "============================================================" -ForegroundColor $Color
-    Write-Host ""
-    Write-Host "  $Title" -ForegroundColor $Color
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor $Color
-    Write-Host ""
-}
-
+# Using Format-SouliTEKFileSize from common module
 function Format-FileSize {
     param([long]$SizeInBytes)
-    
-    if ($SizeInBytes -ge 1TB) {
-        return "{0:N2} TB" -f ($SizeInBytes / 1TB)
-    }
-    elseif ($SizeInBytes -ge 1GB) {
-        return "{0:N2} GB" -f ($SizeInBytes / 1GB)
-    }
-    elseif ($SizeInBytes -ge 1MB) {
-        return "{0:N2} MB" -f ($SizeInBytes / 1MB)
-    }
-    elseif ($SizeInBytes -ge 1KB) {
-        return "{0:N2} KB" -f ($SizeInBytes / 1KB)
-    }
-    else {
-        return "$SizeInBytes Bytes"
-    }
+    return Format-SouliTEKFileSize -SizeInBytes $SizeInBytes
 }
 
 function Get-FolderStats {
@@ -127,7 +100,7 @@ function Get-LargeFolders {
         [double]$MinSizeGB
     )
     
-    Show-Header "SCANNING FOR LARGE FOLDERS" -Color Yellow
+    Show-SouliTEKHeader -Title "SCANNING FOR LARGE FOLDERS" -Color Yellow -ClearHost -ShowBanner
     
     Write-Host "Scanning path: " -NoNewline -ForegroundColor Cyan
     Write-Host $Path -ForegroundColor White
@@ -230,7 +203,7 @@ function Get-LargeFolders {
 }
 
 function Show-LargeFolders {
-    Show-Header "LARGE FOLDERS ANALYSIS" -Color Green
+    Show-SouliTEKHeader -Title "LARGE FOLDERS ANALYSIS" -Color Green -ClearHost -ShowBanner
     
     if ($Script:FolderData.Count -eq 0) {
         Write-SouliTEKResult "No data available. Please run a scan first." -Level WARNING
@@ -269,7 +242,7 @@ function Show-LargeFolders {
 }
 
 function Export-DiskUsageReport {
-    Show-Header "EXPORT DISK USAGE REPORT" -Color Yellow
+    Show-SouliTEKHeader -Title "EXPORT DISK USAGE REPORT" -Color Yellow -ClearHost -ShowBanner
     
     if ($Script:FolderData.Count -eq 0) {
         Write-SouliTEKResult "No data available. Please run a scan first." -Level WARNING
@@ -546,7 +519,7 @@ function Export-HTMLReport {
 }
 
 function Select-ScanPath {
-    Show-Header "SELECT SCAN PATH" -Color Cyan
+    Show-SouliTEKHeader -Title "SELECT SCAN PATH" -Color Cyan -ClearHost -ShowBanner
     
     Write-Host "Select drive/path to scan:" -ForegroundColor White
     Write-Host ""
@@ -610,7 +583,7 @@ function Select-ScanPath {
 }
 
 function Set-MinimumSize {
-    Show-Header "SET MINIMUM SIZE THRESHOLD" -Color Cyan
+    Show-SouliTEKHeader -Title "SET MINIMUM SIZE THRESHOLD" -Color Cyan -ClearHost -ShowBanner
     
     Write-Host "Current minimum size threshold: $($Script:MinSizeGB) GB" -ForegroundColor White
     Write-Host ""
@@ -647,7 +620,7 @@ function Set-MinimumSize {
 # ============================================================
 
 function Show-MainMenu {
-    Show-Header "DISK USAGE ANALYZER - Professional Tool" -Color Cyan
+    Show-SouliTEKHeader -Title "DISK USAGE ANALYZER - Professional Tool" -Color Cyan -ClearHost -ShowBanner
     
     Write-Host "      Coded by: Soulitek.co.il" -ForegroundColor Green
     Write-Host "      IT Solutions for your business" -ForegroundColor Green
@@ -688,7 +661,7 @@ function Show-MainMenu {
 }
 
 function Show-Help {
-    Show-Header "HELP GUIDE" -Color Cyan
+    Show-SouliTEKHeader -Title "HELP GUIDE" -Color Cyan -ClearHost -ShowBanner
     
     Write-Host "DISK USAGE ANALYZER - USAGE GUIDE" -ForegroundColor Yellow
     Write-Host "============================================================" -ForegroundColor Cyan
@@ -747,16 +720,9 @@ function Show-Help {
     Read-Host "Press Enter to return to main menu"
 }
 
+# Show-ExitMessage function - using Show-SouliTEKExitMessage from common module
 function Show-ExitMessage {
-    Clear-Host
-    Write-Host ""
-    Write-Host "Thank you for using SouliTEK Disk Usage Analyzer!" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "Website: www.soulitek.co.il" -ForegroundColor Yellow
-    Write-Host ""
-    
-    # Self-destruct: Remove script file after execution
-    Invoke-SouliTEKSelfDestruct -ScriptPath $PSCommandPath -Silent
+    Show-SouliTEKExitMessage -ScriptPath $PSCommandPath -ToolName "SouliTEK Disk Usage Analyzer"
 }
 
 # ============================================================
@@ -788,7 +754,7 @@ do {
         }
         "3" {
             if ([string]::IsNullOrWhiteSpace($Script:ScanPath)) {
-                Show-Header "ERROR" -Color Red
+                Show-SouliTEKHeader -Title "ERROR" -Color Red -ClearHost -ShowBanner
                 Write-SouliTEKResult "Please select a scan path first (option 1)" -Level ERROR
                 Write-Host ""
                 Read-Host "Press Enter to return to main menu"

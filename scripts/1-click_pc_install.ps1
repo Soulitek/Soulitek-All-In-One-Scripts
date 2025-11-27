@@ -64,18 +64,7 @@ $Script:WarningCount = 0
 # HELPER FUNCTIONS
 # ============================================================
 
-function Show-Header {
-    param([string]$Title = "1-CLICK PC INSTALL", [ConsoleColor]$Color = 'Cyan')
-    
-    Clear-Host
-    Show-SouliTEKBanner
-    Write-Host "============================================================" -ForegroundColor $Color
-    Write-Host ""
-    Write-Host "  $Title" -ForegroundColor $Color
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor $Color
-    Write-Host ""
-}
+# Show-Header function removed - using Show-SouliTEKHeader from common module
 
 function Add-LogEntry {
     param(
@@ -99,7 +88,7 @@ function Add-LogEntry {
 }
 
 function Show-TaskList {
-    Show-Header "1-CLICK PC INSTALL - TASK OVERVIEW"
+    Show-SouliTEKHeader -Title "1-CLICK PC INSTALL - TASK OVERVIEW" -ClearHost -ShowBanner
     
     Write-Host "  The following tasks will be performed:" -ForegroundColor Yellow
     Write-Host ""
@@ -169,7 +158,7 @@ function Get-UserApproval {
 }
 
 function Set-TimeZoneToJerusalem {
-    Show-Header "SETTING TIME ZONE"
+    Show-SouliTEKHeader -Title "SETTING TIME ZONE" -ClearHost -ShowBanner
     Write-SouliTEKInfo "Configuring time zone to Jerusalem..."
     
     try {
@@ -193,7 +182,7 @@ function Set-TimeZoneToJerusalem {
 }
 
 function Set-RegionalSettingsToIsrael {
-    Show-Header "CONFIGURING REGIONAL SETTINGS"
+    Show-SouliTEKHeader -Title "CONFIGURING REGIONAL SETTINGS" -ClearHost -ShowBanner
     Write-SouliTEKInfo "Setting regional format to Israel..."
     
     try {
@@ -230,7 +219,7 @@ function Set-RegionalSettingsToIsrael {
 }
 
 function New-SystemRestorePoint {
-    Show-Header "CREATING SYSTEM RESTORE POINT"
+    Show-SouliTEKHeader -Title "CREATING SYSTEM RESTORE POINT" -ClearHost -ShowBanner
     Write-SouliTEKInfo "Creating system restore point..."
     
     try {
@@ -272,7 +261,7 @@ function New-SystemRestorePoint {
 }
 
 function Install-WindowsUpdates {
-    Show-Header "CHECKING WINDOWS UPDATES"
+    Show-SouliTEKHeader -Title "CHECKING WINDOWS UPDATES" -ClearHost -ShowBanner
     Write-SouliTEKInfo "Checking for available Windows updates..."
     
     try {
@@ -326,7 +315,7 @@ function Install-WindowsUpdates {
 }
 
 function Set-PowerPlanToBest {
-    Show-Header "CONFIGURING POWER PLAN"
+    Show-SouliTEKHeader -Title "CONFIGURING POWER PLAN" -ClearHost -ShowBanner
     Write-SouliTEKInfo "Setting power plan to High Performance..."
     
     try {
@@ -377,7 +366,7 @@ function Set-PowerPlanToBest {
 }
 
 function Remove-Bloatware {
-    Show-Header "REMOVING BLOATWARE"
+    Show-SouliTEKHeader -Title "REMOVING BLOATWARE" -ClearHost -ShowBanner
     Write-SouliTEKInfo "Removing unnecessary Windows applications..."
     
     $bloatwareApps = @(
@@ -617,7 +606,7 @@ function Ensure-WinGet {
 }
 
 function Install-Applications {
-    Show-Header "INSTALLING APPLICATIONS"
+    Show-SouliTEKHeader -Title "INSTALLING APPLICATIONS" -ClearHost -ShowBanner
     
     try {
         if (-not (Ensure-WinGet)) {
@@ -672,7 +661,7 @@ function Install-Applications {
 }
 
 function New-DesktopShortcuts {
-    Show-Header "CREATING DESKTOP SHORTCUTS"
+    Show-SouliTEKHeader -Title "CREATING DESKTOP SHORTCUTS" -ClearHost -ShowBanner
     Write-SouliTEKInfo "Creating desktop shortcuts for This PC and Documents..."
     
     try {
@@ -714,7 +703,7 @@ function New-DesktopShortcuts {
 }
 
 function Show-InstallationSummary {
-    Show-Header "INSTALLATION SUMMARY"
+    Show-SouliTEKHeader -Title "INSTALLATION SUMMARY" -ClearHost -ShowBanner
     
     try {
         $endTime = Get-Date
@@ -841,7 +830,7 @@ function Show-InstallationSummary {
 
 function Start-OneClickPCInstall {
     if (-not (Test-SouliTEKAdministrator)) {
-        Show-Header "ERROR: ADMINISTRATOR REQUIRED"
+        Show-SouliTEKHeader -Title "ERROR: ADMINISTRATOR REQUIRED" -ClearHost -ShowBanner
         Write-Host ""
         Write-Host "  This script requires administrator privileges to run." -ForegroundColor Red
         Write-Host ""

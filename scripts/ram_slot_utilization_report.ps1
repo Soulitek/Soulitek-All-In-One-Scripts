@@ -43,30 +43,9 @@ if (Test-Path $CommonPath) {
     Write-Warning "Some functions may not work properly."
 }
 
-# Function to show disclaimer
+# Show-Disclaimer function - using Show-SouliTEKDisclaimer from common module
 function Show-Disclaimer {
-    Clear-Host
-    Show-SouliTEKBanner
-    Set-SouliTEKConsoleColor "Yellow"
-    Write-Host "============================================================"
-    Write-Host ""
-    Write-Host "                    IMPORTANT NOTICE"
-    Write-Host ""
-    Write-Host "============================================================"
-    Write-Host ""
-    Write-Host "  This tool is provided `"AS IS`" without warranty."
-    Write-Host ""
-    Write-Host "  USE AT YOUR OWN RISK"
-    Write-Host ""
-    Write-Host "  By continuing, you acknowledge that:"
-    Write-Host "  - You are solely responsible for any outcomes"
-    Write-Host "  - You understand the actions this tool will perform"
-    Write-Host "  - You accept full responsibility for its use"
-    Write-Host ""
-    Write-Host "============================================================"
-    Write-Host ""
-    Write-Host "Press any key to continue or Ctrl+C to cancel..."
-    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+    Show-SouliTEKDisclaimer
 }
 
 # Function to show main menu
@@ -1177,16 +1156,9 @@ function Show-Help {
 }
 
 # Function to show exit message
+# Show-ExitMessage function - using Show-SouliTEKExitMessage from common module
 function Show-ExitMessage {
-    Clear-Host
-    Write-Host ""
-    Write-Host "Thank you for using SouliTEK RAM Slot Utilization Report!" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "Website: www.soulitek.co.il" -ForegroundColor Yellow
-    Write-Host ""
-    
-    # Self-destruct: Remove script file after execution
-    Invoke-SouliTEKSelfDestruct -ScriptPath $PSCommandPath -Silent
+    Show-SouliTEKExitMessage -ScriptPath $PSCommandPath -ToolName "SouliTEK RAM Slot Utilization Report"
 }
 
 # ============================================================

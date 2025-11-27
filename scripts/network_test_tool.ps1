@@ -55,21 +55,6 @@ $Script:OutputFolder = Join-Path $env:USERPROFILE "Desktop"
 # HELPER FUNCTIONS
 # ============================================================
 
-
-
-function Show-Header {
-    param([string]$Title = "NETWORK TEST TOOL", [ConsoleColor]$Color = 'Cyan')
-    
-    Clear-Host
-    Show-SouliTEKBanner
-    Write-Host "============================================================" -ForegroundColor $Color
-    Write-Host ""
-    Write-Host "  $Title" -ForegroundColor $Color
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor $Color
-    Write-Host ""
-}
-
 function Add-TestResult {
     param(
         [string]$TestType,
@@ -94,7 +79,7 @@ function Add-TestResult {
 # ============================================================
 
 function Test-PingAdvanced {
-    Show-Header "PING TEST - ADVANCED" -Color Green
+    Show-SouliTEKHeader -Title "PING TEST - ADVANCED" -Color Green -ClearHost -ShowBanner
     
     Write-Host "      Test network connectivity with ICMP echo requests" -ForegroundColor Gray
     Write-Host ""
@@ -204,7 +189,7 @@ function Test-PingAdvanced {
 }
 
 function Test-TraceRoute {
-    Show-Header "TRACE ROUTE TEST" -Color Magenta
+    Show-SouliTEKHeader -Title "TRACE ROUTE TEST" -Color Magenta -ClearHost -ShowBanner
     
     Write-Host "      Trace network path to destination" -ForegroundColor Gray
     Write-Host ""
@@ -279,7 +264,7 @@ function Test-TraceRoute {
 }
 
 function Test-DNSLookup {
-    Show-Header "DNS LOOKUP TEST" -Color Yellow
+    Show-SouliTEKHeader -Title "DNS LOOKUP TEST" -Color Yellow -ClearHost -ShowBanner
     
     Write-Host "      Resolve domain names to IP addresses" -ForegroundColor Gray
     Write-Host ""
@@ -386,7 +371,7 @@ function Test-DNSLookup {
 }
 
 function Test-Latency {
-    Show-Header "LATENCY TEST - CONTINUOUS" -Color Red
+    Show-SouliTEKHeader -Title "LATENCY TEST - CONTINUOUS" -Color Red -ClearHost -ShowBanner
     
     Write-Host "      Monitor network latency in real-time" -ForegroundColor Gray
     Write-Host ""
@@ -546,7 +531,7 @@ function Test-Latency {
 }
 
 function Test-QuickDiagnostics {
-    Show-Header "QUICK NETWORK DIAGNOSTICS" -Color Cyan
+    Show-SouliTEKHeader -Title "QUICK NETWORK DIAGNOSTICS" -Color Cyan -ClearHost -ShowBanner
     
     Write-Host "      Run comprehensive network tests" -ForegroundColor Gray
     Write-Host ""
@@ -636,7 +621,7 @@ function Test-QuickDiagnostics {
 }
 
 function Export-TestResults {
-    Show-Header "EXPORT TEST RESULTS" -Color Yellow
+    Show-SouliTEKHeader -Title "EXPORT TEST RESULTS" -Color Yellow -ClearHost -ShowBanner
     
     Write-Host "      Save test results to file" -ForegroundColor Gray
     Write-Host ""
@@ -828,7 +813,7 @@ function Clear-TestResults {
 # ============================================================
 
 function Show-MainMenu {
-    Show-Header "NETWORK TEST TOOL - Professional Edition" -Color Cyan
+    Show-SouliTEKHeader -Title "NETWORK TEST TOOL - Professional Edition" -Color Cyan -ClearHost -ShowBanner
     
     Write-Host "      Coded by: Soulitek.co.il" -ForegroundColor Green
     Write-Host "      IT Solutions for your business" -ForegroundColor Green
@@ -863,7 +848,7 @@ function Show-MainMenu {
 }
 
 function Show-Help {
-    Show-Header "HELP GUIDE" -Color Cyan
+    Show-SouliTEKHeader -Title "HELP GUIDE" -Color Cyan -ClearHost -ShowBanner
     
     Write-Host "NETWORK TEST TOOL - USAGE GUIDE" -ForegroundColor Yellow
     Write-Host "============================================================" -ForegroundColor Cyan
@@ -953,43 +938,14 @@ function Show-Help {
     Read-Host "Press Enter to return to main menu"
 }
 
+# Show-Disclaimer function - using Show-SouliTEKDisclaimer from common module
 function Show-Disclaimer {
-    Clear-Host
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "                    IMPORTANT NOTICE" -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "  This tool is provided `"AS IS`" without warranty." -ForegroundColor White
-    Write-Host ""
-    Write-Host "  USE AT YOUR OWN RISK" -ForegroundColor Red
-    Write-Host ""
-    Write-Host "  By continuing, you acknowledge that:" -ForegroundColor White
-    Write-Host "  - You are solely responsible for any outcomes" -ForegroundColor Gray
-    Write-Host "  - You will use this tool responsibly" -ForegroundColor Gray
-    Write-Host "  - You accept full responsibility for its use" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "  This tool performs network tests and may generate" -ForegroundColor Yellow
-    Write-Host "  network traffic. Do not use for malicious purposes." -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "Press any key to continue or Ctrl+C to cancel..." -ForegroundColor Cyan
-    $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
+    Show-SouliTEKDisclaimer
 }
 
+# Show-ExitMessage function - using Show-SouliTEKExitMessage from common module
 function Show-ExitMessage {
-    Clear-Host
-    Write-Host ""
-    Write-Host "Thank you for using SouliTEK Network Test Tool!" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "Website: www.soulitek.co.il" -ForegroundColor Yellow
-    Write-Host ""
-    
-    # Self-destruct: Remove script file after execution
-    Invoke-SouliTEKSelfDestruct -ScriptPath $PSCommandPath -Silent
+    Show-SouliTEKExitMessage -ScriptPath $PSCommandPath -ToolName "SouliTEK Network Test Tool"
 }
 
 # ============================================================

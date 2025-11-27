@@ -98,18 +98,7 @@ $Script:ErrorCodes = @{
 # HELPER FUNCTIONS
 # ============================================================
 
-function Show-Header {
-    param([string]$Title = "DRIVER INTEGRITY SCAN", [ConsoleColor]$Color = 'Cyan')
-    
-    Clear-Host
-    Show-SouliTEKBanner
-    Write-Host "============================================================" -ForegroundColor $Color
-    Write-Host ""
-    Write-Host "  $Title" -ForegroundColor $Color
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor $Color
-    Write-Host ""
-}
+# Show-Header function removed - using Show-SouliTEKHeader from common module
 
 function Get-WinGetAvailability {
     <#
@@ -500,7 +489,7 @@ function Show-LastScanResults {
     try {
         $scanData = Get-Content -Path $Script:LastScanFile -Raw | ConvertFrom-Json
         
-        Show-Header "LAST SCAN RESULTS"
+        Show-SouliTEKHeader -Title "LAST SCAN RESULTS" -ClearHost -ShowBanner
         
         Write-Host "  Scan Date:        " -NoNewline -ForegroundColor Gray
         Write-Host "$($scanData.Timestamp)" -ForegroundColor Cyan
@@ -549,7 +538,7 @@ function Show-Menu {
     .SYNOPSIS
         Displays the main menu
     #>
-    Show-Header "DRIVER INTEGRITY SCAN"
+    Show-SouliTEKHeader -Title "DRIVER INTEGRITY SCAN" -ClearHost -ShowBanner
     
     Write-Host "  Select an option:" -ForegroundColor Yellow
     Write-Host ""
@@ -593,7 +582,7 @@ function Main {
         switch ($choice) {
             "1" {
                 # Run Full Scan
-                Show-Header "FULL SCAN - DRIVER INTEGRITY + SOFTWARE UPDATES"
+                Show-SouliTEKHeader -Title "FULL SCAN - DRIVER INTEGRITY + SOFTWARE UPDATES" -ClearHost -ShowBanner
                 
                 # Scan drivers
                 $scanSuccess = Get-DriverIntegrityStatus
@@ -622,7 +611,7 @@ function Main {
             
             "2" {
                 # Driver Integrity Scan Only
-                Show-Header "DRIVER INTEGRITY SCAN"
+                Show-SouliTEKHeader -Title "DRIVER INTEGRITY SCAN" -ClearHost -ShowBanner
                 
                 $scanSuccess = Get-DriverIntegrityStatus
                 
@@ -640,7 +629,7 @@ function Main {
             
             "3" {
                 # Export Driver List
-                Show-Header "EXPORT DRIVER LIST"
+                Show-SouliTEKHeader -Title "EXPORT DRIVER LIST" -ClearHost -ShowBanner
                 
                 if ($Script:AllDrivers.Count -eq 0) {
                     Write-SouliTEKWarning "No driver data available"
@@ -669,7 +658,7 @@ function Main {
             
             "4" {
                 # Update All Software (Auto)
-                Show-Header "AUTO SOFTWARE UPDATE"
+                Show-SouliTEKHeader -Title "AUTO SOFTWARE UPDATE" -ClearHost -ShowBanner
                 
                 if ($Script:WinGetAvailable) {
                     Write-Host "  [!] This will automatically update all software on your system" -ForegroundColor Yellow
@@ -693,7 +682,7 @@ function Main {
             
             "5" {
                 # Update Software (Interactive)
-                Show-Header "INTERACTIVE SOFTWARE UPDATE"
+                Show-SouliTEKHeader -Title "INTERACTIVE SOFTWARE UPDATE" -ClearHost -ShowBanner
                 
                 if ($Script:WinGetAvailable) {
                     Write-Host "  [!] This will open an interactive update interface" -ForegroundColor Yellow

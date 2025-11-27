@@ -67,18 +67,7 @@ $Script:CleanupResults = @{
 # HELPER FUNCTIONS
 # ============================================================
 
-function Show-Header {
-    param([string]$Title = "TEMP REMOVAL & DISK CLEANUP", [ConsoleColor]$Color = 'Cyan')
-    
-    Clear-Host
-    Show-SouliTEKBanner
-    Write-Host "============================================================" -ForegroundColor $Color
-    Write-Host ""
-    Write-Host "  $Title" -ForegroundColor $Color
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor $Color
-    Write-Host ""
-}
+# Show-Header function removed - using Show-SouliTEKHeader from common module
 
 function Get-FolderSize {
     param(
@@ -469,7 +458,7 @@ function Start-CompleteCleanup {
         Performs a complete cleanup of all temporary files and disk space.
     #>
     
-    Show-Header "COMPLETE CLEANUP IN PROGRESS"
+    Show-SouliTEKHeader -Title "COMPLETE CLEANUP IN PROGRESS" -ClearHost -ShowBanner
     
     Write-Host "Starting comprehensive disk cleanup..." -ForegroundColor Cyan
     Write-Host "This may take several minutes depending on system size." -ForegroundColor Gray
@@ -532,7 +521,7 @@ function Show-CleanupSummary {
         Displays a summary of the last cleanup operation.
     #>
     
-    Show-Header "CLEANUP SUMMARY"
+    Show-SouliTEKHeader -Title "CLEANUP SUMMARY" -ClearHost -ShowBanner
     
     if ($Script:CleanupResults.TotalSize -eq 0) {
         Write-Host "No cleanup has been performed yet." -ForegroundColor Yellow
@@ -594,7 +583,7 @@ function Export-CleanupReport {
         Exports cleanup results to a report file.
     #>
     
-    Show-Header "EXPORT CLEANUP REPORT"
+    Show-SouliTEKHeader -Title "EXPORT CLEANUP REPORT" -ClearHost -ShowBanner
     
     if ($Script:CleanupResults.TotalSize -eq 0) {
         Write-Host "No cleanup data to export." -ForegroundColor Yellow
@@ -851,7 +840,7 @@ function Show-Help {
         Displays help information for the tool.
     #>
     
-    Show-Header "HELP & INFORMATION"
+    Show-SouliTEKHeader -Title "HELP & INFORMATION" -ClearHost -ShowBanner
     
     $helpText = @"
 TEMP REMOVAL & DISK CLEANUP TOOL
@@ -918,16 +907,9 @@ Email: letstalk@soulitek.co.il
 # EXIT MESSAGE
 # ============================================================
 
+# Show-ExitMessage function - using Show-SouliTEKExitMessage from common module
 function Show-ExitMessage {
-    Clear-Host
-    Write-Host ""
-    Write-Host "Thank you for using SouliTEK Temp Removal & Disk Cleanup!" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "Website: www.soulitek.co.il" -ForegroundColor Yellow
-    Write-Host ""
-    
-    # Self-destruct: Remove script file after execution
-    Invoke-SouliTEKSelfDestruct -ScriptPath $PSCommandPath -Silent
+    Show-SouliTEKExitMessage -ScriptPath $PSCommandPath -ToolName "SouliTEK Temp Removal & Disk Cleanup"
 }
 
 function Show-MainMenu {
@@ -937,7 +919,7 @@ function Show-MainMenu {
     #>
     
     do {
-        Show-Header "MAIN MENU"
+        Show-SouliTEKHeader -Title "MAIN MENU" -ClearHost -ShowBanner
         
         Write-Host "Please select an option:" -ForegroundColor Cyan
         Write-Host ""
@@ -964,37 +946,37 @@ function Show-MainMenu {
                 Start-CompleteCleanup
             }
             "2" {
-                Show-Header "CLEAN USER TEMP FILES"
+                Show-SouliTEKHeader -Title "CLEAN USER TEMP FILES" -ClearHost -ShowBanner
                 Clear-UserTemp
                 Write-Host "Press any key to continue..." -ForegroundColor Yellow
                 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
             }
             "3" {
-                Show-Header "CLEAN SYSTEM TEMP FILES"
+                Show-SouliTEKHeader -Title "CLEAN SYSTEM TEMP FILES" -ClearHost -ShowBanner
                 Clear-SystemTemp
                 Write-Host "Press any key to continue..." -ForegroundColor Yellow
                 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
             }
             "4" {
-                Show-Header "EMPTY RECYCLE BIN"
+                Show-SouliTEKHeader -Title "EMPTY RECYCLE BIN" -ClearHost -ShowBanner
                 Clear-RecycleBin
                 Write-Host "Press any key to continue..." -ForegroundColor Yellow
                 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
             }
             "5" {
-                Show-Header "CLEAN BROWSER CACHE"
+                Show-SouliTEKHeader -Title "CLEAN BROWSER CACHE" -ClearHost -ShowBanner
                 Clear-BrowserCache
                 Write-Host "Press any key to continue..." -ForegroundColor Yellow
                 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
             }
             "6" {
-                Show-Header "CLEAN WINDOWS UPDATE CACHE"
+                Show-SouliTEKHeader -Title "CLEAN WINDOWS UPDATE CACHE" -ClearHost -ShowBanner
                 Clear-WindowsUpdate
                 Write-Host "Press any key to continue..." -ForegroundColor Yellow
                 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
             }
             "7" {
-                Show-Header "WINDOWS DISK CLEANUP"
+                Show-SouliTEKHeader -Title "WINDOWS DISK CLEANUP" -ClearHost -ShowBanner
                 Invoke-DiskCleanup
                 Write-Host "Press any key to continue..." -ForegroundColor Yellow
                 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")

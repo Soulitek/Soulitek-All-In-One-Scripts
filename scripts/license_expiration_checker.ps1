@@ -71,18 +71,7 @@ $Script:Connected = $false
 
 # Install-RequiredModule function has been replaced by Install-SouliTEKModule from SouliTEK-Common.ps1
 
-function Show-Header {
-    param([string]$Title = "LICENSE EXPIRATION CHECKER", [ConsoleColor]$Color = 'Cyan')
-    
-    Clear-Host
-    Show-SouliTEKBanner
-    Write-Host "============================================================" -ForegroundColor $Color
-    Write-Host ""
-    Write-Host "  $Title" -ForegroundColor $Color
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor $Color
-    Write-Host ""
-}
+# Show-Header function removed - using Show-SouliTEKHeader from common module
 
 function Get-FriendlySkuName {
     param([string]$SkuPartNumber)
@@ -141,7 +130,7 @@ function Get-FriendlySkuName {
 # ============================================================
 
 function Connect-ToMicrosoftGraph {
-    Show-Header "CONNECT TO MICROSOFT GRAPH" -Color Green
+    Show-SouliTEKHeader -Title "CONNECT TO MICROSOFT GRAPH" -Color Green -ClearHost -ShowBanner
     
     Write-Host "      Connect to Microsoft 365 tenant" -ForegroundColor Gray
     Write-Host ""
@@ -295,7 +284,7 @@ function Test-GraphConnection {
 # ============================================================
 
 function Get-LicenseStatus {
-    Show-Header "LICENSE STATUS - ALL SUBSCRIPTIONS" -Color Green
+    Show-SouliTEKHeader -Title "LICENSE STATUS - ALL SUBSCRIPTIONS" -Color Green -ClearHost -ShowBanner
     
     Write-Host "      Check all Microsoft 365 license subscriptions" -ForegroundColor Gray
     Write-Host ""
@@ -424,7 +413,7 @@ function Get-LicenseStatus {
 }
 
 function Get-DetailedLicenseReport {
-    Show-Header "DETAILED LICENSE REPORT" -Color Magenta
+    Show-SouliTEKHeader -Title "DETAILED LICENSE REPORT" -Color Magenta -ClearHost -ShowBanner
     
     Write-Host "      Comprehensive license analysis with service plans" -ForegroundColor Gray
     Write-Host ""
@@ -515,7 +504,7 @@ function Get-DetailedLicenseReport {
 }
 
 function Get-LicenseUsageStatistics {
-    Show-Header "LICENSE USAGE STATISTICS" -Color Blue
+    Show-SouliTEKHeader -Title "LICENSE USAGE STATISTICS" -Color Blue -ClearHost -ShowBanner
     
     Write-Host "      Analyze license allocation and usage patterns" -ForegroundColor Gray
     Write-Host ""
@@ -625,7 +614,7 @@ function Get-LicenseUsageStatistics {
 }
 
 function Send-ExpirationAlert {
-    Show-Header "SEND EXPIRATION ALERT" -Color Yellow
+    Show-SouliTEKHeader -Title "SEND EXPIRATION ALERT" -Color Yellow -ClearHost -ShowBanner
     
     Write-Host "      Configure and send license expiration alerts" -ForegroundColor Gray
     Write-Host ""
@@ -984,7 +973,7 @@ function Export-AlertReport {
 }
 
 function Export-LicenseReport {
-    Show-Header "EXPORT LICENSE REPORT" -Color Yellow
+    Show-SouliTEKHeader -Title "EXPORT LICENSE REPORT" -Color Yellow -ClearHost -ShowBanner
     
     Write-Host "      Save license information to file" -ForegroundColor Gray
     Write-Host ""
@@ -1217,7 +1206,7 @@ function Export-HTMLReport {
 # ============================================================
 
 function Show-MainMenu {
-    Show-Header "LICENSE EXPIRATION CHECKER - Professional Tool" -Color Cyan
+    Show-SouliTEKHeader -Title "LICENSE EXPIRATION CHECKER - Professional Tool" -Color Cyan -ClearHost -ShowBanner
     
     Write-Host "      Coded by: Soulitek.co.il" -ForegroundColor Green
     Write-Host "      IT Solutions for your business" -ForegroundColor Green
@@ -1265,7 +1254,7 @@ function Show-MainMenu {
 }
 
 function Show-Help {
-    Show-Header "HELP GUIDE" -Color Cyan
+    Show-SouliTEKHeader -Title "HELP GUIDE" -Color Cyan -ClearHost -ShowBanner
     
     Write-Host "LICENSE EXPIRATION CHECKER - USAGE GUIDE" -ForegroundColor Yellow
     Write-Host "============================================================" -ForegroundColor Cyan
@@ -1342,46 +1331,17 @@ function Show-Help {
     Read-Host "Press Enter to return to main menu"
 }
 
+# Show-Disclaimer function - using Show-SouliTEKDisclaimer from common module
 function Show-Disclaimer {
-    Clear-Host
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "                    IMPORTANT NOTICE" -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "  This tool is provided `"AS IS`" without warranty." -ForegroundColor White
-    Write-Host ""
-    Write-Host "  USE AT YOUR OWN RISK" -ForegroundColor Red
-    Write-Host ""
-    Write-Host "  By continuing, you acknowledge that:" -ForegroundColor White
-    Write-Host "  - You are solely responsible for any outcomes" -ForegroundColor Gray
-    Write-Host "  - You will use this tool responsibly" -ForegroundColor Gray
-    Write-Host "  - You accept full responsibility for its use" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "  This tool accesses Microsoft Graph API to read license" -ForegroundColor Yellow
-    Write-Host "  information. Ensure you have proper authorization." -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "Press any key to continue or Ctrl+C to cancel..." -ForegroundColor Cyan
-    $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
+    Show-SouliTEKDisclaimer
 }
 
+# Show-ExitMessage function - using Show-SouliTEKExitMessage from common module
 function Show-ExitMessage {
     # Disconnect if connected
     Disconnect-FromMicrosoftGraph
     
-    # Self-destruct: Remove script file after execution
-    Invoke-SouliTEKSelfDestruct -ScriptPath $PSCommandPath -Silent
-    
-    Clear-Host
-    Write-Host ""
-    Write-Host "Thank you for using SouliTEK License Expiration Checker!" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "Website: www.soulitek.co.il" -ForegroundColor Yellow
-    Write-Host ""
+    Show-SouliTEKExitMessage -ScriptPath $PSCommandPath -ToolName "SouliTEK License Expiration Checker"
 }
 
 # ============================================================

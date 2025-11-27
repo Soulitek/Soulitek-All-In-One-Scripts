@@ -60,18 +60,7 @@ $Script:OutputFolder = Join-Path $env:USERPROFILE "Desktop"
 # HELPER FUNCTIONS
 # ============================================================
 
-function Show-Header {
-    param([string]$Title = "NETWORK CONFIGURATION TOOL", [ConsoleColor]$Color = 'Cyan')
-    
-    Clear-Host
-    Show-SouliTEKBanner
-    Write-Host "============================================================" -ForegroundColor $Color
-    Write-Host ""
-    Write-Host "  $Title" -ForegroundColor $Color
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor $Color
-    Write-Host ""
-}
+# Show-Header function removed - using Show-SouliTEKHeader from common module
 
 # Use Test-SouliTEKAdministrator from common module
 function Test-Administrator {
@@ -83,7 +72,7 @@ function Get-NetworkAdapters {
 }
 
 function Select-NetworkAdapter {
-    Show-Header "SELECT NETWORK ADAPTER" -Color Yellow
+    Show-SouliTEKHeader -Title "SELECT NETWORK ADAPTER" -Color Yellow -ClearHost -ShowBanner
     
     $adapters = Get-NetworkAdapters
     
@@ -140,7 +129,7 @@ function Select-NetworkAdapter {
 # ============================================================
 
 function Show-IPConfiguration {
-    Show-Header "VIEW IP CONFIGURATION" -Color Green
+    Show-SouliTEKHeader -Title "VIEW IP CONFIGURATION" -Color Green -ClearHost -ShowBanner
     
     $adapter = Select-NetworkAdapter
     if (-not $adapter) { return }
@@ -248,7 +237,7 @@ function Show-IPConfiguration {
 }
 
 function Set-StaticIP {
-    Show-Header "SET STATIC IP ADDRESS" -Color Magenta
+    Show-SouliTEKHeader -Title "SET STATIC IP ADDRESS" -Color Magenta -ClearHost -ShowBanner
     
     if (-not (Test-Administrator)) {
         Write-Host "WARNING: Administrator privileges required!" -ForegroundColor Red
@@ -469,7 +458,7 @@ function Set-StaticIP {
 }
 
 function Flush-DNSCache {
-    Show-Header "FLUSH DNS CACHE" -Color Yellow
+    Show-SouliTEKHeader -Title "FLUSH DNS CACHE" -Color Yellow -ClearHost -ShowBanner
     
     if (-not (Test-Administrator)) {
         Write-Host "WARNING: Administrator privileges required!" -ForegroundColor Red
@@ -536,7 +525,7 @@ function Flush-DNSCache {
 }
 
 function Reset-NetworkAdapter {
-    Show-Header "RESET NETWORK ADAPTER" -Color Red
+    Show-SouliTEKHeader -Title "RESET NETWORK ADAPTER" -Color Red -ClearHost -ShowBanner
     
     if (-not (Test-Administrator)) {
         Write-Host "WARNING: Administrator privileges required!" -ForegroundColor Red
@@ -632,7 +621,7 @@ function Reset-NetworkAdapter {
 }
 
 function Export-ConfigurationReport {
-    Show-Header "EXPORT CONFIGURATION REPORT" -Color Cyan
+    Show-SouliTEKHeader -Title "EXPORT CONFIGURATION REPORT" -Color Cyan -ClearHost -ShowBanner
     
     if ($Script:ConfigResults.Count -eq 0) {
         Write-Host "No configuration data to export!" -ForegroundColor Yellow
@@ -834,7 +823,7 @@ function Export-HTMLReport {
 }
 
 function Show-Help {
-    Show-Header "HELP & INFORMATION" -Color Cyan
+    Show-SouliTEKHeader -Title "HELP & INFORMATION" -Color Cyan -ClearHost -ShowBanner
     
     $helpText = @"
 
@@ -907,16 +896,9 @@ Email: letstalk@soulitek.co.il
 # EXIT MESSAGE
 # ============================================================
 
+# Show-ExitMessage function - using Show-SouliTEKExitMessage from common module
 function Show-ExitMessage {
-    Clear-Host
-    Write-Host ""
-    Write-Host "Thank you for using SouliTEK Network Configuration Tool!" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "Website: www.soulitek.co.il" -ForegroundColor Yellow
-    Write-Host ""
-    
-    # Self-destruct: Remove script file after execution
-    Invoke-SouliTEKSelfDestruct -ScriptPath $PSCommandPath -Silent
+    Show-SouliTEKExitMessage -ScriptPath $PSCommandPath -ToolName "SouliTEK Network Configuration Tool"
 }
 
 # ============================================================
@@ -924,7 +906,7 @@ function Show-ExitMessage {
 # ============================================================
 
 function Show-MainMenu {
-    Show-Header
+    Show-SouliTEKHeader -Title "NETWORK CONFIGURATION TOOL" -ClearHost -ShowBanner
     
     Write-Host "Main Menu:" -ForegroundColor Cyan
     Write-Host ""

@@ -48,18 +48,7 @@ if (Test-Path $CommonPath) {
 # HELPER FUNCTIONS
 # ============================================================
 
-function Show-Header {
-    param([string]$Title = "ESSENTIAL TWEAKS", [ConsoleColor]$Color = 'Cyan')
-    
-    Clear-Host
-    Show-SouliTEKBanner
-    Write-Host "============================================================" -ForegroundColor $Color
-    Write-Host ""
-    Write-Host "  $Title" -ForegroundColor $Color
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor $Color
-    Write-Host ""
-}
+# Show-Header function removed - using Show-SouliTEKHeader from common module
 
 # ============================================================
 # TWEAK FUNCTIONS
@@ -470,7 +459,7 @@ function New-SystemRestorePointTweak {
 # ============================================================
 
 function Show-MainMenu {
-    Show-Header
+    Show-SouliTEKHeader -Title "ESSENTIAL TWEAKS" -ClearHost -ShowBanner
     
     Write-Host "ESSENTIAL TWEAKS MENU" -ForegroundColor Cyan
     Write-Host ("=" * 60) -ForegroundColor Gray
@@ -523,7 +512,7 @@ function Invoke-AllTweaks {
         Applies all tweaks in sequence.
     #>
     
-    Show-Header "APPLYING ALL TWEAKS"
+    Show-SouliTEKHeader -Title "APPLYING ALL TWEAKS" -ClearHost -ShowBanner
     
     Write-Host "This will apply all 10 essential tweaks." -ForegroundColor Yellow
     Write-Host ""
@@ -604,16 +593,9 @@ function Invoke-AllTweaks {
     Write-Host "[*] Some changes may require a restart or re-login to take effect" -ForegroundColor Yellow
 }
 
+# Show-ExitMessage function - using Show-SouliTEKExitMessage from common module
 function Show-ExitMessage {
-    Clear-Host
-    Write-Host ""
-    Write-Host "Thank you for using SouliTEK Essential Tweaks!" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "Website: www.soulitek.co.il" -ForegroundColor Yellow
-    Write-Host ""
-    
-    # Self-destruct: Remove script file after execution
-    Invoke-SouliTEKSelfDestruct -ScriptPath $PSCommandPath -Silent
+    Show-SouliTEKExitMessage -ScriptPath $PSCommandPath -ToolName "SouliTEK Essential Tweaks"
 }
 
 function Start-MainLoop {
@@ -625,7 +607,7 @@ function Start-MainLoop {
         switch ($choice) {
             { $_ -match "^([1-9]|10)$" } {
                 $tweakNum = [int]$_
-                Show-Header
+                Show-SouliTEKHeader -Title "ESSENTIAL TWEAKS" -ClearHost -ShowBanner
                 $success = Invoke-Tweak -TweakNumber $tweakNum
                 Write-Host ""
                 Write-Host "Press Enter to return to menu..."
@@ -657,7 +639,7 @@ function Start-MainLoop {
 
 # Check administrator privileges
 if (-not (Test-SouliTEKAdministrator)) {
-    Show-Header
+    Show-SouliTEKHeader -Title "ESSENTIAL TWEAKS" -ClearHost -ShowBanner
     Write-Host "[!] ERROR: Administrator privileges required!" -ForegroundColor Red
     Write-Host "[!] Please run this script as Administrator." -ForegroundColor Red
     Write-Host ""

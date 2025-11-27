@@ -69,17 +69,11 @@ $Script:MountedDevicesPath = "HKLM:\SYSTEM\MountedDevices"
 
 
 
+# Show-Header function - wrapper using Show-SouliTEKHeader from common module
 function Show-Header {
     param([string]$Title = "USB DEVICE LOG - FORENSIC TOOL", [ConsoleColor]$Color = 'Cyan')
     
-    Clear-Host
-    Show-SouliTEKBanner
-    Write-Host "============================================================" -ForegroundColor $Color
-    Write-Host ""
-    Write-Host "  $Title" -ForegroundColor $Color
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor $Color
-    Write-Host ""
+    Show-SouliTEKHeader -Title $Title -Color $Color -ClearHost -ShowBanner
 }
 
 # ============================================================
@@ -973,48 +967,14 @@ function Show-MainMenu {
     return $choice
 }
 
+# Show-Disclaimer function - using Show-SouliTEKDisclaimer from common module
 function Show-Disclaimer {
-    Clear-Host
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "                    IMPORTANT NOTICE" -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "  USB Device Log - Forensic Tool" -ForegroundColor White
-    Write-Host ""
-    Write-Host "  This tool is provided 'AS IS' without warranty." -ForegroundColor White
-    Write-Host ""
-    Write-Host "  USE AT YOUR OWN RISK" -ForegroundColor Red
-    Write-Host ""
-    Write-Host "  By continuing, you acknowledge that:" -ForegroundColor White
-    Write-Host "  - You are solely responsible for any outcomes" -ForegroundColor Gray
-    Write-Host "  - You will use this tool lawfully and ethically" -ForegroundColor Gray
-    Write-Host "  - You have authorization to analyze this system" -ForegroundColor Gray
-    Write-Host "  - You will handle collected data securely" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "  FORENSIC DATA NOTICE:" -ForegroundColor Yellow
-    Write-Host "  This tool collects USB device history from the system" -ForegroundColor Yellow
-    Write-Host "  registry and event logs. Use only on systems where you" -ForegroundColor Yellow
-    Write-Host "  have proper authorization." -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "Press any key to continue or Ctrl+C to cancel..." -ForegroundColor Cyan
-    $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
+    Show-SouliTEKDisclaimer
 }
 
+# Show-ExitMessage function - using Show-SouliTEKExitMessage from common module
 function Show-ExitMessage {
-    Clear-Host
-    Write-Host ""
-    Write-Host "Thank you for using SouliTEK USB Device Log!" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "Website: www.soulitek.co.il" -ForegroundColor Yellow
-    Write-Host ""
-    
-    # Self-destruct: Remove script file after execution
-    Invoke-SouliTEKSelfDestruct -ScriptPath $PSCommandPath -Silent
+    Show-SouliTEKExitMessage -ScriptPath $PSCommandPath -ToolName "SouliTEK USB Device Log"
 }
 
 # ============================================================
