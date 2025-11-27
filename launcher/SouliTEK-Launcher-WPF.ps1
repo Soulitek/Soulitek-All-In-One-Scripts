@@ -88,7 +88,7 @@ Write-Host "Running as Administrator." -ForegroundColor Green
 $Script:ScriptPath = Join-Path $Script:RootPath "scripts"
 $Script:AssetsPath = Join-Path $Script:RootPath "assets"
 $Script:IconsPath = Join-Path $Script:AssetsPath "icons"
-$Script:CurrentVersion = "2.7.0"
+$Script:CurrentVersion = "2.8.0"
 $Script:CurrentCategory = "All"
 
 # Tool definitions
@@ -172,6 +172,15 @@ $Script:Tools = @(
         Script = "wifi_password_viewer.ps1"
         Category = "Network"
         Tags = @("wifi", "password", "network", "wireless", "credentials")
+        Color = "#1abc9c"
+    },
+    @{
+        Name = "WiFi Monitor"
+        Icon = "[WM]"
+        Description = "Monitor WiFi signal strength, frequency band (2.4/5GHz), SSID, and disconnection history"
+        Script = "wifi_monitor.ps1"
+        Category = "Network"
+        Tags = @("wifi", "monitor", "signal", "strength", "rssi", "2.4ghz", "5ghz", "frequency", "band", "ssid", "disconnection", "history", "network", "wireless", "troubleshoot")
         Color = "#1abc9c"
     },
     @{

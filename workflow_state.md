@@ -1,8 +1,8 @@
 # Workflow State - SouliTEK All-In-One Scripts
 
 **Date:** 2025-11-27  
-**Project Status:** Production Ready - v2.7.0  
-**Current Task:** OneDrive Status Checker Complete
+**Project Status:** Production Ready - v2.8.0  
+**Current Task:** WiFi Monitor Tool Complete
 
 ---
 
@@ -19,9 +19,53 @@
 ✅ **Local Admin Users Checker Tool Implemented - Version 2.5.0**  
 ✅ **Product Key Retriever Tool Implemented - Version 2.6.0**  
 ✅ **BSOD History Scanner Tool Implemented - Version 2.6.0**  
-✅ **OneDrive Status Checker Tool Implemented - Version 2.7.0**
+✅ **OneDrive Status Checker Tool Implemented - Version 2.7.0**  
+✅ **WiFi Monitor Tool Implemented - Version 2.8.0**
 
-### Latest Completion (2025-11-27 - v2.7.0)
+### Latest Completion (2025-11-27 - v2.8.0)
+- **Feature:** WiFi Monitor Tool (31st tool)
+- **Purpose:** Monitor WiFi connection status, signal strength, frequency band, and disconnection history
+- **Category:** Network
+- **Features:**
+  1. **Signal Strength Monitoring:**
+     - Real-time signal strength percentage (0-100%)
+     - RSSI value in dBm
+     - Color-coded signal quality indicators
+     - Signal strength interpretation guide
+  2. **Frequency Band Detection:**
+     - Automatic detection of 2.4GHz or 5GHz band
+     - Channel number display
+     - Band characteristics explanation
+     - Performance comparison information
+  3. **Connection Information:**
+     - Current SSID (Network name)
+     - Connection state
+     - Authentication type
+     - Cipher/encryption method
+     - Radio type (802.11n, 802.11ac, etc.)
+     - Connection mode
+  4. **Disconnection History:**
+     - Scans Windows event logs for disconnection events
+     - Last 30 days of connection/disconnection history
+     - Disconnection statistics by network
+     - Event timestamps and details
+     - Reason codes for disconnections
+  5. **Export Capabilities:**
+     - Text file reports (.txt)
+     - CSV data export (.csv)
+     - HTML formatted reports (.html)
+- **Technical:**
+  - Uses `netsh wlan show interfaces` for current connection info
+  - Reads Windows Event Logs (WLAN-AutoConfig/Operational)
+  - RSSI to percentage conversion algorithm
+  - Frequency band detection from channel number
+  - No admin privileges required
+- **Integration:**
+  - Added to WPF Launcher in "Network" category
+  - Complete documentation created (docs/wifi_monitor.md)
+  - Self-destruct feature implemented
+
+### Previous Completion (2025-11-27 - v2.7.0)
 - **Feature:** OneDrive Status Checker Tool (30th tool)
 - **Purpose:** Check OneDrive sync status by examining Registry, process, and logs
 - **Category:** Support
@@ -393,9 +437,21 @@
 - ✅ Product Key Retriever tool implemented (2025-11-26)
 - ✅ BSOD History Scanner tool implemented (2025-11-26)
 - ✅ OneDrive Status Checker tool implemented (2025-11-27)
+- ✅ WiFi Monitor tool implemented (2025-11-27)
 
 ### Recent Changes (2025-11-27)
-- ✅ **OneDrive Status Checker Tool** (v2.7.0 - Latest)
+- ✅ **WiFi Monitor Tool** (v2.8.0 - Latest)
+  - 31st tool added to SouliTEK toolkit
+  - Added to "Network" category
+  - Monitors WiFi signal strength (RSSI in percentages)
+  - Detects frequency band (2.4GHz or 5GHz)
+  - Shows SSID and connection details
+  - Tracks disconnection history from event logs
+  - Export to TXT, CSV, HTML formats
+  - Complete documentation created
+  - Self-destruct feature implemented
+
+- ✅ **OneDrive Status Checker Tool** (v2.7.0)
   - 30th tool added to SouliTEK toolkit
   - Added to "Support" category
   - Checks OneDrive sync status via Registry, process, and logs
@@ -853,4 +909,4 @@
 
 ---
 
-**Last Updated:** 2025-11-27 (v2.7.0)
+**Last Updated:** 2025-11-27 (v2.8.0)
