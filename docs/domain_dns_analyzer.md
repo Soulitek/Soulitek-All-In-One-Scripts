@@ -7,14 +7,14 @@ The **Domain & DNS Analyzer** provides comprehensive domain WHOIS lookup and DNS
 ## Purpose
 
 Provides domain and DNS diagnostic capabilities:
-- WHOIS registration lookup (via RDAP API)
+- WHOIS registration lookup (via Microsoft Sysinternals Whois)
 - Complete DNS record analysis
 - Email security verification (SPF, DKIM, DMARC)
 - Export detailed reports
 
 ## Features
 
-### 🔍 **WHOIS Lookup (RDAP)**
+### 🔍 **WHOIS Lookup (Microsoft Sysinternals)**
 - Domain registration status
 - Registrar information
 - Creation, update, and expiration dates
@@ -60,7 +60,7 @@ Provides domain and DNS diagnostic capabilities:
 
 ### Dependencies
 - Uses native PowerShell `Resolve-DnsName` cmdlet
-- Uses RDAP API for WHOIS (no external tools needed)
+- Uses Microsoft Sysinternals Whois tool (automatically downloaded on first use)
 - No additional module installation required
 
 ## Usage
@@ -127,12 +127,13 @@ Display usage guide and DNS record explanations.
 
 ## Technical Details
 
-### WHOIS Implementation (RDAP)
-The tool uses **RDAP (Registration Data Access Protocol)**, the modern replacement for traditional WHOIS:
-- Primary endpoint: `https://rdap.org/domain/{domain}`
-- Returns structured JSON data
-- No rate limiting for normal usage
-- Supports most TLDs
+### WHOIS Implementation (Microsoft Sysinternals)
+The tool uses **Microsoft Sysinternals Whois v1.21**, a reliable command-line WHOIS utility:
+- Official Microsoft tool from Sysinternals suite
+- Automatically downloaded to `tools\whois.exe` on first use
+- Supports domain names and IP addresses
+- Works with all standard WHOIS servers
+- Reference: [Microsoft Sysinternals Whois](https://learn.microsoft.com/en-us/sysinternals/downloads/whois)
 
 ### DNS Record Types Explained
 
@@ -194,15 +195,17 @@ The tool uses **RDAP (Registration Data Access Protocol)**, the modern replaceme
 
 **Possible Causes:**
 - Domain does not exist
-- TLD not supported by RDAP
 - Network connectivity issue
-- RDAP service temporarily unavailable
+- WHOIS server temporarily unavailable
+- Whois tool download failed (first run)
 
 **Solutions:**
 1. Verify domain spelling
 2. Check internet connection
 3. Try again later
-4. Some TLDs may not support RDAP
+4. If tool download failed, manually download from:
+   - https://learn.microsoft.com/en-us/sysinternals/downloads/whois
+   - Place `whois.exe` in the `tools\` directory
 
 ### DNS Lookup Fails
 **Problem:** Cannot resolve DNS records
@@ -290,6 +293,8 @@ For assistance or to report issues:
 *IT Solutions for your business*
 
 (C) 2025 SouliTEK - All Rights Reserved
+
+
 
 
 

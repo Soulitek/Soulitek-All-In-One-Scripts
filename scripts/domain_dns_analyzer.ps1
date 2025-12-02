@@ -118,50 +118,71 @@ function Add-AnalysisResult {
 }
 
 # ============================================================
-# WHOIS FUNCTIONS (Using Get-WHOIS Module)
+# WHOIS FUNCTIONS (Using Microsoft Sysinternals Whois)
 # ============================================================
 
-$Script:WhoisModuleChecked = $false
+$Script:WhoisToolChecked = $false
+$Script:WhoisToolPath = $null
 
-function Initialize-WhoisModule {
+function Initialize-WhoisTool {
     <#
     .SYNOPSIS
-        Ensures the Get-WHOIS module is installed and imported.
+        Ensures Microsoft Sysinternals Whois tool is available.
     #>
     
-    if ($Script:WhoisModuleChecked) {
+    if ($Script:WhoisToolChecked -and $Script:WhoisToolPath -and (Test-Path $Script:WhoisToolPath)) {
         return $true
     }
     
-    try {
-        # Check if module is already available
-        $module = Get-Module -ListAvailable -Name "Get-WHOIS" | Sort-Object Version -Descending | Select-Object -First 1
-        
-        if (-not $module) {
-            Write-Host ""
-            Write-Host "  [*] Installing Get-WHOIS module..." -ForegroundColor Yellow
-            Write-Host "      This is required for WHOIS lookups." -ForegroundColor Gray
-            Write-Host ""
-            
-            # Ensure NuGet provider
-            $nuget = Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue
-            if (-not $nuget -or $nuget.Version -lt [version]"2.8.5.201") {
-                Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser | Out-Null
-            }
-            
-            # Install the module
-            Install-Module -Name Get-WHOIS -Scope CurrentUser -Force -AllowClobber -ErrorAction Stop
-            Write-Host "  [+] Get-WHOIS module installed successfully" -ForegroundColor Green
-        }
-        
-        # Import the module
-        Import-Module -Name Get-WHOIS -Force -ErrorAction Stop
-        $Script:WhoisModuleChecked = $true
+    # Set path to whois.exe in tools directory
+    $ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+    $ProjectRoot = Split-Path -Parent $ScriptRoot
+    $WhoisPath = Join-Path $ProjectRoot "tools\whois.exe"
+    
+    # Check if whois.exe already exists
+    if (Test-Path $WhoisPath) {
+        $Script:WhoisToolPath = $WhoisPath
+        $Script:WhoisToolChecked = $true
         return $true
     }
+    
+    # Download whois.exe from Sysinternals
+    try {
+        Write-Host ""
+        Write-Host "  [*] Downloading Microsoft Sysinternals Whois tool..." -ForegroundColor Yellow
+        Write-Host "      This is required for WHOIS lookups." -ForegroundColor Gray
+        Write-Host ""
+        
+        # Ensure tools directory exists
+        $toolsDir = Split-Path -Parent $WhoisPath
+        if (-not (Test-Path $toolsDir)) {
+            New-Item -ItemType Directory -Path $toolsDir -Force | Out-Null
+        }
+        
+        # Download from Sysinternals Live
+        $whoisUrl = "https://live.sysinternals.com/whois.exe"
+        
+        Write-Host "  [*] Downloading from: $whoisUrl" -ForegroundColor Gray
+        
+        $webClient = New-Object System.Net.WebClient
+        $webClient.DownloadFile($whoisUrl, $WhoisPath)
+        
+        if (Test-Path $WhoisPath) {
+            Write-Host "  [+] Whois tool downloaded successfully" -ForegroundColor Green
+            $Script:WhoisToolPath = $WhoisPath
+            $Script:WhoisToolChecked = $true
+            return $true
+        } else {
+            Write-Host "  [-] Download failed - file not found" -ForegroundColor Red
+            return $false
+        }
+    }
     catch {
-        Write-Host "  [-] Failed to install/import Get-WHOIS module: $($_.Exception.Message)" -ForegroundColor Red
-        Write-Host "  [!] Try running: Install-Module -Name Get-WHOIS -Scope CurrentUser -Force" -ForegroundColor Yellow
+        Write-Host "  [-] Failed to download Whois tool: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host "  [!] Please ensure you have internet connectivity" -ForegroundColor Yellow
+        Write-Host "  [!] You can manually download from:" -ForegroundColor Yellow
+        Write-Host "      https://learn.microsoft.com/en-us/sysinternals/downloads/whois" -ForegroundColor Cyan
+        Write-Host "      And place whois.exe in: $toolsDir" -ForegroundColor Cyan
         return $false
     }
 }
@@ -184,10 +205,10 @@ function Get-DomainWhois {
         }
     }
     
-    # Initialize WHOIS module
-    if (-not (Initialize-WhoisModule)) {
+    # Initialize WHOIS tool
+    if (-not (Initialize-WhoisTool)) {
         Write-Host ""
-        Write-SouliTEKResult "WHOIS module not available. Cannot perform lookup." -Level ERROR
+        Write-SouliTEKResult "Whois tool not available. Cannot perform lookup." -Level ERROR
         Write-Host ""
         Read-Host "Press Enter to return to main menu"
         return $null
@@ -202,16 +223,23 @@ function Get-DomainWhois {
     try {
         Write-Host "  [*] Querying WHOIS servers..." -ForegroundColor Gray
         
-        # Use Get-WHOIS module
-        $whoisResult = Get-WHOIS -Domain $Domain -ErrorAction Stop
+        # Use Sysinternals Whois tool
+        $whoisProcess = Start-Process -FilePath $Script:WhoisToolPath -ArgumentList $Domain -NoNewWindow -Wait -PassThru -RedirectStandardOutput "$env:TEMP\whois_output.txt" -RedirectStandardError "$env:TEMP\whois_error.txt"
         
-        if ($whoisResult) {
+        if (Test-Path "$env:TEMP\whois_output.txt") {
+            $whoisText = Get-Content "$env:TEMP\whois_output.txt" -Raw -ErrorAction SilentlyContinue
+            Remove-Item "$env:TEMP\whois_output.txt" -ErrorAction SilentlyContinue
+        } else {
+            $whoisText = ""
+        }
+        
+        if ($whoisProcess.ExitCode -eq 0 -and $whoisText -and $whoisText.Trim().Length -gt 0) {
             Write-SouliTEKResult "WHOIS query successful" -Level SUCCESS
             
             # Parse the WHOIS result
             $whoisData = [PSCustomObject]@{
                 Domain = $Domain
-                RawData = $whoisResult
+                RawData = $whoisText
                 Registrar = ""
                 Created = ""
                 Updated = ""
@@ -220,9 +248,6 @@ function Get-DomainWhois {
                 Status = ""
                 DnsSec = $false
             }
-            
-            # Parse raw WHOIS text for common fields
-            $whoisText = $whoisResult.ToString()
             
             # Extract Registrar
             if ($whoisText -match "Registrar:\s*(.+)") {
@@ -412,8 +437,19 @@ function Get-DomainWhois {
             }
         }
         else {
-            Write-SouliTEKResult "No WHOIS data returned" -Level WARNING
-            Add-AnalysisResult -Domain $Domain -RecordType "WHOIS" -Value "No data" -Status "Unknown"
+            $errorText = ""
+            if (Test-Path "$env:TEMP\whois_error.txt") {
+                $errorText = Get-Content "$env:TEMP\whois_error.txt" -Raw -ErrorAction SilentlyContinue
+                Remove-Item "$env:TEMP\whois_error.txt" -ErrorAction SilentlyContinue
+            }
+            
+            if (-not $whoisText -or $whoisText.Trim().Length -eq 0) {
+                Write-SouliTEKResult "No WHOIS data returned" -Level WARNING
+                if ($errorText) {
+                    Write-Host "  Error: $errorText" -ForegroundColor Yellow
+                }
+                Add-AnalysisResult -Domain $Domain -RecordType "WHOIS" -Value "No data" -Status "Unknown"
+            }
         }
     }
     catch {
@@ -873,17 +909,25 @@ function Get-FullDomainAnalysis {
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     
-    # Initialize WHOIS module
-    if (-not (Initialize-WhoisModule)) {
-        Write-SouliTEKResult "WHOIS module not available - skipping WHOIS lookup" -Level WARNING
+    # Initialize WHOIS tool
+    if (-not (Initialize-WhoisTool)) {
+        Write-SouliTEKResult "Whois tool not available - skipping WHOIS lookup" -Level WARNING
     }
     else {
         try {
             Write-Host "  [*] Querying WHOIS..." -ForegroundColor Gray
-            $whoisResult = Get-WHOIS -Domain $Domain -ErrorAction Stop
             
-            if ($whoisResult) {
-                $whoisText = $whoisResult.ToString()
+            # Use Sysinternals Whois tool
+            $whoisProcess = Start-Process -FilePath $Script:WhoisToolPath -ArgumentList $Domain -NoNewWindow -Wait -PassThru -RedirectStandardOutput "$env:TEMP\whois_output.txt" -RedirectStandardError "$env:TEMP\whois_error.txt"
+            
+            if (Test-Path "$env:TEMP\whois_output.txt") {
+                $whoisText = Get-Content "$env:TEMP\whois_output.txt" -Raw -ErrorAction SilentlyContinue
+                Remove-Item "$env:TEMP\whois_output.txt" -ErrorAction SilentlyContinue
+            } else {
+                $whoisText = ""
+            }
+            
+            if ($whoisProcess.ExitCode -eq 0 -and $whoisText -and $whoisText.Trim().Length -gt 0) {
                 
                 # Parse registrar
                 $registrar = ""
@@ -1320,28 +1364,6 @@ function Show-Help {
     Write-Host "    - Subject Alternative Names (SAN)" -ForegroundColor Gray
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "NETWORK TOOLS:" -ForegroundColor Yellow
-    Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "[6] GEOIP LOOKUP" -ForegroundColor White
-    Write-Host "    Find geographic location of IP/domain:" -ForegroundColor Gray
-    Write-Host "    - Country, region, city, coordinates" -ForegroundColor Gray
-    Write-Host "    - ISP and organization info" -ForegroundColor Gray
-    Write-Host "    - Google Maps link" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "[7] MY EXTERNAL IP" -ForegroundColor White
-    Write-Host "    Discover your public IP address:" -ForegroundColor Gray
-    Write-Host "    - External IP address" -ForegroundColor Gray
-    Write-Host "    - Your location and ISP info" -ForegroundColor Gray
-    Write-Host "    - Local network IPs" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "[8] INTERNET SPEED TEST" -ForegroundColor White
-    Write-Host "    Test connection speed (uses Ookla Speedtest):" -ForegroundColor Gray
-    Write-Host "    - Download and upload speeds" -ForegroundColor Gray
-    Write-Host "    - Ping latency and jitter" -ForegroundColor Gray
-    Write-Host "    - Server information" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host "DNS RECORD TYPES:" -ForegroundColor Yellow
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -1380,605 +1402,6 @@ function Show-Help {
     Read-Host "Press Enter to return to main menu"
 }
 
-# ============================================================
-# GEOIP LOOKUP FUNCTION
-# ============================================================
-
-function Get-GeoIPLocation {
-    param([string]$Target)
-    
-    Show-SouliTEKHeader -Title "GEOIP LOOKUP" -Color Magenta -ClearHost -ShowBanner
-    
-    Write-Host "      Find the geographic location of an IP or domain" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host ""
-    
-    if ([string]::IsNullOrWhiteSpace($Target)) {
-        $Target = Read-Host "Enter IP address or domain name"
-        
-        if ([string]::IsNullOrWhiteSpace($Target)) {
-            Write-SouliTEKResult "No target specified" -Level ERROR
-            Start-Sleep -Seconds 2
-            return
-        }
-    }
-    
-    # Clean the input
-    $Target = $Target -replace '^https?://', ''
-    $Target = $Target -replace '/.*$', ''
-    $Target = $Target.Trim()
-    
-    Write-Host ""
-    Write-SouliTEKResult "Looking up location for $Target..." -Level INFO
-    Write-Host ""
-    
-    try {
-        # First, resolve domain to IP if needed
-        $ipAddress = $Target
-        if ($Target -notmatch '^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$') {
-            Write-Host "  [*] Resolving domain to IP..." -ForegroundColor Gray
-            try {
-                $dnsResult = Resolve-DnsName -Name $Target -Type A -ErrorAction Stop -DnsOnly
-                $ipAddress = ($dnsResult | Where-Object { $_.Type -eq "A" } | Select-Object -First 1).IPAddress
-                Write-Host "  [+] Resolved to: $ipAddress" -ForegroundColor Green
-            }
-            catch {
-                Write-SouliTEKResult "Could not resolve domain to IP" -Level ERROR
-                Read-Host "Press Enter to return to main menu"
-                return
-            }
-        }
-        
-        Write-Host "  [*] Querying GeoIP database..." -ForegroundColor Gray
-        
-        $geoData = $null
-        $geoSource = ""
-        
-        # Try ipapi.co first (more detailed info)
-        try {
-            Write-Host "  [*] Trying ipapi.co..." -ForegroundColor Gray
-            $ipapiUrl = "https://ipapi.co/$ipAddress/json/"
-            $ipapiData = Invoke-RestMethod -Uri $ipapiUrl -Method Get -TimeoutSec 10 -ErrorAction Stop
-            
-            if ($ipapiData -and -not $ipapiData.error) {
-                $geoData = [PSCustomObject]@{
-                    status = "success"
-                    country = $ipapiData.country_name
-                    countryCode = $ipapiData.country_code
-                    region = $ipapiData.region_code
-                    regionName = $ipapiData.region
-                    city = $ipapiData.city
-                    zip = $ipapiData.postal
-                    lat = $ipapiData.latitude
-                    lon = $ipapiData.longitude
-                    timezone = $ipapiData.timezone
-                    isp = $ipapiData.org
-                    org = $ipapiData.org
-                    as = $ipapiData.asn
-                    currency = $ipapiData.currency
-                    languages = $ipapiData.languages
-                    countryCallingCode = $ipapiData.country_calling_code
-                }
-                $geoSource = "ipapi.co"
-                Write-Host "  [+] Got response from ipapi.co" -ForegroundColor Green
-            }
-        }
-        catch {
-            Write-Host "  [!] ipapi.co failed, trying fallback..." -ForegroundColor Yellow
-        }
-        
-        # Fallback to ip-api.com
-        if (-not $geoData -or $geoData.status -ne "success") {
-            try {
-                $geoUrl = "http://ip-api.com/json/$ipAddress"
-                $geoData = Invoke-RestMethod -Uri $geoUrl -Method Get -TimeoutSec 10 -ErrorAction Stop
-                $geoSource = "ip-api.com"
-                Write-Host "  [+] Got response from ip-api.com" -ForegroundColor Green
-            }
-            catch {
-                Write-Host "  [-] ip-api.com also failed" -ForegroundColor Red
-            }
-        }
-        
-        if ($geoData -and $geoData.status -eq "success") {
-            Write-Host ""
-            Write-Host "============================================================" -ForegroundColor Magenta
-            Write-Host "  GEOIP LOCATION RESULTS" -ForegroundColor Magenta
-            Write-Host "============================================================" -ForegroundColor Magenta
-            Write-Host ""
-            
-            Write-Host "  Target:        " -NoNewline -ForegroundColor White
-            Write-Host $Target -ForegroundColor Cyan
-            
-            Write-Host "  IP Address:    " -NoNewline -ForegroundColor White
-            Write-Host $ipAddress -ForegroundColor Cyan
-            
-            Write-Host ""
-            Write-Host "  LOCATION:" -ForegroundColor Yellow
-            
-            Write-Host "  Country:       " -NoNewline -ForegroundColor White
-            Write-Host "$($geoData.country) ($($geoData.countryCode))" -ForegroundColor Green
-            
-            Write-Host "  Region:        " -NoNewline -ForegroundColor White
-            Write-Host "$($geoData.regionName) ($($geoData.region))" -ForegroundColor Gray
-            
-            Write-Host "  City:          " -NoNewline -ForegroundColor White
-            Write-Host $geoData.city -ForegroundColor Gray
-            
-            Write-Host "  ZIP Code:      " -NoNewline -ForegroundColor White
-            Write-Host $geoData.zip -ForegroundColor Gray
-            
-            Write-Host "  Coordinates:   " -NoNewline -ForegroundColor White
-            Write-Host "Lat: $($geoData.lat), Lon: $($geoData.lon)" -ForegroundColor Gray
-            
-            Write-Host "  Timezone:      " -NoNewline -ForegroundColor White
-            Write-Host $geoData.timezone -ForegroundColor Gray
-            
-            Write-Host ""
-            Write-Host "  NETWORK:" -ForegroundColor Yellow
-            
-            Write-Host "  ISP:           " -NoNewline -ForegroundColor White
-            Write-Host $geoData.isp -ForegroundColor Cyan
-            
-            Write-Host "  Organization:  " -NoNewline -ForegroundColor White
-            Write-Host $geoData.org -ForegroundColor Gray
-            
-            Write-Host "  AS Number:     " -NoNewline -ForegroundColor White
-            Write-Host $geoData.as -ForegroundColor Gray
-            
-            # Add to results
-            Add-AnalysisResult -Domain $Target -RecordType "GeoIP" `
-                -Value "$($geoData.city), $($geoData.country)" `
-                -Status "Found" `
-                -Details "IP: $ipAddress, ISP: $($geoData.isp), Coords: $($geoData.lat),$($geoData.lon)"
-            
-            Write-Host ""
-            Write-Host "============================================================" -ForegroundColor Magenta
-            Write-Host ""
-            Write-Host "  View on map: " -NoNewline -ForegroundColor Yellow
-            Write-Host "https://www.google.com/maps?q=$($geoData.lat),$($geoData.lon)" -ForegroundColor Cyan
-            Write-Host ""
-            Write-Host "============================================================" -ForegroundColor Cyan
-        }
-        else {
-            Write-SouliTEKResult "GeoIP lookup failed: $($geoData.message)" -Level ERROR
-        }
-    }
-    catch {
-        Write-SouliTEKResult "GeoIP lookup failed: $($_.Exception.Message)" -Level ERROR
-    }
-    
-    Write-Host ""
-    Read-Host "Press Enter to return to main menu"
-}
-
-# ============================================================
-# EXTERNAL IP FUNCTION
-# ============================================================
-
-function Get-MyExternalIP {
-    Show-SouliTEKHeader -Title "MY EXTERNAL IP" -Color Green -ClearHost -ShowBanner
-    
-    Write-Host "      Discover your public IP address and location" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host ""
-    
-    Write-SouliTEKResult "Detecting your external IP address..." -Level INFO
-    Write-Host ""
-    
-    try {
-        # Get external IP from multiple sources for reliability
-        $ipSources = @(
-            "https://api.ipify.org",
-            "https://icanhazip.com",
-            "https://ifconfig.me/ip"
-        )
-        
-        $externalIP = $null
-        
-        foreach ($source in $ipSources) {
-            try {
-                Write-Host "  [*] Checking $source..." -ForegroundColor Gray
-                $externalIP = (Invoke-WebRequest -Uri $source -TimeoutSec 10 -UseBasicParsing -ErrorAction Stop).Content.Trim()
-                if ($externalIP -match '^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$') {
-                    Write-Host "  [+] Got response" -ForegroundColor Green
-                    break
-                }
-            }
-            catch {
-                continue
-            }
-        }
-        
-        if ($externalIP) {
-            Write-Host ""
-            Write-Host "============================================================" -ForegroundColor Green
-            Write-Host "  YOUR EXTERNAL IP ADDRESS" -ForegroundColor Green
-            Write-Host "============================================================" -ForegroundColor Green
-            Write-Host ""
-            
-            Write-Host "  External IP:   " -NoNewline -ForegroundColor White
-            Write-Host $externalIP -ForegroundColor Cyan -BackgroundColor DarkBlue
-            Write-Host ""
-            
-            # Get GeoIP info for the external IP using ipapi.co
-            Write-Host "  [*] Getting location info..." -ForegroundColor Gray
-            
-            try {
-                # Try ipapi.co first (returns your own IP info when called without IP)
-                $ipapiUrl = "https://ipapi.co/json/"
-                $geoData = Invoke-RestMethod -Uri $ipapiUrl -Method Get -TimeoutSec 10 -ErrorAction Stop
-                
-                if ($geoData -and -not $geoData.error) {
-                    Write-Host ""
-                    Write-Host "  LOCATION:" -ForegroundColor Yellow
-                    
-                    Write-Host "  Country:       " -NoNewline -ForegroundColor White
-                    Write-Host "$($geoData.country_name) ($($geoData.country_code))" -ForegroundColor Green
-                    
-                    Write-Host "  Region:        " -NoNewline -ForegroundColor White
-                    Write-Host $geoData.region -ForegroundColor Gray
-                    
-                    Write-Host "  City:          " -NoNewline -ForegroundColor White
-                    Write-Host $geoData.city -ForegroundColor Gray
-                    
-                    Write-Host "  Postal Code:   " -NoNewline -ForegroundColor White
-                    Write-Host $geoData.postal -ForegroundColor Gray
-                    
-                    Write-Host "  Timezone:      " -NoNewline -ForegroundColor White
-                    Write-Host $geoData.timezone -ForegroundColor Gray
-                    
-                    Write-Host ""
-                    Write-Host "  NETWORK:" -ForegroundColor Yellow
-                    
-                    Write-Host "  ISP:           " -NoNewline -ForegroundColor White
-                    Write-Host $geoData.org -ForegroundColor Cyan
-                    
-                    Write-Host "  ASN:           " -NoNewline -ForegroundColor White
-                    Write-Host $geoData.asn -ForegroundColor Gray
-                    
-                    Write-Host ""
-                    Write-Host "  EXTRA INFO:" -ForegroundColor Yellow
-                    
-                    Write-Host "  Currency:      " -NoNewline -ForegroundColor White
-                    Write-Host $geoData.currency -ForegroundColor Gray
-                    
-                    Write-Host "  Calling Code:  " -NoNewline -ForegroundColor White
-                    Write-Host $geoData.country_calling_code -ForegroundColor Gray
-                    
-                    Write-Host "  Languages:     " -NoNewline -ForegroundColor White
-                    Write-Host $geoData.languages -ForegroundColor Gray
-                    
-                    Add-AnalysisResult -Domain "My External IP" -RecordType "External IP" `
-                        -Value $externalIP `
-                        -Status "Found" `
-                        -Details "$($geoData.city), $($geoData.country_name) - $($geoData.org)"
-                }
-            }
-            catch {
-                # Fallback to ip-api.com
-                try {
-                    $geoUrl = "http://ip-api.com/json/$externalIP"
-                    $geoData = Invoke-RestMethod -Uri $geoUrl -Method Get -TimeoutSec 10 -ErrorAction Stop
-                    
-                    if ($geoData.status -eq "success") {
-                        Write-Host ""
-                        Write-Host "  LOCATION:" -ForegroundColor Yellow
-                        
-                        Write-Host "  Country:       " -NoNewline -ForegroundColor White
-                        Write-Host "$($geoData.country) ($($geoData.countryCode))" -ForegroundColor Green
-                        
-                        Write-Host "  City:          " -NoNewline -ForegroundColor White
-                        Write-Host $geoData.city -ForegroundColor Gray
-                        
-                        Write-Host ""
-                        Write-Host "  NETWORK:" -ForegroundColor Yellow
-                        
-                        Write-Host "  ISP:           " -NoNewline -ForegroundColor White
-                        Write-Host $geoData.isp -ForegroundColor Cyan
-                        
-                        Add-AnalysisResult -Domain "My External IP" -RecordType "External IP" `
-                            -Value $externalIP `
-                            -Status "Found" `
-                            -Details "$($geoData.city), $($geoData.country) - $($geoData.isp)"
-                    }
-                }
-                catch {
-                    Write-Host "  Could not get location info" -ForegroundColor Yellow
-                }
-            }
-            
-            # Also show local network info
-            Write-Host ""
-            Write-Host "  LOCAL NETWORK:" -ForegroundColor Yellow
-            
-            $localIPs = Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.IPAddress -notmatch '^127\.' -and $_.IPAddress -notmatch '^169\.254\.' }
-            foreach ($ip in $localIPs) {
-                Write-Host "  Local IP:      " -NoNewline -ForegroundColor White
-                Write-Host "$($ip.IPAddress) ($($ip.InterfaceAlias))" -ForegroundColor Gray
-            }
-            
-            Write-Host ""
-            Write-Host "============================================================" -ForegroundColor Cyan
-        }
-        else {
-            Write-SouliTEKResult "Could not determine external IP" -Level ERROR
-        }
-    }
-    catch {
-        Write-SouliTEKResult "Failed to get external IP: $($_.Exception.Message)" -Level ERROR
-    }
-    
-    Write-Host ""
-    Read-Host "Press Enter to return to main menu"
-}
-
-# ============================================================
-# SPEED TEST FUNCTION
-# ============================================================
-
-function Test-InternetSpeed {
-    Show-SouliTEKHeader -Title "INTERNET SPEED TEST" -Color Blue -ClearHost -ShowBanner
-    
-    Write-Host "      Test your internet connection speed" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host ""
-    
-    Write-SouliTEKResult "Preparing speed test..." -Level INFO
-    Write-Host ""
-    
-    # Check if speedtest CLI is installed
-    $speedtestPath = $null
-    
-    # Try to find speedtest.exe in common locations
-    
-    # 1. Check if in PATH
-    $cmdPath = (Get-Command speedtest.exe -ErrorAction SilentlyContinue).Source
-    if ($cmdPath) {
-        $speedtestPath = $cmdPath
-    }
-    
-    # 2. Check Program Files
-    if (-not $speedtestPath) {
-        $progPath = "$env:ProgramFiles\Ookla\Speedtest\speedtest.exe"
-        if (Test-Path $progPath) {
-            $speedtestPath = $progPath
-        }
-    }
-    
-    # 3. Check WinGet packages folder
-    if (-not $speedtestPath) {
-        $wingetPackages = Get-ChildItem "$env:LOCALAPPDATA\Microsoft\WinGet\Packages" -Filter "Ookla.Speedtest*" -Directory -ErrorAction SilentlyContinue
-        if ($wingetPackages) {
-            foreach ($pkg in $wingetPackages) {
-                $exePath = Get-ChildItem $pkg.FullName -Filter "speedtest.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
-                if ($exePath) {
-                    $speedtestPath = $exePath.FullName
-                    break
-                }
-            }
-        }
-    }
-    
-    # 4. Check Chocolatey
-    if (-not $speedtestPath) {
-        $chocoPath = "$env:ChocolateyInstall\bin\speedtest.exe"
-        if (Test-Path $chocoPath -ErrorAction SilentlyContinue) {
-            $speedtestPath = $chocoPath
-        }
-    }
-    
-    if (-not $speedtestPath) {
-        Write-Host ""
-        Write-Host "============================================================" -ForegroundColor Yellow
-        Write-Host "  SPEEDTEST CLI NOT INSTALLED" -ForegroundColor Yellow
-        Write-Host "============================================================" -ForegroundColor Yellow
-        Write-Host ""
-        Write-Host "  The Ookla Speedtest CLI is required for accurate speed tests." -ForegroundColor White
-        Write-Host ""
-        Write-Host "  Would you like to install it now? (requires WinGet)" -ForegroundColor Cyan
-        Write-Host ""
-        
-        $install = Read-Host "  Install Speedtest CLI? [Y/n]"
-        
-        if ($install -eq '' -or $install -eq 'Y' -or $install -eq 'y') {
-            Write-Host ""
-            Write-SouliTEKResult "Installing Speedtest CLI via WinGet..." -Level INFO
-            
-            try {
-                $result = Start-Process -FilePath "winget" -ArgumentList "install", "Ookla.Speedtest.CLI", "--accept-source-agreements", "--accept-package-agreements", "-h" -Wait -PassThru -NoNewWindow
-                
-                if ($result.ExitCode -eq 0) {
-                    Write-SouliTEKResult "Speedtest CLI installed successfully!" -Level SUCCESS
-                    Write-Host "  Please restart this tool to use the speed test." -ForegroundColor Yellow
-                }
-                else {
-                    Write-SouliTEKResult "Installation failed. Try manually: winget install Ookla.Speedtest.CLI" -Level ERROR
-                }
-            }
-            catch {
-                Write-SouliTEKResult "Installation failed: $($_.Exception.Message)" -Level ERROR
-            }
-        }
-        else {
-            Write-Host ""
-            Write-Host "  Alternative: Run a basic download test..." -ForegroundColor Yellow
-            Write-Host ""
-            
-            $runBasic = Read-Host "  Run basic speed test? [Y/n]"
-            
-            if ($runBasic -eq '' -or $runBasic -eq 'Y' -or $runBasic -eq 'y') {
-                # Basic download speed test
-                Write-Host ""
-                Write-SouliTEKResult "Running basic download test..." -Level INFO
-                Write-Host ""
-                
-                try {
-                    $testUrl = "http://speedtest.tele2.net/10MB.zip"
-                    $testSize = 10MB
-                    
-                    Write-Host "  [*] Downloading 10MB test file..." -ForegroundColor Gray
-                    
-                    $startTime = Get-Date
-                    $response = Invoke-WebRequest -Uri $testUrl -UseBasicParsing -TimeoutSec 60
-                    $endTime = Get-Date
-                    
-                    $duration = ($endTime - $startTime).TotalSeconds
-                    $speedMbps = [math]::Round(($testSize * 8 / $duration / 1000000), 2)
-                    
-                    Write-Host ""
-                    Write-Host "============================================================" -ForegroundColor Green
-                    Write-Host "  BASIC SPEED TEST RESULTS" -ForegroundColor Green
-                    Write-Host "============================================================" -ForegroundColor Green
-                    Write-Host ""
-                    Write-Host "  Download Speed: " -NoNewline -ForegroundColor White
-                    Write-Host "$speedMbps Mbps" -ForegroundColor Cyan
-                    Write-Host "  Test Duration:  " -NoNewline -ForegroundColor White
-                    Write-Host "$([math]::Round($duration, 2)) seconds" -ForegroundColor Gray
-                    Write-Host "  Data Downloaded:" -NoNewline -ForegroundColor White
-                    Write-Host " 10 MB" -ForegroundColor Gray
-                    Write-Host ""
-                    Write-Host "  Note: This is a basic test. Install Speedtest CLI for accurate results." -ForegroundColor Yellow
-                    Write-Host ""
-                    Write-Host "============================================================" -ForegroundColor Cyan
-                    
-                    Add-AnalysisResult -Domain "Speed Test" -RecordType "Download Speed" `
-                        -Value "$speedMbps Mbps" `
-                        -Status "Basic Test" `
-                        -Details "Duration: $([math]::Round($duration, 2))s"
-                }
-                catch {
-                    Write-SouliTEKResult "Basic speed test failed: $($_.Exception.Message)" -Level ERROR
-                }
-            }
-        }
-        
-        Write-Host ""
-        Read-Host "Press Enter to return to main menu"
-        return
-    }
-    
-    # Run Speedtest CLI
-    Write-Host "  [*] Found Speedtest CLI: $speedtestPath" -ForegroundColor Green
-    Write-Host ""
-    Write-SouliTEKResult "Running speed test (this may take 30-60 seconds)..." -Level INFO
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Blue
-    Write-Host ""
-    
-    try {
-        # Run speed test with JSON output - include all acceptance flags
-        Write-Host "  [*] Connecting to test server..." -ForegroundColor Gray
-        
-        # Use Start-Process with timeout for better control
-        $pinfo = New-Object System.Diagnostics.ProcessStartInfo
-        $pinfo.FileName = $speedtestPath
-        $pinfo.Arguments = "--format=json --accept-license --accept-gdpr"
-        $pinfo.RedirectStandardOutput = $true
-        $pinfo.RedirectStandardError = $true
-        $pinfo.UseShellExecute = $false
-        $pinfo.CreateNoWindow = $true
-        
-        $process = New-Object System.Diagnostics.Process
-        $process.StartInfo = $pinfo
-        $process.Start() | Out-Null
-        
-        # Wait up to 90 seconds
-        $completed = $process.WaitForExit(90000)
-        
-        if (-not $completed) {
-            $process.Kill()
-            Write-SouliTEKResult "Speed test timed out after 90 seconds" -Level ERROR
-            Write-Host ""
-            Read-Host "Press Enter to return to main menu"
-            return
-        }
-        
-        $jsonResult = $process.StandardOutput.ReadToEnd()
-        $errorOutput = $process.StandardError.ReadToEnd()
-        
-        if ($errorOutput -and $errorOutput -notmatch "License|GDPR") {
-            Write-Host "  [!] $errorOutput" -ForegroundColor Yellow
-        }
-        
-        if ($jsonResult) {
-            $result = $jsonResult | ConvertFrom-Json
-            
-            Write-Host ""
-            Write-Host "============================================================" -ForegroundColor Green
-            Write-Host "  SPEED TEST RESULTS" -ForegroundColor Green
-            Write-Host "============================================================" -ForegroundColor Green
-            Write-Host ""
-            
-            # Server info
-            Write-Host "  SERVER:" -ForegroundColor Yellow
-            Write-Host "  Name:          " -NoNewline -ForegroundColor White
-            Write-Host "$($result.server.name)" -ForegroundColor Cyan
-            Write-Host "  Location:      " -NoNewline -ForegroundColor White
-            Write-Host "$($result.server.location), $($result.server.country)" -ForegroundColor Gray
-            Write-Host "  Host:          " -NoNewline -ForegroundColor White
-            Write-Host "$($result.server.host)" -ForegroundColor Gray
-            
-            Write-Host ""
-            Write-Host "  SPEEDS:" -ForegroundColor Yellow
-            
-            # Download speed (convert from bytes/s to Mbps)
-            $downloadMbps = [math]::Round($result.download.bandwidth * 8 / 1000000, 2)
-            Write-Host "  Download:      " -NoNewline -ForegroundColor White
-            $dlColor = if ($downloadMbps -ge 100) { 'Green' } elseif ($downloadMbps -ge 25) { 'Yellow' } else { 'Red' }
-            Write-Host "$downloadMbps Mbps" -ForegroundColor $dlColor
-            
-            # Upload speed
-            $uploadMbps = [math]::Round($result.upload.bandwidth * 8 / 1000000, 2)
-            Write-Host "  Upload:        " -NoNewline -ForegroundColor White
-            $ulColor = if ($uploadMbps -ge 50) { 'Green' } elseif ($uploadMbps -ge 10) { 'Yellow' } else { 'Red' }
-            Write-Host "$uploadMbps Mbps" -ForegroundColor $ulColor
-            
-            Write-Host ""
-            Write-Host "  LATENCY:" -ForegroundColor Yellow
-            Write-Host "  Ping:          " -NoNewline -ForegroundColor White
-            $pingColor = if ($result.ping.latency -lt 20) { 'Green' } elseif ($result.ping.latency -lt 50) { 'Yellow' } else { 'Red' }
-            Write-Host "$([math]::Round($result.ping.latency, 2)) ms" -ForegroundColor $pingColor
-            
-            Write-Host "  Jitter:        " -NoNewline -ForegroundColor White
-            Write-Host "$([math]::Round($result.ping.jitter, 2)) ms" -ForegroundColor Gray
-            
-            Write-Host ""
-            Write-Host "  CONNECTION:" -ForegroundColor Yellow
-            Write-Host "  External IP:   " -NoNewline -ForegroundColor White
-            Write-Host "$($result.interface.externalIp)" -ForegroundColor Cyan
-            Write-Host "  Internal IP:   " -NoNewline -ForegroundColor White
-            Write-Host "$($result.interface.internalIp)" -ForegroundColor Gray
-            Write-Host "  ISP:           " -NoNewline -ForegroundColor White
-            Write-Host "$($result.isp)" -ForegroundColor Gray
-            
-            Write-Host ""
-            Write-Host "============================================================" -ForegroundColor Cyan
-            Write-Host ""
-            Write-Host "  Result URL: " -NoNewline -ForegroundColor Yellow
-            Write-Host "$($result.result.url)" -ForegroundColor Cyan
-            Write-Host ""
-            Write-Host "============================================================" -ForegroundColor Cyan
-            
-            Add-AnalysisResult -Domain "Speed Test" -RecordType "Internet Speed" `
-                -Value "DL: $downloadMbps Mbps, UL: $uploadMbps Mbps, Ping: $([math]::Round($result.ping.latency, 2))ms" `
-                -Status "Complete" `
-                -Details "Server: $($result.server.name), ISP: $($result.isp)"
-        }
-        else {
-            Write-SouliTEKResult "Speed test returned no results" -Level ERROR
-        }
-    }
-    catch {
-        Write-SouliTEKResult "Speed test failed: $($_.Exception.Message)" -Level ERROR
-    }
-    
-    Write-Host ""
-    Read-Host "Press Enter to return to main menu"
-}
 
 # ============================================================
 # SSL CERTIFICATE CHECK FUNCTION
@@ -2208,11 +1631,6 @@ function Show-MainMenu {
     Write-Host "  [4] Email Security Check     - SPF, DKIM, DMARC" -ForegroundColor Yellow
     Write-Host "  [5] SSL Certificate Check    - Validity, issuer, encryption" -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "  NETWORK TOOLS:" -ForegroundColor DarkCyan
-    Write-Host "  [6] GeoIP Lookup             - Find server location" -ForegroundColor Yellow
-    Write-Host "  [7] My External IP           - Your public IP & location" -ForegroundColor Yellow
-    Write-Host "  [8] Internet Speed Test      - Test connection speed" -ForegroundColor Yellow
-    Write-Host ""
     Write-Host "  OTHER:" -ForegroundColor DarkCyan
     Write-Host "  [9] Export Results           - Save to file" -ForegroundColor Cyan
     Write-Host "  [C] Clear Results            - Clear analysis history" -ForegroundColor Magenta
@@ -2263,9 +1681,6 @@ do {
         "3" { Get-DNSRecords }
         "4" { Get-EmailSecurityRecords }
         "5" { Get-SSLCertificate }
-        "6" { Get-GeoIPLocation }
-        "7" { Get-MyExternalIP }
-        "8" { Test-InternetSpeed }
         "9" { Export-AnalysisResults }
         "C" { Clear-AnalysisResults }
         "H" { Show-Help }
