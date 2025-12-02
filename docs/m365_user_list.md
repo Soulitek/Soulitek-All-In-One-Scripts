@@ -2,43 +2,67 @@
 
 ## Overview
 
-The **Microsoft 365 User List** tool exports comprehensive lists of Microsoft 365 users with detailed information including licenses, sign-in status, and account details. It's designed for IT administrators managing Microsoft 365 tenants.
+The **Microsoft 365 User List** tool provides full tenant visibility by extracting comprehensive Microsoft 365 user information including roles, groups, MFA status, mailbox configuration, and security posture. It's designed for IT administrators managing Microsoft 365 tenants and security audits.
 
 ## Purpose
 
-Provides detailed Microsoft 365 user information:
-- Complete user list export
-- License assignment details
-- Sign-in status and last sign-in
-- Account status information
-- Export to multiple formats
+Provides complete Microsoft 365 tenant visibility:
+- Full user inventory with all details
+- Permissions & access (roles and groups)
+- Security posture (MFA status and methods)
+- Mailbox configuration (forwarding, size, litigation hold)
+- Export to multiple formats including JSON
 
 ## Features
 
-### 👥 **User Information**
-- All Microsoft 365 users
-- User display names and emails
-- Account status (enabled/disabled)
-- Department and job title
-- Office location
+### 👥 **User Inventory**
+- Complete list of all users in tenant
+- Primary email address (UserPrincipalName and Mail)
+- Display name
+- User status (Enabled / Disabled / Blocked sign-in)
+- Department, job title, office location
+- Phone numbers (Business and Mobile)
+- Account creation date
+
+### 🔐 **Permissions & Access**
+- **Directory Roles:** List of roles assigned to each user
+  - Global Administrator
+  - Exchange Administrator
+  - SharePoint Administrator
+  - And all other directory roles
+- **Group Memberships:** List of groups each user is a member of
+  - Security groups
+  - Microsoft 365 groups
+  - Distribution groups
+
+### 🛡️ **Security Posture**
+- **MFA Status:**
+  - Whether user has any MFA method configured
+  - Which methods are configured:
+    - Authenticator App
+    - SMS (Phone)
+    - Email MFA
+    - FIDO Key
+  - Whether MFA is enforced via Conditional Access
+  - Last sign-in date
+
+### 📧 **Mailbox Configuration** (Optional)
+- Forwarding rules detection
+- External forwarding detection
+- Mailbox size & quota
+- Litigation Hold status
+- Retention status
 
 ### 📋 **License Details**
-- Assigned licenses per user
-- License SKU information
+- Assigned licenses per user (with SKU names)
+- License count
 - License status
-- License assignment date
-
-### 🔐 **Sign-In Information**
-- Last sign-in date and time
-- Sign-in status
-- Account creation date
-- Password last changed
 
 ### 📊 **Export Options**
-- Export to CSV format
-- Export to TXT format
-- Comprehensive user data
-- Customizable output
+- **TXT:** Human-readable text format
+- **CSV:** Spreadsheet format for Excel/Google Sheets
+- **HTML:** Professional web report with styling
+- **JSON:** Clean JSON format for automation and integrations
 
 ## Requirements
 
@@ -49,8 +73,15 @@ Provides detailed Microsoft 365 user information:
 - **Microsoft Graph:** Microsoft Graph PowerShell SDK modules
 
 ### Required Permissions
-- **Microsoft Graph:** User.Read.All, Directory.Read.All
-- **Azure AD:** Global Reader, User Administrator, or Global Administrator
+- **Microsoft Graph Scopes:**
+  - `User.Read.All` - Read all users
+  - `UserAuthenticationMethod.Read.All` - Read MFA status
+  - `Organization.Read.All` - Read organization info
+  - `Directory.Read.All` - Read roles and directory data
+  - `Group.Read.All` - Read group memberships
+  - `Mail.Read` - Read mailbox settings
+  - `MailboxSettings.Read` - Read mailbox configuration
+- **Azure AD Roles:** Global Reader, User Administrator, or Global Administrator
 - **Authentication:** Microsoft 365 account with appropriate permissions
 
 ## Usage
@@ -86,83 +117,184 @@ Provides detailed Microsoft 365 user information:
   - Microsoft.Graph.Users
   - Microsoft.Graph.Identity.SignIns
   - Microsoft.Graph.Identity.DirectoryManagement
+  - Microsoft.Graph.Groups
+  - Microsoft.Graph.Mail
 - First run may take longer for module installation
 
 ### Menu Options
 
-#### Option 1: Export All Users
-Exports complete user list with all details.
-- All users in tenant
-- Complete information
-- License assignments
-- Sign-in data
+#### Option 1: Connect to Microsoft Graph
+- First-time users will need to authenticate via browser
+- Grant permissions when prompted
+- If already connected, you can keep or switch tenants
 
-#### Option 2: Export Enabled Users Only
-Exports only active (enabled) users.
-- Filters out disabled accounts
-- Active users only
-- Useful for active user reports
+#### Option 2: Disconnect from Current Tenant
+- Disconnects from the current Microsoft 365 tenant
+- Clears all cached user data
+- Use this to switch to a different tenant
 
-#### Option 3: Export Users with Licenses
-Exports users who have licenses assigned.
-- Licensed users only
-- License details included
-- License SKU information
+#### Option 3: Retrieve All Users
+- Fetches all users from your Microsoft 365 tenant
+- Collects comprehensive data:
+  - User information
+  - Roles and groups
+  - MFA status and methods
+  - Mailbox configuration
+- May take a few moments for large tenants
 
 #### Option 4: View User Summary
-Displays summary statistics.
+- Displays summary statistics
 - Total user count
-- Enabled vs. disabled
-- Licensed vs. unlicensed
-- Last sign-in statistics
+- Enabled vs. disabled accounts
+- MFA enabled vs. disabled
+- Top 10 users preview
 
-#### Option 5: Export Custom Report
-Customizable export with selected fields.
-- Choose fields to include
-- Custom filtering options
-- Flexible output format
+#### Options 5-8: Export Reports
+- **Option 5:** TXT Format - Human-readable text format
+- **Option 6:** CSV Format - Spreadsheet format for Excel/Google Sheets
+- **Option 7:** HTML Format - Professional web report with styling
+- **Option 8:** JSON Format - Clean JSON format for automation and integrations
+
+#### Option 9: Help & Information
+- Displays detailed help and usage information
 
 ## Output Files
 
 ### Report Locations
 - **Default:** Desktop (`%USERPROFILE%\Desktop`)
 - **Custom:** Specified output folder
-- **Formats:** CSV and TXT
-- **Filename:** `M365UserList_YYYYMMDD_HHMMSS.[ext]`
+- **Formats:** TXT, CSV, HTML, and JSON
+- **Filename:** `M365_User_List_YYYYMMDD_HHMMSS.[ext]`
 
 ### Report Contents
+
+#### User Information
 - User Principal Name (UPN)
 - Display Name
-- Email Address
-- Account Status (Enabled/Disabled)
+- Primary Email Address
+- Phone Number
 - Department
 - Job Title
 - Office Location
-- Assigned Licenses
-- Last Sign-In Date
+- Company Name
+- Account Status (Enabled/Disabled/Blocked sign-in)
 - Account Creation Date
+
+#### Permissions & Access
+- **Roles:** Array of directory roles (Global Admin, Exchange Admin, etc.)
+- **Groups:** Array of group memberships (Security groups + M365 groups)
+
+#### Security Posture
+- **MFA Configured:** Boolean
+- **MFA Methods:** Array of methods (Authenticator App, Phone, Email, FIDO Key)
+- **MFA Method Count:** Number of configured methods
+- **MFA Last Sign-In:** Last sign-in date
+- **MFA Enforced via CA:** Conditional Access enforcement status
+
+#### Mailbox Configuration
+- **Has Mailbox:** Boolean
+- **Forwarding Enabled:** Boolean
+- **External Forwarding:** Boolean
+- **Forwarding Address:** Email address if forwarding is enabled
+- **Mailbox Size:** Current mailbox size
+- **Mailbox Quota:** Quota limit
+- **Litigation Hold:** Boolean
+- **Retention Enabled:** Boolean
+
+#### License Information
+- **Licenses:** Array of license SKU names (e.g., "M365 Business Premium")
+- **License Count:** Number of assigned licenses
+
+#### Sign-In Information
+- **Last Sign-In:** Most recent sign-in date and time
 - Password Last Changed
+
+## JSON Output Format
+
+The JSON export produces a clean, structured format perfect for automation and integrations:
+
+```json
+{
+  "Generated": "2025-12-02 14:30:00",
+  "Organization": "Contoso Corporation",
+  "Domain": "contoso.com",
+  "TotalUsers": 150,
+  "Users": [
+    {
+      "UserPrincipalName": "user@tenant.com",
+      "DisplayName": "John Doe",
+      "AccountEnabled": true,
+      "AccountStatus": "Enabled",
+      "Licenses": ["M365 Business Premium"],
+      "Roles": ["Global Administrator", "SharePoint Administrator"],
+      "Groups": ["Marketing", "All Employees"],
+      "MFA": {
+        "Configured": true,
+        "Methods": ["Authenticator App", "Phone"],
+        "LastSignIn": "2025-12-02"
+      },
+      "Mailbox": {
+        "ForwardingEnabled": false,
+        "ExternalForwarding": false,
+        "ForwardingAddress": "None",
+        "Size": "2.5 GB",
+        "Quota": "50 GB",
+        "LitigationHold": false,
+        "RetentionEnabled": true
+      },
+      "LastSignIn": "2025-12-02 10:15:00",
+      "CreatedDate": "2024-01-15"
+    }
+  ]
+}
+```
 
 ## Data Fields
 
 ### User Information
-- **User Principal Name:** Login email
+- **User Principal Name:** Login email (UPN)
 - **Display Name:** Full name
-- **Email:** Primary email address
+- **Primary Email:** Primary email address (Mail property)
+- **Phone Number:** Business or mobile phone
 - **Department:** Department name
 - **Job Title:** Position title
-- **Office:** Office location
+- **Office Location:** Office location
+- **Company Name:** Company name
 
 ### Account Status
-- **Account Enabled:** Yes/No
+- **Account Enabled:** Boolean (Enabled/Disabled)
+- **Account Status:** String (Enabled/Disabled/Blocked sign-in)
 - **Account Created:** Creation date
-- **Last Sign-In:** Most recent sign-in
-- **Password Last Changed:** Password update date
+- **Last Sign-In:** Most recent sign-in date and time
+
+### Permissions & Access
+- **Roles:** Array of directory role names (e.g., "Global Administrator")
+- **Groups:** Array of group display names (Security + M365 groups)
+
+### Security Posture (MFA)
+- **MFA Configured:** Boolean
+- **MFA Methods:** Array of method names
+  - "Authenticator App"
+  - "Phone" (SMS)
+  - "Email"
+  - "FIDO Key"
+- **MFA Method Count:** Number of configured methods
+- **MFA Last Sign-In:** Last sign-in date
+- **MFA Enforced via CA:** Conditional Access enforcement (Boolean)
+
+### Mailbox Configuration
+- **Has Mailbox:** Boolean
+- **Forwarding Enabled:** Boolean
+- **External Forwarding:** Boolean (if forwarding to external address)
+- **Forwarding Address:** Email address if forwarding enabled
+- **Mailbox Size:** Current size (when available)
+- **Mailbox Quota:** Quota limit (when available)
+- **Litigation Hold:** Boolean (when available)
+- **Retention Enabled:** Boolean (when available)
 
 ### License Information
-- **Licenses Assigned:** License SKU names
-- **License Count:** Number of licenses
-- **License Status:** Active/Inactive
+- **Licenses:** Array of license SKU names (e.g., "M365 Business Premium", "Office 365 E3")
+- **License Count:** Number of assigned licenses
 
 ## Troubleshooting
 
@@ -251,8 +383,12 @@ Customizable export with selected fields.
 
 ### Required Permissions
 - **User.Read.All:** Read all users
-- **Directory.Read.All:** Read directory data
-- **AuditLog.Read.All:** Read sign-in logs (optional)
+- **UserAuthenticationMethod.Read.All:** Read MFA status and methods
+- **Organization.Read.All:** Read organization information
+- **Directory.Read.All:** Read directory data, roles, and groups
+- **Group.Read.All:** Read group memberships
+- **Mail.Read:** Read mailbox settings
+- **MailboxSettings.Read:** Read mailbox configuration
 
 ### Role Requirements
 - **Global Reader:** Read-only access

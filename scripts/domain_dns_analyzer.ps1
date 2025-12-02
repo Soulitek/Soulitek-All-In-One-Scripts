@@ -135,7 +135,13 @@ function Initialize-WhoisTool {
     }
     
     # Set path to whois.exe in tools directory
-    $ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+    # Use $PSScriptRoot (automatic PowerShell variable) for reliable path resolution
+    if (-not $PSScriptRoot) {
+        Write-Host "  [-] Cannot determine script path" -ForegroundColor Red
+        return $false
+    }
+    
+    $ScriptRoot = $PSScriptRoot
     $ProjectRoot = Split-Path -Parent $ScriptRoot
     $WhoisPath = Join-Path $ProjectRoot "tools\whois.exe"
     
@@ -424,17 +430,13 @@ function Get-DomainWhois {
             Write-Host ""
             Write-Host "============================================================" -ForegroundColor Cyan
             
-            # Option to show raw WHOIS
+            # Always show raw WHOIS data
             Write-Host ""
-            $showRaw = Read-Host "Show raw WHOIS data? [Y/n]"
-            if ($showRaw -eq '' -or $showRaw -eq 'Y' -or $showRaw -eq 'y') {
-                Write-Host ""
-                Write-Host "============================================================" -ForegroundColor Gray
-                Write-Host "  RAW WHOIS DATA" -ForegroundColor Gray
-                Write-Host "============================================================" -ForegroundColor Gray
-                Write-Host $whoisText -ForegroundColor DarkGray
-                Write-Host "============================================================" -ForegroundColor Gray
-            }
+            Write-Host "============================================================" -ForegroundColor Gray
+            Write-Host "  RAW WHOIS DATA" -ForegroundColor Gray
+            Write-Host "============================================================" -ForegroundColor Gray
+            Write-Host $whoisText -ForegroundColor DarkGray
+            Write-Host "============================================================" -ForegroundColor Gray
         }
         else {
             $errorText = ""

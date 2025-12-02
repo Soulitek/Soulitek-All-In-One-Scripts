@@ -157,6 +157,24 @@ $Script:Tools = @(
         Color = "#3b82f6"
     },
     @{
+        Name = "SharePoint Site Inventory"
+        Icon = "[SP]"
+        Description = "Build a full map of SharePoint environment - Site URL, template, type, storage, owners, activity"
+        Script = "sharepoint_site_inventory.ps1"
+        Category = "M365"
+        Tags = @("sharepoint", "sites", "microsoft", "365", "m365", "inventory", "audit", "storage", "owners", "groups", "template")
+        Color = "#8b5cf6"
+    },
+    @{
+        Name = "Exchange Online"
+        Icon = "[EXO]"
+        Description = "Collect Exchange Online mailbox information - DisplayName, aliases, license status, mailbox type, protocols, activity"
+        Script = "m365_exchange_online.ps1"
+        Category = "M365"
+        Tags = @("exchange", "online", "mailbox", "microsoft", "365", "m365", "email", "protocols", "imap", "pop", "ews", "activesync", "smtp", "mapi", "aliases", "license", "activity", "logon", "access", "size", "sendonbehalf")
+        Color = "#8b5cf6"
+    },
+    @{
         Name = "Printer Spooler Fix"
         Icon = "[P]"
         Description = "Comprehensive printer spooler troubleshooting and repair"

@@ -1,8 +1,8 @@
 # Workflow State - SouliTEK All-In-One Scripts
 
-**Date:** 2025-11-27  
-**Project Status:** Production Ready - v2.9.0  
-**Current Task:** Code Audit Implementation - Module Migration
+**Date:** 2025-12-02  
+**Project Status:** Production Ready - v2.12.0  
+**Current Task:** SharePoint Site Collection Inventory Tool
 
 ---
 
@@ -20,9 +20,157 @@
 ✅ **Product Key Retriever Tool Implemented - Version 2.6.0**  
 ✅ **BSOD History Scanner Tool Implemented - Version 2.6.0**  
 ✅ **OneDrive Status Checker Tool Implemented - Version 2.7.0**  
-✅ **WiFi Monitor Tool Implemented - Version 2.8.0**
+✅ **WiFi Monitor Tool Implemented - Version 2.8.0**  
+✅ **Microsoft 365 User List Enhanced - Version 2.10.0**  
+✅ **Exchange Online Mailbox Information Tool - Version 2.11.0**  
+✅ **SharePoint Site Collection Inventory Tool - Version 2.12.0**
 
-### Latest Completion (2025-11-27 - v2.9.0)
+### Latest Completion (2025-12-02 - v2.12.0)
+- **Feature:** SharePoint Site Collection Inventory Tool
+- **Purpose:** Build a full map of the SharePoint environment with comprehensive site information
+- **Category:** M365
+- **Changes Implemented:**
+  1. **Site Collection Inventory:**
+     - Retrieves all SharePoint sites from Microsoft 365 tenant
+     - Collects site URL, display name, and creation date
+  2. **Template Detection:**
+     - Identifies site template (Team Site / Communication Site)
+     - Detects template from site properties and web template
+  3. **Group Connection Status:**
+     - Determines if site is connected to Microsoft 365 Group
+     - Shows Group ID when connected
+     - Identifies standalone sites
+  4. **Storage Information:**
+     - Calculates storage used per site
+     - Aggregates from all document libraries
+     - Human-readable format (MB, GB, TB)
+  5. **Ownership Information:**
+     - Retrieves site owners from M365 Groups (when connected)
+     - Lists all owners per site
+     - Shows owner count
+  6. **Activity Tracking:**
+     - Last activity date per site
+     - Based on site and drive modifications
+     - Helps identify inactive sites
+  7. **Export Capabilities:**
+     - TXT format (human-readable)
+     - CSV format (spreadsheet)
+     - HTML format (professional web report)
+     - JSON format (automation and integrations)
+  8. **Module Updates:**
+     - Added `Microsoft.Graph.Sites` module
+     - Updated required permissions (Sites.Read.All, Group.Read.All, Organization.Read.All)
+  9. **Menu System:**
+     - 9-option menu (Connect, Disconnect, Retrieve, Summary, 4 Export formats, Help, Exit)
+     - Connection status display
+     - Site count tracking
+  10. **Launcher Integration:**
+     - Added to WPF Launcher in "M365" category
+     - Icon: [SP]
+     - Color: #8b5cf6 (purple)
+  11. **Documentation:**
+     - Complete documentation created (docs/sharepoint_site_inventory.md)
+     - Usage instructions and troubleshooting
+     - JSON output format examples
+- **Estimated Impact:**
+  - Full SharePoint environment visibility
+  - Complete site inventory for audits
+  - Storage usage tracking
+  - Ownership and activity monitoring
+  - JSON export enables automation
+
+### Previous Completion (2025-12-02 - v2.11.0)
+- **Feature:** Exchange Online Mailbox Information Tool
+- **Purpose:** Collect comprehensive Exchange Online mailbox information for audits and management
+- **Changes Implemented:**
+  1. **Data Collection:**
+     - Display name and primary email address
+     - Email aliases (all secondary addresses)
+     - License status (Licensed/Unlicensed)
+     - Mailbox type (User / Shared / Resource)
+     - Protocol settings (IMAP, POP, EWS, ActiveSync, SMTP AUTH, MAPI)
+     - Last activity time, last mailbox logon, last mailbox access
+     - Mailbox size (GB) and item count
+     - SendOnBehalf permissions
+  2. **New Functions:**
+     - `Connect-ToExchangeOnline` - Connects to Exchange Online using ExchangeOnlineManagement module
+     - `Get-AllMailboxes` - Retrieves all mailboxes with comprehensive information
+     - `Show-MailboxSummary` - Displays summary statistics
+     - `Export-MailboxListTxt` - Exports to text format
+     - `Export-MailboxListCsv` - Exports to CSV format
+     - `Export-MailboxListHtml` - Exports to HTML format
+  3. **Module Integration:**
+     - Uses ExchangeOnlineManagement PowerShell module
+     - Automatic module installation via `Install-SouliTEKModule`
+     - Connection management with reconnect option
+  4. **Menu System:**
+     - Option 1: Connect to Exchange Online
+     - Option 2: Disconnect from Current Tenant
+     - Option 3: Retrieve All Mailboxes
+     - Option 4: View Mailbox Summary
+     - Option 5: Export Report - TXT Format
+     - Option 6: Export Report - CSV Format
+     - Option 7: Export Report - HTML Format
+     - Option 8: Help & Information
+     - Option 0: Exit (with self-destruct)
+  5. **Launcher Integration:**
+     - Added to WPF Launcher in "M365" category
+     - Icon: [EXO]
+     - Color: #8b5cf6 (purple)
+  6. **Documentation:**
+     - Created `docs/m365_exchange_online.md` with comprehensive feature list
+     - Includes troubleshooting, best practices, and usage instructions
+     - Documents all data fields and export formats
+- **Estimated Impact:**
+  - Complete Exchange Online mailbox visibility
+  - Protocol configuration tracking
+  - Activity monitoring for security audits
+  - License status tracking
+  - Mailbox size and usage monitoring
+  - Permission auditing (SendOnBehalf)
+
+### Previous Completion (2025-12-02 - v2.10.0)
+- **Feature:** Microsoft 365 User List Tool - Comprehensive Enhancement
+- **Purpose:** Provide full tenant visibility with enhanced security and access information
+- **Changes Implemented:**
+  1. **Enhanced Data Collection:**
+     - Added directory roles retrieval (Global Admin, Exchange Admin, SharePoint Admin, etc.)
+     - Added group memberships (Security groups + M365 groups)
+     - Enhanced MFA status with detailed method detection (Authenticator App, SMS, Email, FIDO Key)
+     - Added mailbox configuration (forwarding rules, external forwarding, size, litigation hold)
+     - Improved license retrieval with SKU names
+  2. **New Functions:**
+     - `Get-UserRoles` - Retrieves all directory roles for a user
+     - `Get-UserGroups` - Retrieves all group memberships (security + M365 groups)
+     - `Get-UserMailboxInfo` - Retrieves mailbox configuration and forwarding settings
+     - Enhanced `Get-UserMfaStatus` - Detailed MFA method detection
+     - Enhanced `Get-UserLicenses` - Returns array of license SKU names
+  3. **JSON Export:**
+     - Added `Export-UserListJson` function
+     - Clean JSON format matching requested structure
+     - Includes all user data in structured format
+     - Perfect for automation and integrations
+  4. **Module Updates:**
+     - Added `Microsoft.Graph.Groups` module
+     - Added `Microsoft.Graph.Mail` module
+     - Updated required permissions (Directory.Read.All, Group.Read.All, Mail.Read, MailboxSettings.Read)
+  5. **Menu Updates:**
+     - Added Option 8: Export Report - JSON Format
+     - Updated menu numbering (Exit moved to Option 0)
+     - Updated help text with new features
+  6. **Documentation:**
+     - Updated `docs/m365_user_list.md` with comprehensive feature list
+     - Added JSON output format example
+     - Updated permissions and requirements
+     - Added detailed data fields documentation
+- **Estimated Impact:**
+  - Full tenant visibility for security audits
+  - Complete permissions and access mapping
+  - Enhanced MFA status tracking
+  - Mailbox security configuration visibility
+  - JSON export enables automation and integrations
+
+### Previous Completion (2025-11-27 - v2.9.0)
 - **Feature:** Code Audit Implementation - Phase 1 (Module Migration)
 - **Purpose:** Implement code audit recommendations to reduce technical debt
 - **Changes Implemented:**
@@ -937,4 +1085,4 @@
 
 ---
 
-**Last Updated:** 2025-11-27 (v2.8.0)
+**Last Updated:** 2025-12-02 (v2.11.0)
