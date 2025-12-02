@@ -38,7 +38,7 @@ iwr -useb https://get.soulitek.co.il | iex
 
 ---
 
-## 🛠️ Tools (28 Scripts)
+## 🛠️ Tools (33 Scripts)
 
 ### 🚀 Setup
 - **1-Click PC Install** - Complete PC setup automation: Configure time zone (Jerusalem), regional settings (Israel), Windows updates, power plan, bloatware removal, and install essential software (Chrome, AnyDesk, Office) via WinGet. Includes system restore point creation and detailed installation summary.
@@ -62,9 +62,12 @@ iwr -useb https://get.soulitek.co.il | iex
 - **PST Finder** - Locate and analyze Outlook PST files across the system
 - **License Expiration Checker** - Monitor Microsoft 365 license subscriptions and get alerts for capacity issues
 - **M365 User List** - List all Microsoft 365 users with email, phone, MFA status, and comprehensive user information
+- **SharePoint Site Inventory** - Build a full map of SharePoint environment - Site URL, template, type, storage, owners, activity
+- **Exchange Online** - Collect Exchange Online mailbox information - DisplayName, aliases, license status, mailbox type, protocols, activity
 
 ### 🌐 Network
 - **WiFi Password Viewer** - View and export saved WiFi passwords from Windows
+- **WiFi Monitor** - Monitor WiFi signal strength, frequency band (2.4/5GHz), SSID, and disconnection history
 - **Network Test Tool** - Ping, tracert, DNS lookup, and latency testing for network diagnostics
 - **Network Configuration Tool** - View IP configuration, set static IP addresses, flush DNS cache, and reset network adapters
 
@@ -75,6 +78,8 @@ iwr -useb https://get.soulitek.co.il | iex
 - **Product Key Retriever** - Retrieve Windows and Office product keys from system registry and WMI
 - **Printer Spooler Fix** - Comprehensive printer spooler troubleshooting and repair
 - **Event Log Analyzer** - Analyze Windows Event Logs with statistical summaries
+- **BSOD History Scanner** - Scan Minidump files and event logs to report BSOD history and BugCheck codes
+- **OneDrive Status Checker** - Check OneDrive sync status - Detect sync errors, account issues, and verify files are up-to-date
 - **System Restore Point** - Create Windows System Restore Points for system recovery and rollback
 - **Temp Removal & Disk Cleanup** - Remove temporary files, clean browser cache, empty Recycle Bin, and free up disk space
 

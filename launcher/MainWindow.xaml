@@ -161,12 +161,18 @@
 
             <!-- Compact Logo Section -->
             <Grid Grid.Row="1" Background="White">
-                <Image Name="LogoImage" 
-                       Height="50" 
-                       Stretch="Uniform"
-                       HorizontalAlignment="Center"
-                       VerticalAlignment="Center"
-                       Margin="0,10,0,10"/>
+                <Button Name="LogoButton" 
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Padding="0"
+                        Margin="0,10,0,10">
+                    <Image Name="LogoImage" 
+                           Height="50" 
+                           Stretch="Uniform"/>
+                </Button>
             </Grid>
 
             <!-- Compact Search & Filter Panel -->
@@ -177,18 +183,24 @@
                 </Grid.RowDefinitions>
                 
                 <!-- Search Box -->
-                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="15,8" VerticalAlignment="Center">
-                    <TextBlock Text="Search:" 
+                <Grid Grid.Row="0" Margin="15,8,15,8" VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0"
+                              Text="Search:" 
                               FontSize="10" 
                               FontWeight="Bold"
                               VerticalAlignment="Center" 
                               Margin="0,0,8,0"
                               Foreground="#64748B"/>
-                    <TextBox Name="SearchBox" 
+                    <TextBox Grid.Column="1"
+                            Name="SearchBox" 
                             Style="{StaticResource SearchBox}"
-                            Width="890"
-                            Height="28"/>
-                </StackPanel>
+                            Height="28"
+                            HorizontalAlignment="Stretch"/>
+                </Grid>
                 
                 <!-- Category Buttons -->
                 <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="15,2" VerticalAlignment="Center">

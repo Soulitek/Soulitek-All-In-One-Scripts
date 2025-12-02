@@ -704,6 +704,7 @@ $Script:StatusLabel = $Window.FindName("StatusLabel")
 $Script:VersionLabel = $Window.FindName("VersionLabel")
 $Script:AdminLabel = $Window.FindName("AdminLabel")
 $Script:LogoImage = $Window.FindName("LogoImage")
+$Script:LogoButton = $Window.FindName("LogoButton")
 
 $Script:BtnCatAll = $Window.FindName("BtnCatAll")
 $Script:BtnCatSetup = $Window.FindName("BtnCatSetup")
@@ -879,7 +880,12 @@ $null = $GitHubButton.Add_Click({
 
 # Website button
 $null = $WebsiteButton.Add_Click({
-    Start-Process "www.soulitek.co.il"
+    Start-Process "https://www.soulitek.co.il"
+})
+
+# Logo button - click to open website
+$null = $Script:LogoButton.Add_Click({
+    Start-Process "https://www.soulitek.co.il"
 })
 
 # Version display
