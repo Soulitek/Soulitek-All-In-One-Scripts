@@ -1,8 +1,8 @@
 # Workflow State - SouliTEK All-In-One Scripts
 
 **Date:** 2025-12-02  
-**Project Status:** Production Ready - v2.12.0  
-**Current Task:** SharePoint Site Collection Inventory Tool
+**Project Status:** Production Ready - v2.13.0  
+**Current Task:** Exchange Online Calendar Permissions Audit Tool
 
 ---
 
@@ -23,9 +23,51 @@
 ✅ **WiFi Monitor Tool Implemented - Version 2.8.0**  
 ✅ **Microsoft 365 User List Enhanced - Version 2.10.0**  
 ✅ **Exchange Online Mailbox Information Tool - Version 2.11.0**  
-✅ **SharePoint Site Collection Inventory Tool - Version 2.12.0**
+✅ **SharePoint Site Collection Inventory Tool - Version 2.12.0**  
+✅ **Exchange Online Calendar Permissions Audit Tool - Version 2.13.0**
 
-### Latest Completion (2025-12-02 - v2.12.0)
+### Latest Completion (2025-12-02 - v2.13.0)
+- **Feature:** Exchange Online Calendar Permissions Audit Tool
+- **Purpose:** Audit calendar permissions for Exchange Online mailboxes with dynamic folder detection
+- **Category:** M365
+- **Changes Implemented:**
+  1. **Module Check:**
+     - Checks if ExchangeOnlineManagement module is loaded
+     - Warns user with installation instructions if not loaded
+     - Provides helpful guidance for module installation
+  2. **Dynamic Calendar Folder Detection:**
+     - Uses Get-MailboxFolderStatistics to find calendar folder
+     - Searches for folder where FolderType equals 'Calendar'
+     - Supports mailboxes in any language (Hebrew "לוח שנה", English "Calendar", etc.)
+     - No hardcoded folder names
+  3. **Permission Retrieval:**
+     - Uses Get-MailboxFolderPermission with dynamic folder name
+     - Retrieves all calendar folder permissions
+     - Handles all permission types and sharing flags
+  4. **Formatted Output:**
+     - Displays results in formatted table
+     - Shows User, AccessRights, and SharingPermissionFlags columns
+     - Displays total permission count
+  5. **Error Handling:**
+     - Module availability check with warnings
+     - User not found error handling
+     - Mailbox access error handling
+     - Calendar folder not found error handling
+     - Clear error messages with troubleshooting suggestions
+  6. **User Input:**
+     - Prompts for target email address via console
+     - Validates input is not empty
+  7. **Documentation:**
+     - Complete documentation created (docs/exchange_calendar_permissions_audit.md)
+     - Usage instructions and troubleshooting
+     - Technical details and best practices
+- **Estimated Impact:**
+  - Calendar permission auditing for security compliance
+  - Multi-language calendar folder support
+  - Clear error messages for troubleshooting
+  - Easy-to-read formatted output
+
+### Previous Completion (2025-12-02 - v2.12.0)
 - **Feature:** SharePoint Site Collection Inventory Tool
 - **Purpose:** Build a full map of the SharePoint environment with comprehensive site information
 - **Category:** M365
