@@ -2,7 +2,7 @@
 
 **Date:** 2025-12-02  
 **Project Status:** Production Ready - v2.13.0  
-**Current Task:** Exchange Online Calendar Permissions Audit Tool
+**Current Task:** Added ESET Connector to Software Installer
 
 ---
 
@@ -24,9 +24,43 @@
 ✅ **Microsoft 365 User List Enhanced - Version 2.10.0**  
 ✅ **Exchange Online Mailbox Information Tool - Version 2.11.0**  
 ✅ **SharePoint Site Collection Inventory Tool - Version 2.12.0**  
-✅ **Exchange Online Calendar Permissions Audit Tool - Version 2.13.0**
+✅ **Exchange Online Calendar Permissions Audit Tool - Version 2.13.0**  
+✅ **ESET Connector Added to Software Installer - Version 2.13.1**
 
-### Latest Completion (2025-12-02 - v2.13.0)
+### Latest Completion (2025-12-02 - v2.13.1)
+- **Feature:** ESET Connector Download Support
+- **Purpose:** Add ESET Connector to the Software Installer application catalog
+- **Category:** Security
+- **Changes Implemented:**
+  1. **Package Catalog Update:**
+     - Added ESET Connector to package catalog with ID "ESETCONNECTOR"
+     - Category: Security
+     - Notes: ESET Endpoint Security connector agent
+  2. **Download Function:**
+     - Created `Install-ESETConnector` function
+     - Downloads MSI from: https://download.eset.com/com/eset/apps/business/eei/agent/latest/ei_connector_nt64.msi
+     - Uses TLS 1.2 for secure download
+     - Progress indicators during download and installation
+  3. **Installation Process:**
+     - Downloads MSI to temporary directory
+     - Installs silently using msiexec.exe with /qn flag
+     - Handles reboot requirements (exit code 3010)
+     - Cleans up installer file after installation
+  4. **Installation Detection:**
+     - Updated `Test-PackageInstalled` function to detect ESET Connector
+     - Checks for ESET installation paths
+     - Checks for ESET service (ekrn)
+     - Checks registry for ESET entries
+  5. **Integration:**
+     - Added special handling in `Install-Packages` function
+     - Works seamlessly with existing installer workflow
+     - Appears in interactive menu for selection
+- **Estimated Impact:**
+  - ESET Connector can now be installed via Software Installer
+  - Automated download and installation process
+  - Consistent with other special packages (Office 2024)
+
+### Previous Completion (2025-12-02 - v2.13.0)
 - **Feature:** Exchange Online Calendar Permissions Audit Tool
 - **Purpose:** Audit calendar permissions for Exchange Online mailboxes with dynamic folder detection
 - **Category:** M365

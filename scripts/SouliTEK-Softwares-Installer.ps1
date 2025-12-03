@@ -50,6 +50,7 @@ $Script:PackageCatalog = @(
     @{ Id = "WhatsApp.WhatsApp"; Name = "WhatsApp"; Category = "Communications"; Notes = "Messaging and voice/video calls" }
     @{ Id = "qBittorrent.qBittorrent"; Name = "qBittorrent"; Category = "Utilities"; Notes = "Open-source BitTorrent client" }
     @{ Id = "Telegram.TelegramDesktop"; Name = "Telegram"; Category = "Communications"; Notes = "Secure messaging platform" }
+    @{ Id = "ESETCONNECTOR"; Name = "ESET Connector"; Category = "Security"; Notes = "ESET Endpoint Security connector agent" }
 )
 
 # ============================================================================
@@ -399,6 +400,27 @@ function Test-PackageInstalled {
             return $false
         }
         
+        # Special case for ESET Connector
+        if ($PackageId -eq "ESETCONNECTOR") {
+            # Check if ESET Connector is installed by looking for ESET service or registry
+            $esetPaths = @(
+                "C:\Program Files\ESET\ESET Endpoint Security",
+                "C:\Program Files (x86)\ESET\ESET Endpoint Security",
+                "HKLM:\SOFTWARE\ESET"
+            )
+            foreach ($path in $esetPaths) {
+                if (Test-Path $path) {
+                    return $true
+                }
+            }
+            # Also check for ESET service
+            $esetService = Get-Service -Name "ekrn" -ErrorAction SilentlyContinue
+            if ($esetService) {
+                return $true
+            }
+            return $false
+        }
+        
         # For WinGet packages
         $result = winget list --id $PackageId --exact 2>$null
         if ($LASTEXITCODE -eq 0 -and $result) {
@@ -480,6 +502,75 @@ function Install-Office2024 {
     }
 }
 
+function Install-ESETConnector {
+    Write-Host "             [0%] Starting ESET Connector download..." -ForegroundColor Cyan
+    
+    try {
+        $esetUrl = "https://download.eset.com/com/eset/apps/business/eei/agent/latest/ei_connector_nt64.msi"
+        $installerPath = Join-Path $env:TEMP "ei_connector_nt64.msi"
+        
+        # Download ESET Connector MSI
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        Write-Host "             [10%] Connecting to download server..." -ForegroundColor Cyan
+        
+        $webClient = New-Object System.Net.WebClient
+        $webClient.DownloadFile($esetUrl, $installerPath)
+        
+        Write-Host "             [30%] Download complete" -ForegroundColor Cyan
+        
+        if (Test-Path $installerPath) {
+            Write-Host "             [40%] Preparing installation..." -ForegroundColor Cyan
+            Write-Host "             [50%] Installing ESET Connector (this may take a few minutes)..." -ForegroundColor Cyan
+            
+            # Run the MSI installer silently
+            $process = Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$installerPath`" /qn /norestart" -Wait -PassThru -NoNewWindow
+            
+            Write-Host "             [90%] Cleaning up..." -ForegroundColor Cyan
+            # Clean up
+            Remove-Item -Path $installerPath -Force -ErrorAction SilentlyContinue
+            
+            Write-Host "             [100%] Installation process complete" -ForegroundColor Cyan
+            
+            if ($process.ExitCode -eq 0 -or $process.ExitCode -eq 3010) {
+                Write-Host "             [OK] ESET Connector installed successfully" -ForegroundColor Green
+                if ($process.ExitCode -eq 3010) {
+                    $Script:RebootRequired = $true
+                    Write-Host "             [!] Reboot required" -ForegroundColor Yellow
+                }
+                return @{
+                    Success = $true
+                    ExitCode = $process.ExitCode
+                    Message = if ($process.ExitCode -eq 3010) { "Success - Reboot Required" } else { "Success" }
+                }
+            }
+            else {
+                Write-Host "             [FAIL] ESET Connector installation failed (Exit: $($process.ExitCode))" -ForegroundColor Red
+                return @{
+                    Success = $false
+                    ExitCode = $process.ExitCode
+                    Message = "Exit code: $($process.ExitCode)"
+                }
+            }
+        }
+        else {
+            Write-Host "             [FAIL] Failed to download ESET Connector installer" -ForegroundColor Red
+            return @{
+                Success = $false
+                ExitCode = -1
+                Message = "Download failed"
+            }
+        }
+    }
+    catch {
+        Write-Host "             [ERROR] $_" -ForegroundColor Red
+        return @{
+            Success = $false
+            ExitCode = -1
+            Message = $_.Exception.Message
+        }
+    }
+}
+
 function Install-Packages {
     param(
         [array]$PackageIds
@@ -522,6 +613,19 @@ function Install-Packages {
                 # Special handling for Office 2024
                 if ($pkgId -eq "OFFICE2024") {
                     $result = Install-Office2024
+                    
+                    if ($result.Success) {
+                        $status = "Installed"
+                        $message = $result.Message
+                    }
+                    else {
+                        $status = "Failed"
+                        $message = $result.Message
+                    }
+                }
+                # Special handling for ESET Connector
+                elseif ($pkgId -eq "ESETCONNECTOR") {
+                    $result = Install-ESETConnector
                     
                     if ($result.Success) {
                         $status = "Installed"
