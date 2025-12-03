@@ -10,8 +10,8 @@
  * 
  * Features:
  * - Serves latest version from GitHub
- * - Logs downloads
  * - Proper headers for PowerShell
+ * - Privacy-focused (no logging)
  * 
  * © 2025 SouliTEK - www.soulitek.co.il
  */
@@ -19,7 +19,7 @@
 // Configuration
 $githubUrl = 'https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1';
 $logFile = __DIR__ . '/install-downloads.log';
-$enableLogging = true; // Set to false to disable logging
+$enableLogging = false; // Logging disabled for privacy compliance
 
 // Set proper headers for PowerShell
 header('Content-Type: text/plain; charset=utf-8');

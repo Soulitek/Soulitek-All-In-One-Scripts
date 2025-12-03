@@ -46,10 +46,7 @@ export default async function handler(req, res) {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Served-By', 'Vercel-Function');
     
-    // Optional: Log the request for analytics
-    const userAgent = req.headers['user-agent'] || 'Unknown';
-    const ip = req.headers['x-forwarded-for'] || req.connection?.remoteAddress || 'Unknown';
-    console.log(`[${new Date().toISOString()}] Served to ${ip} | UA: ${userAgent}`);
+    // Privacy-focused: No user data logging
     
     // Send the script
     res.status(200).send(script);
