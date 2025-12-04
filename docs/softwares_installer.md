@@ -211,6 +211,24 @@ Browse available applications.
 4. Run WinGet command manually to see error
 5. Check antivirus isn't blocking
 
+### Installation Hanging
+**Problem:** Installation hangs and never completes
+
+**Solutions:**
+1. The installer now includes automatic timeout protection (30 minutes per package)
+2. Silent mode is enabled by default to prevent hanging on user prompts
+3. If installation hangs, it will automatically timeout after 30 minutes
+4. Check log files in `%TEMP%\winget_*.log` for error details
+5. Ensure WinGet is up to date: `winget upgrade --all`
+6. Check for antivirus interference
+7. Verify internet connection is stable
+
+**Technical Details:**
+- Installations use `--silent` flag to prevent interactive prompts
+- Timeout protection: 30 minutes maximum per package
+- Progress updates every 30 seconds during installation
+- Automatic process termination on timeout
+
 ### Preset Not Loading
 **Problem:** Cannot load preset file
 
@@ -249,10 +267,13 @@ Browse available applications.
 - Automatic dependency resolution
 
 ### Installation Method
-- Silent installation by default
+- Silent installation by default (`--silent` flag)
 - No user interaction required
-- Progress tracking
-- Error reporting
+- Automatic timeout protection (30 minutes per package)
+- Progress tracking with periodic updates
+- Error reporting with detailed logs
+- Async output handling to prevent buffer blocking
+- Graceful timeout handling with process termination
 
 ## Support
 

@@ -27,6 +27,13 @@ param(
 # GLOBAL CONFIGURATION
 # ============================================================================
 
+# Import SouliTEK Common Functions
+$ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$CommonPath = Join-Path (Split-Path -Parent $ScriptRoot) "modules\SouliTEK-Common.ps1"
+if (Test-Path $CommonPath) {
+    . $CommonPath
+}
+
 $Script:SummaryPath = "$env:USERPROFILE\Desktop\SouliTEK-Softwares-Installer-Result.json"
 $Script:PresetFolder = "$env:USERPROFILE\Desktop"
 $Script:RebootRequired = $false
@@ -637,53 +644,147 @@ function Install-Packages {
                     }
                 }
                 else {
-                    # Standard WinGet installation with verbose output
-                    Write-Host "             [0%] Starting download..." -ForegroundColor Cyan
-                    $wingetArgs = @("install", "-e", "--id", $pkgId, "--accept-package-agreements", "--accept-source-agreements")
+                    # Standard WinGet installation with silent mode and timeout handling
+                    Write-Host "             [0%] Starting installation..." -ForegroundColor Cyan
                     
-                    # Run WinGet and capture output line by line for verbose logging
-                    $proc = Start-Process -FilePath "winget" -ArgumentList $wingetArgs -NoNewWindow -Wait -PassThru -RedirectStandardOutput "$env:TEMP\winget_$pkgId.log" -RedirectStandardError "$env:TEMP\winget_$pkgId.err"
+                    # WinGet arguments with silent mode to prevent hanging on prompts
+                    $wingetArgs = @(
+                        "install",
+                        "-e",
+                        "--id", $pkgId,
+                        "--accept-package-agreements",
+                        "--accept-source-agreements",
+                        "--silent"
+                    )
                     
-                    # Show progress indicators
-                    Write-Host "             [25%] Downloading package..." -ForegroundColor Cyan
-                    Start-Sleep -Milliseconds 500
-                    Write-Host "             [50%] Verifying package..." -ForegroundColor Cyan
-                    Start-Sleep -Milliseconds 500
-                    Write-Host "             [75%] Installing..." -ForegroundColor Cyan
+                    $logFile = "$env:TEMP\winget_$pkgId.log"
+                    $errFile = "$env:TEMP\winget_$pkgId.err"
                     
-                    # Read output for verbose logging
-                    if (Test-Path "$env:TEMP\winget_$pkgId.log") {
-                        $output = Get-Content "$env:TEMP\winget_$pkgId.log" -Raw
-                        Write-Host "             [90%] Finalizing installation..." -ForegroundColor Cyan
-                        Remove-Item "$env:TEMP\winget_$pkgId.log" -Force -ErrorAction SilentlyContinue
+                    # Clean up any existing log files
+                    if (Test-Path $logFile) { Remove-Item $logFile -Force -ErrorAction SilentlyContinue }
+                    if (Test-Path $errFile) { Remove-Item $errFile -Force -ErrorAction SilentlyContinue }
+                    
+                    Write-Host "             [10%] Preparing installation..." -ForegroundColor Cyan
+                    Write-Host "             [20%] Starting WinGet process..." -ForegroundColor Cyan
+                    
+                    # Start process with file redirection for reliable output capture
+                    $proc = Start-Process -FilePath "winget" -ArgumentList $wingetArgs -NoNewWindow -PassThru -RedirectStandardOutput $logFile -RedirectStandardError $errFile
+                    
+                    # Set timeout (30 minutes max per package)
+                    $timeout = 1800
+                    $timer = [Diagnostics.Stopwatch]::StartNew()
+                    $timedOut = $false
+                    
+                    Write-Host "             [30%] Installing package (this may take several minutes)..." -ForegroundColor Cyan
+                    
+                    # Wait for process with timeout check
+                    $lastProgressTime = 0
+                    while (-not $proc.HasExited) {
+                        if ($timer.Elapsed.TotalSeconds -gt $timeout) {
+                            Write-Host "             [!] Installation timeout exceeded (30 minutes)" -ForegroundColor Yellow
+                            try {
+                                if (-not $proc.HasExited) {
+                                    $proc.Kill()
+                                    $timedOut = $true
+                                }
+                            }
+                            catch {
+                                Write-Host "             [!] Could not terminate process" -ForegroundColor Yellow
+                            }
+                            break
+                        }
+                        Start-Sleep -Seconds 2
+                        
+                        # Update progress every 30 seconds
+                        $elapsedSeconds = [int]$timer.Elapsed.TotalSeconds
+                        if ($elapsedSeconds -gt $lastProgressTime + 30) {
+                            $lastProgressTime = $elapsedSeconds
+                            $progressPercent = [Math]::Min(90, 30 + [int]($elapsedSeconds / $timeout * 60))
+                            Write-Host "             [$progressPercent%] Still installing... ($elapsedSeconds seconds elapsed)" -ForegroundColor Cyan
+                        }
                     }
-                    if (Test-Path "$env:TEMP\winget_$pkgId.err") {
-                        Remove-Item "$env:TEMP\winget_$pkgId.err" -Force -ErrorAction SilentlyContinue
+                    
+                    $timer.Stop()
+                    
+                    # Wait for process to fully exit
+                    if (-not $proc.HasExited) {
+                        $proc.WaitForExit(5000)
                     }
                     
-                    Write-Host "             [100%] Complete" -ForegroundColor Cyan
+                    # Read log files
+                    $stdOut = ""
+                    $stdErr = ""
+                    try {
+                        if (Test-Path $logFile) {
+                            $stdOut = Get-Content -Path $logFile -Raw -ErrorAction SilentlyContinue
+                        }
+                        if (Test-Path $errFile) {
+                            $stdErr = Get-Content -Path $errFile -Raw -ErrorAction SilentlyContinue
+                        }
+                    }
+                    catch {
+                        # Ignore errors reading files
+                    }
                     
-                    if ($proc.ExitCode -eq 0) {
-                        Write-Host "             [OK] Installed successfully" -ForegroundColor Green
-                        $status = "Installed"
-                        $message = "Success"
-                    }
-                    elseif ($proc.ExitCode -eq 3010) {
-                        Write-Host "             [OK] Installed (reboot required)" -ForegroundColor Green
-                        $status = "Installed"
-                        $message = "Success - Reboot Required"
-                        $Script:RebootRequired = $true
-                    }
-                    elseif ($proc.ExitCode -eq -1978335189) {
-                        # Package already installed (different version detection)
-                        Write-Host "             [SKIP] Already installed (detected during install)" -ForegroundColor Yellow
-                        $status = "Skipped"
-                        $message = "Already installed"
+                    if ($timedOut) {
+                        Write-Host "             [FAIL] Installation timed out after 30 minutes" -ForegroundColor Red
+                        $status = "Failed"
+                        $message = "Timeout after 30 minutes"
                     }
                     else {
-                        Write-Host "             [FAIL] Installation failed (Exit: $($proc.ExitCode))" -ForegroundColor Red
-                        $status = "Failed"
-                        $message = "Exit code: $($proc.ExitCode)"
+                        Write-Host "             [95%] Finalizing..." -ForegroundColor Cyan
+                        
+                        $exitCode = $proc.ExitCode
+                        
+                        # Check exit code
+                        if ($exitCode -eq 0) {
+                            Write-Host "             [100%] Installation complete" -ForegroundColor Green
+                            Write-Host "             [OK] Installed successfully" -ForegroundColor Green
+                            $status = "Installed"
+                            $message = "Success"
+                        }
+                        elseif ($exitCode -eq 3010) {
+                            Write-Host "             [100%] Installation complete" -ForegroundColor Green
+                            Write-Host "             [OK] Installed (reboot required)" -ForegroundColor Green
+                            $status = "Installed"
+                            $message = "Success - Reboot Required"
+                            $Script:RebootRequired = $true
+                        }
+                        elseif ($exitCode -eq -1978335189 -or $stdOut -like "*already installed*" -or $stdErr -like "*already installed*") {
+                            Write-Host "             [SKIP] Already installed" -ForegroundColor Yellow
+                            $status = "Skipped"
+                            $message = "Already installed"
+                        }
+                        else {
+                            Write-Host "             [FAIL] Installation failed (Exit: $exitCode)" -ForegroundColor Red
+                            if ($stdErr) {
+                                $errorLines = ($stdErr -split "`n" | Where-Object { $_.Trim() -ne "" }) | Select-Object -First 3
+                                foreach ($errorLine in $errorLines) {
+                                    if ($errorLine.Trim()) {
+                                        Write-Host "             Error: $($errorLine.Trim())" -ForegroundColor DarkRed
+                                    }
+                                }
+                            }
+                            $status = "Failed"
+                            $message = "Exit code: $exitCode"
+                        }
+                    }
+                    
+                    # Dispose of process
+                    try {
+                        if ($proc) {
+                            $proc.Dispose()
+                        }
+                    }
+                    catch {
+                        # Ignore disposal errors
+                    }
+                    
+                    # Clean up log files after a delay (keep for debugging if failed)
+                    if ($status -eq "Installed" -or $status -eq "Skipped") {
+                        Start-Sleep -Seconds 1
+                        if (Test-Path $logFile) { Remove-Item $logFile -Force -ErrorAction SilentlyContinue }
+                        if (Test-Path $errFile) { Remove-Item $errFile -Force -ErrorAction SilentlyContinue }
                     }
                 }
             }
