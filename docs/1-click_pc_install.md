@@ -222,19 +222,23 @@ DETAILED TASK LOG
 - **Safety:** Only removes non-essential apps
 
 ### 7-9. Install Applications
-- **Duration:** 5-15 minutes per app (max 7 minutes per app)
+- **Duration:** 5-15 minutes per app (max 10 minutes per app)
 - **Applications:**
   - **Google Chrome:** Latest stable version
   - **AnyDesk:** Latest stable version
   - **Microsoft Office:** Latest version available
-- **Method:** WinGet package manager with enhanced timeout protection
+- **Method:** WinGet package manager with enhanced timeout protection and improved process handling
 - **Features:**
-  - 7-minute timeout per application
-  - Real-time progress indicators (dots every 2 seconds)
+  - 10-minute timeout per application (increased from 7 minutes)
+  - Improved process tracking using System.Diagnostics.Process
+  - Real-time progress indicators (dots every 5 seconds)
   - Time remaining updates every 30 seconds
   - Automatic process termination if timeout occurs
+  - Child process cleanup on timeout
   - Detailed installation logs for troubleshooting
   - Clear user guidance if manual installation needed
+  - Better exit code handling with proper process waiting
+  - Prevents indefinite hanging during installations
 - **Optimized:** No pre-installation checks (designed for new PCs)
 - **Note:** If timeout occurs, manual installation instructions are provided
 
@@ -352,25 +356,35 @@ $bloatwareApps = @(
 3. Or use your organization's Office deployment method
 
 ### Application Installation Timeout
-**Warning:** "Installation timeout after 7 minutes"
+**Warning:** "Installation timeout after 10 minutes"
 
 **Cause:**
 - Slow internet connection
 - Large download size
 - WinGet server delays
 - Network connectivity issues
+- WinGet process spawning child processes that aren't tracked
 
 **Solution:**
-1. The script automatically terminates the hung process
+1. The script automatically terminates the hung process and all child processes
 2. Check your internet connection speed
 3. Follow the provided manual installation command
 4. Example: `winget install --id Google.Chrome`
 5. Or download directly from the software vendor's website
+6. Check installation logs in `%TEMP%\winget_install_*_*.log` for details
 
 **Prevention:**
 - Ensure stable, fast internet connection before running
 - Consider running during off-peak hours for better speeds
 - Use wired connection instead of WiFi if possible
+- Close other applications that might interfere with WinGet
+
+**Technical Fix (v1.0.3):**
+- Improved process handling using System.Diagnostics.Process
+- Better child process tracking and cleanup
+- Increased timeout from 7 to 10 minutes
+- Enhanced exit code detection and error reporting
+- Prevents indefinite hanging by properly waiting for process completion
 
 ## Output Files
 
@@ -471,6 +485,16 @@ When reporting issues, include:
 
 ## Version History
 
+### v1.0.3 (2025-01-XX)
+- **FIXED:** Application installation hanging issue
+- Improved process handling using System.Diagnostics.Process instead of Start-Process polling
+- Better child process tracking and cleanup on timeout
+- Increased timeout from 7 to 10 minutes per application
+- Enhanced exit code detection with proper process waiting
+- Fixed issue where WinGet child processes weren't being tracked
+- Better progress indication (every 5 seconds instead of 2)
+- Prevents indefinite hanging by properly monitoring process completion
+
 ### v1.0.2 (2025-11-22)
 - Enhanced WinGet installation with timeout protection
 - Added 7-minute timeout per application installation
@@ -479,7 +503,6 @@ When reporting issues, include:
 - Installation log capture for troubleshooting
 - Better error handling with specific exit code recognition
 - Clear user guidance for manual installation when needed
-- Prevents indefinite hanging during app installations
 
 ### v1.0.1 (2025-11-22)
 - Optimized for new PC installations
