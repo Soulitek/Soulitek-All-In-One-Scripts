@@ -282,13 +282,6 @@ winget upgrade --all --silent --accept-package-agreements --accept-source-agreem
 - Automatic cleanup of old entries
 - Includes timestamp, duration, mode, exit code, success status
 
-### Self-Destruct Feature
-Like all SouliTEK tools, this script includes automatic self-destruct functionality:
-- Activates when user exits (Option 0)
-- Deletes script file after 2-second delay
-- Designed for deployment scenarios
-- Silent operation
-
 ## Supported Software
 
 WinGet supports thousands of applications from various sources:
@@ -339,6 +332,8 @@ For assistance or to report issues:
 *IT Solutions for your business*
 
 (C) 2025 SouliTEK - All Rights Reserved
+
+
 
 
 

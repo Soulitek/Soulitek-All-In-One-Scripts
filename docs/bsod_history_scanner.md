@@ -53,7 +53,7 @@ The BSOD History Scanner is a diagnostic tool that scans for Blue Screen of Deat
 3. **View All Results** - Displays all BSOD records found
 4. **Export Results** - Export scan results to file
 5. **Help** - Usage guide and information
-0. **Exit** - Exit the tool (with self-destruct)
+0. **Exit** - Exit the tool
 
 ### Running a Scan
 
@@ -184,7 +184,6 @@ If the Minidump directory doesn't exist:
 
 - **Launcher Category:** Support
 - **Script Path:** `scripts/bsod_history_scanner.ps1`
-- **Self-Destruct:** Enabled (script removes itself after execution)
 
 ---
 
@@ -215,6 +214,8 @@ For issues, questions, or feature requests:
 ---
 
 **Copyright:** (C) 2025 SouliTEK - All Rights Reserved
+
+
 
 
 

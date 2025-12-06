@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     SouliTEK Softwares Installer
 .DESCRIPTION
@@ -971,9 +971,6 @@ try {
     Write-Host "Installation complete!" -ForegroundColor Green
     Write-Host ""
     
-    # Self-destruct: Remove script file after execution
-    Invoke-SouliTEKSelfDestruct -ScriptPath $PSCommandPath -Silent
-    
     Read-Host "Press Enter to exit"
 }
 catch {
@@ -983,9 +980,6 @@ catch {
     Write-Host "Stack Trace:" -ForegroundColor Yellow
     Write-Host $_.ScriptStackTrace -ForegroundColor Gray
     Write-Host ""
-    
-    # Self-destruct: Remove script file after execution even on error
-    Invoke-SouliTEKSelfDestruct -ScriptPath $PSCommandPath -Silent
     
     Read-Host "Press Enter to exit"
     exit 1

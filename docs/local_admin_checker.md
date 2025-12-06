@@ -173,7 +173,6 @@ Local administrator accounts are a **primary attack vector** because:
 - Pattern detection
 - Account status analysis
 - Export to TXT, CSV, HTML
-- Self-destruct feature
 
 ---
 

@@ -154,7 +154,6 @@ The tool automatically enforces a 15-second delay between batch requests to avoi
 - Batch file scanning
 - Export to TXT, CSV, HTML
 - API key management
-- Self-destruct feature
 
 ---
 

@@ -717,11 +717,6 @@ function Main {
                 Write-Host ""
                 Write-Host "  Exiting..." -ForegroundColor Yellow
                 
-                # Self-destruct
-                if (Test-Path $PSCommandPath) {
-                    Invoke-SouliTEKSelfDestruct -ScriptPath $PSCommandPath -Silent
-                }
-                
                 Start-Sleep -Seconds 1
                 exit
             }

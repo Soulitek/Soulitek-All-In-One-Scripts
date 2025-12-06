@@ -1752,9 +1752,6 @@ while ($true) {
             Write-Host "Visit www.soulitek.co.il for more professional IT solutions." -ForegroundColor Gray
             Write-Host ""
             
-            # Self-destruct: Remove script file after execution
-            Invoke-SouliTEKSelfDestruct -ScriptPath $PSCommandPath -Silent
-            
             exit
         }
         default {

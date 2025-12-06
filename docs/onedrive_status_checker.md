@@ -157,7 +157,6 @@ start "" "%localappdata%\Microsoft\OneDrive\OneDrive.exe"
 - Log scanning for errors
 - Multi-account support (Personal & Business)
 - Export to TXT/CSV/HTML
-- Self-destruct feature
 
 ## Author
 
@@ -167,6 +166,8 @@ start "" "%localappdata%\Microsoft\OneDrive\OneDrive.exe"
 - Email: letstalk@soulitek.co.il
 
 © 2025 SouliTEK - All Rights Reserved
+
+
 
 
 

@@ -255,8 +255,5 @@ if ($success) {
 Write-Host "========================================"
 Write-Host ""
 
-# Self-destruct: Remove script file after execution
-Invoke-SouliTEKSelfDestruct -ScriptPath $PSCommandPath -Silent
-
 Read-Host "Press Enter to exit"
 

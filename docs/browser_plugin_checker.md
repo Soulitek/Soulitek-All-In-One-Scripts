@@ -164,7 +164,6 @@ This tool only reads local extension data. No information is sent externally.
 - Risk level assessment
 - Permission analysis
 - Export to TXT, CSV, HTML
-- Self-destruct feature
 
 ---
 

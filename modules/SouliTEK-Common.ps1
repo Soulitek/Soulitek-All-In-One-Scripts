@@ -418,21 +418,20 @@ function Show-SouliTEKDisclaimer {
 function Show-SouliTEKExitMessage {
     <#
     .SYNOPSIS
-        Displays the standard exit message and optionally triggers self-destruct.
+        Displays the standard exit message.
     
     .DESCRIPTION
         Shows a consistent exit message with company branding.
-        Can optionally trigger the self-destruct feature if script path is provided.
     
     .PARAMETER ScriptPath
-        Optional path to the script for self-destruct feature.
+        Optional path to the script (deprecated, kept for compatibility).
     
     .PARAMETER ToolName
         Optional name of the tool for personalized message.
     
     .EXAMPLE
-        Show-SouliTEKExitMessage -ScriptPath $PSCommandPath
-        Shows exit message and schedules script deletion.
+        Show-SouliTEKExitMessage
+        Shows exit message.
     #>
     
     param(
@@ -449,10 +448,6 @@ function Show-SouliTEKExitMessage {
     Write-Host ""
     Write-Host "Website: $($Script:SouliTEKConfig.Website)" -ForegroundColor Yellow
     Write-Host ""
-    
-    if ($ScriptPath -and (Test-Path $ScriptPath)) {
-        Invoke-SouliTEKSelfDestruct -ScriptPath $ScriptPath -Silent
-    }
 }
 
 function Wait-SouliTEKKeyPress {
@@ -583,126 +578,6 @@ function Invoke-SouliTEKAdminCheck {
 # ============================================================
 # MODULE MANAGEMENT FUNCTIONS
 # ============================================================
-
-function Invoke-SouliTEKSelfDestruct {
-    <#
-    .SYNOPSIS
-        Deletes the current script file after execution (self-destruct).
-    
-    .DESCRIPTION
-        This function deletes the script file that is currently running.
-        It is designed to be called when scripts are deployed to client PCs
-        and should clean up after execution. The deletion is performed with
-        a slight delay to ensure the script can complete its exit routine.
-        
-        SECURITY: Only deletes files that:
-        - Have .ps1 extension
-        - Are not in protected system directories
-        - Have valid PowerShell script structure
-    
-    .PARAMETER ScriptPath
-        The full path to the script file to delete. Typically $PSCommandPath.
-    
-    .PARAMETER Silent
-        If specified, suppresses confirmation prompts.
-    
-    .EXAMPLE
-        Invoke-SouliTEKSelfDestruct -ScriptPath $PSCommandPath
-        Deletes the current script file after a brief delay.
-    #>
-    
-    param(
-        [Parameter(Mandatory = $true)]
-        [string]$ScriptPath,
-        
-        [Parameter(Mandatory = $false)]
-        [switch]$Silent
-    )
-    
-    try {
-        # SECURITY VALIDATION 1: File must exist
-        if (-not (Test-Path $ScriptPath)) {
-            Write-SouliTEKWarning "Script file not found: $ScriptPath"
-            return
-        }
-        
-        # SECURITY VALIDATION 2: Must be a .ps1 file
-        if (-not $ScriptPath.EndsWith(".ps1")) {
-            Write-SouliTEKError "Self-destruct only works on PowerShell scripts (.ps1 files)"
-            return
-        }
-        
-        # SECURITY VALIDATION 3: Resolve to absolute path and verify it's a file
-        $resolvedPath = (Resolve-Path $ScriptPath -ErrorAction Stop).Path
-        if (-not (Test-Path $resolvedPath -PathType Leaf)) {
-            Write-SouliTEKError "Path is not a file: $resolvedPath"
-            return
-        }
-        
-        # SECURITY VALIDATION 4: Block protected system directories
-        $protectedPaths = @(
-            "$env:SystemRoot",
-            "$env:ProgramFiles",
-            "${env:ProgramFiles(x86)}",
-            "$env:windir\System32",
-            "$env:windir\SysWOW64",
-            "$env:ProgramData\Microsoft"
-        )
-        
-        foreach ($protected in $protectedPaths) {
-            if ($protected -and $resolvedPath.StartsWith($protected, [StringComparison]::OrdinalIgnoreCase)) {
-                Write-SouliTEKError "Cannot delete scripts from protected system directory: $protected"
-                return
-            }
-        }
-        
-        # SECURITY VALIDATION 5: Verify the file appears to be a PowerShell script
-        $content = Get-Content $resolvedPath -TotalCount 20 -ErrorAction SilentlyContinue
-        if ($content) {
-            $contentText = $content -join " "
-            $hasScriptMarkers = ($contentText -match 'function\s+' -or 
-                                 $contentText -match '\$\w+\s*=' -or 
-                                 $contentText -match 'Write-Host' -or
-                                 $contentText -match 'param\s*\(' -or
-                                 $contentText -match '#.*SouliTEK' -or
-                                 $contentText -match '<#')
-            
-            if (-not $hasScriptMarkers) {
-                Write-SouliTEKError "File does not appear to be a valid PowerShell script"
-                return
-            }
-        }
-        
-        if (-not $Silent) {
-            Write-Host ""
-            Write-Host "========================================" -ForegroundColor Yellow
-            Write-Host "  CLEANUP IN PROGRESS" -ForegroundColor Yellow
-            Write-Host "========================================" -ForegroundColor Yellow
-            Write-Host ""
-            Write-Host "This script will now remove itself from the system..." -ForegroundColor Cyan
-            Write-Host ""
-        }
-        
-        # Create a self-deleting command that will execute after the script exits
-        # Use the resolved path for safety
-        $deleteCommand = @"
-Start-Sleep -Seconds 2
-Remove-Item -Path '$resolvedPath' -Force -ErrorAction SilentlyContinue
-"@
-        
-        # Execute the deletion command in a new hidden process
-        $encodedCommand = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($deleteCommand))
-        Start-Process powershell.exe -ArgumentList "-WindowStyle Hidden -EncodedCommand $encodedCommand" -NoNewWindow
-        
-        if (-not $Silent) {
-            Write-SouliTEKSuccess "Cleanup scheduled successfully"
-            Write-Host ""
-        }
-    }
-    catch {
-        Write-SouliTEKError "Failed to schedule cleanup: $($_.Exception.Message)"
-    }
-}
 
 function Install-SouliTEKModule {
     <#

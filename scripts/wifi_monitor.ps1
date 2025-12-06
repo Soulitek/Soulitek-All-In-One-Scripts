@@ -651,8 +651,6 @@ while ($running) {
         "5" { Show-Help }
         "0" { 
             Show-SouliTEKExitMessage
-            # Self-destruct: Remove script file after execution
-            Invoke-SouliTEKSelfDestruct -ScriptPath $PSCommandPath -Silent
             $running = $false
         }
         default {
