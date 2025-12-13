@@ -1721,10 +1721,7 @@ function Invoke-ExportReport {
 # ============================================================
 
 # Display header
-Clear-Host
-Write-SouliTEKHeader
-Write-Host ""
-Write-Host "Welcome to the Startup Programs & Boot Time Analyzer!" -ForegroundColor Cyan
+Show-SouliTEKHeader -Title "STARTUP PROGRAMS & BOOT TIME ANALYZER" -Subtitle "Welcome to the Startup Programs & Boot Time Analyzer!" -ClearHost -ShowBanner
 Write-Host ""
 Write-Host "This tool will help you:" -ForegroundColor White
 Write-Host "  • Scan Startup Folders, Task Scheduler, and Services" -ForegroundColor Gray

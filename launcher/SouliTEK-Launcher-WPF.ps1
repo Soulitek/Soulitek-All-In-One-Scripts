@@ -87,7 +87,6 @@ Write-Host "Running as Administrator." -ForegroundColor Green
 # ============================================================
 $Script:ScriptPath = Join-Path $Script:RootPath "scripts"
 $Script:AssetsPath = Join-Path $Script:RootPath "assets"
-$Script:IconsPath = Join-Path $Script:AssetsPath "icons"
 $Script:CurrentVersion = "2.8.0"
 $Script:CurrentCategory = "All"
 
@@ -420,7 +419,7 @@ function Start-Tool {
         Start-Process -FilePath $psPath -ArgumentList $arguments
         
         $Script:StatusLabel.Text = "Launched: $ToolName"
-        $Script:StatusLabel.Foreground = "#10B981"
+        $Script:StatusLabel.Foreground = "#6366F1"
     }
     catch {
         [System.Windows.MessageBox]::Show(
@@ -431,7 +430,7 @@ function Start-Tool {
         )
         
         $Script:StatusLabel.Text = "Error launching tool"
-        $Script:StatusLabel.Foreground = "#EF4444"
+        $Script:StatusLabel.Foreground = "#DC2626"
     }
 }
 
@@ -469,41 +468,41 @@ function Update-ToolsDisplay {
         $noResults = New-Object System.Windows.Controls.TextBlock
         $noResults.Text = "No tools match your search criteria"
         $noResults.FontSize = 14
-        $noResults.Foreground = "#94A3B8"
-        $noResults.Margin = "20,50,20,20"
+        $noResults.FontFamily = "Segoe UI"
+        $noResults.Foreground = "#A1A1AA"
+        $noResults.Margin = "0,50,0,20"
         $noResults.TextAlignment = "Center"
+        $noResults.HorizontalAlignment = "Center"
         $null = $Script:ToolsPanel.Children.Add($noResults)
         
         $Script:StatusLabel.Text = "No tools found - try a different search or category"
-        $Script:StatusLabel.Foreground = "#94A3B8"
         return
     }
     
     $Script:StatusLabel.Text = "Showing $($filteredTools.Count) tool(s) in '$Script:CurrentCategory' category"
-    $Script:StatusLabel.Foreground = "#64748B"
     
     foreach ($tool in $filteredTools) {
-        # Create compact tool card for grid layout (clickable, no button)
+        # Create side-by-side tool card with fixed width (3 cards per row)
         $card = New-Object System.Windows.Controls.Border
         $card.Style = $Script:Window.FindResource("ToolCard")
-        $card.Width = 300
-        $card.Height = 90
         $card.Cursor = "Hand"
+        $card.Width = 300
+        $card.Margin = "0,0,12,12"
         
-        # Info stack with truncated description (no icon, no button)
+        # Info stack with title and description
         $infoStack = New-Object System.Windows.Controls.StackPanel
-        $infoStack.Margin = "10,0,10,0"
-        $infoStack.VerticalAlignment = "Center"
+        $infoStack.Orientation = "Vertical"
         
         $nameText = New-Object System.Windows.Controls.TextBlock
         $nameText.Text = $tool.Name
-        $nameText.FontSize = 13
-        $nameText.FontWeight = "Bold"
-        $nameText.Foreground = "#1E293B"
-        $nameText.TextWrapping = "NoWrap"
-        $nameText.TextTrimming = "CharacterEllipsis"
+        $nameText.FontSize = 16
+        $nameText.FontWeight = "SemiBold"
+        $nameText.FontFamily = "Segoe UI"
+        $nameText.Foreground = "#27272A"
+        $nameText.Margin = "0,0,0,4"
+        $nameText.TextWrapping = "Wrap"
         
-        # Truncate description to ~60 characters
+        # Truncate description to ~60 characters for side-by-side layout
         $descText = New-Object System.Windows.Controls.TextBlock
         $truncatedDesc = if ($tool.Description.Length -gt 60) {
             $tool.Description.Substring(0, 57) + "..."
@@ -511,11 +510,10 @@ function Update-ToolsDisplay {
             $tool.Description
         }
         $descText.Text = $truncatedDesc
-        $descText.FontSize = 10
-        $descText.Foreground = "#64748B"
+        $descText.FontSize = 13
+        $descText.FontFamily = "Segoe UI"
+        $descText.Foreground = "#71717A"
         $descText.TextWrapping = "Wrap"
-        $descText.Margin = "0,3,0,0"
-        $descText.MaxHeight = 28
         
         $null = $infoStack.Children.Add($nameText)
         $null = $infoStack.Children.Add($descText)
@@ -542,26 +540,30 @@ function Set-CategoryActive {
     
     $Script:CurrentCategory = $CategoryName
     
-    # Update button styles
+    # Update button styles - use pill button styles
     $categories = @{
-        "All" = @{ Button = $Script:BtnCatAll; Color = "#6366f1" }
-        "Setup" = @{ Button = $Script:BtnCatSetup; Color = "#10b981" }
-        "Network" = @{ Button = $Script:BtnCatNetwork; Color = "#3b82f6" }
-        "Internet" = @{ Button = $Script:BtnCatInternet; Color = "#0ea5e9" }
-        "Security" = @{ Button = $Script:BtnCatSecurity; Color = "#dc2626" }
-        "Support" = @{ Button = $Script:BtnCatSupport; Color = "#10b981" }
-        "Software" = @{ Button = $Script:BtnCatSoftware; Color = "#8b5cf6" }
-        "M365" = @{ Button = $Script:BtnCatM365; Color = "#d97706" }
-        "Hardware" = @{ Button = $Script:BtnCatHardware; Color = "#3498db" }
+        "All" = $Script:BtnCatAll
+        "Setup" = $Script:BtnCatSetup
+        "Network" = $Script:BtnCatNetwork
+        "Internet" = $Script:BtnCatInternet
+        "Security" = $Script:BtnCatSecurity
+        "Support" = $Script:BtnCatSupport
+        "Software" = $Script:BtnCatSoftware
+        "M365" = $Script:BtnCatM365
+        "Hardware" = $Script:BtnCatHardware
     }
     
     foreach ($cat in $categories.GetEnumerator()) {
         if ($cat.Key -eq $CategoryName) {
-            $cat.Value.Button.Background = $cat.Value.Color
-            $cat.Value.Button.Foreground = "White"
+            # Set active style
+            $cat.Value.Style = $Script:Window.FindResource("CategoryButtonActive")
+            $cat.Value.Background = "#4F46E5"
+            $cat.Value.Foreground = "White"
         } else {
-            $cat.Value.Button.Background = "White"
-            $cat.Value.Button.Foreground = $cat.Value.Color
+            # Set inactive style
+            $cat.Value.Style = $Script:Window.FindResource("CategoryButtonInactive")
+            $cat.Value.Background = "#71717A"
+            $cat.Value.Foreground = "White"
         }
     }
     
@@ -701,10 +703,7 @@ $Script:SearchBox = $Window.FindName("SearchBox")
 $Script:SearchPlaceholder = $Window.FindName("SearchPlaceholder")
 $Script:ToolsPanel = $Window.FindName("ToolsPanel")
 $Script:StatusLabel = $Window.FindName("StatusLabel")
-$Script:VersionLabel = $Window.FindName("VersionLabel")
-$Script:AdminLabel = $Window.FindName("AdminLabel")
-$Script:LogoImage = $Window.FindName("LogoImage")
-$Script:LogoButton = $Window.FindName("LogoButton")
+$LogoImage = $Window.FindName("LogoImage")
 
 $Script:BtnCatAll = $Window.FindName("BtnCatAll")
 $Script:BtnCatSetup = $Window.FindName("BtnCatSetup")
@@ -721,26 +720,13 @@ $CloseButton = $Window.FindName("CloseButton")
 $HelpButton = $Window.FindName("HelpButton")
 $AboutButton = $Window.FindName("AboutButton")
 $GitHubButton = $Window.FindName("GitHubButton")
-$WebsiteButton = $Window.FindName("WebsiteButton")
-$ExitButton = $Window.FindName("ExitButton")
 
-# ============================================================
-# LOAD LOGO IMAGE
-# ============================================================
-
-$logoPath = Join-Path $Script:AssetsPath "images\Final-Logo_Soulitek (1).png"
-if (Test-Path $logoPath) {
-    try {
-        $logoUri = New-Object System.Uri((Resolve-Path $logoPath).Path)
-        $logoBitmap = New-Object System.Windows.Media.Imaging.BitmapImage($logoUri)
-        $Script:LogoImage.Source = $logoBitmap
+# Set logo image
+if ($null -ne $LogoImage) {
+    $faviconPath = Join-Path $Script:AssetsPath "images\Favicon.png"
+    if (Test-Path $faviconPath) {
+        $LogoImage.Source = New-Object System.Windows.Media.Imaging.BitmapImage([System.Uri]::new($faviconPath))
     }
-    catch {
-        Write-Warning "Failed to load logo image: $_"
-    }
-}
-else {
-    Write-Warning "Logo image not found at: $logoPath"
 }
 
 # ============================================================
@@ -758,7 +744,6 @@ $null = $titleBarGrid.Add_MouseLeftButtonDown({
 # Window controls
 $null = $MinimizeButton.Add_Click({ $Window.WindowState = "Minimized" })
 $null = $CloseButton.Add_Click({ $null = $Window.Close() })
-$null = $ExitButton.Add_Click({ $null = $Window.Close() })
 
 # Search
 $null = $SearchBox.Add_TextChanged({
@@ -878,27 +863,8 @@ $null = $GitHubButton.Add_Click({
     Start-Process "https://github.com/Soulitek/Soulitek-All-In-One-Scripts"
 })
 
-# Website button
-$null = $WebsiteButton.Add_Click({
-    Start-Process "https://www.soulitek.co.il"
-})
-
-# Logo button - click to open website
-$null = $Script:LogoButton.Add_Click({
-    Start-Process "https://www.soulitek.co.il"
-})
-
-# Version display
-$Script:VersionLabel.Text = "Version $Script:CurrentVersion"
-
-# Admin status
-if (Test-Administrator) {
-    $AdminLabel.Text = "[+] Administrator"
-    $AdminLabel.Foreground = "#10B981"
-} else {
-    $AdminLabel.Text = "[!] Not Administrator"
-    $AdminLabel.Foreground = "#F59E0B"
-}
+# Note: Website button and logo button removed in new design
+# Version and admin status removed from footer in new design
 
 # ============================================================
 # INITIALIZE
