@@ -45,6 +45,159 @@ function Write-Warning-Custom {
     Write-Host "[!] $Message" -ForegroundColor Yellow
 }
 
+# ============================================================
+# FILE FILTERING FUNCTIONS
+# ============================================================
+
+function Get-EssentialFilesFilter {
+    <#
+    .SYNOPSIS
+    Returns array of file patterns that should be included in the minimal download.
+    #>
+    return @(
+        "SouliTEK-Launcher.ps1",
+        "LICENSE",
+        "launcher\*",
+        "modules\*.ps1",
+        "scripts\*.ps1",
+        "assets\images\Favicon.png",
+        "tools\MCPR.exe",
+        "tools\whois.exe"
+    )
+}
+
+function Test-FileIsEssential {
+    <#
+    .SYNOPSIS
+    Checks if a file path matches any of the essential file patterns.
+    
+    .PARAMETER FilePath
+    The relative file path from the repository root (e.g., "scripts\test.ps1")
+    
+    .PARAMETER Whitelist
+    Array of file patterns to match against
+    
+    .EXAMPLE
+    Test-FileIsEssential -FilePath "scripts\test.ps1" -Whitelist $whitelist
+    #>
+    param(
+        [string]$FilePath,
+        [string[]]$Whitelist
+    )
+    
+    # Normalize path separators (handle both \ and /)
+    $normalizedPath = $FilePath -replace '/', '\'
+    
+    foreach ($pattern in $Whitelist) {
+        $normalizedPattern = $pattern -replace '/', '\'
+        
+        # Exact match
+        if ($normalizedPath -eq $normalizedPattern) {
+            return $true
+        }
+        
+        # Directory wildcard pattern (e.g., "launcher\*" matches "launcher\file.xaml")
+        if ($normalizedPattern.EndsWith('\*')) {
+            $dirPattern = $normalizedPattern.TrimEnd('\*')
+            if ($normalizedPath.StartsWith($dirPattern + '\')) {
+                return $true
+            }
+        }
+        
+        # File extension wildcard pattern (e.g., "modules\*.ps1" matches "modules\file.ps1")
+        if ($normalizedPattern -like '*\*.*') {
+            # Split pattern into directory and file pattern
+            $patternParts = $normalizedPattern -split '\\', 2
+            if ($patternParts.Count -eq 2) {
+                $patternDir = $patternParts[0]
+                $patternFile = $patternParts[1]
+                
+                # Check if directory matches
+                if ($normalizedPath.StartsWith($patternDir + '\')) {
+                    # Get the filename part
+                    $filePart = $normalizedPath.Substring($patternDir.Length + 1)
+                    # Use -like for wildcard matching
+                    if ($filePart -like $patternFile) {
+                        return $true
+                    }
+                }
+            }
+        }
+    }
+    
+    return $false
+}
+
+function Copy-EssentialFiles {
+    <#
+    .SYNOPSIS
+    Copies only essential files from source to destination, maintaining folder structure.
+    
+    .PARAMETER SourcePath
+    Source directory containing extracted files
+    
+    .PARAMETER DestinationPath
+    Destination directory for installation
+    
+    .PARAMETER Whitelist
+    Array of file patterns to include
+    #>
+    param(
+        [string]$SourcePath,
+        [string]$DestinationPath,
+        [string[]]$Whitelist
+    )
+    
+    # Get all files recursively
+    $allFiles = Get-ChildItem -Path $SourcePath -Recurse -File
+    
+    $copiedCount = 0
+    $skippedCount = 0
+    
+    foreach ($file in $allFiles) {
+        # Get relative path from source
+        $relativePath = $file.FullName.Substring($SourcePath.Length + 1)
+        
+        # Check if file is essential
+        if (Test-FileIsEssential -FilePath $relativePath -Whitelist $Whitelist) {
+            $destinationFile = Join-Path $DestinationPath $relativePath
+            $destinationDir = Split-Path $destinationFile -Parent
+            
+            # Create destination directory if it doesn't exist
+            if (-not (Test-Path $destinationDir)) {
+                New-Item -ItemType Directory -Path $destinationDir -Force | Out-Null
+            }
+            
+            # Copy file
+            Copy-Item -Path $file.FullName -Destination $destinationFile -Force
+            $copiedCount++
+        } else {
+            $skippedCount++
+        }
+    }
+    
+    # Ensure essential folders exist even if empty
+    $essentialFolders = @(
+        "launcher",
+        "modules",
+        "scripts",
+        "assets\images",
+        "tools"
+    )
+    
+    foreach ($folder in $essentialFolders) {
+        $folderPath = Join-Path $DestinationPath $folder
+        if (-not (Test-Path $folderPath)) {
+            New-Item -ItemType Directory -Path $folderPath -Force | Out-Null
+        }
+    }
+    
+    return @{
+        Copied = $copiedCount
+        Skipped = $skippedCount
+    }
+}
+
 # Banner
 Clear-Host
 Write-Host @"
@@ -138,11 +291,23 @@ try {
         }
     }
 
-    # Step 6: Copy files to installation directory
-    Write-Step "Step 5: Installing to $InstallPath"
+    # Step 6: Copy only essential files to installation directory
+    Write-Step "Step 5: Installing essential files to $InstallPath"
     try {
-        Copy-Item -Path $sourcePath -Destination $InstallPath -Recurse -Force
+        # Get whitelist of essential files
+        $whitelist = Get-EssentialFilesFilter
+        
+        # Create installation directory
+        if (-not (Test-Path $InstallPath)) {
+            New-Item -ItemType Directory -Path $InstallPath -Force | Out-Null
+        }
+        
+        # Copy only essential files
+        $copyResult = Copy-EssentialFiles -SourcePath $sourcePath -DestinationPath $InstallPath -Whitelist $whitelist
+        
         Write-Success "Installation completed successfully"
+        Write-Host "  Files copied: $($copyResult.Copied)" -ForegroundColor Gray
+        Write-Host "  Files skipped: $($copyResult.Skipped)" -ForegroundColor Gray
     }
     catch {
         Write-Error-Custom "Failed to copy files: $($_.Exception.Message)"
