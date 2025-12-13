@@ -112,15 +112,29 @@ function Test-FileIsEssential {
                 $patternDir = $patternParts[0]
                 $patternFile = $patternParts[1]
                 
-                # Check if directory matches
-                if ($normalizedPath.StartsWith($patternDir + '\')) {
-                    # Get the filename part
-                    $filePart = $normalizedPath.Substring($patternDir.Length + 1)
+                # Check if directory matches (with backslash)
+                $dirPrefix = $patternDir + '\'
+                if ($normalizedPath.StartsWith($dirPrefix)) {
+                    # Get the filename part (everything after directory\)
+                    $filePart = $normalizedPath.Substring($dirPrefix.Length)
                     # Use -like for wildcard matching
                     if ($filePart -like $patternFile) {
                         return $true
                     }
                 }
+                # Also check exact directory match (file is directly in the directory)
+                if ($normalizedPath -eq ($patternDir + '\' + $patternFile.Replace('*', ''))) {
+                    return $true
+                }
+            }
+        }
+        
+        # Additional check: if pattern is just a directory with wildcard, match any file in that directory
+        # This handles cases where the pattern might not match due to path separator issues
+        if ($normalizedPattern -like '*\*' -and -not $normalizedPattern.Contains('.')) {
+            $dirPattern = $normalizedPattern.TrimEnd('\*')
+            if ($normalizedPath.StartsWith($dirPattern + '\')) {
+                return $true
             }
         }
     }
@@ -148,6 +162,9 @@ function Copy-EssentialFiles {
         [string[]]$Whitelist
     )
     
+    # Normalize source path (remove trailing backslash if present)
+    $SourcePath = $SourcePath.TrimEnd('\', '/')
+    
     # Get all files recursively
     $allFiles = Get-ChildItem -Path $SourcePath -Recurse -File
     
@@ -155,11 +172,33 @@ function Copy-EssentialFiles {
     $skippedCount = 0
     
     foreach ($file in $allFiles) {
-        # Get relative path from source
+        # Get relative path from source using Resolve-Path for accurate calculation
         $relativePath = $file.FullName.Substring($SourcePath.Length + 1)
         
+        # Normalize path separators
+        $relativePath = $relativePath -replace '/', '\'
+        
         # Check if file is essential
+        $isEssential = $false
+        
+        # Primary check: pattern matching
         if (Test-FileIsEssential -FilePath $relativePath -Whitelist $Whitelist) {
+            $isEssential = $true
+        }
+        # Fallback: explicitly include all .ps1 files in scripts folder
+        elseif ($relativePath -like 'scripts\*.ps1' -or $relativePath -like 'scripts/*.ps1') {
+            $isEssential = $true
+        }
+        # Fallback: explicitly include all .ps1 files in modules folder
+        elseif ($relativePath -like 'modules\*.ps1' -or $relativePath -like 'modules/*.ps1') {
+            $isEssential = $true
+        }
+        # Fallback: explicitly include all files in launcher folder
+        elseif ($relativePath.StartsWith('launcher\') -or $relativePath.StartsWith('launcher/')) {
+            $isEssential = $true
+        }
+        
+        if ($isEssential) {
             $destinationFile = Join-Path $DestinationPath $relativePath
             $destinationDir = Split-Path $destinationFile -Parent
             
