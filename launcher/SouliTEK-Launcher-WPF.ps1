@@ -274,6 +274,7 @@ $Script:ScriptPath = Join-Path $Script:RootPath "scripts"
 $Script:AssetsPath = Join-Path $Script:RootPath "assets"
 $Script:CurrentVersion = "2.8.0"
 $Script:CurrentCategory = "All"
+$Script:CurrentTheme = "Light"  # Will be updated when theme is loaded
 
 # Tool definitions
 $Script:Tools = @(
@@ -640,7 +641,7 @@ function Set-ThemePreference {
 function Apply-Theme {
     <#
     .SYNOPSIS
-        Applies the specified theme to the window (basic WPF theme switching).
+        Applies the specified theme to the window (comprehensive WPF theme switching).
     #>
     param(
         [Parameter(Mandatory=$true)]
@@ -657,22 +658,123 @@ function Apply-Theme {
     }
     
     try {
-        # Update window background based on theme
+        # Color definitions
+        $darkBg = [System.Windows.Media.Color]::FromRgb(11, 15, 26)      # #0B0F1A
+        $lightBg = [System.Windows.Media.Color]::FromRgb(248, 250, 252)  # #F8FAFC
+        $darkCard = [System.Windows.Media.Color]::FromRgb(39, 39, 42)    # #27272A
+        $lightCard = [System.Windows.Media.Color]::FromRgb(255, 255, 255) # White
+        $darkText = [System.Windows.Media.Color]::FromRgb(229, 231, 235)  # #E5E7EB
+        $lightText = [System.Windows.Media.Color]::FromRgb(11, 15, 26)    # #0B0F1A
+        $darkTextSecondary = [System.Windows.Media.Color]::FromRgb(138, 143, 152) # #8A8F98
+        $lightTextSecondary = [System.Windows.Media.Color]::FromRgb(138, 143, 152) # #8A8F98
+        $darkSearchBg = [System.Windows.Media.Color]::FromRgb(39, 39, 42)  # #27272A
+        $lightSearchBg = [System.Windows.Media.Color]::FromRgb(244, 244, 245) # #F4F4F5
+        $darkFooter = [System.Windows.Media.Color]::FromRgb(63, 63, 70)    # #3F3F46
+        $lightFooter = [System.Windows.Media.Color]::FromRgb(138, 143, 152) # #8A8F98
+        
         if ($Theme -eq "Dark") {
-            # Dark Navy / Near-Black: #0B0F1A
-            $darkBrush = [System.Windows.Media.SolidColorBrush]::new([System.Windows.Media.Color]::FromRgb(11, 15, 26))
-            $Script:Window.Background = $darkBrush
+            # Window background
+            $Script:Window.Background = [System.Windows.Media.SolidColorBrush]::new($darkBg)
+            
+            # ScrollViewer (main content area)
+            $scrollViewer = $Script:Window.FindName("MainScrollViewer")
+            if ($null -ne $scrollViewer) {
+                $scrollViewer.Background = [System.Windows.Media.SolidColorBrush]::new($darkBg)
+            }
+            
+            # Title bar background
+            $titleBar = $Script:Window.FindName("TitleBarGrid")
+            if ($null -ne $titleBar) {
+                $titleBar.Background = [System.Windows.Media.SolidColorBrush]::new($darkCard)
+            }
+            
+            # Title text (removed - using logo instead)
+            # Logo image doesn't need color changes as it's an image
+            
+            # Search box
+            if ($null -ne $Script:SearchBox) {
+                $Script:SearchBox.Background = [System.Windows.Media.SolidColorBrush]::new($darkSearchBg)
+                $Script:SearchBox.Foreground = [System.Windows.Media.SolidColorBrush]::new($darkText)
+                $Script:SearchBox.BorderBrush = [System.Windows.Media.SolidColorBrush]::new([System.Windows.Media.Color]::FromRgb(63, 63, 70))
+            }
+            
+            # Search placeholder
+            if ($null -ne $Script:SearchPlaceholder) {
+                $Script:SearchPlaceholder.Foreground = [System.Windows.Media.SolidColorBrush]::new($darkTextSecondary)
+            }
+            
+            # Footer background
+            $footerGrid = $Script:Window.FindName("FooterGrid")
+            if ($null -ne $footerGrid) {
+                $footerGrid.Background = [System.Windows.Media.SolidColorBrush]::new($darkFooter)
+            }
+            
+            # Status label
+            if ($null -ne $Script:StatusLabel) {
+                $Script:StatusLabel.Foreground = [System.Windows.Media.SolidColorBrush]::new($darkText)
+            }
+            
+            # Category label
+            $categoryLabel = $Script:Window.FindName("CategoriesLabel")
+            if ($null -ne $categoryLabel) {
+                $categoryLabel.Foreground = [System.Windows.Media.SolidColorBrush]::new($darkTextSecondary)
+            }
         }
         else {
-            $lightBrush = [System.Windows.Media.SolidColorBrush]::new([System.Windows.Media.Color]::FromRgb(248, 250, 252))
-            $Script:Window.Background = $lightBrush
+            # Light theme
+            $Script:Window.Background = [System.Windows.Media.SolidColorBrush]::new($lightBg)
+            
+            # ScrollViewer
+            $scrollViewer = $Script:Window.FindName("MainScrollViewer")
+            if ($null -ne $scrollViewer) {
+                $scrollViewer.Background = [System.Windows.Media.SolidColorBrush]::new($lightBg)
+            }
+            
+            # Title bar
+            $titleBar = $Script:Window.FindName("TitleBarGrid")
+            if ($null -ne $titleBar) {
+                $titleBar.Background = [System.Windows.Media.SolidColorBrush]::new($lightCard)
+            }
+            
+            # Title text (removed - using logo instead)
+            # Logo image doesn't need color changes as it's an image
+            
+            # Search box
+            if ($null -ne $Script:SearchBox) {
+                $Script:SearchBox.Background = [System.Windows.Media.SolidColorBrush]::new($lightSearchBg)
+                $Script:SearchBox.Foreground = [System.Windows.Media.SolidColorBrush]::new($lightText)
+                $Script:SearchBox.BorderBrush = [System.Windows.Media.SolidColorBrush]::new([System.Windows.Media.Color]::FromRgb(228, 228, 231))
+            }
+            
+            # Search placeholder
+            if ($null -ne $Script:SearchPlaceholder) {
+                $Script:SearchPlaceholder.Foreground = [System.Windows.Media.SolidColorBrush]::new($lightTextSecondary)
+            }
+            
+            # Footer
+            $footerGrid = $Script:Window.FindName("FooterGrid")
+            if ($null -ne $footerGrid) {
+                $footerGrid.Background = [System.Windows.Media.SolidColorBrush]::new($lightFooter)
+            }
+            
+            # Status label
+            if ($null -ne $Script:StatusLabel) {
+                $Script:StatusLabel.Foreground = [System.Windows.Media.SolidColorBrush]::new([System.Windows.Media.Colors]::White)
+            }
+            
+            # Category label
+            $categoryLabel = $Script:Window.FindName("CategoriesLabel")
+            if ($null -ne $categoryLabel) {
+                $categoryLabel.Foreground = [System.Windows.Media.SolidColorBrush]::new($lightTextSecondary)
+            }
         }
         
-        # Update theme icon if available (using TextBlock with Segoe MDL2 Assets)
+        # Store theme for card updates
+        $Script:CurrentTheme = $Theme
+        
+        # Update theme icon if available
         if ($null -ne $Script:ThemeIcon) {
             try {
-                # Use Segoe MDL2 Assets Unicode characters
-                # U+E706 = Sun icon, U+E708 = Moon icon
                 $moonChar = [char]0xE708
                 $sunChar = [char]0xE706
                 $Script:ThemeIcon.Text = if ($Theme -eq "Dark") { 
@@ -689,7 +791,7 @@ function Apply-Theme {
         # Save preference
         Set-ThemePreference -Theme $Theme
         
-        # Refresh tool display to update icon colors
+        # Refresh tool display to update card colors and icon colors
         if ($null -ne $Script:ToolsPanel) {
             Update-ToolsDisplay
         }
@@ -705,6 +807,8 @@ function Apply-Theme {
     }
     catch {
         Write-Warning "Failed to apply theme: $_"
+        Write-Warning $_.Exception.Message
+        Write-Warning $_.ScriptStackTrace
     }
 }
 
@@ -784,6 +888,15 @@ function Update-ToolsDisplay {
     
     $Script:StatusLabel.Text = "Showing $($filteredTools.Count) tool(s) in '$Script:CurrentCategory' category"
     
+    # Get current theme
+    $currentTheme = if ($null -ne $Script:CurrentTheme) { $Script:CurrentTheme } else { Get-ThemePreference }
+    
+    # Theme-aware colors
+    $cardBgColor = if ($currentTheme -eq "Dark") { "#27272A" } else { "#FFFFFF" }
+    $textColor = if ($currentTheme -eq "Dark") { "#E5E7EB" } else { "#0B0F1A" }
+    $textSecondaryColor = if ($currentTheme -eq "Dark") { "#8A8F98" } else { "#8A8F98" }
+    $iconColor = if ($currentTheme -eq "Dark") { "#E5E7EB" } else { "#000000" }
+    
     foreach ($tool in $filteredTools) {
         # Create side-by-side tool card with fixed width (3 cards per row)
         $card = New-Object System.Windows.Controls.Border
@@ -791,6 +904,7 @@ function Update-ToolsDisplay {
         $card.Cursor = "Hand"
         $card.Width = 300
         $card.Margin = "0,0,12,12"
+        $card.Background = [System.Windows.Media.SolidColorBrush]::new([System.Windows.Media.ColorConverter]::ConvertFromString($cardBgColor))
         
         # Info stack with title and description
         $infoStack = New-Object System.Windows.Controls.StackPanel
@@ -800,9 +914,6 @@ function Update-ToolsDisplay {
         $headerStack = New-Object System.Windows.Controls.StackPanel
         $headerStack.Orientation = "Horizontal"
         $headerStack.Margin = "0,0,0,4"
-        
-        # Set icon color to black for tool cards
-        $iconColor = "#000000"
         
         # Add icon if tool has one
         if ($tool.Icon -and $tool.Icon -notmatch "^\[.*\]$") {
@@ -822,7 +933,7 @@ function Update-ToolsDisplay {
         $nameText.FontSize = 16
         $nameText.FontWeight = "SemiBold"
         $nameText.FontFamily = "Segoe UI"
-        $nameText.Foreground = "#0B0F1A"
+        $nameText.Foreground = [System.Windows.Media.SolidColorBrush]::new([System.Windows.Media.ColorConverter]::ConvertFromString($textColor))
         $nameText.VerticalAlignment = "Center"
         $nameText.TextWrapping = "Wrap"
         
@@ -838,7 +949,7 @@ function Update-ToolsDisplay {
         $descText.Text = $truncatedDesc
         $descText.FontSize = 13
         $descText.FontFamily = "Segoe UI"
-        $descText.Foreground = "#8A8F98"
+        $descText.Foreground = [System.Windows.Media.SolidColorBrush]::new([System.Windows.Media.ColorConverter]::ConvertFromString($textSecondaryColor))
         $descText.TextWrapping = "Wrap"
         
         $null = $infoStack.Children.Add($headerStack)
@@ -1323,13 +1434,49 @@ Set-FooterButtonIcon -Button $GitHubButton -IconName "GitHub" -TextColor "White"
 Set-FooterButtonIcon -Button $DiscordButton -IconName "Discord" -TextColor "White"  # Simple Icon brand logo
 Set-FooterButtonIcon -Button $SelfDestructButton -IconName "Trash2" -TextColor "#EF4444"
 
-# Set logo image
+# Set logo image and make it clickable
+$LogoButton = $Window.FindName("LogoButton")
 if ($null -ne $LogoImage) {
-    $faviconPath = Join-Path $Script:AssetsPath "images\Favicon.png"
-    if (Test-Path $faviconPath) {
-        $LogoImage.Source = New-Object System.Windows.Media.Imaging.BitmapImage([System.Uri]::new($faviconPath))
+    $logoPath = Join-Path $Script:AssetsPath "images\Final-Logo_Soulitek (1).png"
+    if (Test-Path $logoPath) {
+        try {
+            $bitmap = New-Object System.Windows.Media.Imaging.BitmapImage
+            $bitmap.BeginInit()
+            $bitmap.UriSource = [System.Uri]::new($logoPath)
+            $bitmap.EndInit()
+            $LogoImage.Source = $bitmap
+        }
+        catch {
+            Write-Warning "Failed to load logo image: $_"
+        }
+    }
+    else {
+        Write-Warning "Logo image not found at: $logoPath"
     }
 }
+
+    # Make logo button clickable to navigate to website
+    if ($null -ne $LogoButton) {
+        # Disable button hover effects
+        $LogoButton.Focusable = $false
+        
+        $null = $LogoButton.Add_Click({
+            try {
+                $websiteUrl = "https://www.soulitek.co.il"
+                Start-Process $websiteUrl
+                Write-Host "Opening website: $websiteUrl" -ForegroundColor Cyan
+            }
+            catch {
+                Write-Warning "Failed to open website: $_"
+                [System.Windows.MessageBox]::Show(
+                    "Failed to open website. Please visit: https://www.soulitek.co.il",
+                    "Error",
+                    [System.Windows.MessageBoxButton]::OK,
+                    [System.Windows.MessageBoxImage]::Warning
+                )
+            }
+        })
+    }
 
 # ============================================================
 # EVENT HANDLERS
@@ -1511,6 +1658,7 @@ Set-CategoryActive "All"
 $null = $Window.Add_Loaded({
     # Load and apply theme preference
     $savedTheme = Get-ThemePreference
+    $Script:CurrentTheme = $savedTheme  # Initialize theme variable
     
     # Set initial icon
     if ($null -ne $Script:ThemeIcon) {

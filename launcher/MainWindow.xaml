@@ -108,7 +108,7 @@
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Effect">
                         <Setter.Value>
-                            <DropShadowEffect Color="#00E5FF" BlurRadius="8" ShadowDepth="0" Opacity="0.2"/>
+                            <DropShadowEffect Color="#5B2EFF" BlurRadius="8" ShadowDepth="0" Opacity="0.2"/>
                         </Setter.Value>
                     </Setter>
                     <Setter Property="Cursor" Value="Hand"/>
@@ -196,24 +196,41 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             
-            <!-- Logo and Title -->
-            <StackPanel Grid.Column="0" 
-                       Orientation="Horizontal" 
-                       VerticalAlignment="Center"
-                       Margin="16,0">
-                <!-- Logo Image -->
+            <!-- Logo -->
+            <Button Grid.Column="0" 
+                    Name="LogoButton"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Padding="0"
+                    Cursor="Hand"
+                    ToolTip="Visit Soulitek website">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <ContentPresenter Content="{TemplateBinding Content}"/>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="Transparent"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="Transparent"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
                 <Image Name="LogoImage"
-                       Width="32" 
-                       Height="32" 
-                       Margin="0,0,8,0"
-                       Stretch="Uniform"/>
-                <TextBlock Text="Soulitek AIO Scripts" 
-                          FontSize="20" 
-                          FontWeight="Bold"
-                          FontFamily="Segoe UI"
-                          Foreground="#0B0F1A" 
-                          VerticalAlignment="Center"/>
-            </StackPanel>
+                       Width="180" 
+                       Height="40" 
+                       Stretch="Uniform"
+                       VerticalAlignment="Center"/>
+            </Button>
             
             <!-- Menu Icon (Theme Toggle/Minimize/Close) -->
             <StackPanel Grid.Column="1" 
@@ -249,6 +266,7 @@
 
         <!-- Main Content -->
         <ScrollViewer Grid.Row="1" 
+                     Name="MainScrollViewer"
                      VerticalScrollBarVisibility="Auto"
                      Background="#F8FAFC">
             <StackPanel Margin="16">
@@ -269,7 +287,7 @@
 
                 <!-- Categories -->
                 <StackPanel Margin="0,0,0,24">
-                    <TextBlock Text="Categories" 
+                    <TextBlock Name="CategoriesLabel" Text="Categories" 
                               FontSize="14" 
                               FontWeight="Medium"
                               FontFamily="Segoe UI"
@@ -298,6 +316,7 @@
 
         <!-- Footer -->
         <Grid Grid.Row="2" 
+              Name="FooterGrid"
               Background="#8A8F98">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
