@@ -304,6 +304,7 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 
                 <!-- Help -->
@@ -333,6 +334,17 @@
                        Name="GitHubButton"
                        Style="{StaticResource NavButton}">
                     <TextBlock Text="GitHub" 
+                             FontSize="11"
+                             FontFamily="Segoe UI"
+                             Foreground="White"
+                             HorizontalAlignment="Center"/>
+                </Button>
+                
+                <!-- Discord -->
+                <Button Grid.Column="3" 
+                       Name="DiscordButton"
+                       Style="{StaticResource NavButton}">
+                    <TextBlock Text="Discord" 
                              FontSize="11"
                              FontFamily="Segoe UI"
                              Foreground="White"
