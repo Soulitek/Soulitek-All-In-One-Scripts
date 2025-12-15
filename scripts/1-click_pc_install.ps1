@@ -16,7 +16,6 @@
 # 
 # This tool automates the complete PC setup process including:
 # - Time zone and regional settings
-# - Windows updates
 # - Power plan optimization
 # - Bloatware removal
 # - Software installation
@@ -101,35 +100,31 @@ function Show-TaskList {
     Write-Host "  [3]  Create System Restore Point" -ForegroundColor Cyan
     Write-Host "       -> Create a backup point before making system changes" -ForegroundColor Gray
     Write-Host ""
-    Write-Host "  [4]  Check and Install Windows Updates" -ForegroundColor Cyan
-    Write-Host "       -> Download and install all available Windows updates" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "  [5]  Configure Power Plan" -ForegroundColor Cyan
+    Write-Host "  [4]  Configure Power Plan" -ForegroundColor Cyan
     Write-Host "       -> Set power plan to High Performance for best performance" -ForegroundColor Gray
     Write-Host ""
-    Write-Host "  [6]  Remove Bloatware" -ForegroundColor Cyan
+    Write-Host "  [5]  Remove Bloatware" -ForegroundColor Cyan
     Write-Host "       -> Remove unnecessary pre-installed Windows applications" -ForegroundColor Gray
     Write-Host ""
-    Write-Host "  [7]  Install Google Chrome" -ForegroundColor Cyan
+    Write-Host "  [6]  Install Google Chrome" -ForegroundColor Cyan
     Write-Host "       -> Install Google Chrome web browser via WinGet" -ForegroundColor Gray
     Write-Host ""
-    Write-Host "  [8]  Install AnyDesk" -ForegroundColor Cyan
+    Write-Host "  [7]  Install AnyDesk" -ForegroundColor Cyan
     Write-Host "       -> Install AnyDesk remote desktop software via WinGet" -ForegroundColor Gray
     Write-Host ""
-    Write-Host "  [9]  Install Microsoft Office" -ForegroundColor Cyan
+    Write-Host "  [8]  Install Microsoft Office" -ForegroundColor Cyan
     Write-Host "       -> Install Microsoft Office suite (if available)" -ForegroundColor Gray
     Write-Host ""
-    Write-Host "  [10] Create Desktop Shortcuts" -ForegroundColor Cyan
+    Write-Host "  [9]  Create Desktop Shortcuts" -ForegroundColor Cyan
     Write-Host "       -> Create shortcuts for This PC and Documents folder on desktop" -ForegroundColor Gray
     Write-Host ""
-    Write-Host "  [11] Generate Installation Summary" -ForegroundColor Cyan
+    Write-Host "  [10] Generate Installation Summary" -ForegroundColor Cyan
     Write-Host "       -> Create detailed report of all actions performed" -ForegroundColor Gray
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Yellow
     Write-Host ""
     Write-Host "  IMPORTANT NOTES:" -ForegroundColor Red
-    Write-Host "  * This process may take 30-60 minutes to complete" -ForegroundColor Yellow
-    Write-Host "  * Your computer may restart during Windows updates" -ForegroundColor Yellow
+    Write-Host "  * This process may take 20-40 minutes to complete" -ForegroundColor Yellow
     Write-Host "  * Administrator privileges are required" -ForegroundColor Yellow
     Write-Host "  * Active internet connection is required" -ForegroundColor Yellow
     Write-Host ""
@@ -254,60 +249,6 @@ function New-SystemRestorePoint {
         
         Write-Host ""
         Write-Host "  Continuing anyway... (This is not critical)" -ForegroundColor Yellow
-        
-        Start-Sleep -Seconds 3
-        return $false
-    }
-}
-
-function Install-WindowsUpdates {
-    Show-SouliTEKHeader -Title "CHECKING WINDOWS UPDATES" -ClearHost -ShowBanner
-    Write-SouliTEKInfo "Checking for available Windows updates..."
-    
-    try {
-        $psWindowsUpdate = Get-Module -Name PSWindowsUpdate -ListAvailable
-        
-        if (-not $psWindowsUpdate) {
-            Write-Host "  [*] Installing PSWindowsUpdate module..." -ForegroundColor Cyan
-            
-            $nuget = Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue
-            if (-not $nuget) {
-                Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser | Out-Null
-            }
-            
-            Install-Module -Name PSWindowsUpdate -Force -Scope CurrentUser -ErrorAction Stop
-            Import-Module PSWindowsUpdate -Force
-        } else {
-            Import-Module PSWindowsUpdate -Force
-        }
-        
-        Write-Host "  [*] Scanning for updates..." -ForegroundColor Cyan
-        $updates = Get-WindowsUpdate -MicrosoftUpdate -ErrorAction Stop
-        
-        if ($updates.Count -eq 0) {
-            Write-SouliTEKSuccess "Windows is up to date - no updates available"
-            Add-LogEntry -Task "Windows Updates" -Status "SUCCESS" -Details "System is up to date"
-        } else {
-            Write-Host "  [*] Found $($updates.Count) update(s)" -ForegroundColor Yellow
-            Write-Host "  [*] Installing updates (this may take a while)..." -ForegroundColor Cyan
-            
-            Install-WindowsUpdate -MicrosoftUpdate -AcceptAll -AutoReboot:$false -ErrorAction Stop
-            
-            Write-SouliTEKSuccess "Windows updates installed successfully"
-            Add-LogEntry -Task "Windows Updates" -Status "SUCCESS" -Details "Installed $($updates.Count) update(s)"
-            
-            Write-Host ""
-            Write-Host "  NOTE: You may need to restart your computer to complete update installation." -ForegroundColor Yellow
-        }
-        
-        Start-Sleep -Seconds 3
-        return $true
-    } catch {
-        Write-SouliTEKWarning "Could not install Windows updates: $($_.Exception.Message)"
-        Add-LogEntry -Task "Windows Updates" -Status "WARNING" -Details $_.Exception.Message
-        
-        Write-Host ""
-        Write-Host "  TIP: You can manually check for updates via Windows Settings" -ForegroundColor Yellow
         
         Start-Sleep -Seconds 3
         return $false
@@ -901,7 +842,6 @@ function Start-OneClickPCInstall {
     Set-TimeZoneToJerusalem
     Set-RegionalSettingsToIsrael
     New-SystemRestorePoint
-    Install-WindowsUpdates
     Set-PowerPlanToBest
     Remove-Bloatware
     Install-Applications
