@@ -105,8 +105,8 @@ function Show-Menu {
 }
 
 function Set-ChromeAsDefaultBrowser {
-    Show-SouliTEKHeader -Title "SET CHROME AS DEFAULT BROWSER" -ClearHost -ShowBanner
-    Write-SouliTEKInfo "Opening Windows Settings for default browser configuration..."
+    Show-Section "Default Browser Configuration"
+    Write-Ui -Message "Opening Windows Settings for default browser configuration" -Level "INFO"
     
     try {
         # Check if Chrome is installed
@@ -125,8 +125,8 @@ function Set-ChromeAsDefaultBrowser {
         }
         
         if (-not $chromeFound) {
-            Write-SouliTEKWarning "Google Chrome not found in common installation paths"
-            Write-Host "  Please install Chrome first, or manually set it as default browser" -ForegroundColor Yellow
+            Write-Ui -Message "Google Chrome not found in common installation paths" -Level "WARN"
+            Write-Ui -Message "Please install Chrome first, or manually set it as default browser" -Level "INFO"
             Add-TweakResult -TweakName "Set Chrome as Default Browser" -Status "ERROR" -Details "Chrome not found"
             Start-Sleep -Seconds 3
             return $false
@@ -135,16 +135,16 @@ function Set-ChromeAsDefaultBrowser {
         # Open Windows Settings to default apps
         Start-Process "ms-settings:defaultapps" -ErrorAction Stop
         
-        Write-SouliTEKSuccess "Windows Settings opened"
-        Write-Host "  Please select Google Chrome as your default browser in the settings window" -ForegroundColor Yellow
-        Write-Host "  This requires manual confirmation due to Windows security requirements" -ForegroundColor Gray
+        Write-Ui -Message "Windows Settings opened" -Level "OK"
+        Write-Ui -Message "Please select Google Chrome as your default browser in the settings window" -Level "INFO"
+        Write-Ui -Message "This requires manual confirmation due to Windows security requirements" -Level "INFO"
         
         Add-TweakResult -TweakName "Set Chrome as Default Browser" -Status "SUCCESS" -Details "Settings opened - manual confirmation required"
         
         Start-Sleep -Seconds 3
         return $true
     } catch {
-        Write-SouliTEKError "Failed to open Windows Settings: $($_.Exception.Message)"
+        Write-Ui -Message "Failed to open Windows Settings: $($_.Exception.Message)" -Level "ERROR"
         Add-TweakResult -TweakName "Set Chrome as Default Browser" -Status "ERROR" -Details $_.Exception.Message
         Start-Sleep -Seconds 3
         return $false
@@ -153,7 +153,7 @@ function Set-ChromeAsDefaultBrowser {
 
 function Set-AcrobatAsDefaultPDF {
     Show-SouliTEKHeader -Title "SET ACROBAT AS DEFAULT PDF APP" -ClearHost -ShowBanner
-    Write-SouliTEKInfo "Opening Windows Settings for PDF app configuration..."
+    Write-Ui -Message "Opening Windows Settings for PDF app configuration..."
     
     try {
         # Check if Acrobat Reader is installed
@@ -173,7 +173,7 @@ function Set-AcrobatAsDefaultPDF {
         }
         
         if (-not $acrobatFound) {
-            Write-SouliTEKWarning "Adobe Acrobat Reader not found in common installation paths"
+            Write-Ui -Message "Adobe Acrobat Reader not found in common installation paths"
             Write-Host "  Please install Acrobat Reader first, or manually set it as default PDF app" -ForegroundColor Yellow
             Add-TweakResult -TweakName "Set Acrobat as Default PDF" -Status "ERROR" -Details "Acrobat not found"
             Start-Sleep -Seconds 3
@@ -183,7 +183,7 @@ function Set-AcrobatAsDefaultPDF {
         # Open Windows Settings to default apps
         Start-Process "ms-settings:defaultapps" -ErrorAction Stop
         
-        Write-SouliTEKSuccess "Windows Settings opened"
+        Write-Ui -Message "Windows Settings opened"
         Write-Host "  Please select Adobe Acrobat Reader as your default PDF app in the settings window" -ForegroundColor Yellow
         Write-Host "  This requires manual confirmation due to Windows security requirements" -ForegroundColor Gray
         
@@ -192,7 +192,7 @@ function Set-AcrobatAsDefaultPDF {
         Start-Sleep -Seconds 3
         return $true
     } catch {
-        Write-SouliTEKError "Failed to open Windows Settings: $($_.Exception.Message)"
+        Write-Ui -Message "Failed to open Windows Settings: $($_.Exception.Message)"
         Add-TweakResult -TweakName "Set Acrobat as Default PDF" -Status "ERROR" -Details $_.Exception.Message
         Start-Sleep -Seconds 3
         return $false
@@ -200,15 +200,15 @@ function Set-AcrobatAsDefaultPDF {
 }
 
 function Add-HebrewKeyboard {
-    Show-SouliTEKHeader -Title "ADD HEBREW KEYBOARD" -ClearHost -ShowBanner
-    Write-SouliTEKInfo "Adding Hebrew (he-IL) keyboard layout..."
+    Show-Section "Keyboard Configuration"
+    Write-Ui -Message "Adding Hebrew (he-IL) keyboard layout" -Level "INFO"
     
     try {
         $languageList = Get-WinUserLanguageList
         
         # Check if Hebrew is already in the list
         if ($languageList | Where-Object { $_.LanguageTag -eq "he-IL" }) {
-            Write-SouliTEKSuccess "Hebrew keyboard is already added"
+            Write-Ui -Message "Hebrew keyboard is already added" -Level "OK"
             Add-TweakResult -TweakName "Add Hebrew Keyboard" -Status "SUCCESS" -Details "Already added"
             Start-Sleep -Seconds 2
             return $true
@@ -218,15 +218,15 @@ function Add-HebrewKeyboard {
         $languageList.Add("he-IL")
         Set-WinUserLanguageList $languageList -Force -ErrorAction Stop
         
-        Write-SouliTEKSuccess "Hebrew keyboard added successfully"
-        Write-Host "  You can switch keyboards using Windows key + Space" -ForegroundColor Gray
+        Write-Ui -Message "Hebrew keyboard added successfully" -Level "OK"
+        Write-Ui -Message "You can switch keyboards using Windows key + Space" -Level "INFO"
         
         Add-TweakResult -TweakName "Add Hebrew Keyboard" -Status "SUCCESS" -Details "Hebrew (he-IL) added"
         
         Start-Sleep -Seconds 2
         return $true
     } catch {
-        Write-SouliTEKError "Failed to add Hebrew keyboard: $($_.Exception.Message)"
+        Write-Ui -Message "Failed to add Hebrew keyboard: $($_.Exception.Message)" -Level "ERROR"
         Add-TweakResult -TweakName "Add Hebrew Keyboard" -Status "ERROR" -Details $_.Exception.Message
         Start-Sleep -Seconds 3
         return $false
@@ -235,14 +235,14 @@ function Add-HebrewKeyboard {
 
 function Add-EnglishKeyboard {
     Show-SouliTEKHeader -Title "ADD ENGLISH (US) KEYBOARD" -ClearHost -ShowBanner
-    Write-SouliTEKInfo "Adding English (US) keyboard layout..."
+    Write-Ui -Message "Adding English (US) keyboard layout..."
     
     try {
         $languageList = Get-WinUserLanguageList
         
         # Check if English (US) is already in the list
         if ($languageList | Where-Object { $_.LanguageTag -eq "en-US" }) {
-            Write-SouliTEKSuccess "English (US) keyboard is already added"
+            Write-Ui -Message "English (US) keyboard is already added"
             Add-TweakResult -TweakName "Add English (US) Keyboard" -Status "SUCCESS" -Details "Already added"
             Start-Sleep -Seconds 2
             return $true
@@ -252,7 +252,7 @@ function Add-EnglishKeyboard {
         $languageList.Add("en-US")
         Set-WinUserLanguageList $languageList -Force -ErrorAction Stop
         
-        Write-SouliTEKSuccess "English (US) keyboard added successfully"
+        Write-Ui -Message "English (US) keyboard added successfully"
         Write-Host "  You can switch keyboards using Windows key + Space" -ForegroundColor Gray
         
         Add-TweakResult -TweakName "Add English (US) Keyboard" -Status "SUCCESS" -Details "English (en-US) added"
@@ -260,7 +260,7 @@ function Add-EnglishKeyboard {
         Start-Sleep -Seconds 2
         return $true
     } catch {
-        Write-SouliTEKError "Failed to add English (US) keyboard: $($_.Exception.Message)"
+        Write-Ui -Message "Failed to add English (US) keyboard: $($_.Exception.Message)"
         Add-TweakResult -TweakName "Add English (US) Keyboard" -Status "ERROR" -Details $_.Exception.Message
         Start-Sleep -Seconds 3
         return $false
@@ -269,14 +269,14 @@ function Add-EnglishKeyboard {
 
 function Set-HebrewAsDisplayLanguage {
     Show-SouliTEKHeader -Title "SET HEBREW AS DISPLAY LANGUAGE" -ClearHost -ShowBanner
-    Write-SouliTEKInfo "Setting Hebrew as main display language..."
+    Write-Ui -Message "Setting Hebrew as main display language..."
     
     try {
         $languageList = Get-WinUserLanguageList
         
         # Check if Hebrew is already the primary language
         if ($languageList[0].LanguageTag -eq "he-IL") {
-            Write-SouliTEKSuccess "Hebrew is already the main display language"
+            Write-Ui -Message "Hebrew is already the main display language"
             Add-TweakResult -TweakName "Set Hebrew as Display Language" -Status "SUCCESS" -Details "Already set"
             Start-Sleep -Seconds 2
             return $true
@@ -297,7 +297,7 @@ function Set-HebrewAsDisplayLanguage {
         
         Set-WinUserLanguageList $languageList -Force -ErrorAction Stop
         
-        Write-SouliTEKSuccess "Hebrew set as main display language"
+        Write-Ui -Message "Hebrew set as main display language"
         Write-Host "  NOTE: You may need to sign out and back in for changes to take full effect" -ForegroundColor Yellow
         Write-Host "  Windows may need to download the Hebrew language pack" -ForegroundColor Gray
         
@@ -306,7 +306,7 @@ function Set-HebrewAsDisplayLanguage {
         Start-Sleep -Seconds 3
         return $true
     } catch {
-        Write-SouliTEKError "Failed to set Hebrew as display language: $($_.Exception.Message)"
+        Write-Ui -Message "Failed to set Hebrew as display language: $($_.Exception.Message)"
         Add-TweakResult -TweakName "Set Hebrew as Display Language" -Status "ERROR" -Details $_.Exception.Message
         Start-Sleep -Seconds 3
         return $false
@@ -315,7 +315,7 @@ function Set-HebrewAsDisplayLanguage {
 
 function Disable-StartMenuAds {
     Show-SouliTEKHeader -Title "DISABLE START MENU ADS" -ClearHost -ShowBanner
-    Write-SouliTEKInfo "Disabling Start Menu ads and suggestions..."
+    Write-Ui -Message "Disabling Start Menu ads and suggestions..."
     
     try {
         $regPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"
@@ -339,7 +339,7 @@ function Disable-StartMenuAds {
             Set-ItemProperty -Path $regPath -Name $setting.Key -Value $setting.Value -Type DWord -ErrorAction Stop
         }
         
-        Write-SouliTEKSuccess "Start Menu ads and suggestions disabled"
+        Write-Ui -Message "Start Menu ads and suggestions disabled"
         Write-Host "  You may need to restart Explorer or sign out for changes to take effect" -ForegroundColor Gray
         
         Add-TweakResult -TweakName "Disable Start Menu Ads" -Status "SUCCESS" -Details "All ad settings disabled"
@@ -347,7 +347,7 @@ function Disable-StartMenuAds {
         Start-Sleep -Seconds 2
         return $true
     } catch {
-        Write-SouliTEKError "Failed to disable Start Menu ads: $($_.Exception.Message)"
+        Write-Ui -Message "Failed to disable Start Menu ads: $($_.Exception.Message)"
         Add-TweakResult -TweakName "Disable Start Menu Ads" -Status "ERROR" -Details $_.Exception.Message
         Start-Sleep -Seconds 3
         return $false
@@ -356,7 +356,7 @@ function Disable-StartMenuAds {
 
 function Pin-ChromeToTaskbar {
     Show-SouliTEKHeader -Title "PIN CHROME TO TASKBAR" -ClearHost -ShowBanner
-    Write-SouliTEKInfo "Pinning Google Chrome to taskbar..."
+    Write-Ui -Message "Pinning Google Chrome to taskbar..."
     
     try {
         # Find Chrome executable
@@ -375,7 +375,7 @@ function Pin-ChromeToTaskbar {
         }
         
         if (-not $chromePath) {
-            Write-SouliTEKWarning "Google Chrome not found"
+            Write-Ui -Message "Google Chrome not found"
             Write-Host "  Please install Chrome first" -ForegroundColor Yellow
             Add-TweakResult -TweakName "Pin Chrome to Taskbar" -Status "ERROR" -Details "Chrome not found"
             Start-Sleep -Seconds 3
@@ -388,14 +388,14 @@ function Pin-ChromeToTaskbar {
         $item = $folder.ParseName((Split-Path -Leaf $chromePath))
         $item.InvokeVerb("taskbarpin")
         
-        Write-SouliTEKSuccess "Chrome pinned to taskbar successfully"
+        Write-Ui -Message "Chrome pinned to taskbar successfully"
         
         Add-TweakResult -TweakName "Pin Chrome to Taskbar" -Status "SUCCESS" -Details "Chrome pinned"
         
         Start-Sleep -Seconds 2
         return $true
     } catch {
-        Write-SouliTEKError "Failed to pin Chrome to taskbar: $($_.Exception.Message)"
+        Write-Ui -Message "Failed to pin Chrome to taskbar: $($_.Exception.Message)"
         Add-TweakResult -TweakName "Pin Chrome to Taskbar" -Status "ERROR" -Details $_.Exception.Message
         Start-Sleep -Seconds 3
         return $false
@@ -404,7 +404,7 @@ function Pin-ChromeToTaskbar {
 
 function Enable-TaskbarEndTask {
     Show-SouliTEKHeader -Title "ENABLE END TASK IN TASKBAR" -ClearHost -ShowBanner
-    Write-SouliTEKInfo "Enabling 'End Task' option in taskbar (Windows 11)..."
+    Write-Ui -Message "Enabling 'End Task' option in taskbar (Windows 11)..."
     
     try {
         $regPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
@@ -417,7 +417,7 @@ function Enable-TaskbarEndTask {
         # Enable End Task in taskbar
         Set-ItemProperty -Path $regPath -Name "TaskbarEndTask" -Value 1 -Type DWord -ErrorAction Stop
         
-        Write-SouliTEKSuccess "'End Task' option enabled in taskbar"
+        Write-Ui -Message "'End Task' option enabled in taskbar"
         Write-Host "  Right-click on taskbar icons to see 'End Task' option" -ForegroundColor Gray
         Write-Host "  You may need to restart Explorer for changes to take effect" -ForegroundColor Yellow
         
@@ -426,7 +426,7 @@ function Enable-TaskbarEndTask {
         Start-Sleep -Seconds 2
         return $true
     } catch {
-        Write-SouliTEKError "Failed to enable End Task: $($_.Exception.Message)"
+        Write-Ui -Message "Failed to enable End Task: $($_.Exception.Message)"
         Add-TweakResult -TweakName "Enable End Task in Taskbar" -Status "ERROR" -Details $_.Exception.Message
         Start-Sleep -Seconds 3
         return $false
@@ -435,7 +435,7 @@ function Enable-TaskbarEndTask {
 
 function Disable-Copilot {
     Show-SouliTEKHeader -Title "DISABLE MICROSOFT COPILOT" -ClearHost -ShowBanner
-    Write-SouliTEKInfo "Disabling Microsoft Copilot in taskbar..."
+    Write-Ui -Message "Disabling Microsoft Copilot in taskbar..."
     
     try {
         # User-level policy
@@ -461,7 +461,7 @@ function Disable-Copilot {
         }
         Set-ItemProperty -Path $explorerPath -Name "ShowCopilotButton" -Value 0 -Type DWord -ErrorAction Stop
         
-        Write-SouliTEKSuccess "Microsoft Copilot disabled"
+        Write-Ui -Message "Microsoft Copilot disabled"
         Write-Host "  You may need to restart Explorer or sign out for changes to take effect" -ForegroundColor Yellow
         Write-Host "  Restart Explorer: Stop-Process -Name explorer -Force" -ForegroundColor Gray
         
@@ -470,7 +470,7 @@ function Disable-Copilot {
         Start-Sleep -Seconds 2
         return $true
     } catch {
-        Write-SouliTEKError "Failed to disable Copilot: $($_.Exception.Message)"
+        Write-Ui -Message "Failed to disable Copilot: $($_.Exception.Message)"
         Add-TweakResult -TweakName "Disable Microsoft Copilot" -Status "ERROR" -Details $_.Exception.Message
         Start-Sleep -Seconds 3
         return $false
@@ -479,19 +479,19 @@ function Disable-Copilot {
 
 function New-SystemRestorePoint {
     Show-SouliTEKHeader -Title "CREATE SYSTEM RESTORE POINT" -ClearHost -ShowBanner
-    Write-SouliTEKInfo "Creating system restore point..."
+    Write-Ui -Message "Creating system restore point..."
     
     try {
         $systemDrive = $env:SystemDrive
         $restoreEnabled = Get-ComputerRestorePoint -ErrorAction SilentlyContinue
         
         if (-not $restoreEnabled) {
-            Write-SouliTEKWarning "System Restore may not be enabled"
+            Write-Ui -Message "System Restore may not be enabled"
             Write-Host "  Attempting to enable System Restore..." -ForegroundColor Yellow
             
             $enableResult = Enable-ComputerRestore -Drive "$systemDrive\" -ErrorAction SilentlyContinue
             if (-not $?) {
-                Write-SouliTEKWarning "Could not enable System Restore automatically"
+                Write-Ui -Message "Could not enable System Restore automatically"
             } else {
                 Start-Sleep -Seconds 2
             }
@@ -502,13 +502,13 @@ function New-SystemRestorePoint {
         
         Checkpoint-Computer -Description $description -RestorePointType "MODIFY_SETTINGS" -ErrorAction Stop
         
-        Write-SouliTEKSuccess "System restore point created successfully"
+        Write-Ui -Message "System restore point created successfully"
         Add-TweakResult -TweakName "Create System Restore Point" -Status "SUCCESS" -Details $description
         
         Start-Sleep -Seconds 2
         return $true
     } catch {
-        Write-SouliTEKWarning "Could not create system restore point: $($_.Exception.Message)"
+        Write-Ui -Message "Could not create system restore point: $($_.Exception.Message)"
         Add-TweakResult -TweakName "Create System Restore Point" -Status "ERROR" -Details $_.Exception.Message
         
         Write-Host ""
@@ -607,15 +607,14 @@ function Apply-AllTweaks {
 # ============================================================
 
 function Start-EssentialTweaks {
+    Clear-Host
+    Show-ScriptBanner -ScriptName "Essential Tweaks" -Purpose "Windows configuration tool"
+    
     if (-not (Test-SouliTEKAdministrator)) {
-        Show-SouliTEKHeader -Title "ERROR: ADMINISTRATOR REQUIRED" -ClearHost -ShowBanner
+        Write-Ui -Message "This script requires administrator privileges to run" -Level "ERROR"
+        Write-Ui -Message "Please right-click this script and select 'Run with PowerShell as administrator'" -Level "INFO"
         Write-Host ""
-        Write-Host "  This script requires administrator privileges to run." -ForegroundColor Red
-        Write-Host ""
-        Write-Host "  Please right-click this script and select:" -ForegroundColor Yellow
-        Write-Host "  'Run with PowerShell as administrator'" -ForegroundColor Yellow
-        Write-Host ""
-        Read-Host "  Press Enter to exit"
+        Read-Host "Press Enter to exit"
         exit 1
     }
     

@@ -1,51 +1,63 @@
 # Workflow State
 
-## Status: Completed
+## Status: In Progress
 
-### Task: Add Self-Destruction/Uninstall Button
+### Task: Unified Output Style Standardization
 
-**Completed:** Added a self-destruction button to the launcher footer that allows MSPs to completely uninstall SouliTEK when done with a user.
+**In Progress:** Implementing unified visual output and text formatting across all PowerShell scripts in the repository.
+
+#### Objective
+Unify the visual output and text formatting across all scripts without changing script logic, flow, or behavior. Design and presentation only.
 
 #### Changes Made:
 
-1. **launcher/MainWindow.xaml**
-   - Added 5th column to footer navigation grid (line 302-307)
-   - Added "Uninstall" button with red text color (#EF4444) to indicate destructive action (line 352-360)
-   - Button styled consistently with other footer navigation buttons
+1. **modules/SouliTEK-Common.ps1**
+   - Added unified output functions:
+     - `Write-Ui` - Main unified output function with format: `[DD-MM-YYYY HH:mm:ss] [LEVEL] Message`
+     - `Write-Status` - Alias for Write-Ui
+     - `Show-ScriptBanner` - Standardized script banner
+     - `Show-Section` - Section header separator
+     - `Show-Step` - Step progress indicator (STEP X/Y: Description)
+     - `Show-Summary` - End summary with status, steps, warnings, errors
+   - Message levels: INFO (Cyan), STEP (White), OK (Green), WARN (Yellow), ERROR (Red)
 
-2. **launcher/SouliTEK-Launcher-WPF.ps1**
-   - Added `$SelfDestructButton` control reference (line 722)
-   - Created `Invoke-SelfDestruct` function (lines 677-777) that:
-     - Shows two confirmation dialogs to prevent accidental uninstallation
-     - Removes desktop shortcut ("SouliTEK Launcher.lnk")
-     - Removes entire installation directory
-     - Closes the launcher window before deletion to release file locks
-     - Provides detailed error handling and user feedback
-     - Exits PowerShell after successful uninstallation
-   - Wired up button click event handler (lines 867-869)
+2. **STYLE_GUIDE.md**
+   - Created comprehensive style guide documenting:
+     - Global output standard format
+     - Message levels and colors
+     - Visual structure rules (banner, sections, steps, summary)
+     - Text rules (sentence case, no emojis, short messages)
+     - Replacement rules
+     - Examples and function reference
 
-#### Features:
+3. **Scripts Updated:**
+   - `scripts/1-click_pc_install.ps1` - Updated main execution, key functions, and output calls
+   - `scripts/essential_tweaks.ps1` - Partially updated (in progress)
 
-- **Double Confirmation**: Two warning dialogs prevent accidental uninstallation
-- **Complete Removal**: Removes both installation directory and desktop shortcut
-- **Safe Cleanup**: Closes launcher window before deletion to avoid file lock issues
-- **Error Handling**: Comprehensive error handling with user-friendly messages
-- **Visual Indicator**: Red text color on button clearly indicates destructive action
+#### Remaining Work:
 
-#### User Experience:
+- Complete updates to `scripts/essential_tweaks.ps1`
+- Update remaining 33 scripts to use unified output format:
+  - Replace `Write-Host` calls with `Write-Ui`
+  - Replace `Write-SouliTEKResult`, `Write-SouliTEKInfo`, `Write-SouliTEKSuccess`, `Write-SouliTEKWarning`, `Write-SouliTEKError` with `Write-Ui`
+  - Add `Show-ScriptBanner` at script start
+  - Add `Show-Section` for major sections
+  - Add `Show-Step` for multi-step processes
+  - Add `Show-Summary` at script end
+  - Remove `Show-SouliTEKHeader` calls where appropriate
 
-1. User clicks "Uninstall" button in footer
-2. First confirmation dialog appears with warning
-3. If confirmed, second final confirmation dialog appears
-4. If confirmed again, uninstallation proceeds:
-   - Status label updates to show progress
-   - Desktop shortcut is removed
-   - Launcher window closes
-   - Installation directory is removed
-   - Success message displayed
-   - PowerShell exits
+#### Standards Applied:
 
-#### Result:
-- Self-destruction feature fully implemented
-- No linting errors detected
-- Ready for MSP use when completing work with end users
+- Date/time format: `DD-MM-YYYY HH:mm:ss`
+- Message format: `[DD-MM-YYYY HH:mm:ss] [LEVEL] Message`
+- Banner format: `==================================================` with script name and purpose
+- Section format: `----- SECTION NAME -----`
+- Step format: `STEP X/Y: Description`
+- Summary format: Always present with status, steps, warnings, errors
+
+#### Notes:
+
+- No script logic, flow, or behavior changes
+- Only visual output and formatting changes
+- Preserving original message meaning exactly
+- Not removing existing output, only reformatting

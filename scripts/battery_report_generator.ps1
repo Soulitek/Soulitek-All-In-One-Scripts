@@ -129,19 +129,19 @@ function New-SouliTEKBatteryReport {
     )
 
     Clear-Host
-    Show-SouliTEKHeader $Title $Subtitle -Color ([ConsoleColor]::$Color)
+    Show-Section $Title
 
-    Write-SouliTEKInfo "Generating battery report."
+    Write-Ui -Message "Generating battery report" -Level "INFO"
 
     try {
         Invoke-SouliTEKPowerCfg -Arguments @("/batteryreport", "/output", $ReportFile, "/duration", $DurationDays) -OperationDescription "$Title (duration: $DurationDays days)" -ExpectedOutputPath $ReportFile | Out-Null
-        Write-SouliTEKSuccess "Report saved to $ReportFile"
-        Write-SouliTEKInfo "Opening report in your browser..."
+        Write-Ui -Message "Report saved to $ReportFile" -Level "OK"
+        Write-Ui -Message "Opening report in your browser" -Level "INFO"
         Start-Sleep -Seconds 2
         Start-Process $ReportFile
     }
     catch {
-        Write-SouliTEKError $_.Exception.Message
+        Write-Ui -Message $_.Exception.Message -Level "ERROR"
     }
 
     Wait-SouliTEKReturnToMenu
@@ -192,31 +192,31 @@ function New-DetailedReport {
 # Function to check battery health
 function Get-BatteryHealthCheck {
     Clear-Host
-    Show-SouliTEKHeader "BATTERY HEALTH CHECK" "Real-time status overview" -Color ([ConsoleColor]::Blue)
-    Write-SouliTEKInfo "Analyzing current battery status..."
+    Show-Section "Battery Health Check"
+    Write-Ui -Message "Analyzing current battery status" -Level "INFO"
 
     try {
         $battery = Get-CimInstance -ClassName Win32_Battery -ErrorAction Stop
     }
     catch {
-        Write-SouliTEKError "Unable to query battery information: $($_.Exception.Message)"
+        Write-Ui -Message "Unable to query battery information: $($_.Exception.Message)" -Level "ERROR"
         Wait-SouliTEKReturnToMenu
         return
     }
 
     if (-not $battery) {
-        Write-SouliTEKWarning "No battery detected. This is likely a desktop PC without a battery."
+        Write-Ui -Message "No battery detected. This is likely a desktop PC without a battery" -Level "WARN"
         Wait-SouliTEKReturnToMenu
         return
     }
 
-    Write-SouliTEKInfo "Status: $($battery.Status)"
-    Write-SouliTEKInfo "Battery Status Code: $($battery.BatteryStatus)"
+    Write-Ui -Message "Status: $($battery.Status)" -Level "INFO"
+    Write-Ui -Message "Battery Status Code: $($battery.BatteryStatus)" -Level "INFO"
     if ($null -ne $battery.EstimatedChargeRemaining) {
-        Write-SouliTEKInfo "Charge Remaining: $($battery.EstimatedChargeRemaining)%"
+        Write-Ui -Message "Charge Remaining: $($battery.EstimatedChargeRemaining)%" -Level "INFO"
     }
     if ($null -ne $battery.EstimatedRunTime -and $battery.EstimatedRunTime -gt 0) {
-        Write-SouliTEKInfo "Estimated Run Time: $($battery.EstimatedRunTime) minutes"
+        Write-Ui -Message "Estimated Run Time: $($battery.EstimatedRunTime) minutes" -Level "INFO"
     }
 
     $tempFile = Join-Path $env:TEMP "battery_temp.xml"
@@ -230,13 +230,13 @@ function Get-BatteryHealthCheck {
 
             if ($designCapacity -gt 0 -and $fullChargeCapacity -gt 0) {
                 $healthPercent = [math]::Round(($fullChargeCapacity / $designCapacity) * 100, 2)
-                Write-SouliTEKInfo "Design Capacity: $designCapacity mWh"
-                Write-SouliTEKInfo "Full Charge Capacity: $fullChargeCapacity mWh"
+        Write-Ui -Message "Design Capacity: $designCapacity mWh" -Level "INFO"
+        Write-Ui -Message "Full Charge Capacity: $fullChargeCapacity mWh" -Level "INFO"
 
                 $healthColor = if ($healthPercent -ge 80) { "Green" } elseif ($healthPercent -ge 60) { "Yellow" } elseif ($healthPercent -ge 40) { "Yellow" } else { "Red" }
                 Write-Host "Battery Health: $healthPercent%" -ForegroundColor $healthColor
 
-                Write-SouliTEKInfo "Health Assessment: $(
+                Write-Ui -Message "Health Assessment: $(
                     if ($healthPercent -ge 80) { "EXCELLENT - Battery is in great condition" }
                     elseif ($healthPercent -ge 60) { "GOOD - Normal wear, still functioning well" }
                     elseif ($healthPercent -ge 40) { "FAIR - Consider replacement soon" }
@@ -244,15 +244,15 @@ function Get-BatteryHealthCheck {
                 )"
             }
             else {
-                Write-SouliTEKWarning "Unable to retrieve capacity information from powercfg output."
+                Write-Ui -Message "Unable to retrieve capacity information from powercfg output" -Level "WARN"
             }
         }
         catch {
-            Write-SouliTEKError "Error parsing battery report: $($_.Exception.Message)"
+            Write-Ui -Message "Error parsing battery report: $($_.Exception.Message)" -Level "ERROR"
         }
     }
     catch {
-        Write-SouliTEKWarning $_.Exception.Message
+        Write-Ui -Message $_.Exception.Message -Level "WARN"
     }
     finally {
         if (Test-Path -LiteralPath $tempFile) {
@@ -266,22 +266,22 @@ function Get-BatteryHealthCheck {
 # Function to generate sleep study report
 function New-SleepStudyReport {
     Clear-Host
-    Show-SouliTEKHeader "SLEEP STUDY REPORT" "Analyzes battery drain during Modern Standby" -Color ([ConsoleColor]::Cyan)
-    Write-SouliTEKInfo "Generating 7-day sleep study report..."
+    Show-Section "Sleep Study Report"
+    Write-Ui -Message "Generating 7-day sleep study report" -Level "INFO"
 
     $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
     $reportFile = "$env:USERPROFILE\Desktop\SleepStudy_$timestamp.html"
 
     try {
         Invoke-SouliTEKPowerCfg -Arguments @("/sleepstudy", "/output", $reportFile, "/duration", 7) -OperationDescription "generate sleep study report" -ExpectedOutputPath $reportFile | Out-Null
-        Write-SouliTEKSuccess "Report saved to $reportFile"
-        Write-SouliTEKInfo "Opening report in your browser..."
+        Write-Ui -Message "Report saved to $reportFile" -Level "OK"
+        Write-Ui -Message "Opening report in your browser" -Level "INFO"
         Start-Sleep -Seconds 2
         Start-Process $reportFile
     }
     catch {
-        Write-SouliTEKWarning "Sleep Study report not available: $($_.Exception.Message)"
-        Write-SouliTEKInfo "This feature requires Modern Standby support."
+        Write-Ui -Message "Sleep Study report not available: $($_.Exception.Message)" -Level "WARN"
+        Write-Ui -Message "This feature requires Modern Standby support" -Level "INFO"
     }
 
     Wait-SouliTEKReturnToMenu
@@ -294,25 +294,25 @@ function New-EnergyReport {
     }
 
     Clear-Host
-    Show-SouliTEKHeader "ENERGY EFFICIENCY REPORT" "Analyzes power usage over 60 seconds" -Color ([ConsoleColor]::Yellow)
-    Write-SouliTEKInfo "Keep your computer active during the analysis."
-    Write-SouliTEKInfo "Press any key to start or Ctrl+C to cancel."
+    Show-Section "Energy Efficiency Report"
+    Write-Ui -Message "Keep your computer active during the analysis" -Level "INFO"
+    Write-Ui -Message "Press any key to start or Ctrl+C to cancel" -Level "INFO"
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 
-    Write-SouliTEKInfo "Running power analysis (60 seconds)..."
+    Write-Ui -Message "Running power analysis (60 seconds)" -Level "INFO"
 
     $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
     $reportFile = "$env:USERPROFILE\Desktop\EnergyReport_$timestamp.html"
 
     try {
         Invoke-SouliTEKPowerCfg -Arguments @("/energy", "/output", $reportFile, "/duration", 60) -OperationDescription "generate energy efficiency report" -ExpectedOutputPath $reportFile | Out-Null
-        Write-SouliTEKSuccess "Report saved to $reportFile"
-        Write-SouliTEKInfo "Opening report in your browser..."
+        Write-Ui -Message "Report saved to $reportFile" -Level "OK"
+        Write-Ui -Message "Opening report in your browser" -Level "INFO"
         Start-Sleep -Seconds 2
         Start-Process $reportFile
     }
     catch {
-        Write-SouliTEKError $_.Exception.Message
+        Write-Ui -Message $_.Exception.Message -Level "ERROR"
     }
 
     Wait-SouliTEKReturnToMenu
@@ -321,8 +321,8 @@ function New-EnergyReport {
 # Function to generate all reports
 function New-AllReports {
     Clear-Host
-    Show-SouliTEKHeader "GENERATE ALL REPORTS" "Creates a comprehensive battery diagnostics package" -Color ([ConsoleColor]::Magenta)
-    Write-SouliTEKInfo "Press any key to start or Ctrl+C to cancel."
+    Show-Section "Generate All Reports"
+    Write-Ui -Message "Press any key to start or Ctrl+C to cancel" -Level "INFO"
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 
     $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
@@ -339,39 +339,39 @@ function New-AllReports {
     $successfulReports = 0
 
     foreach ($definition in $reportDefinitions) {
-        $prefix = "[{0}/{1}]" -f $definition.Index, $definition.Total
-        Write-SouliTEKInfo "$prefix Generating $($definition.Label)..."
+        Show-Step -StepNumber $definition.Index -TotalSteps $definition.Total -Description "Generating $($definition.Label)"
+        Write-Ui -Message "Generating $($definition.Label)" -Level "INFO"
 
         if ($definition.RequiresAdmin -and -not (Test-SouliTEKAdministrator)) {
-            Write-SouliTEKWarning "$($definition.Label) skipped: administrator privileges required."
+            Write-Ui -Message "$($definition.Label) skipped: administrator privileges required" -Level "WARN"
             continue
         }
 
         try {
             Invoke-SouliTEKPowerCfg -Arguments $definition.Arguments -OperationDescription $definition.Operation -ExpectedOutputPath $definition.ExpectedPath | Out-Null
-            Write-SouliTEKSuccess "$($definition.Label) completed."
+            Write-Ui -Message "$($definition.Label) completed" -Level "OK"
             $successfulReports++
         }
         catch {
             $message = $_.Exception.Message
             if ($definition.Label -eq "Sleep Study") {
-                Write-SouliTEKWarning "Sleep Study unavailable: $message"
-                Write-SouliTEKInfo "This feature requires Modern Standby support."
+                Write-Ui -Message "Sleep Study unavailable: $message" -Level "WARN"
+                Write-Ui -Message "This feature requires Modern Standby support" -Level "INFO"
             }
             else {
-                Write-SouliTEKError "$($definition.Label) failed: $message"
+                Write-Ui -Message "$($definition.Label) failed: $message" -Level "ERROR"
             }
         }
     }
 
     if ($successfulReports -gt 0) {
-        Write-SouliTEKSuccess "All available reports saved to $folder"
-        Write-SouliTEKInfo "Opening folder..."
+        Write-Ui -Message "All available reports saved to $folder" -Level "OK"
+        Write-Ui -Message "Opening folder" -Level "INFO"
         Start-Sleep -Seconds 2
         Start-Process explorer $folder
     }
     else {
-        Write-SouliTEKWarning "No reports were generated."
+        Write-Ui -Message "No reports were generated" -Level "WARN"
     }
 
     Wait-SouliTEKReturnToMenu
@@ -533,6 +533,10 @@ function Show-ExitMessage {
 
 # Show disclaimer
 Show-Disclaimer
+
+# Show banner
+Clear-Host
+Show-ScriptBanner -ScriptName "Battery Report Generator" -Purpose "Comprehensive battery health analysis and reporting"
 
 # Main menu loop
 do {

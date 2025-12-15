@@ -144,6 +144,217 @@ function Write-SouliTEKResult {
     }
 }
 
+# ============================================================
+# UNIFIED OUTPUT FUNCTIONS (Global Standard)
+# ============================================================
+
+function Write-Ui {
+    <#
+    .SYNOPSIS
+        Unified output function for all user-facing messages.
+    
+    .DESCRIPTION
+        Provides consistent message format: [DD-MM-YYYY HH:mm:ss] [LEVEL] Message
+        All user-facing output must go through this function.
+    
+    .PARAMETER Message
+        The message to display.
+    
+    .PARAMETER Level
+        The message level: INFO, STEP, OK, WARN, ERROR
+    
+    .EXAMPLE
+        Write-Ui "Google Chrome installed successfully" "OK"
+        Displays: [15-12-2025 21:43:08] [OK] Google Chrome installed successfully
+    
+    .EXAMPLE
+        Write-Ui "Installing prerequisites" "STEP"
+        Displays: [15-12-2025 21:43:08] [STEP] Installing prerequisites
+    #>
+    
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Message,
+        
+        [Parameter(Mandatory = $false)]
+        [ValidateSet("INFO", "STEP", "OK", "WARN", "ERROR")]
+        [string]$Level = "INFO"
+    )
+    
+    $timestamp = Get-Date -Format "dd-MM-yyyy HH:mm:ss"
+    
+    switch ($Level) {
+        "INFO" { Write-Host "[$timestamp] [INFO] $Message" -ForegroundColor Cyan }
+        "STEP" { Write-Host "[$timestamp] [STEP] $Message" -ForegroundColor White }
+        "OK" { Write-Host "[$timestamp] [OK] $Message" -ForegroundColor Green }
+        "WARN" { Write-Host "[$timestamp] [WARN] $Message" -ForegroundColor Yellow }
+        "ERROR" { Write-Host "[$timestamp] [ERROR] $Message" -ForegroundColor Red }
+        default { Write-Host "[$timestamp] [INFO] $Message" -ForegroundColor Cyan }
+    }
+}
+
+function Write-Status {
+    <#
+    .SYNOPSIS
+        Alias for Write-Ui function.
+    
+    .DESCRIPTION
+        Provides an alternative name for Write-Ui for better readability.
+    #>
+    
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Message,
+        
+        [Parameter(Mandatory = $false)]
+        [ValidateSet("INFO", "STEP", "OK", "WARN", "ERROR")]
+        [string]$Level = "INFO"
+    )
+    
+    Write-Ui -Message $Message -Level $Level
+}
+
+function Show-ScriptBanner {
+    <#
+    .SYNOPSIS
+        Displays standardized script banner.
+    
+    .DESCRIPTION
+        Shows banner with script name and purpose in unified format.
+    
+    .PARAMETER ScriptName
+        Name of the script.
+    
+    .PARAMETER Purpose
+        Short description of the script's purpose.
+    
+    .EXAMPLE
+        Show-ScriptBanner -ScriptName "1-Click PC Install" -Purpose "Complete PC setup automation"
+    #>
+    
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$ScriptName,
+        
+        [Parameter(Mandatory = $true)]
+        [string]$Purpose
+    )
+    
+    Write-Host "==================================================" -ForegroundColor Cyan
+    Write-Host " Script: $ScriptName" -ForegroundColor Cyan
+    Write-Host " Purpose: $Purpose" -ForegroundColor Cyan
+    Write-Host "==================================================" -ForegroundColor Cyan
+    Write-Host ""
+}
+
+function Show-Section {
+    <#
+    .SYNOPSIS
+        Displays section header.
+    
+    .DESCRIPTION
+        Shows standardized section separator.
+    
+    .PARAMETER SectionName
+        Name of the section.
+    
+    .EXAMPLE
+        Show-Section "Installing Applications"
+    #>
+    
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$SectionName
+    )
+    
+    Write-Host "----- $SectionName -----" -ForegroundColor Cyan
+    Write-Host ""
+}
+
+function Show-Step {
+    <#
+    .SYNOPSIS
+        Displays step information.
+    
+    .DESCRIPTION
+        Shows step number and description in format: STEP X/Y: Description
+    
+    .PARAMETER StepNumber
+        Current step number.
+    
+    .PARAMETER TotalSteps
+        Total number of steps.
+    
+    .PARAMETER Description
+        Step description.
+    
+    .EXAMPLE
+        Show-Step -StepNumber 1 -TotalSteps 5 -Description "Installing prerequisites"
+    #>
+    
+    param(
+        [Parameter(Mandatory = $true)]
+        [int]$StepNumber,
+        
+        [Parameter(Mandatory = $true)]
+        [int]$TotalSteps,
+        
+        [Parameter(Mandatory = $true)]
+        [string]$Description
+    )
+    
+    Write-Host "STEP ${StepNumber}/${TotalSteps}: $Description" -ForegroundColor White
+}
+
+function Show-Summary {
+    <#
+    .SYNOPSIS
+        Displays end summary.
+    
+    .DESCRIPTION
+        Shows standardized summary with status, steps, warnings, and errors.
+    
+    .PARAMETER Status
+        Overall status: Completed, Completed with warnings, Failed
+    
+    .PARAMETER Steps
+        Total number of steps.
+    
+    .PARAMETER Warnings
+        Number of warnings.
+    
+    .PARAMETER Errors
+        Number of errors.
+    
+    .EXAMPLE
+        Show-Summary -Status "Completed" -Steps 5 -Warnings 1 -Errors 0
+    #>
+    
+    param(
+        [Parameter(Mandatory = $true)]
+        [ValidateSet("Completed", "Completed with warnings", "Failed")]
+        [string]$Status,
+        
+        [Parameter(Mandatory = $true)]
+        [int]$Steps,
+        
+        [Parameter(Mandatory = $false)]
+        [int]$Warnings = 0,
+        
+        [Parameter(Mandatory = $false)]
+        [int]$Errors = 0
+    )
+    
+    Write-Host ""
+    Write-Host "================ SUMMARY ================" -ForegroundColor Cyan
+    Write-Host "Status: $Status" -ForegroundColor $(if ($Status -eq "Completed") { "Green" } elseif ($Status -eq "Completed with warnings") { "Yellow" } else { "Red" })
+    Write-Host "Steps: $Steps" -ForegroundColor White
+    Write-Host "Warnings: $Warnings" -ForegroundColor $(if ($Warnings -gt 0) { "Yellow" } else { "White" })
+    Write-Host "Errors: $Errors" -ForegroundColor $(if ($Errors -gt 0) { "Red" } else { "White" })
+    Write-Host "=========================================" -ForegroundColor Cyan
+    Write-Host ""
+}
+
 function Set-SouliTEKConsoleColor {
     <#
     .SYNOPSIS

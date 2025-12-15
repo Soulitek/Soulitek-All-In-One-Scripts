@@ -153,23 +153,22 @@ function Get-UserApproval {
 }
 
 function Set-TimeZoneToJerusalem {
-    Show-SouliTEKHeader -Title "SETTING TIME ZONE" -ClearHost -ShowBanner
-    Write-SouliTEKInfo "Configuring time zone to Jerusalem..."
+    Write-Ui -Message "Configuring time zone to Jerusalem" -Level "INFO"
     
     try {
         $currentTimeZone = Get-TimeZone
-        Write-Host "  Current Time Zone: $($currentTimeZone.DisplayName)" -ForegroundColor Gray
+        Write-Ui -Message "Current time zone: $($currentTimeZone.DisplayName)" -Level "INFO"
         
         Set-TimeZone -Id "Israel Standard Time" -ErrorAction Stop
         
         $newTimeZone = Get-TimeZone
-        Write-SouliTEKSuccess "Time zone set to: $($newTimeZone.DisplayName)"
+        Write-Ui -Message "Time zone set to: $($newTimeZone.DisplayName)" -Level "OK"
         Add-LogEntry -Task "Set Time Zone" -Status "SUCCESS" -Details "Changed to $($newTimeZone.DisplayName)"
         
         Start-Sleep -Seconds 2
         return $true
     } catch {
-        Write-SouliTEKError "Failed to set time zone: $($_.Exception.Message)"
+        Write-Ui -Message "Failed to set time zone: $($_.Exception.Message)" -Level "ERROR"
         Add-LogEntry -Task "Set Time Zone" -Status "ERROR" -Details $_.Exception.Message
         Start-Sleep -Seconds 3
         return $false
@@ -177,36 +176,34 @@ function Set-TimeZoneToJerusalem {
 }
 
 function Set-RegionalSettingsToIsrael {
-    Show-SouliTEKHeader -Title "CONFIGURING REGIONAL SETTINGS" -ClearHost -ShowBanner
-    Write-SouliTEKInfo "Setting regional format to Israel..."
+    Write-Ui -Message "Setting regional format to Israel" -Level "INFO"
     
     try {
-        Write-Host "  [*] Setting regional format..." -ForegroundColor Cyan
+        Write-Ui -Message "Setting regional format" -Level "STEP"
         Set-Culture -CultureInfo "he-IL" -ErrorAction Stop
         
-        Write-Host "  [*] Setting geographic location..." -ForegroundColor Cyan
+        Write-Ui -Message "Setting geographic location" -Level "STEP"
         Set-WinHomeLocation -GeoId 117 -ErrorAction Stop
         
-        Write-Host "  [*] Configuring system locale..." -ForegroundColor Cyan
+        Write-Ui -Message "Configuring system locale" -Level "STEP"
         Set-WinSystemLocale -SystemLocale "he-IL" -ErrorAction Stop
         
-        Write-Host "  [*] Setting user language preferences..." -ForegroundColor Cyan
+        Write-Ui -Message "Setting user language preferences" -Level "STEP"
         $languageList = Get-WinUserLanguageList
         if (-not ($languageList | Where-Object { $_.LanguageTag -eq "he-IL" })) {
             $languageList.Add("he-IL")
             Set-WinUserLanguageList $languageList -Force -ErrorAction Stop
         }
         
-        Write-SouliTEKSuccess "Regional settings configured for Israel"
+        Write-Ui -Message "Regional settings configured for Israel" -Level "OK"
         Add-LogEntry -Task "Regional Settings" -Status "SUCCESS" -Details "Configured for Israel (Hebrew)"
         
-        Write-Host ""
-        Write-Host "  NOTE: Some changes may require a system restart to take full effect." -ForegroundColor Yellow
+        Write-Ui -Message "Some changes may require a system restart to take full effect" -Level "WARN"
         
         Start-Sleep -Seconds 3
         return $true
     } catch {
-        Write-SouliTEKError "Failed to set regional settings: $($_.Exception.Message)"
+        Write-Ui -Message "Failed to set regional settings: $($_.Exception.Message)" -Level "ERROR"
         Add-LogEntry -Task "Regional Settings" -Status "ERROR" -Details $_.Exception.Message
         Start-Sleep -Seconds 3
         return $false
@@ -214,41 +211,39 @@ function Set-RegionalSettingsToIsrael {
 }
 
 function New-SystemRestorePoint {
-    Show-SouliTEKHeader -Title "CREATING SYSTEM RESTORE POINT" -ClearHost -ShowBanner
-    Write-SouliTEKInfo "Creating system restore point..."
+    Write-Ui -Message "Creating system restore point" -Level "INFO"
     
     try {
         $systemDrive = $env:SystemDrive
         $restoreEnabled = Get-ComputerRestorePoint -ErrorAction SilentlyContinue
         
         if (-not $restoreEnabled) {
-            Write-SouliTEKWarning "System Restore may not be enabled"
-            Write-Host "  Attempting to enable System Restore..." -ForegroundColor Yellow
+            Write-Ui -Message "System Restore may not be enabled" -Level "WARN"
+            Write-Ui -Message "Attempting to enable System Restore" -Level "STEP"
             
             $enableResult = Enable-ComputerRestore -Drive "$systemDrive\" -ErrorAction SilentlyContinue
             if (-not $?) {
-                Write-SouliTEKWarning "Could not enable System Restore automatically"
+                Write-Ui -Message "Could not enable System Restore automatically" -Level "WARN"
             } else {
                 Start-Sleep -Seconds 2
             }
         }
         
         $description = "1-Click PC Install - Before Setup ($(Get-Date -Format 'yyyy-MM-dd HH:mm'))"
-        Write-Host "  Creating restore point: $description" -ForegroundColor Cyan
+        Write-Ui -Message "Creating restore point: $description" -Level "STEP"
         
         Checkpoint-Computer -Description $description -RestorePointType "MODIFY_SETTINGS" -ErrorAction Stop
         
-        Write-SouliTEKSuccess "System restore point created successfully"
+        Write-Ui -Message "System restore point created successfully" -Level "OK"
         Add-LogEntry -Task "System Restore Point" -Status "SUCCESS" -Details $description
         
         Start-Sleep -Seconds 2
         return $true
     } catch {
-        Write-SouliTEKWarning "Could not create system restore point: $($_.Exception.Message)"
+        Write-Ui -Message "Could not create system restore point: $($_.Exception.Message)" -Level "WARN"
         Add-LogEntry -Task "System Restore Point" -Status "WARNING" -Details $_.Exception.Message
         
-        Write-Host ""
-        Write-Host "  Continuing anyway... (This is not critical)" -ForegroundColor Yellow
+        Write-Ui -Message "Continuing anyway (this is not critical)" -Level "WARN"
         
         Start-Sleep -Seconds 3
         return $false
@@ -256,8 +251,7 @@ function New-SystemRestorePoint {
 }
 
 function Set-PowerPlanToBest {
-    Show-SouliTEKHeader -Title "CONFIGURING POWER PLAN" -ClearHost -ShowBanner
-    Write-SouliTEKInfo "Setting power plan to High Performance..."
+    Write-Ui -Message "Setting power plan to High Performance" -Level "INFO"
     
     try {
         $highPerfPlan = powercfg /list | Select-String "High performance" -Context 0,0
@@ -269,17 +263,17 @@ function Set-PowerPlanToBest {
                 $planGuid = $ultimatePlan -match '([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})'
                 $planGuid = $matches[1]
                 powercfg /setactive $planGuid
-                Write-SouliTEKSuccess "Power plan set to Ultimate Performance"
+                Write-Ui -Message "Power plan set to Ultimate Performance" -Level "OK"
                 Add-LogEntry -Task "Power Plan" -Status "SUCCESS" -Details "Set to Ultimate Performance"
             } else {
-                Write-Host "  [*] High Performance plan not found, creating it..." -ForegroundColor Yellow
+                Write-Ui -Message "High Performance plan not found, creating it" -Level "STEP"
                 powercfg /duplicatescheme 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
                 
                 $highPerfPlan = powercfg /list | Select-String "High performance" -Context 0,0
                 if ($highPerfPlan -match '([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})') {
                     $planGuid = $matches[1]
                     powercfg /setactive $planGuid
-                    Write-SouliTEKSuccess "Power plan set to High Performance"
+                    Write-Ui -Message "Power plan set to High Performance" -Level "OK"
                     Add-LogEntry -Task "Power Plan" -Status "SUCCESS" -Details "Set to High Performance"
                 }
             }
@@ -287,19 +281,18 @@ function Set-PowerPlanToBest {
             if ($highPerfPlan -match '([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})') {
                 $planGuid = $matches[1]
                 powercfg /setactive $planGuid
-                Write-SouliTEKSuccess "Power plan set to High Performance"
+                Write-Ui -Message "Power plan set to High Performance" -Level "OK"
                 Add-LogEntry -Task "Power Plan" -Status "SUCCESS" -Details "Set to High Performance"
             }
         }
         
         $activePlan = powercfg /getactivescheme
-        Write-Host "  Current Power Plan: " -NoNewline -ForegroundColor Gray
-        Write-Host "$activePlan" -ForegroundColor Cyan
+        Write-Ui -Message "Current power plan: $activePlan" -Level "INFO"
         
         Start-Sleep -Seconds 2
         return $true
     } catch {
-        Write-SouliTEKError "Failed to set power plan: $($_.Exception.Message)"
+        Write-Ui -Message "Failed to set power plan: $($_.Exception.Message)" -Level "ERROR"
         Add-LogEntry -Task "Power Plan" -Status "ERROR" -Details $_.Exception.Message
         Start-Sleep -Seconds 3
         return $false
@@ -307,8 +300,7 @@ function Set-PowerPlanToBest {
 }
 
 function Remove-Bloatware {
-    Show-SouliTEKHeader -Title "REMOVING BLOATWARE" -ClearHost -ShowBanner
-    Write-SouliTEKInfo "Removing unnecessary Windows applications..."
+    Write-Ui -Message "Removing unnecessary Windows applications" -Level "INFO"
     
     $bloatwareApps = @(
         "Microsoft.3DBuilder",
@@ -364,11 +356,11 @@ function Remove-Bloatware {
         }
         
         Write-Host ""
-        Write-SouliTEKSuccess "Bloatware removal complete"
-        Write-Host "  Removed: $removedCount app(s)" -ForegroundColor Green
+        Write-Ui -Message "Bloatware removal complete" -Level "OK"
+        Write-Ui -Message "Removed: $removedCount app(s)" -Level "INFO"
         
         if ($failedCount -gt 0) {
-            Write-Host "  Failed: $failedCount app(s)" -ForegroundColor Yellow
+            Write-Ui -Message "Failed: $failedCount app(s)" -Level "WARN"
         }
         
         Add-LogEntry -Task "Remove Bloatware" -Status "SUCCESS" -Details "Removed $removedCount app(s), Failed: $failedCount"
@@ -376,7 +368,7 @@ function Remove-Bloatware {
         Start-Sleep -Seconds 3
         return $true
     } catch {
-        Write-SouliTEKError "Error during bloatware removal: $($_.Exception.Message)"
+        Write-Ui -Message "Error during bloatware removal: $($_.Exception.Message)" -Level "ERROR"
         Add-LogEntry -Task "Remove Bloatware" -Status "ERROR" -Details $_.Exception.Message
         Start-Sleep -Seconds 3
         return $false
@@ -592,18 +584,16 @@ function Ensure-WinGet {
 }
 
 function Install-Applications {
-    Show-SouliTEKHeader -Title "INSTALLING APPLICATIONS" -ClearHost -ShowBanner
-    
     try {
         if (-not (Ensure-WinGet)) {
-            Write-SouliTEKError "WinGet is not available. Cannot install applications."
+            Write-Ui -Message "WinGet is not available. Cannot install applications" -Level "ERROR"
             Add-LogEntry -Task "Install Applications" -Status "ERROR" -Details "WinGet not available"
             Start-Sleep -Seconds 3
             return $false
         }
         
         Write-Host ""
-        Write-SouliTEKInfo "Installing applications via WinGet..."
+        Write-Ui -Message "Installing applications via WinGet" -Level "INFO"
         Write-Host ""
         
         Write-Host "  [1/3] Google Chrome" -ForegroundColor Yellow
@@ -634,12 +624,12 @@ function Install-Applications {
     }
         
         Write-Host ""
-        Write-SouliTEKSuccess "Application installation process complete"
+        Write-Ui -Message "Application installation process complete" -Level "OK"
         
         Start-Sleep -Seconds 3
         return $true
     } catch {
-        Write-SouliTEKError "Error during application installation: $($_.Exception.Message)"
+        Write-Ui -Message "Error during application installation: $($_.Exception.Message)" -Level "ERROR"
         Add-LogEntry -Task "Install Applications" -Status "ERROR" -Details $_.Exception.Message
         Start-Sleep -Seconds 3
         return $false
@@ -647,8 +637,7 @@ function Install-Applications {
 }
 
 function New-DesktopShortcuts {
-    Show-SouliTEKHeader -Title "CREATING DESKTOP SHORTCUTS" -ClearHost -ShowBanner
-    Write-SouliTEKInfo "Creating desktop shortcuts for This PC and Documents..."
+    Write-Ui -Message "Creating desktop shortcuts for This PC and Documents" -Level "INFO"
     
     try {
         $desktopPath = [Environment]::GetFolderPath("Desktop")
@@ -675,13 +664,13 @@ function New-DesktopShortcuts {
         
         Write-Host "      -> Documents shortcut created successfully" -ForegroundColor Green
         
-        Write-SouliTEKSuccess "Desktop shortcuts created successfully"
+        Write-Ui -Message "Desktop shortcuts created successfully" -Level "OK"
         Add-LogEntry -Task "Create Desktop Shortcuts" -Status "SUCCESS" -Details "Created This PC and Documents shortcuts"
         
         Start-Sleep -Seconds 2
         return $true
     } catch {
-        Write-SouliTEKError "Failed to create desktop shortcuts: $($_.Exception.Message)"
+        Write-Ui -Message "Failed to create desktop shortcuts: $($_.Exception.Message)" -Level "ERROR"
         Add-LogEntry -Task "Create Desktop Shortcuts" -Status "ERROR" -Details $_.Exception.Message
         Start-Sleep -Seconds 3
         return $false
@@ -689,7 +678,7 @@ function New-DesktopShortcuts {
 }
 
 function Show-InstallationSummary {
-    Show-SouliTEKHeader -Title "INSTALLATION SUMMARY" -ClearHost -ShowBanner
+    Write-Host ""
     
     try {
         $endTime = Get-Date
@@ -815,15 +804,14 @@ function Show-InstallationSummary {
 # ============================================================
 
 function Start-OneClickPCInstall {
+    Clear-Host
+    Show-ScriptBanner -ScriptName "1-Click PC Install" -Purpose "Complete PC setup automation"
+    
     if (-not (Test-SouliTEKAdministrator)) {
-        Show-SouliTEKHeader -Title "ERROR: ADMINISTRATOR REQUIRED" -ClearHost -ShowBanner
+        Write-Ui -Message "This script requires administrator privileges to run" -Level "ERROR"
+        Write-Ui -Message "Please right-click this script and select 'Run with PowerShell as administrator'" -Level "INFO"
         Write-Host ""
-        Write-Host "  This script requires administrator privileges to run." -ForegroundColor Red
-        Write-Host ""
-        Write-Host "  Please right-click this script and select:" -ForegroundColor Yellow
-        Write-Host "  'Run with PowerShell as administrator'" -ForegroundColor Yellow
-        Write-Host ""
-        Read-Host "  Press Enter to exit"
+        Read-Host "Press Enter to exit"
         exit 1
     }
     
@@ -834,22 +822,58 @@ function Start-OneClickPCInstall {
     }
     
     Write-Host ""
-    Write-Host "  Starting 1-Click PC Install..." -ForegroundColor Green
-    Write-Host "  Please be patient, this may take a while..." -ForegroundColor Yellow
+    Write-Ui -Message "Starting 1-Click PC Install" -Level "STEP"
+    Write-Ui -Message "Please be patient, this may take a while" -Level "INFO"
     Write-Host ""
     Start-Sleep -Seconds 2
     
-    Set-TimeZoneToJerusalem
-    Set-RegionalSettingsToIsrael
-    New-SystemRestorePoint
-    Set-PowerPlanToBest
-    Remove-Bloatware
-    Install-Applications
-    New-DesktopShortcuts
+    $totalSteps = 7
+    $currentStep = 0
+    $warnings = 0
+    $errors = 0
+    
+    Show-Section "Configuration"
+    
+    $currentStep++
+    Show-Step -StepNumber $currentStep -TotalSteps $totalSteps -Description "Setting time zone"
+    if (-not (Set-TimeZoneToJerusalem)) { $errors++ }
+    
+    $currentStep++
+    Show-Step -StepNumber $currentStep -TotalSteps $totalSteps -Description "Configuring regional settings"
+    if (-not (Set-RegionalSettingsToIsrael)) { $errors++ }
+    
+    $currentStep++
+    Show-Step -StepNumber $currentStep -TotalSteps $totalSteps -Description "Creating system restore point"
+    if (-not (New-SystemRestorePoint)) { $warnings++ }
+    
+    $currentStep++
+    Show-Step -StepNumber $currentStep -TotalSteps $totalSteps -Description "Configuring power plan"
+    if (-not (Set-PowerPlanToBest)) { $errors++ }
+    
+    Show-Section "System Cleanup"
+    
+    $currentStep++
+    Show-Step -StepNumber $currentStep -TotalSteps $totalSteps -Description "Removing bloatware"
+    if (-not (Remove-Bloatware)) { $warnings++ }
+    
+    Show-Section "Application Installation"
+    
+    $currentStep++
+    Show-Step -StepNumber $currentStep -TotalSteps $totalSteps -Description "Installing applications"
+    if (-not (Install-Applications)) { $errors++ }
+    
+    Show-Section "Desktop Configuration"
+    
+    $currentStep++
+    Show-Step -StepNumber $currentStep -TotalSteps $totalSteps -Description "Creating desktop shortcuts"
+    if (-not (New-DesktopShortcuts)) { $errors++ }
     
     Show-InstallationSummary
     
-    Write-Host -NoNewline "  Press Enter to exit..." -ForegroundColor Cyan
+    $status = if ($errors -gt 0) { "Failed" } elseif ($warnings -gt 0) { "Completed with warnings" } else { "Completed" }
+    Show-Summary -Status $status -Steps $totalSteps -Warnings $warnings -Errors $errors
+    
+    Write-Host -NoNewline "Press Enter to exit..." -ForegroundColor Cyan
     Read-Host
 }
 

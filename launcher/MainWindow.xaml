@@ -9,23 +9,34 @@
         AllowsTransparency="True">
     
     <Window.Resources>
-        <!-- Primary Color: #6366F1 -->
-        <SolidColorBrush x:Key="PrimaryBrush" Color="#6366F1"/>
+        <ResourceDictionary>
+            <!-- Primary Colors (Brand Core) -->
+        <!-- Electric Purple / Indigo: #5B2EFF -->
+        <SolidColorBrush x:Key="PrimaryBrush" Color="#5B2EFF"/>
+        <!-- Vibrant Cyan / Aqua: #00E5FF -->
+        <SolidColorBrush x:Key="AccentBrush" Color="#00E5FF"/>
+        
+        <!-- Secondary / Support Colors -->
+        <!-- Dark Navy / Near-Black: #0B0F1A -->
+        <SolidColorBrush x:Key="BackgroundDarkBrush" Color="#0B0F1A"/>
+        <!-- Soft Graphite Gray: #8A8F98 -->
+        <SolidColorBrush x:Key="TextSecondaryBrush" Color="#8A8F98"/>
+        
+        <!-- Legacy/Utility Colors -->
         <SolidColorBrush x:Key="BackgroundLightBrush" Color="#F8FAFC"/>
-        <SolidColorBrush x:Key="BackgroundDarkBrush" Color="#18181B"/>
+        <SolidColorBrush x:Key="WhiteBrush" Color="White"/>
         <SolidColorBrush x:Key="Zinc800Brush" Color="#27272A"/>
         <SolidColorBrush x:Key="Zinc700Brush" Color="#3F3F46"/>
-        <SolidColorBrush x:Key="Zinc500Brush" Color="#71717A"/>
-        <SolidColorBrush x:Key="Zinc400Brush" Color="#A1A1AA"/>
+        <SolidColorBrush x:Key="Zinc500Brush" Color="#8A8F98"/>
+        <SolidColorBrush x:Key="Zinc400Brush" Color="#8A8F98"/>
         <SolidColorBrush x:Key="Zinc300Brush" Color="#D4D4D8"/>
         <SolidColorBrush x:Key="Zinc200Brush" Color="#E4E4E7"/>
         <SolidColorBrush x:Key="Zinc100Brush" Color="#F4F4F5"/>
-        <SolidColorBrush x:Key="WhiteBrush" Color="White"/>
-        <SolidColorBrush x:Key="Zinc900Brush" Color="#18181B"/>
+        <SolidColorBrush x:Key="Zinc900Brush" Color="#0B0F1A"/>
 
         <!-- Category Button Style - Active (Pill) -->
         <Style x:Key="CategoryButtonActive" TargetType="Button">
-            <Setter Property="Background" Value="#4F46E5"/>
+            <Setter Property="Background" Value="#5B2EFF"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontFamily" Value="Segoe UI"/>
             <Setter Property="FontSize" Value="14"/>
@@ -55,7 +66,7 @@
 
         <!-- Category Button Style - Inactive (Pill) -->
         <Style x:Key="CategoryButtonInactive" TargetType="Button">
-            <Setter Property="Background" Value="#71717A"/>
+            <Setter Property="Background" Value="#8A8F98"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontFamily" Value="Segoe UI"/>
             <Setter Property="FontSize" Value="14"/>
@@ -78,7 +89,7 @@
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#52525B"/>
+                    <Setter Property="Background" Value="#6A6F78"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -97,7 +108,7 @@
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Effect">
                         <Setter.Value>
-                            <DropShadowEffect Color="#6366F1" BlurRadius="8" ShadowDepth="0" Opacity="0.15"/>
+                            <DropShadowEffect Color="#00E5FF" BlurRadius="8" ShadowDepth="0" Opacity="0.2"/>
                         </Setter.Value>
                     </Setter>
                     <Setter Property="Cursor" Value="Hand"/>
@@ -130,7 +141,7 @@
                                          FontSize="16"
                                          VerticalAlignment="Center"
                                          Margin="12,0,0,0"
-                                         Foreground="#A1A1AA"/>
+                                         Foreground="#8A8F98"/>
                             </Grid>
                         </Border>
                     </ControlTemplate>
@@ -138,7 +149,7 @@
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsFocused" Value="True">
-                    <Setter Property="BorderBrush" Value="#6366F1"/>
+                    <Setter Property="BorderBrush" Value="#5B2EFF"/>
                     <Setter Property="Background" Value="White"/>
                 </Trigger>
             </Style.Triggers>
@@ -149,11 +160,12 @@
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Padding" Value="8,6"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}" 
-                                Padding="8">
+                                Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" 
                                             VerticalAlignment="Center"/>
                         </Border>
@@ -166,6 +178,7 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+        </ResourceDictionary>
     </Window.Resources>
 
     <!-- Main Container -->
@@ -175,7 +188,7 @@
             <RowDefinition Height="*"/>        <!-- Main Content -->
             <RowDefinition Height="Auto"/>      <!-- Footer -->
         </Grid.RowDefinitions>
-
+        
         <!-- Header -->
         <Grid Grid.Row="0" Background="White" Name="TitleBarGrid">
             <Grid.ColumnDefinitions>
@@ -198,18 +211,27 @@
                           FontSize="20" 
                           FontWeight="Bold"
                           FontFamily="Segoe UI"
-                          Foreground="#27272A" 
+                          Foreground="#0B0F1A" 
                           VerticalAlignment="Center"/>
             </StackPanel>
             
-            <!-- Menu Icon (Minimize/Close) -->
+            <!-- Menu Icon (Theme Toggle/Minimize/Close) -->
             <StackPanel Grid.Column="1" 
                        Orientation="Horizontal" 
                        HorizontalAlignment="Right">
+                <Button Name="ThemeToggleButton"
+                        Width="40" Height="40"
+                        Background="Transparent"
+                        Foreground="#8A8F98"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        ToolTip="Toggle theme">
+                    <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="16" Name="ThemeIcon" Text=""/>
+                </Button>
                 <Button Name="MinimizeButton"
                         Width="40" Height="40"
                         Background="Transparent"
-                        Foreground="#71717A"
+                        Foreground="#8A8F98"
                         BorderThickness="0"
                         Cursor="Hand">
                     <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="16" Text="&#xE921;"/>
@@ -217,7 +239,7 @@
                 <Button Name="CloseButton"
                         Width="40" Height="40"
                         Background="Transparent"
-                        Foreground="#71717A"
+                        Foreground="#8A8F98"
                         BorderThickness="0"
                         Cursor="Hand">
                     <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="16" Text="&#xE8BB;"/>
@@ -251,7 +273,7 @@
                               FontSize="14" 
                               FontWeight="Medium"
                               FontFamily="Segoe UI"
-                              Foreground="#71717A" 
+                              Foreground="#8A8F98" 
                               Margin="0,0,0,8"/>
                     <ScrollViewer HorizontalScrollBarVisibility="Auto" 
                                  VerticalScrollBarVisibility="Hidden">
@@ -276,7 +298,7 @@
 
         <!-- Footer -->
         <Grid Grid.Row="2" 
-              Background="#71717A">
+              Background="#8A8F98">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
