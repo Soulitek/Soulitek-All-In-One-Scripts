@@ -95,7 +95,7 @@ $Script:Tools = @(
     @{
         Name = "1-Click PC Install"
         Icon = "[1C]"
-        Description = "Complete PC setup automation - Configure time zone, regional settings, updates, power plan, bloatware removal, and install essential software"
+        Description = "Automated PC setup - timezone, updates, software install"
         Script = "1-click_pc_install.ps1"
         Category = "Setup"
         Tags = @("setup", "install", "automation", "configure", "timezone", "regional", "updates", "power", "bloatware", "chrome", "anydesk", "office", "winget", "restore point")
@@ -104,7 +104,7 @@ $Script:Tools = @(
     @{
         Name = "Essential Tweaks"
         Icon = "[ET]"
-        Description = "Essential Windows tweaks - Default apps, keyboards, language, taskbar settings"
+        Description = "Windows tweaks - default apps, keyboard, language, taskbar"
         Script = "essential_tweaks.ps1"
         Category = "Setup"
         Tags = @("tweaks", "settings", "default", "browser", "keyboard", "language", "taskbar", "chrome", "hebrew", "copilot", "acrobat", "pdf")
@@ -113,7 +113,7 @@ $Script:Tools = @(
     @{
         Name = "Battery Report Generator"
         Icon = "[B]"
-        Description = "Generate comprehensive battery health reports for laptops"
+        Description = "Generate battery health reports for laptops"
         Script = "battery_report_generator.ps1"
         Category = "Hardware"
         Tags = @("battery", "laptop", "health", "report", "power")
@@ -122,7 +122,7 @@ $Script:Tools = @(
     @{
         Name = "BitLocker Status Report"
         Icon = "[S]"
-        Description = "Check BitLocker encryption status and recovery keys for all volumes"
+        Description = "Check BitLocker encryption status and recovery keys"
         Script = "bitlocker_status_report.ps1"
         Category = "Security"
         Tags = @("bitlocker", "encryption", "security", "recovery", "volume")
@@ -140,7 +140,7 @@ $Script:Tools = @(
     @{
         Name = "License Expiration Checker"
         Icon = "[L]"
-        Description = "Monitor Microsoft 365 license subscriptions and get alerts for capacity issues"
+        Description = "Monitor M365 license subscriptions and expiration alerts"
         Script = "license_expiration_checker.ps1"
         Category = "M365"
         Tags = @("license", "microsoft", "365", "m365", "subscription", "expiration", "monitoring", "alerts")
@@ -149,7 +149,7 @@ $Script:Tools = @(
     @{
         Name = "M365 User List"
         Icon = "[U]"
-        Description = "List all Microsoft 365 users with email, phone, MFA status, and comprehensive user information"
+        Description = "List M365 users - email, phone, MFA status, user info"
         Script = "m365_user_list.ps1"
         Category = "M365"
         Tags = @("users", "microsoft", "365", "m365", "email", "phone", "mfa", "directory", "audit", "inventory")
@@ -158,7 +158,7 @@ $Script:Tools = @(
     @{
         Name = "SharePoint Site Inventory"
         Icon = "[SP]"
-        Description = "Build a full map of SharePoint environment - Site URL, template, type, storage, owners, activity"
+        Description = "Map SharePoint sites - URLs, storage, owners, activity"
         Script = "sharepoint_site_inventory.ps1"
         Category = "M365"
         Tags = @("sharepoint", "sites", "microsoft", "365", "m365", "inventory", "audit", "storage", "owners", "groups", "template")
@@ -167,7 +167,7 @@ $Script:Tools = @(
     @{
         Name = "Exchange Online"
         Icon = "[EXO]"
-        Description = "Collect Exchange Online mailbox information - DisplayName, aliases, license status, mailbox type, protocols, activity"
+        Description = "Collect Exchange mailbox info - aliases, protocols, activity"
         Script = "m365_exchange_online.ps1"
         Category = "M365"
         Tags = @("exchange", "online", "mailbox", "microsoft", "365", "m365", "email", "protocols", "imap", "pop", "ews", "activesync", "smtp", "mapi", "aliases", "license", "activity", "logon", "access", "size", "sendonbehalf")
@@ -194,7 +194,7 @@ $Script:Tools = @(
     @{
         Name = "WiFi Monitor"
         Icon = "[WM]"
-        Description = "Monitor WiFi signal strength, frequency band (2.4/5GHz), SSID, and disconnection history"
+        Description = "Monitor WiFi signal strength, frequency bands, disconnections"
         Script = "wifi_monitor.ps1"
         Category = "Network"
         Tags = @("wifi", "monitor", "signal", "strength", "rssi", "2.4ghz", "5ghz", "frequency", "band", "ssid", "disconnection", "history", "network", "wireless", "troubleshoot")
@@ -212,7 +212,7 @@ $Script:Tools = @(
     @{
         Name = "BSOD History Scanner"
         Icon = "[BSOD]"
-        Description = "Scan Minidump files and event logs to report BSOD history and BugCheck codes"
+        Description = "Scan minidump files and logs for BSOD history and codes"
         Script = "bsod_history_scanner.ps1"
         Category = "Support"
         Tags = @("bsod", "blue screen", "minidump", "bugcheck", "crash", "diagnostics", "troubleshoot", "error")
@@ -221,7 +221,7 @@ $Script:Tools = @(
     @{
         Name = "Network Test Tool"
         Icon = "[N]"
-        Description = "Ping, tracert, DNS lookup, and latency testing for network diagnostics"
+        Description = "Network diagnostics - ping, tracert, DNS lookup, latency"
         Script = "network_test_tool.ps1"
         Category = "Network"
         Tags = @("network", "ping", "tracert", "dns", "latency", "diagnostics")
@@ -230,7 +230,7 @@ $Script:Tools = @(
     @{
         Name = "Network Configuration Tool"
         Icon = "[NC]"
-        Description = "View IP configuration, set static IP addresses, flush DNS cache, and reset network adapters"
+        Description = "Configure IP settings, flush DNS, reset network adapters"
         Script = "network_configuration_tool.ps1"
         Category = "Network"
         Tags = @("network", "ip", "configuration", "static", "dns", "adapter", "reset", "dhcp")
@@ -248,7 +248,7 @@ $Script:Tools = @(
     @{
         Name = "Local Admin Users Checker"
         Icon = "[LA]"
-        Description = "Identify unnecessary admin accounts - Common attack vector detection"
+        Description = "Identify unnecessary admin accounts and security risks"
         Script = "local_admin_checker.ps1"
         Category = "Security"
         Tags = @("admin", "administrator", "security", "privileges", "users", "attack vector", "audit", "permissions")
@@ -257,7 +257,7 @@ $Script:Tools = @(
     @{
         Name = "Product Key Retriever"
         Icon = "[PK]"
-        Description = "Retrieve Windows and Office product keys from system registry and WMI"
+        Description = "Retrieve Windows and Office product keys from system"
         Script = "product_key_retriever.ps1"
         Category = "Support"
         Tags = @("product key", "windows", "office", "license", "activation", "registry", "wmi", "backup", "recovery")
@@ -266,7 +266,7 @@ $Script:Tools = @(
     @{
         Name = "Softwares Installer"
         Icon = "[W]"
-        Description = "Interactive package installer - Install essential business apps via WinGet"
+        Description = "Install essential business apps via WinGet"
         Script = "SouliTEK-Softwares-Installer.ps1"
         Category = "Setup"
         Tags = @("winget", "installer", "software", "packages", "apps", "install", "microsoft", "package manager")
@@ -275,7 +275,7 @@ $Script:Tools = @(
     @{
         Name = "Storage Health Monitor"
         Icon = "[SH]"
-        Description = "Monitor storage health with SMART data, detect reallocated sectors and read errors"
+        Description = "Monitor storage health with SMART data and error detection"
         Script = "storage_health_monitor.ps1"
         Category = "Hardware"
         Tags = @("storage", "smart", "disk", "health", "monitor", "hdd", "ssd", "sectors", "errors")
@@ -284,7 +284,7 @@ $Script:Tools = @(
     @{
         Name = "System Restore Point"
         Icon = "[T]"
-        Description = "Create Windows System Restore Points for system recovery and rollback"
+        Description = "Create Windows System Restore Points for recovery"
         Script = "create_system_restore_point.ps1"
         Category = "Support"
         Tags = @("restore", "system", "recovery", "backup", "rollback", "protection")
@@ -293,7 +293,7 @@ $Script:Tools = @(
     @{
         Name = "RAM Slot Utilization Report"
         Icon = "[RAM]"
-        Description = "Shows RAM slots used vs total, type (DDR3/DDR4/DDR5), speed, and capacity"
+        Description = "Show RAM slots, type (DDR3/4/5), speed, and capacity"
         Script = "ram_slot_utilization_report.ps1"
         Category = "Hardware"
         Tags = @("ram", "memory", "hardware", "ddr", "slots", "capacity", "speed")
@@ -302,7 +302,7 @@ $Script:Tools = @(
     @{
         Name = "Disk Usage Analyzer"
         Icon = "[D]"
-        Description = "Find folders larger than 1 GB and export results sorted by size with HTML visualization"
+        Description = "Find large folders and export size reports with HTML"
         Script = "disk_usage_analyzer.ps1"
         Category = "Hardware"
         Tags = @("disk", "usage", "storage", "folders", "size", "cleanup", "analysis")
@@ -311,7 +311,7 @@ $Script:Tools = @(
     @{
         Name = "Startup & Boot Time Analyzer"
         Icon = "[⚡]"
-        Description = "Analyze startup programs, boot performance, and get optimization recommendations with HTML reports"
+        Description = "Analyze startup programs and boot performance with reports"
         Script = "startup_boot_analyzer.ps1"
         Category = "Performance"
         Tags = @("startup", "boot", "performance", "optimization", "services", "task scheduler", "analysis", "speed")
@@ -320,7 +320,7 @@ $Script:Tools = @(
     @{
         Name = "Temp Removal & Disk Cleanup"
         Icon = "[CL]"
-        Description = "Remove temporary files, clean browser cache, empty Recycle Bin, and free up disk space"
+        Description = "Remove temp files, clean cache, empty Recycle Bin"
         Script = "temp_removal_disk_cleanup.ps1"
         Category = "Support"
         Tags = @("temp", "cleanup", "disk", "space", "browser", "cache", "recycle", "bin", "maintenance")
@@ -329,7 +329,7 @@ $Script:Tools = @(
     @{
         Name = "McAfee Removal Tool"
         Icon = "[MCPR]"
-        Description = "Complete removal of McAfee products using MCPR (McAfee Consumer Product Removal) tool"
+        Description = "Complete removal of McAfee products using MCPR tool"
         Script = "mcafee_removal_tool.ps1"
         Category = "Support"
         Tags = @("mcafee", "removal", "mcpr", "antivirus", "uninstall", "cleanup", "security", "removal tool")
@@ -338,7 +338,7 @@ $Script:Tools = @(
     @{
         Name = "Win11Debloat"
         Icon = "[W11]"
-        Description = "Remove bloatware, disable telemetry, and optimize Windows 10/11 systems using Win11Debloat by Raphire"
+        Description = "Remove bloatware, disable telemetry, optimize Windows 10/11"
         Script = "win11_debloat.ps1"
         Category = "Setup"
         Tags = @("debloat", "bloatware", "telemetry", "optimization", "windows", "privacy", "cleanup", "registry", "win11", "win10")
@@ -347,7 +347,7 @@ $Script:Tools = @(
     @{
         Name = "Software Updater"
         Icon = "[UPD]"
-        Description = "Manage software updates via WinGet - Check for updates, auto-update all software, or review updates interactively"
+        Description = "Manage software updates via WinGet - check, auto-update"
         Script = "software_updater.ps1"
         Category = "Setup"
         Tags = @("winget", "update", "software", "upgrade", "maintenance", "packages", "automatic", "interactive")
@@ -356,7 +356,7 @@ $Script:Tools = @(
     @{
         Name = "Domain & DNS Analyzer"
         Icon = "[DNS]"
-        Description = "WHOIS lookup, DNS records analysis, and email security check (SPF, DKIM, DMARC)"
+        Description = "WHOIS lookup, DNS analysis, email security (SPF/DKIM/DMARC)"
         Script = "domain_dns_analyzer.ps1"
         Category = "Internet"
         Tags = @("dns", "whois", "domain", "spf", "dkim", "dmarc", "email", "security", "mx", "records", "rdap")
@@ -365,7 +365,7 @@ $Script:Tools = @(
     @{
         Name = "VirusTotal Checker"
         Icon = "[VT]"
-        Description = "Check files and URLs against VirusTotal - Malware detection, hash lookup, batch scanning"
+        Description = "Check files and URLs against VirusTotal for malware"
         Script = "virustotal_checker.ps1"
         Category = "Security"
         Tags = @("virustotal", "malware", "virus", "scan", "hash", "url", "security", "threat", "detection", "file check")
@@ -374,7 +374,7 @@ $Script:Tools = @(
     @{
         Name = "Browser Plugin Checker"
         Icon = "[BP]"
-        Description = "Scan browser extensions for security risks - Chrome, Edge, Firefox, Brave, Opera, Vivaldi"
+        Description = "Scan browser extensions for security risks"
         Script = "browser_plugin_checker.ps1"
         Category = "Security"
         Tags = @("browser", "extension", "plugin", "addon", "chrome", "firefox", "edge", "security", "permissions", "malware")
@@ -383,7 +383,7 @@ $Script:Tools = @(
     @{
         Name = "OneDrive Status Checker"
         Icon = "[OD]"
-        Description = "Check OneDrive sync status - Detect sync errors, account issues, and verify files are up-to-date"
+        Description = "Check OneDrive sync status and detect errors"
         Script = "onedrive_status_checker.ps1"
         Category = "Support"
         Tags = @("onedrive", "sync", "cloud", "backup", "microsoft", "status", "error", "troubleshoot", "files", "upload", "download")
@@ -676,6 +676,136 @@ Would you like to create a restore point now?
     }
 }
 
+function Invoke-SelfDestruct {
+    <#
+    .SYNOPSIS
+        Uninstalls SouliTEK by removing installation directory and desktop shortcut.
+    #>
+    
+    $warningMessage = @"
+SELF-DESTRUCTION / UNINSTALL
+
+This will permanently remove SouliTEK from this system:
+
+• Remove installation directory: $Script:RootPath
+• Remove desktop shortcut: SouliTEK Launcher.lnk
+• Close the launcher
+
+This action cannot be undone!
+
+Are you sure you want to uninstall SouliTEK?
+"@
+    
+    $result = [System.Windows.MessageBox]::Show(
+        $warningMessage,
+        "Uninstall SouliTEK",
+        [System.Windows.MessageBoxButton]::YesNo,
+        [System.Windows.MessageBoxImage]::Warning
+    )
+    
+    if ($result -ne [System.Windows.MessageBoxResult]::Yes) {
+        return
+    }
+    
+    # Confirm again with a second warning
+    $confirmMessage = @"
+FINAL CONFIRMATION
+
+You are about to permanently delete SouliTEK.
+
+This will remove:
+• All scripts and tools
+• Installation directory
+• Desktop shortcut
+
+Click YES to proceed with uninstallation.
+"@
+    
+    $finalResult = [System.Windows.MessageBox]::Show(
+        $confirmMessage,
+        "Final Confirmation - Uninstall SouliTEK",
+        [System.Windows.MessageBoxButton]::YesNo,
+        [System.Windows.MessageBoxImage]::Stop
+    )
+    
+    if ($finalResult -ne [System.Windows.MessageBoxResult]::Yes) {
+        return
+    }
+    
+    try {
+        $Script:StatusLabel.Text = "Uninstalling SouliTEK..."
+        $Script:StatusLabel.Foreground = "#EF4444"
+        $Script:Window.UpdateLayout()
+        
+        $errors = @()
+        
+        # Remove desktop shortcut
+        $desktopPath = [Environment]::GetFolderPath("Desktop")
+        $shortcutPath = Join-Path $desktopPath "SouliTEK Launcher.lnk"
+        
+        if (Test-Path $shortcutPath) {
+            try {
+                Remove-Item $shortcutPath -Force -ErrorAction Stop
+                Write-Host "Desktop shortcut removed: $shortcutPath" -ForegroundColor Green
+            }
+            catch {
+                $errors += "Failed to remove desktop shortcut: $_"
+                Write-Warning "Failed to remove desktop shortcut: $_"
+            }
+        }
+        
+        # Close the window first to release file locks
+        $Script:Window.Close()
+        
+        # Wait a moment for the window to close
+        Start-Sleep -Milliseconds 500
+        
+        # Remove installation directory
+        if (Test-Path $Script:RootPath) {
+            try {
+                Remove-Item $Script:RootPath -Recurse -Force -ErrorAction Stop
+                Write-Host "Installation directory removed: $Script:RootPath" -ForegroundColor Green
+            }
+            catch {
+                $errors += "Failed to remove installation directory: $_"
+                Write-Warning "Failed to remove installation directory: $_"
+                
+                # Show error message
+                [System.Windows.MessageBox]::Show(
+                    "Uninstallation completed with errors:`n`n$($errors -join "`n")`n`nSome files may still be in use. Please close any PowerShell windows running SouliTEK scripts and try again.",
+                    "Uninstallation Warning",
+                    [System.Windows.MessageBoxButton]::OK,
+                    [System.Windows.MessageBoxImage]::Warning
+                )
+                return
+            }
+        }
+        
+        # Success message
+        [System.Windows.MessageBox]::Show(
+            "SouliTEK has been successfully uninstalled from your system.`n`nAll files and shortcuts have been removed.",
+            "Uninstallation Complete",
+            [System.Windows.MessageBoxButton]::OK,
+            [System.Windows.MessageBoxImage]::Information
+        )
+        
+        # Exit PowerShell
+        exit 0
+    }
+    catch {
+        $errorMessage = "An error occurred during uninstallation:`n`n$_"
+        [System.Windows.MessageBox]::Show(
+            $errorMessage,
+            "Uninstallation Error",
+            [System.Windows.MessageBoxButton]::OK,
+            [System.Windows.MessageBoxImage]::Error
+        )
+        
+        $Script:StatusLabel.Text = "Uninstallation failed - see error message"
+        $Script:StatusLabel.Foreground = "#DC2626"
+    }
+}
+
 # ============================================================
 # LOAD XAML
 # ============================================================
@@ -719,6 +849,7 @@ $HelpButton = $Window.FindName("HelpButton")
 $AboutButton = $Window.FindName("AboutButton")
 $GitHubButton = $Window.FindName("GitHubButton")
 $DiscordButton = $Window.FindName("DiscordButton")
+$SelfDestructButton = $Window.FindName("SelfDestructButton")
 
 # Set logo image
 if ($null -ne $LogoImage) {
@@ -863,6 +994,11 @@ $null = $GitHubButton.Add_Click({
 # Discord button
 $null = $DiscordButton.Add_Click({
     Start-Process "https://discord.gg/eVqu269QBB"
+})
+
+# Self-Destruct button
+$null = $SelfDestructButton.Add_Click({
+    Invoke-SelfDestruct
 })
 
 # Note: Website button and logo button removed in new design

@@ -304,6 +304,7 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 
                 <!-- Help -->
@@ -347,6 +348,17 @@
                              FontSize="11"
                              FontFamily="Segoe UI"
                              Foreground="White"
+                             HorizontalAlignment="Center"/>
+                </Button>
+                
+                <!-- Self-Destruct -->
+                <Button Grid.Column="4" 
+                       Name="SelfDestructButton"
+                       Style="{StaticResource NavButton}">
+                    <TextBlock Text="Uninstall" 
+                             FontSize="11"
+                             FontFamily="Segoe UI"
+                             Foreground="#EF4444"
                              HorizontalAlignment="Center"/>
                 </Button>
             </Grid>
