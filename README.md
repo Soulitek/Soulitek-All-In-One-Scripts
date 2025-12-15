@@ -124,6 +124,7 @@ See [docs/](docs/) folder for complete documentation.
 
 - **Website:** www.soulitek.co.il
 - **Email:** letstalk@soulitek.co.il
+- **Discord:** [Join our Discord server](https://discord.gg/eVqu269QBB)
 
 ---
 
