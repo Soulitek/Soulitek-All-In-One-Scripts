@@ -720,6 +720,7 @@ $CloseButton = $Window.FindName("CloseButton")
 $HelpButton = $Window.FindName("HelpButton")
 $AboutButton = $Window.FindName("AboutButton")
 $GitHubButton = $Window.FindName("GitHubButton")
+$DiscordButton = $Window.FindName("DiscordButton")
 
 # Set logo image
 if ($null -ne $LogoImage) {
@@ -861,6 +862,11 @@ Made with love in Soulitek
 # GitHub button
 $null = $GitHubButton.Add_Click({
     Start-Process "https://github.com/Soulitek/Soulitek-All-In-One-Scripts"
+})
+
+# Discord button
+$null = $DiscordButton.Add_Click({
+    Start-Process "https://discord.gg/eVqu269QBB"
 })
 
 # Note: Website button and logo button removed in new design
