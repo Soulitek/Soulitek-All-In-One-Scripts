@@ -263,7 +263,6 @@
                             <Button Name="BtnCatInternet" Content="Internet" Style="{StaticResource CategoryButtonInactive}"/>
                             <Button Name="BtnCatSecurity" Content="Security" Style="{StaticResource CategoryButtonInactive}"/>
                             <Button Name="BtnCatSupport" Content="Support" Style="{StaticResource CategoryButtonInactive}"/>
-                            <Button Name="BtnCatSoftware" Content="Software" Style="{StaticResource CategoryButtonInactive}"/>
                             <Button Name="BtnCatM365" Content="M365" Style="{StaticResource CategoryButtonInactive}"/>
                             <Button Name="BtnCatHardware" Content="Hardware" Style="{StaticResource CategoryButtonInactive}"/>
                         </StackPanel>

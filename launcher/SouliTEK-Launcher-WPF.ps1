@@ -268,7 +268,7 @@ $Script:Tools = @(
         Icon = "[W]"
         Description = "Interactive package installer - Install essential business apps via WinGet"
         Script = "SouliTEK-Softwares-Installer.ps1"
-        Category = "Software"
+        Category = "Setup"
         Tags = @("winget", "installer", "software", "packages", "apps", "install", "microsoft", "package manager")
         Color = "#10b981"
     },
@@ -340,7 +340,7 @@ $Script:Tools = @(
         Icon = "[W11]"
         Description = "Remove bloatware, disable telemetry, and optimize Windows 10/11 systems using Win11Debloat by Raphire"
         Script = "win11_debloat.ps1"
-        Category = "Software"
+        Category = "Setup"
         Tags = @("debloat", "bloatware", "telemetry", "optimization", "windows", "privacy", "cleanup", "registry", "win11", "win10")
         Color = "#8b5cf6"
     },
@@ -349,7 +349,7 @@ $Script:Tools = @(
         Icon = "[UPD]"
         Description = "Manage software updates via WinGet - Check for updates, auto-update all software, or review updates interactively"
         Script = "software_updater.ps1"
-        Category = "Software"
+        Category = "Setup"
         Tags = @("winget", "update", "software", "upgrade", "maintenance", "packages", "automatic", "interactive")
         Color = "#10b981"
     },
@@ -548,7 +548,6 @@ function Set-CategoryActive {
         "Internet" = $Script:BtnCatInternet
         "Security" = $Script:BtnCatSecurity
         "Support" = $Script:BtnCatSupport
-        "Software" = $Script:BtnCatSoftware
         "M365" = $Script:BtnCatM365
         "Hardware" = $Script:BtnCatHardware
     }
@@ -711,7 +710,6 @@ $Script:BtnCatNetwork = $Window.FindName("BtnCatNetwork")
 $Script:BtnCatInternet = $Window.FindName("BtnCatInternet")
 $Script:BtnCatSecurity = $Window.FindName("BtnCatSecurity")
 $Script:BtnCatSupport = $Window.FindName("BtnCatSupport")
-$Script:BtnCatSoftware = $Window.FindName("BtnCatSoftware")
 $Script:BtnCatM365 = $Window.FindName("BtnCatM365")
 $Script:BtnCatHardware = $Window.FindName("BtnCatHardware")
 
@@ -779,7 +777,6 @@ $null = $BtnCatNetwork.Add_Click({ Set-CategoryActive "Network" })
 $null = $BtnCatInternet.Add_Click({ Set-CategoryActive "Internet" })
 $null = $BtnCatSecurity.Add_Click({ Set-CategoryActive "Security" })
 $null = $BtnCatSupport.Add_Click({ Set-CategoryActive "Support" })
-$null = $BtnCatSoftware.Add_Click({ Set-CategoryActive "Software" })
 $null = $BtnCatM365.Add_Click({ Set-CategoryActive "M365" })
 $null = $BtnCatHardware.Add_Click({ Set-CategoryActive "Hardware" })
 
@@ -799,12 +796,11 @@ TOOLS AVAILABLE: $($Script:Tools.Count)
 
 CATEGORIES:
 -----------
-- Setup: PC configuration and initial setup
+- Setup: PC configuration, initial setup, software installation and updates
 - Network: Network diagnostics and configuration
 - Internet: Domain and DNS analysis
 - Security: Security audits, malware scanning, admin checks
 - Support: System maintenance, troubleshooting, OneDrive status
-- Software: App installation and updates
 - M365: Microsoft 365 management
 - Hardware: Hardware health and performance
 

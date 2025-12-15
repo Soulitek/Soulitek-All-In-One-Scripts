@@ -43,6 +43,9 @@ iwr -useb https://get.soulitek.co.il | iex
 ### 🚀 Setup
 - **1-Click PC Install** - Complete PC setup automation: Configure time zone (Jerusalem), regional settings (Israel), Windows updates, power plan, bloatware removal, and install essential software (Chrome, AnyDesk, Office) via WinGet. Includes system restore point creation and detailed installation summary.
 - **Essential Tweaks** - Essential Windows tweaks - Default apps, keyboards, language, taskbar settings
+- **Softwares Installer** - Interactive package installer - Install essential business apps via WinGet
+- **Software Updater** - Manage software updates via WinGet - Check, auto-update, or interactive mode
+- **Win11Debloat** - Remove bloatware, disable telemetry, and optimize Windows 10/11 systems
 
 ### ⚡ Performance
 - **Startup & Boot Time Analyzer** - Analyze startup programs, boot performance, and get optimization recommendations with HTML reports
@@ -82,11 +85,6 @@ iwr -useb https://get.soulitek.co.il | iex
 - **OneDrive Status Checker** - Check OneDrive sync status - Detect sync errors, account issues, and verify files are up-to-date
 - **System Restore Point** - Create Windows System Restore Points for system recovery and rollback
 - **Temp Removal & Disk Cleanup** - Remove temporary files, clean browser cache, empty Recycle Bin, and free up disk space
-
-### 💻 Software
-- **Softwares Installer** - Interactive package installer - Install essential business apps via WinGet
-- **Software Updater** - Manage software updates via WinGet - Check, auto-update, or interactive mode
-- **Win11Debloat** - Remove bloatware, disable telemetry, and optimize Windows 10/11 systems
 - **McAfee Removal Tool** - Complete removal of McAfee products using MCPR (McAfee Consumer Product Removal) tool
 
 All scripts in `./scripts/` folder.
