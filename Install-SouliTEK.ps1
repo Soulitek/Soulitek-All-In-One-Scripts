@@ -61,6 +61,7 @@ function Get-EssentialFilesFilter {
         "modules\*.ps1",
         "scripts\*.ps1",
         "assets\images\Favicon.png",
+        "assets\images\Logo.png",
         "tools\MCPR.exe",
         "tools\whois.exe"
     )
