@@ -426,7 +426,7 @@ function Install-WinGetApplication {
         $timeoutSeconds = $TimeoutMinutes * 60
         $completed = $false
         $startTime = Get-Date
-        $lastProgressTime = $startTime
+        $lastProgressTime = [TimeSpan]::Zero
         
         Write-Host "      -> Progress: " -NoNewline -ForegroundColor Gray
         
