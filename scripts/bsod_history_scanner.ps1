@@ -102,12 +102,12 @@ function Get-MinidumpFiles {
         Scans for Minidump files and extracts BSOD information.
     #>
     
-    Write-SouliTEKResult "Scanning Minidump directory..." -Level INFO
+    Write-Ui -Message "Scanning Minidump directory" -Level "INFO"
     
     $minidumps = @()
     
     if (-not (Test-Path $Script:MinidumpPath)) {
-        Write-SouliTEKWarning "Minidump directory not found: $Script:MinidumpPath"
+        Write-Ui -Message "Minidump directory not found: $Script:MinidumpPath" -Level "WARN"
         return $minidumps
     }
     
@@ -115,11 +115,11 @@ function Get-MinidumpFiles {
         $dumpFiles = Get-ChildItem -Path $Script:MinidumpPath -Filter "*.dmp" -ErrorAction Stop | Sort-Object LastWriteTime -Descending
         
         if ($dumpFiles.Count -eq 0) {
-            Write-SouliTEKInfo "No Minidump files found in $Script:MinidumpPath"
+            Write-Ui -Message "No Minidump files found in $Script:MinidumpPath" -Level "INFO"
             return $minidumps
         }
         
-        Write-SouliTEKResult "Found $($dumpFiles.Count) Minidump file(s)" -Level SUCCESS
+        Write-Ui -Message "Found $($dumpFiles.Count) Minidump file(s)" -Level "OK"
         
         foreach ($dumpFile in $dumpFiles) {
             $minidumps += [PSCustomObject]@{
@@ -135,7 +135,7 @@ function Get-MinidumpFiles {
         }
     }
     catch {
-        Write-SouliTEKError "Failed to scan Minidump directory: $($_.Exception.Message)"
+        Write-Ui -Message "Failed to scan Minidump directory: $($_.Exception.Message)" -Level "ERROR"
     }
     
     return $minidumps
@@ -147,7 +147,7 @@ function Get-BugCheckEvents {
         Retrieves BugCheck events from System event log.
     #>
     
-    Write-SouliTEKResult "Scanning System event log for BugCheck events..." -Level INFO
+    Write-Ui -Message "Scanning System event log for BugCheck events" -Level "INFO"
     
     $bugCheckEvents = @()
     
@@ -163,7 +163,7 @@ function Get-BugCheckEvents {
             return $bugCheckEvents
         }
         
-        Write-SouliTEKResult "Found $($events.Count) BugCheck event(s)" -Level SUCCESS
+        Write-Ui -Message "Found $($events.Count) BugCheck event(s)" -Level "OK"
         
         foreach ($event in $events) {
             $eventXml = [xml]$event.ToXml()
@@ -206,7 +206,7 @@ function Get-BugCheckEvents {
         if ($_.Exception.Message -like "*No events were found*") {
             Write-SouliTEKInfo "No BugCheck events found in System event log"
         } else {
-            Write-SouliTEKError "Failed to retrieve BugCheck events: $($_.Exception.Message)"
+            Write-Ui -Message "Failed to retrieve BugCheck events: $($_.Exception.Message)" -Level "ERROR"
         }
     }
     
@@ -221,7 +221,7 @@ function Invoke-FullScan {
     
     Show-Header "BSOD HISTORY SCANNER - FULL SCAN"
     
-    Write-SouliTEKResult "Starting full BSOD history scan..." -Level INFO
+    Write-Ui -Message "Starting full BSOD history scan" -Level "INFO"
     Write-Host ""
     
     $Script:BSODResults = @()
@@ -247,7 +247,7 @@ function Invoke-FullScan {
         Write-Host "  - Event log entries have been cleared" -ForegroundColor Gray
         Write-Host ""
     } else {
-        Write-SouliTEKSuccess "Scan complete! Found $($Script:BSODResults.Count) BSOD record(s)"
+        Write-Ui -Message "Scan complete! Found $($Script:BSODResults.Count) BSOD record(s)" -Level "OK"
         Write-Host ""
         Show-BSODResults
     }
@@ -262,7 +262,7 @@ function Show-BSODResults {
     #>
     
     if ($Script:BSODResults.Count -eq 0) {
-        Write-SouliTEKWarning "No results to display"
+        Write-Ui -Message "No results to display" -Level "WARN"
         return
     }
     
@@ -531,7 +531,8 @@ function Show-MainMenu {
 # ============================================================
 
 try {
-    Initialize-SouliTEKScript -WindowTitle "BSOD HISTORY SCANNER"
+    Clear-Host
+    Show-ScriptBanner -ScriptName "BSOD History Scanner" -Purpose "Scan and analyze Blue Screen of Death history from system logs"
     
     # Check for administrator privileges (recommended but not required)
     $isAdmin = Invoke-SouliTEKAdminCheck -FeatureName "BSOD History Scanner"
@@ -541,7 +542,7 @@ try {
     Show-MainMenu
 }
 catch {
-    Write-SouliTEKError "An error occurred: $($_.Exception.Message)"
+    Write-Ui -Message "An error occurred: $($_.Exception.Message)" -Level "ERROR"
     Write-Host ""
     Read-Host "Press Enter to exit"
     exit 1

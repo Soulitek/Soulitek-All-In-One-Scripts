@@ -601,8 +601,9 @@ function Show-Menu {
 # MAIN EXECUTION
 # ============================================================
 
-# Initialize
-Initialize-SouliTEKScript -WindowTitle "SouliTEK - Local Admin Users Checker v$Script:Version"
+# Show banner
+Clear-Host
+Show-ScriptBanner -ScriptName "Local Admin Users Checker" -Purpose "Check and manage local administrator accounts on the system"
 
 # Check for admin privileges
 $isAdmin = Invoke-SouliTEKAdminCheck -Required -FeatureName "Local Admin Users Checker"
@@ -622,7 +623,7 @@ do {
             exit 0
         }
         default {
-            Write-Host "Invalid option. Please try again." -ForegroundColor Red
+            Write-Ui -Message "Invalid option. Please try again" -Level "ERROR"
             Start-Sleep -Seconds 1
         }
     }

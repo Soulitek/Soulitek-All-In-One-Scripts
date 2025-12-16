@@ -1693,6 +1693,9 @@ function Show-HelpMenu {
 # ============================================================
 
 function Invoke-MainMenu {
+    Clear-Host
+    Show-ScriptBanner -ScriptName "Event Log Analyzer" -Purpose "Advanced Windows Event Log analysis tool for IT professionals"
+    
     do {
         $choice = Show-ReportMenu
         
@@ -1719,7 +1722,7 @@ function Invoke-MainMenu {
             }
             default {
                 Write-Host ""
-                Write-Host "Invalid choice. Please select a number between 0-12." -ForegroundColor Red
+                Write-Ui -Message "Invalid choice. Please select a number between 0-12" -Level "ERROR"
                 Write-Host "Press any key to continue..." -ForegroundColor Yellow
                 $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
             }

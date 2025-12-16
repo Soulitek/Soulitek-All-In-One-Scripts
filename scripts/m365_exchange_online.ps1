@@ -926,6 +926,10 @@ function Show-ExitMessage {
 	Show-SouliTEKExitMessage -ScriptPath $PSCommandPath -ToolName "SouliTEK Microsoft 365 Exchange Online Tool"
 }
 
+# Show banner
+Clear-Host
+Show-ScriptBanner -ScriptName "Microsoft 365 Exchange Online" -Purpose "Manage Microsoft 365 Exchange Online mailboxes and settings"
+
 # Main execution loop
 while ($true) {
 	Show-Menu

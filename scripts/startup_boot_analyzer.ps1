@@ -1720,14 +1720,15 @@ function Invoke-ExportReport {
 # MAIN EXECUTION LOOP
 # ============================================================
 
-# Display header
-Show-SouliTEKHeader -Title "STARTUP PROGRAMS & BOOT TIME ANALYZER" -Subtitle "Welcome to the Startup Programs & Boot Time Analyzer!" -ClearHost -ShowBanner
+# Show banner
+Clear-Host
+Show-ScriptBanner -ScriptName "Startup Programs & Boot Time Analyzer" -Purpose "Analyze startup programs and boot performance"
+
 Write-Host ""
-Write-Host "This tool will help you:" -ForegroundColor White
-Write-Host "  • Scan Startup Folders, Task Scheduler, and Services" -ForegroundColor Gray
-Write-Host "  • Analyze boot performance and track trends" -ForegroundColor Gray
-Write-Host "  • Get optimization recommendations" -ForegroundColor Gray
-Write-Host "  • Export detailed HTML reports" -ForegroundColor Gray
+Write-Ui -Message "This tool will help you: Scan Startup Folders, Task Scheduler, and Services" -Level "INFO"
+Write-Ui -Message "Analyze boot performance and track trends" -Level "INFO"
+Write-Ui -Message "Get optimization recommendations" -Level "INFO"
+Write-Ui -Message "Export detailed HTML reports" -Level "INFO"
 Write-Host ""
 Write-Host "Press any key to continue..." -ForegroundColor Yellow
 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")

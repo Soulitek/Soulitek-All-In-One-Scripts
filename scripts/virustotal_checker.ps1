@@ -1005,8 +1005,9 @@ function Set-ApiKey {
 # MAIN EXECUTION
 # ============================================================
 
-# Initialize
-Initialize-SouliTEKScript -WindowTitle "SouliTEK - VirusTotal Checker v$Script:Version"
+# Show banner
+Clear-Host
+Show-ScriptBanner -ScriptName "VirusTotal Checker" -Purpose "Check files and URLs against VirusTotal database for malware detection"
 
 # Load System.Web for URL encoding
 Add-Type -AssemblyName System.Web
@@ -1030,7 +1031,7 @@ do {
             exit 0
         }
         default {
-            Write-Host "Invalid option. Please try again." -ForegroundColor Red
+            Write-Ui -Message "Invalid option. Please try again" -Level "ERROR"
             Start-Sleep -Seconds 1
         }
     }

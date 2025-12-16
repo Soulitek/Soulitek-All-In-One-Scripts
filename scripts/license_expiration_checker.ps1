@@ -1348,6 +1348,10 @@ function Show-ExitMessage {
 # MAIN EXECUTION
 # ============================================================
 
+# Show banner
+Clear-Host
+Show-ScriptBanner -ScriptName "License Expiration Checker" -Purpose "Check Microsoft 365 license expiration dates and usage"
+
 # Show disclaimer
 Show-Disclaimer
 
@@ -1370,7 +1374,7 @@ do {
             break
         }
         default {
-            Write-Host "Invalid choice. Please try again." -ForegroundColor Red
+            Write-Ui -Message "Invalid choice. Please try again" -Level "ERROR"
             Start-Sleep -Seconds 2
         }
     }

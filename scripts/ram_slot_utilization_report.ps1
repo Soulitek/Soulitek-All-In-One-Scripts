@@ -1165,6 +1165,10 @@ function Show-ExitMessage {
 # MAIN EXECUTION
 # ============================================================
 
+# Show banner
+Clear-Host
+Show-ScriptBanner -ScriptName "RAM Slot Utilization Report" -Purpose "Analyze RAM slot usage and generate detailed reports"
+
 Show-Disclaimer
 
 # Main menu loop
@@ -1183,7 +1187,7 @@ do {
             break
         }
         default {
-            Write-Host "Invalid choice. Please try again." -ForegroundColor Red
+            Write-Ui -Message "Invalid choice. Please try again" -Level "ERROR"
             Start-Sleep -Seconds 2
         }
     }

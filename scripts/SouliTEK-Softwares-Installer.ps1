@@ -923,11 +923,11 @@ try {
     Set-ExecutionPolicyIfNeeded
     
     Clear-Host
-    Write-Banner
+    Show-ScriptBanner -ScriptName "Softwares Installer" -Purpose "Install software packages using WinGet"
     
     $wingetReady = Ensure-WinGet
     if (-not $wingetReady) {
-        Write-Host "[X] Cannot proceed without WinGet" -ForegroundColor Red
+        Write-Ui -Message "Cannot proceed without WinGet" -Level "ERROR"
         Write-Host ""
         Read-Host "Press Enter to exit"
         exit 1

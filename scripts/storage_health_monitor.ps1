@@ -846,10 +846,14 @@ function Show-Help {
 # MAIN EXECUTION
 # ============================================================
 
+# Show banner
+Clear-Host
+Show-ScriptBanner -ScriptName "Storage Health Monitor" -Purpose "Monitor storage device health using SMART data and generate reports"
+
 # Check for administrator privileges
 if (-not (Test-SouliTEKAdministrator)) {
-    Write-Host "WARNING: This tool requires Administrator privileges for full functionality." -ForegroundColor Yellow
-    Write-Host "Some SMART data may not be accessible without elevation." -ForegroundColor Yellow
+    Write-Ui -Message "WARNING: This tool requires Administrator privileges for full functionality" -Level "WARN"
+    Write-Ui -Message "Some SMART data may not be accessible without elevation" -Level "INFO"
     Write-Host ""
     Write-Host "Press Enter to continue anyway, or Ctrl+C to exit..." -ForegroundColor Yellow
     Read-Host
@@ -887,7 +891,7 @@ do {
         }
         default {
             Write-Host ""
-            Write-Host "Invalid option. Please select 1-7." -ForegroundColor Red
+            Write-Ui -Message "Invalid option. Please select 1-7" -Level "ERROR"
             Start-Sleep -Seconds 2
         }
     }

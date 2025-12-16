@@ -515,14 +515,17 @@ function Show-Menu {
 # ============================================================
 
 function Main {
+    # Show banner
+    Clear-Host
+    Show-ScriptBanner -ScriptName "Software Updater" -Purpose "Check for and install software updates using WinGet"
+    
     # Check WinGet availability at startup
-    Show-SouliTEKHeader -Title "INITIALIZING" -ClearHost -ShowBanner
     $Script:WinGetAvailable = Get-WinGetAvailability
     Write-Host ""
     
     if (-not $Script:WinGetAvailable) {
-        Write-Host "  [!] WinGet is required for this tool to function" -ForegroundColor Red
-        Write-Host "  [!] Please install WinGet and try again" -ForegroundColor Yellow
+        Write-Ui -Message "WinGet is required for this tool to function" -Level "ERROR"
+        Write-Ui -Message "Please install WinGet and try again" -Level "WARN"
         Write-Host ""
         Read-Host "Press Enter to exit"
         exit 1

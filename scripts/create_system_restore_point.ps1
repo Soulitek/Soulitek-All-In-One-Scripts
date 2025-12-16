@@ -95,7 +95,7 @@ function Get-RestorePoints {
             # Try using vssadmin as alternative
             $vssOutput = vssadmin list shadows 2>&1
             if ($LASTEXITCODE -eq 0) {
-                Write-Host "Restore points found via vssadmin" -ForegroundColor Green
+                Write-Ui -Message "Restore points found via vssadmin" -Level "OK"
                 return @()
             }
         }
@@ -103,7 +103,7 @@ function Get-RestorePoints {
         return $restorePoints
     }
     catch {
-        Write-Host "Error retrieving restore points: $_" -ForegroundColor Red
+        Write-Ui -Message "Error retrieving restore points: $_" -Level "ERROR"
         return @()
     }
 }
@@ -121,14 +121,14 @@ function New-SystemRestorePoint {
         [string]$Description = "SouliTEK Manual Restore Point"
     )
     
-    Show-SouliTEKHeader -Title "SYSTEM RESTORE POINT CREATOR" -ClearHost -ShowBanner
-    Write-Host "Creating System Restore Point..." -ForegroundColor Cyan
+    Show-Section "Create System Restore Point"
+    Write-Ui -Message "Creating system restore point" -Level "INFO"
     Write-Host ""
     
     # Check if running as administrator
     if (-not (Test-SouliTEKAdministrator)) {
-        Write-Host "[!] ERROR: Administrator privileges required!" -ForegroundColor Red
-        Write-Host "[!] Please run this script as Administrator." -ForegroundColor Red
+        Write-Ui -Message "Administrator privileges required" -Level "ERROR"
+        Write-Ui -Message "Please run this script as Administrator" -Level "INFO"
         Write-Host ""
         Read-Host "Press Enter to exit"
         return $false
@@ -136,8 +136,8 @@ function New-SystemRestorePoint {
     
     # Check if System Restore is enabled
     if (-not (Test-SystemRestoreEnabled)) {
-        Write-Host "[!] WARNING: System Restore may not be enabled for the system drive." -ForegroundColor Yellow
-        Write-Host "[!] The restore point creation may fail." -ForegroundColor Yellow
+        Write-Ui -Message "System Restore may not be enabled for the system drive" -Level "WARN"
+        Write-Ui -Message "The restore point creation may fail" -Level "WARN"
         Write-Host ""
         $continue = Read-Host "Continue anyway? (Y/N)"
         if ($continue -ne "Y" -and $continue -ne "y") {
@@ -146,41 +146,41 @@ function New-SystemRestorePoint {
     }
     
     try {
-        Write-Host "[*] Description: $Description" -ForegroundColor Gray
-        Write-Host "[*] Starting restore point creation..." -ForegroundColor Gray
+        Write-Ui -Message "Description: $Description" -Level "INFO"
+        Write-Ui -Message "Starting restore point creation" -Level "STEP"
         Write-Host ""
         
         # Create restore point using Checkpoint-Computer
         $result = Checkpoint-Computer -Description $Description -RestorePointType "MODIFY_SETTINGS" -ErrorAction Stop
         
         if ($result) {
-            Write-Host "[+] SUCCESS: System Restore Point created successfully!" -ForegroundColor Green
+            Write-Ui -Message "System Restore Point created successfully" -Level "OK"
             Write-Host ""
-            Write-Host "    Description: $Description" -ForegroundColor White
-            Write-Host "    Timestamp: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" -ForegroundColor White
+            Write-Ui -Message "Description: $Description" -Level "INFO"
+            Write-Ui -Message "Timestamp: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" -Level "INFO"
             Write-Host ""
             return $true
         }
     }
     catch {
-        Write-Host "[!] ERROR: Failed to create restore point!" -ForegroundColor Red
-        Write-Host "[!] Error Details: $_" -ForegroundColor Red
+        Write-Ui -Message "Failed to create restore point" -Level "ERROR"
+        Write-Ui -Message "Error Details: $_" -Level "ERROR"
         Write-Host ""
         
         # Try alternative method using vssadmin
-        Write-Host "[*] Attempting alternative method (vssadmin)..." -ForegroundColor Yellow
+        Write-Ui -Message "Attempting alternative method (vssadmin)" -Level "STEP"
         try {
             $vssResult = Start-Process -FilePath "vssadmin" -ArgumentList "create", "shadow", "/For=$env:SystemDrive" -Wait -NoNewWindow -PassThru -ErrorAction Stop
             
             if ($vssResult.ExitCode -eq 0) {
-                Write-Host "[+] SUCCESS: System Restore Point created via vssadmin!" -ForegroundColor Green
+                Write-Ui -Message "System Restore Point created via vssadmin" -Level "OK"
                 return $true
             } else {
-                Write-Host "[!] ERROR: vssadmin method also failed (Exit Code: $($vssResult.ExitCode))" -ForegroundColor Red
+                Write-Ui -Message "vssadmin method also failed (Exit Code: $($vssResult.ExitCode))" -Level "ERROR"
             }
         }
         catch {
-            Write-Host "[!] ERROR: Alternative method failed: $_" -ForegroundColor Red
+            Write-Ui -Message "Alternative method failed: $_" -Level "ERROR"
         }
         
         return $false
@@ -193,31 +193,30 @@ function Show-RestorePoints {
         Displays all available system restore points.
     #>
     
-    Show-SouliTEKHeader -Title "RESTORE POINT HISTORY" -ClearHost -ShowBanner
+    Show-Section "Restore Point History"
     
-    Write-Host "Retrieving restore points..." -ForegroundColor Cyan
+    Write-Ui -Message "Retrieving restore points" -Level "INFO"
     Write-Host ""
     
     $restorePoints = Get-RestorePoints
     
     if ($restorePoints.Count -eq 0) {
-        Write-Host "[!] No restore points found." -ForegroundColor Yellow
-        Write-Host "[!] System Restore may not be enabled or no points have been created." -ForegroundColor Yellow
+        Write-Ui -Message "No restore points found" -Level "WARN"
+        Write-Ui -Message "System Restore may not be enabled or no points have been created" -Level "INFO"
         Write-Host ""
         return
     }
     
-    Write-Host "Found $($restorePoints.Count) restore point(s):" -ForegroundColor Green
+    Write-Ui -Message "Found $($restorePoints.Count) restore point(s)" -Level "OK"
     Write-Host ""
-    Write-Host ("=" * 80) -ForegroundColor Cyan
     
     $count = 1
     foreach ($rp in $restorePoints | Sort-Object CreationTime -Descending) {
         Write-Host "Restore Point #$count" -ForegroundColor Cyan
-        Write-Host "  Sequence Number: $($rp.SequenceNumber)" -ForegroundColor White
-        Write-Host "  Description: $($rp.Description)" -ForegroundColor White
-        Write-Host "  Creation Time: $($rp.CreationTime)" -ForegroundColor White
-        Write-Host "  Type: $($rp.RestorePointType)" -ForegroundColor White
+        Write-Ui -Message "Sequence Number: $($rp.SequenceNumber)" -Level "INFO"
+        Write-Ui -Message "Description: $($rp.Description)" -Level "INFO"
+        Write-Ui -Message "Creation Time: $($rp.CreationTime)" -Level "INFO"
+        Write-Ui -Message "Type: $($rp.RestorePointType)" -Level "INFO"
         Write-Host ("-" * 80) -ForegroundColor Gray
         $count++
     }
@@ -231,31 +230,31 @@ function Show-SystemRestoreStatus {
         Shows the current System Restore protection status.
     #>
     
-    Show-SouliTEKHeader -Title "SYSTEM RESTORE STATUS" -ClearHost -ShowBanner
+    Show-Section "System Restore Status"
     
     $systemDrive = $env:SystemDrive
     
-    Write-Host "System Drive: $systemDrive" -ForegroundColor Cyan
+    Write-Ui -Message "System Drive: $systemDrive" -Level "INFO"
     Write-Host ""
     
     # Check if System Restore is enabled
     $isEnabled = Test-SystemRestoreEnabled
     
     if ($isEnabled) {
-        Write-Host "[+] System Restore is ENABLED" -ForegroundColor Green
+        Write-Ui -Message "System Restore is ENABLED" -Level "OK"
     } else {
-        Write-Host "[!] System Restore is DISABLED or NOT AVAILABLE" -ForegroundColor Yellow
+        Write-Ui -Message "System Restore is DISABLED or NOT AVAILABLE" -Level "WARN"
     }
     
     Write-Host ""
     
     # Get restore points count
     $restorePoints = Get-RestorePoints
-    Write-Host "Available Restore Points: $($restorePoints.Count)" -ForegroundColor Cyan
+    Write-Ui -Message "Available Restore Points: $($restorePoints.Count)" -Level "INFO"
     Write-Host ""
     
     # Try to get more detailed info via vssadmin
-    Write-Host "Detailed Status:" -ForegroundColor Cyan
+    Write-Ui -Message "Detailed Status" -Level "INFO"
     Write-Host ("=" * 80) -ForegroundColor Gray
     
     try {
@@ -268,7 +267,7 @@ function Show-SystemRestoreStatus {
         }
     }
     catch {
-        Write-Host "[!] Could not retrieve detailed status via vssadmin" -ForegroundColor Yellow
+        Write-Ui -Message "Could not retrieve detailed status via vssadmin" -Level "WARN"
     }
     
     Write-Host ""
@@ -279,18 +278,15 @@ function Show-SystemRestoreStatus {
 # ============================================================
 
 function Show-MainMenu {
-    Show-SouliTEKHeader -Title "SYSTEM RESTORE POINT CREATOR" -ClearHost -ShowBanner
+    Clear-Host
+    Show-ScriptBanner -ScriptName "System Restore Point Creator" -Purpose "Create Windows System Restore Points for system recovery"
     
-    Write-Host "MAIN MENU" -ForegroundColor Cyan
-    Write-Host ("=" * 60) -ForegroundColor Gray
     Write-Host ""
     Write-Host "  1. Create System Restore Point (Quick)" -ForegroundColor White
     Write-Host "  2. Create System Restore Point (Custom Description)" -ForegroundColor White
     Write-Host "  3. View Restore Point History" -ForegroundColor White
     Write-Host "  4. Check System Restore Status" -ForegroundColor White
     Write-Host "  5. Exit" -ForegroundColor White
-    Write-Host ""
-    Write-Host ("=" * 60) -ForegroundColor Gray
     Write-Host ""
 }
 
@@ -330,7 +326,7 @@ function Start-MainLoop {
                 $description = Read-Host "Enter description for restore point"
                 
                 if ([string]::IsNullOrWhiteSpace($description)) {
-                    Write-Host "[!] Description cannot be empty. Using default description." -ForegroundColor Yellow
+                    Write-Ui -Message "Description cannot be empty. Using default description" -Level "WARN"
                     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
                     $description = "SouliTEK Manual Restore Point - $timestamp"
                 }
@@ -365,7 +361,7 @@ function Start-MainLoop {
             }
             default {
                 Write-Host ""
-                Write-Host "[!] Invalid option. Please select 1-5." -ForegroundColor Red
+                Write-Ui -Message "Invalid option. Please select 1-5" -Level "ERROR"
                 Write-Host ""
                 Start-Sleep -Seconds 1
             }
@@ -377,13 +373,16 @@ function Start-MainLoop {
 # SCRIPT EXECUTION
 # ============================================================
 
+# Show banner
+Clear-Host
+Show-ScriptBanner -ScriptName "System Restore Point Creator" -Purpose "Create Windows System Restore Points for system recovery"
+
 # Check administrator privileges
 if (-not (Test-SouliTEKAdministrator)) {
-    Show-SouliTEKHeader -Title "SYSTEM RESTORE POINT CREATOR" -ClearHost -ShowBanner
-    Write-Host "[!] ERROR: Administrator privileges required!" -ForegroundColor Red
-    Write-Host "[!] Please run this script as Administrator." -ForegroundColor Red
+    Write-Ui -Message "Administrator privileges required" -Level "ERROR"
+    Write-Ui -Message "Please run this script as Administrator" -Level "INFO"
     Write-Host ""
-    Write-Host "The script will now exit." -ForegroundColor Yellow
+    Write-Ui -Message "The script will now exit" -Level "WARN"
     Write-Host ""
     Read-Host "Press Enter to exit"
     exit 1

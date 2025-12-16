@@ -176,7 +176,7 @@ function Get-CurrentWiFiInfo {
         return $wifiInfo
     }
     catch {
-        Write-SouliTEKResult "Error getting WiFi info: $_" -Level ERROR
+        Write-Ui -Message "Error getting WiFi info: $_" -Level "ERROR"
         return $null
     }
 }
@@ -257,7 +257,7 @@ function Get-WiFiDisconnectionHistory {
         return $disconnections
     }
     catch {
-        Write-SouliTEKResult "Error getting disconnection history: $_" -Level WARNING
+        Write-Ui -Message "Error getting disconnection history: $_" -Level "WARN"
         return @()
     }
 }
@@ -564,7 +564,7 @@ function Export-WiFiReport {
     }
     
     Write-Host ""
-    Write-SouliTEKResult "Export complete! Reports saved to Desktop." -Level SUCCESS
+    Write-Ui -Message "Export complete! Reports saved to Desktop" -Level "OK"
     Write-Host ""
     Write-Host "Press any key to return to main menu..." -ForegroundColor Cyan
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
@@ -635,6 +635,10 @@ function Show-MainMenu {
     return $choice
 }
 
+# Show banner
+Clear-Host
+Show-ScriptBanner -ScriptName "WiFi Monitor" -Purpose "Monitor WiFi connection status and disconnection history"
+
 # Main script execution
 # No admin required for this tool
 
@@ -654,7 +658,7 @@ while ($running) {
             $running = $false
         }
         default {
-            Write-Host "Invalid choice. Please try again." -ForegroundColor Red
+            Write-Ui -Message "Invalid choice. Please try again" -Level "ERROR"
             Start-Sleep -Seconds 2
         }
     }

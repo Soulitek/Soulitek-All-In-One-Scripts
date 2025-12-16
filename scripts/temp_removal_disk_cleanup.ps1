@@ -1006,10 +1006,14 @@ function Show-MainMenu {
 # MAIN EXECUTION
 # ============================================================
 
+# Show banner
+Clear-Host
+Show-ScriptBanner -ScriptName "Temp Removal & Disk Cleanup" -Purpose "Clean temporary files and free up disk space"
+
 # Check for administrator privileges
 if (-not (Test-Administrator)) {
-    Write-Host "Warning: Administrator privileges recommended for full functionality." -ForegroundColor Yellow
-    Write-Host "Some cleanup operations may not work without admin rights." -ForegroundColor Yellow
+    Write-Ui -Message "Warning: Administrator privileges recommended for full functionality" -Level "WARN"
+    Write-Ui -Message "Some cleanup operations may not work without admin rights" -Level "INFO"
     Write-Host ""
     Start-Sleep -Seconds 2
 }

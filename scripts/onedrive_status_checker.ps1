@@ -209,7 +209,7 @@ function Get-OneDriveAccounts {
                 $accounts += $account
             }
             catch {
-                Write-SouliTEKWarning "Failed to read account info for $($folder.PSChildName)"
+                Write-Ui -Message "Failed to read account info for $($folder.PSChildName)" -Level "WARN"
             }
         }
     }
@@ -450,7 +450,7 @@ function Invoke-FullScan {
     
     Show-Header "ONEDRIVE STATUS CHECKER - FULL SCAN"
     
-    Write-SouliTEKResult "Starting OneDrive status scan..." -Level INFO
+    Write-Ui -Message "Starting OneDrive status scan" -Level "INFO"
     Write-Host ""
     
     $Script:OneDriveResults = @()
@@ -458,13 +458,13 @@ function Invoke-FullScan {
     $Script:SyncErrors = @()
     
     # Step 1: Check installation
-    Write-SouliTEKResult "Checking OneDrive installation..." -Level INFO
+    Write-Ui -Message "Checking OneDrive installation" -Level "INFO"
     $installInfo = Test-OneDriveInstalled
     
     if ($installInfo.Installed) {
-        Write-SouliTEKSuccess "OneDrive is installed"
-        Write-Host "  Path: $($installInfo.Path)" -ForegroundColor Gray
-        Write-Host "  Version: $($installInfo.Version)" -ForegroundColor Gray
+        Write-Ui -Message "OneDrive is installed" -Level "OK"
+        Write-Ui -Message "Path: $($installInfo.Path)" -Level "INFO"
+        Write-Ui -Message "Version: $($installInfo.Version)" -Level "INFO"
         
         $Script:OneDriveResults += [PSCustomObject]@{
             Category = "Installation"
@@ -474,7 +474,7 @@ function Invoke-FullScan {
             Path = $installInfo.Path
         }
     } else {
-        Write-SouliTEKError "OneDrive is NOT installed"
+        Write-Ui -Message "OneDrive is NOT installed" -Level "ERROR"
         $Script:OneDriveResults += [PSCustomObject]@{
             Category = "Installation"
             Item = "OneDrive"
@@ -490,13 +490,13 @@ function Invoke-FullScan {
     Write-Host ""
     
     # Step 2: Check process
-    Write-SouliTEKResult "Checking OneDrive process..." -Level INFO
+    Write-Ui -Message "Checking OneDrive process" -Level "INFO"
     $processInfo = Get-OneDriveProcess
     
     if ($processInfo.Running) {
-        Write-SouliTEKSuccess "OneDrive is running"
-        Write-Host "  Processes: $($processInfo.Count)" -ForegroundColor Gray
-        Write-Host "  Memory: $(Format-SouliTEKFileSize $processInfo.Memory)" -ForegroundColor Gray
+        Write-Ui -Message "OneDrive is running" -Level "OK"
+        Write-Ui -Message "Processes: $($processInfo.Count)" -Level "INFO"
+        Write-Ui -Message "Memory: $(Format-SouliTEKFileSize $processInfo.Memory)" -Level "INFO"
         
         $Script:OneDriveResults += [PSCustomObject]@{
             Category = "Process"
@@ -506,7 +506,7 @@ function Invoke-FullScan {
             Path = ""
         }
     } else {
-        Write-SouliTEKWarning "OneDrive is NOT running"
+        Write-Ui -Message "OneDrive is NOT running" -Level "WARN"
         $Script:OneDriveResults += [PSCustomObject]@{
             Category = "Process"
             Item = "OneDrive.exe"
@@ -519,11 +519,11 @@ function Invoke-FullScan {
     Write-Host ""
     
     # Step 3: Get accounts
-    Write-SouliTEKResult "Scanning configured accounts..." -Level INFO
+    Write-Ui -Message "Scanning configured accounts" -Level "INFO"
     $Script:OneDriveAccounts = Get-OneDriveAccounts
     
     if ($Script:OneDriveAccounts.Count -gt 0) {
-        Write-SouliTEKSuccess "Found $($Script:OneDriveAccounts.Count) configured account(s)"
+        Write-Ui -Message "Found $($Script:OneDriveAccounts.Count) configured account(s)" -Level "OK"
         foreach ($account in $Script:OneDriveAccounts) {
             Write-Host "  [$($account.AccountType)] $($account.UserEmail)" -ForegroundColor Gray
             
@@ -536,7 +536,7 @@ function Invoke-FullScan {
             }
         }
     } else {
-        Write-SouliTEKWarning "No OneDrive accounts configured"
+        Write-Ui -Message "No OneDrive accounts configured" -Level "WARN"
         $Script:OneDriveResults += [PSCustomObject]@{
             Category = "Account"
             Item = "None"
@@ -549,7 +549,7 @@ function Invoke-FullScan {
     Write-Host ""
     
     # Step 4: Check sync status
-    Write-SouliTEKResult "Checking sync status..." -Level INFO
+    Write-Ui -Message "Checking sync status" -Level "INFO"
     $syncStatus = Get-OneDriveSyncStatus
     
     $statusColor = switch ($syncStatus.StatusCode) {
@@ -577,7 +577,7 @@ function Invoke-FullScan {
     Write-Host ""
     
     # Step 5: Get folder info
-    Write-SouliTEKResult "Analyzing OneDrive folders..." -Level INFO
+    Write-Ui -Message "Analyzing OneDrive folders" -Level "INFO"
     $folderInfo = Get-OneDriveFolderInfo
     
     if ($folderInfo.Count -gt 0) {
@@ -597,11 +597,11 @@ function Invoke-FullScan {
     Write-Host ""
     
     # Step 6: Scan for errors
-    Write-SouliTEKResult "Scanning logs for sync errors..." -Level INFO
+    Write-Ui -Message "Scanning logs for sync errors" -Level "INFO"
     $Script:SyncErrors = Get-OneDriveSyncErrors
     
     if ($Script:SyncErrors.Count -gt 0) {
-        Write-SouliTEKWarning "Found $($Script:SyncErrors.Count) error(s) in logs"
+        Write-Ui -Message "Found $($Script:SyncErrors.Count) error(s) in logs" -Level "WARN"
         
         # Show first 5 errors
         $Script:SyncErrors | Select-Object -First 5 | ForEach-Object {
@@ -616,7 +616,7 @@ function Invoke-FullScan {
             Path = ""
         }
     } else {
-        Write-SouliTEKSuccess "No sync errors found in recent logs"
+        Write-Ui -Message "No sync errors found in recent logs" -Level "OK"
         
         $Script:OneDriveResults += [PSCustomObject]@{
             Category = "Errors"
@@ -915,7 +915,7 @@ function Export-OneDriveResults {
     }
     
     Write-Host ""
-    Write-SouliTEKSuccess "Export complete!"
+    Write-Ui -Message "Export complete" -Level "OK"
     Wait-SouliTEKKeyPress
 }
 
@@ -1001,7 +1001,7 @@ function Show-MainMenu {
                 exit 0
             }
             default {
-                Write-SouliTEKWarning "Invalid choice. Please select 0-6."
+                Write-Ui -Message "Invalid choice. Please select 0-6" -Level "WARN"
                 Start-Sleep -Seconds 1
             }
         }
@@ -1013,14 +1013,15 @@ function Show-MainMenu {
 # ============================================================
 
 try {
-    Initialize-SouliTEKScript -WindowTitle "ONEDRIVE STATUS CHECKER"
+    Clear-Host
+    Show-ScriptBanner -ScriptName "OneDrive Status Checker" -Purpose "Check OneDrive sync status by examining Registry, process status, and logs"
     
     Show-SouliTEKDisclaimer -ToolName $Script:ToolName
     
     Show-MainMenu
 }
 catch {
-    Write-SouliTEKError "An error occurred: $($_.Exception.Message)"
+    Write-Ui -Message "An error occurred: $($_.Exception.Message)" -Level "ERROR"
     Write-Host ""
     Read-Host "Press Enter to exit"
     exit 1

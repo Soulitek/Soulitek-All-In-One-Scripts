@@ -94,36 +94,27 @@ function Get-CurrentNetwork {
 
 # Function to display header - uses centralized module function
 function Show-Header {
-    Show-SouliTEKHeader -Title "WIFI PASSWORD VIEWER" -ClearHost -ShowBanner
-    Write-Host "      Coded by: Soulitek.co.il" -ForegroundColor Yellow
-    Write-Host "      IT Solutions for your business" -ForegroundColor Yellow
-    Write-Host "      www.soulitek.co.il" -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "      (C) 2025 Soulitek - All Rights Reserved" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Cyan
+    Clear-Host
+    Show-ScriptBanner -ScriptName "WiFi Password Viewer" -Purpose "View and backup WiFi passwords saved on Windows computer"
     Write-Host ""
 }
 
 # Function to view all WiFi passwords
 function Show-AllPasswords {
     Show-Header
-    Write-Host "========================================" -ForegroundColor Green
-    Write-Host "   ALL SAVED WiFi NETWORKS" -ForegroundColor Green
-    Write-Host "========================================" -ForegroundColor Green
+    Show-Section "All Saved WiFi Networks"
     Write-Host ""
-    Write-Host "Scanning for saved WiFi profiles..." -ForegroundColor Yellow
+    Write-Ui -Message "Scanning for saved WiFi profiles" -Level "INFO"
     Write-Host ""
     
     $profiles = Get-WiFiProfiles
     
     if ($profiles.Count -eq 0) {
-        Write-Host "No saved WiFi networks found!" -ForegroundColor Red
+        Write-Ui -Message "No saved WiFi networks found" -Level "ERROR"
         Write-Host ""
-        Write-Host "This could mean:" -ForegroundColor Yellow
-        Write-Host "  - No WiFi networks have been connected" -ForegroundColor Gray
-        Write-Host "  - WiFi adapter not present" -ForegroundColor Gray
-        Write-Host "  - Running on Ethernet only" -ForegroundColor Gray
+        Write-Ui -Message "This could mean: No WiFi networks have been connected" -Level "INFO"
+        Write-Ui -Message "WiFi adapter not present" -Level "INFO"
+        Write-Ui -Message "Running on Ethernet only" -Level "INFO"
     }
     else {
         $count = 0
@@ -145,9 +136,8 @@ function Show-AllPasswords {
             Write-Host ""
         }
         
-        Write-Host "========================================" -ForegroundColor Green
-        Write-Host "Total networks found: $count" -ForegroundColor Green
-        Write-Host "========================================" -ForegroundColor Green
+        Write-Host ""
+        Write-Ui -Message "Total networks found: $count" -Level "OK"
     }
     
     Write-Host ""
@@ -158,22 +148,20 @@ function Show-AllPasswords {
 # Function to view current network password
 function Show-CurrentNetwork {
     Show-Header
-    Write-Host "========================================" -ForegroundColor Magenta
-    Write-Host "   CURRENT WiFi NETWORK" -ForegroundColor Magenta
-    Write-Host "========================================" -ForegroundColor Magenta
+    Show-Section "Current WiFi Network"
     Write-Host ""
     
     $currentNetwork = Get-CurrentNetwork
     
     if (-not $currentNetwork) {
-        Write-Host "Not connected to any WiFi network!" -ForegroundColor Red
+        Write-Ui -Message "Not connected to any WiFi network" -Level "ERROR"
         Write-Host ""
-        Write-Host "Please connect to a WiFi network first." -ForegroundColor Yellow
+        Write-Ui -Message "Please connect to a WiFi network first" -Level "INFO"
     }
     else {
-        Write-Host "Network Name: $currentNetwork" -ForegroundColor White
+        Write-Ui -Message "Network Name: $currentNetwork" -Level "INFO"
         Write-Host ""
-        Write-Host "Retrieving password..." -ForegroundColor Yellow
+        Write-Ui -Message "Retrieving password" -Level "INFO"
         Write-Host ""
         
         $password = Get-WiFiPassword -ProfileName $currentNetwork
@@ -207,34 +195,30 @@ function Show-CurrentNetwork {
 # Function to search for specific network
 function Search-Network {
     Show-Header
-    Write-Host "========================================" -ForegroundColor Cyan
-    Write-Host "   SEARCH SPECIFIC NETWORK" -ForegroundColor Cyan
-    Write-Host "========================================" -ForegroundColor Cyan
+    Show-Section "Search Specific Network"
     Write-Host ""
-    Write-Host "Enter the WiFi network name (SSID):" -ForegroundColor Yellow
+    Write-Ui -Message "Enter the WiFi network name (SSID)" -Level "INFO"
     $searchName = Read-Host "> "
     
     if ([string]::IsNullOrWhiteSpace($searchName)) {
-        Write-Host "No network name entered." -ForegroundColor Red
+        Write-Ui -Message "No network name entered" -Level "ERROR"
         Start-Sleep -Seconds 2
         return
     }
     
     Show-Header
-    Write-Host "========================================" -ForegroundColor Cyan
-    Write-Host "   SEARCHING FOR: $searchName" -ForegroundColor Cyan
-    Write-Host "========================================" -ForegroundColor Cyan
+    Show-Section "Searching for: $searchName"
     Write-Host ""
     
     $result = netsh wlan show profile name="$searchName" 2>&1
     
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "Network `"$searchName`" not found!" -ForegroundColor Red
+        Write-Ui -Message "Network `"$searchName`" not found" -Level "ERROR"
         Write-Host ""
-        Write-Host "This network has never been connected on this PC." -ForegroundColor Yellow
+        Write-Ui -Message "This network has never been connected on this PC" -Level "WARN"
     }
     else {
-        Write-Host "Network found: $searchName" -ForegroundColor Green
+        Write-Ui -Message "Network found: $searchName" -Level "OK"
         Write-Host ""
         
         $password = Get-WiFiPassword -ProfileName $searchName
@@ -613,22 +597,12 @@ function Show-Disclaimer {
 # Check for administrator privileges
 if (-not (Test-SouliTEKAdministrator)) {
     Clear-Host
+    Show-ScriptBanner -ScriptName "WiFi Password Viewer" -Purpose "View and backup WiFi passwords saved on Windows computer"
     Write-Host ""
-    Write-Host "========================================" -ForegroundColor Red
-    Write-Host "   ERROR: Administrator Required" -ForegroundColor Red
-    Write-Host "========================================" -ForegroundColor Red
+    Write-Ui -Message "Administrator privileges required" -Level "ERROR"
+    Write-Ui -Message "This script must run as Administrator" -Level "INFO"
     Write-Host ""
-    Write-Host "This script must run as Administrator." -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "HOW TO FIX:" -ForegroundColor White
-    Write-Host "1. Right-click PowerShell" -ForegroundColor Gray
-    Write-Host "2. Select `"Run as administrator`"" -ForegroundColor Gray
-    Write-Host "3. Navigate to script location and run it" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "Or run this command:" -ForegroundColor White
-    Write-Host "Start-Process powershell -Verb RunAs -ArgumentList `"-File '$PSCommandPath'`"" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "========================================" -ForegroundColor Red
+    Write-Ui -Message "HOW TO FIX: Right-click PowerShell and select 'Run as administrator'" -Level "INFO"
     Write-Host ""
     Read-Host "Press Enter to exit"
     exit 1
@@ -642,6 +616,10 @@ if (-not (Test-SouliTEKAdministrator)) {
 function Show-ExitMessage {
     Show-SouliTEKExitMessage -ScriptPath $PSCommandPath -ToolName "SouliTEK WiFi Password Viewer"
 }
+
+# Show banner
+Clear-Host
+Show-ScriptBanner -ScriptName "WiFi Password Viewer" -Purpose "View and backup WiFi passwords saved on Windows computer"
 
 # Show disclaimer
 Show-Disclaimer
@@ -664,7 +642,7 @@ while ($running) {
             $running = $false
         }
         default {
-            Write-Host "Invalid choice. Please try again." -ForegroundColor Red
+            Write-Ui -Message "Invalid choice. Please try again" -Level "ERROR"
             Start-Sleep -Seconds 2
         }
     }

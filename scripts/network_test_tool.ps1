@@ -79,17 +79,14 @@ function Add-TestResult {
 # ============================================================
 
 function Test-PingAdvanced {
-    Show-SouliTEKHeader -Title "PING TEST - ADVANCED" -Color Green -ClearHost -ShowBanner
-    
-    Write-Host "      Test network connectivity with ICMP echo requests" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Cyan
+    Show-Section "Ping Test - Advanced"
+    Write-Ui -Message "Test network connectivity with ICMP echo requests" -Level "INFO"
     Write-Host ""
     
     $target = Read-Host "Enter hostname or IP address (e.g., google.com, 8.8.8.8)"
     
     if ([string]::IsNullOrWhiteSpace($target)) {
-        Write-SouliTEKResult "No target specified" -Level ERROR
+        Write-Ui -Message "No target specified" -Level "ERROR"
         Start-Sleep -Seconds 2
         return
     }
@@ -952,6 +949,10 @@ function Show-ExitMessage {
 # MAIN EXECUTION
 # ============================================================
 
+# Show banner
+Clear-Host
+Show-ScriptBanner -ScriptName "Network Test Tool" -Purpose "Comprehensive network testing capabilities for troubleshooting connectivity and performance issues"
+
 # Show disclaimer
 Show-Disclaimer
 
@@ -973,7 +974,7 @@ do {
             break
         }
         default {
-            Write-Host "Invalid choice. Please try again." -ForegroundColor Red
+            Write-Ui -Message "Invalid choice. Please try again" -Level "ERROR"
             Start-Sleep -Seconds 2
         }
     }

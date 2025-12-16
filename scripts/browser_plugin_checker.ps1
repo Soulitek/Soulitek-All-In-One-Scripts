@@ -844,8 +844,9 @@ function Show-Menu {
 # MAIN EXECUTION
 # ============================================================
 
-# Initialize
-Initialize-SouliTEKScript -WindowTitle "SouliTEK - Browser Plugin Checker v$Script:Version"
+# Show banner
+Clear-Host
+Show-ScriptBanner -ScriptName "Browser Plugin Checker" -Purpose "Check browser extensions and plugins for security risks"
 
 # Main loop
 do {
@@ -863,7 +864,7 @@ do {
             exit 0
         }
         default {
-            Write-Host "Invalid option. Please try again." -ForegroundColor Red
+            Write-Ui -Message "Invalid option. Please try again" -Level "ERROR"
             Start-Sleep -Seconds 1
         }
     }

@@ -253,6 +253,10 @@ function Invoke-Win11Debloat {
 # MAIN EXECUTION
 # ============================================================
 
+# Show banner
+Clear-Host
+Show-ScriptBanner -ScriptName "Windows 11 Debloat Tool" -Purpose "Remove bloatware and optimize Windows 11/10 installation"
+
 # Check for administrator privileges
 if (-not (Test-SouliTEKAdministrator)) {
     Show-AdminError

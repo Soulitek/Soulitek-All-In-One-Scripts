@@ -1,5 +1,30 @@
 # Workflow State
 
+## Status: Completed
+
+### Task: Fixed Missing SharePoint Site Inventory Script
+
+**Completed:** Recreated the missing `sharepoint_site_inventory.ps1` script that was referenced in the launcher but missing from the scripts directory.
+
+#### Issue
+- Script `sharepoint_site_inventory.ps1` was missing from `scripts/` directory
+- Launcher referenced the script at line 348
+- Documentation existed in `docs/sharepoint_site_inventory.md`
+- Warning: "Script not found: sharepoint_site_inventory.ps1"
+
+#### Solution
+- Created complete `scripts/sharepoint_site_inventory.ps1` script
+- Followed same pattern as other M365 scripts (`m365_user_list.ps1`, `m365_exchange_online.ps1`)
+- Implemented all features documented in the documentation:
+  - Microsoft Graph connection with required permissions
+  - SharePoint site retrieval
+  - Site information collection (URL, name, template, type, storage, owners, activity)
+  - Export to TXT, CSV, HTML, and JSON formats
+  - Menu-driven interface
+- Script is now functional and ready to use
+
+---
+
 ## Status: In Progress
 
 ### Task: Unified Output Style Standardization

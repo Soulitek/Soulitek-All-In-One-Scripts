@@ -1670,6 +1670,10 @@ function Show-ExitMessage {
 # MAIN EXECUTION
 # ============================================================
 
+# Show banner
+Clear-Host
+Show-ScriptBanner -ScriptName "Domain & DNS Analyzer" -Purpose "Comprehensive domain WHOIS and DNS analysis tool"
+
 # Show disclaimer
 Show-Disclaimer
 
@@ -1691,7 +1695,7 @@ do {
             break
         }
         default {
-            Write-Host "Invalid choice. Please try again." -ForegroundColor Red
+            Write-Ui -Message "Invalid choice. Please try again" -Level "ERROR"
             Start-Sleep -Seconds 2
         }
     }

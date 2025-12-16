@@ -713,6 +713,10 @@ if (-not (Test-SouliTEKAdministrator)) {
     Show-AdminError
 }
 
+# Show banner
+Clear-Host
+Show-ScriptBanner -ScriptName "Printer Spooler Fix" -Purpose "Fix printer spooler issues and stuck print jobs"
+
 # Show disclaimer
 Show-Disclaimer
 

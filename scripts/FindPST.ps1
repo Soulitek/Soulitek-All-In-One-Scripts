@@ -772,6 +772,10 @@ if ($AutoScan) {
     exit 0
 }
 
+# Show banner
+Clear-Host
+Show-ScriptBanner -ScriptName "FindPST" -Purpose "Locate and analyze Outlook PST files on the system"
+
 # Check for administrator privileges
 Confirm-Administrator
 

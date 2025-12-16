@@ -285,13 +285,16 @@ function Start-CalendarPermissionsAudit {
 # MAIN EXECUTION
 # ============================================================
 
+# Show banner
+Clear-Host
+Show-ScriptBanner -ScriptName "Exchange Calendar Permissions Audit" -Purpose "Audit calendar permissions for Exchange Online mailboxes"
+
 try {
 	Start-CalendarPermissionsAudit
 }
 catch {
 	Write-Host ""
-	Write-Host "============================================================" -ForegroundColor Red
-	Write-Host "  Fatal Error" -ForegroundColor Red
+	Write-Ui -Message "Fatal Error" -Level "ERROR"
 	Write-Host "============================================================" -ForegroundColor Red
 	Write-Host ""
 	Write-Warning "An unexpected error occurred: $($_.Exception.Message)"

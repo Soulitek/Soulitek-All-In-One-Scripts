@@ -928,10 +928,14 @@ function Show-MainMenu {
 }
 
 function Main {
+    # Show banner
+    Clear-Host
+    Show-ScriptBanner -ScriptName "Network Configuration Tool" -Purpose "Configure network settings, IP addresses, and network adapters"
+    
     # Check for administrator privileges
     if (-not (Test-Administrator)) {
-        Write-Host "WARNING: Not running as Administrator!" -ForegroundColor Yellow
-        Write-Host "Some features may not be available." -ForegroundColor Yellow
+        Write-Ui -Message "WARNING: Not running as Administrator" -Level "WARN"
+        Write-Ui -Message "Some features may not be available" -Level "INFO"
         Write-Host ""
         Start-Sleep -Seconds 2
     }

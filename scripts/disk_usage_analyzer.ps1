@@ -110,7 +110,7 @@ function Get-LargeFolders {
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     
-    Write-SouliTEKResult "Scanning folders (this may take a while)..." -Level INFO
+    Write-Ui -Message "Scanning folders (this may take a while)" -Level "INFO"
     Write-Host ""
     
     $minSizeBytes = $MinSizeGB * 1GB
@@ -120,7 +120,7 @@ function Get-LargeFolders {
     
     try {
         if (-not (Test-Path $Path)) {
-            Write-SouliTEKResult "Path not found: $Path" -Level ERROR
+            Write-Ui -Message "Path not found: $Path" -Level "ERROR"
             Read-Host "Press Enter to return to main menu"
             return @()
         }
@@ -193,7 +193,7 @@ function Get-LargeFolders {
         Write-Host ""
     }
     catch {
-        Write-SouliTEKResult "Error during scan: $_" -Level ERROR
+        Write-Ui -Message "Error during scan: $_" -Level "ERROR"
     }
     
     Write-Host ""
@@ -206,7 +206,7 @@ function Show-LargeFolders {
     Show-SouliTEKHeader -Title "LARGE FOLDERS ANALYSIS" -Color Green -ClearHost -ShowBanner
     
     if ($Script:FolderData.Count -eq 0) {
-        Write-SouliTEKResult "No data available. Please run a scan first." -Level WARNING
+        Write-Ui -Message "No data available. Please run a scan first" -Level "WARN"
         Write-Host ""
         Read-Host "Press Enter to return to main menu"
         return
@@ -245,7 +245,7 @@ function Export-DiskUsageReport {
     Show-SouliTEKHeader -Title "EXPORT DISK USAGE REPORT" -Color Yellow -ClearHost -ShowBanner
     
     if ($Script:FolderData.Count -eq 0) {
-        Write-SouliTEKResult "No data available. Please run a scan first." -Level WARNING
+        Write-Ui -Message "No data available. Please run a scan first" -Level "WARN"
         Read-Host "Press Enter to return to main menu"
         return
     }
@@ -282,7 +282,7 @@ function Export-DiskUsageReport {
             return
         }
         default {
-            Write-SouliTEKResult "Invalid choice" -Level ERROR
+            Write-Ui -Message "Invalid choice" -Level "ERROR"
             Start-Sleep -Seconds 2
             return
         }
@@ -342,7 +342,7 @@ function Export-TextReport {
     $content | Out-File -FilePath $filePath -Encoding UTF8
     
     Write-Host ""
-    Write-SouliTEKResult "Text report exported to: $filePath" -Level SUCCESS
+    Write-Ui -Message "Text report exported to: $filePath" -Level "OK"
     Start-Sleep -Seconds 1
     Start-Process $filePath
 }
@@ -372,7 +372,7 @@ function Export-CSVReport {
     $data | Export-Csv -Path $filePath -NoTypeInformation -Encoding UTF8
     
     Write-Host ""
-    Write-SouliTEKResult "CSV report exported to: $filePath" -Level SUCCESS
+    Write-Ui -Message "CSV report exported to: $filePath" -Level "OK"
     Start-Sleep -Seconds 1
     Start-Process $filePath
 }
@@ -513,7 +513,7 @@ function Export-HTMLReport {
     Set-Content -Path $filePath -Value $html -Encoding UTF8
     
     Write-Host ""
-    Write-SouliTEKResult "HTML report exported to: $filePath" -Level SUCCESS
+    Write-Ui -Message "HTML report exported to: $filePath" -Level "OK"
     Start-Sleep -Seconds 1
     Start-Process $filePath
 }
@@ -555,7 +555,7 @@ function Select-ScanPath {
     elseif ([int]$choice -ge 1 -and [int]$choice -le ($driveOptions.Count)) {
         $selectedPath = $driveOptions[[int]$choice - 1]
         Write-Host ""
-        Write-SouliTEKResult "Selected path: $selectedPath" -Level SUCCESS
+        Write-Ui -Message "Selected path: $selectedPath" -Level "OK"
         Start-Sleep -Seconds 1
         return $selectedPath
     }
@@ -565,12 +565,12 @@ function Select-ScanPath {
         
         if (Test-Path $customPath) {
             Write-Host ""
-            Write-SouliTEKResult "Selected path: $customPath" -Level SUCCESS
+            Write-Ui -Message "Selected path: $customPath" -Level "OK"
             Start-Sleep -Seconds 1
             return $customPath
         }
         else {
-            Write-SouliTEKResult "Path not found: $customPath" -Level ERROR
+            Write-Ui -Message "Path not found: $customPath" -Level "ERROR"
             Start-Sleep -Seconds 2
             return $null
         }
@@ -599,16 +599,16 @@ function Set-MinimumSize {
             if ($newSize -gt 0) {
                 $Script:MinSizeGB = $newSize
                 Write-Host ""
-                Write-SouliTEKResult "Minimum size threshold set to: $($Script:MinSizeGB) GB" -Level SUCCESS
+                Write-Ui -Message "Minimum size threshold set to: $($Script:MinSizeGB) GB" -Level "OK"
             }
             else {
                 Write-Host ""
-                Write-SouliTEKResult "Size must be greater than 0" -Level ERROR
+                Write-Ui -Message "Size must be greater than 0" -Level "ERROR"
             }
         }
         catch {
             Write-Host ""
-            Write-SouliTEKResult "Invalid input. Using current value: $($Script:MinSizeGB) GB" -Level WARNING
+            Write-Ui -Message "Invalid input. Using current value: $($Script:MinSizeGB) GB" -Level "WARN"
         }
     }
     
@@ -729,11 +729,15 @@ function Show-ExitMessage {
 # MAIN EXECUTION
 # ============================================================
 
+# Show banner
+Clear-Host
+Show-ScriptBanner -ScriptName "Disk Usage Analyzer" -Purpose "Analyze disk usage and find large folders for storage optimization and cleanup"
+
 # Check for administrator privileges (helpful but not always required)
 if (-not (Test-SouliTEKAdministrator)) {
     Write-Host ""
-    Write-Host "Note: Running without administrator privileges." -ForegroundColor Yellow
-    Write-Host "Some folders may be inaccessible. For best results, run as Administrator." -ForegroundColor Yellow
+    Write-Ui -Message "Note: Running without administrator privileges" -Level "WARN"
+    Write-Ui -Message "Some folders may be inaccessible. For best results, run as Administrator" -Level "INFO"
     Write-Host ""
     Start-Sleep -Seconds 2
 }
@@ -755,7 +759,7 @@ do {
         "3" {
             if ([string]::IsNullOrWhiteSpace($Script:ScanPath)) {
                 Show-SouliTEKHeader -Title "ERROR" -Color Red -ClearHost -ShowBanner
-                Write-SouliTEKResult "Please select a scan path first (option 1)" -Level ERROR
+                Write-Ui -Message "Please select a scan path first (option 1)" -Level "ERROR"
                 Write-Host ""
                 Read-Host "Press Enter to return to main menu"
             }

@@ -58,7 +58,7 @@ function Test-BitLockerAvailable {
 function Assert-BitLockerAdmin {
     if (-not (Test-SouliTEKAdministrator)) {
         Show-SouliTEKHeader "ADMINISTRATOR REQUIRED" "BitLocker operations require elevated privileges." -Color ([ConsoleColor]::Red)
-        Write-SouliTEKWarning "Please run PowerShell as Administrator and retry."
+        Write-Ui -Message "Please run PowerShell as Administrator and retry" -Level "WARN"
         Write-Host ""
         Read-Host "Press Enter to exit"
         exit 1
@@ -98,7 +98,7 @@ function Get-BitLockerInfo {
         return $volumes
     }
     catch {
-        Write-SouliTEKError "Failed to retrieve BitLocker information: $($_.Exception.Message)"
+        Write-Ui -Message "Failed to retrieve BitLocker information: $($_.Exception.Message)" -Level "ERROR"
         return $null
     }
 }
@@ -109,8 +109,8 @@ function Show-BitLockerStatus {
     Show-SouliTEKHeader "BITLOCKER STATUS CHECK" "Encryption status for all volumes" -Color ([ConsoleColor]::Cyan)
     
     if (-not (Test-BitLockerAvailable)) {
-        Write-SouliTEKError "BitLocker is not available on this system."
-        Write-SouliTEKInfo "BitLocker requires Windows 10/11 Pro or Enterprise edition."
+        Write-Ui -Message "BitLocker is not available on this system" -Level "ERROR"
+        Write-Ui -Message "BitLocker requires Windows 10/11 Pro or Enterprise edition" -Level "INFO"
         Write-Host ""
         Read-Host "Press Enter to return to menu"
         return
@@ -184,11 +184,11 @@ function Show-RecoveryKeys {
     Clear-Host
     Show-SouliTEKHeader "RECOVERY KEYS" "BitLocker recovery keys (SENSITIVE INFORMATION)" -Color ([ConsoleColor]::Red)
     
-    Write-SouliTEKWarning "Recovery keys are sensitive. Handle with care and store securely."
+    Write-Ui -Message "Recovery keys are sensitive. Handle with care and store securely" -Level "WARN"
     Write-Host ""
     
     if (-not (Test-BitLockerAvailable)) {
-        Write-SouliTEKError "BitLocker is not available on this system."
+        Write-Ui -Message "BitLocker is not available on this system" -Level "ERROR"
         Write-Host ""
         Read-Host "Press Enter to return to menu"
         return
@@ -222,8 +222,8 @@ function Show-RecoveryKeys {
     }
     
     if (-not $hasRecoveryKeys) {
-        Write-SouliTEKInfo "No recovery keys found for any volumes."
-        Write-SouliTEKInfo "Recovery keys are only available for encrypted volumes."
+        Write-Ui -Message "No recovery keys found for any volumes" -Level "INFO"
+        Write-Ui -Message "Recovery keys are only available for encrypted volumes" -Level "INFO"
     }
     
     Write-Host ""
@@ -235,11 +235,11 @@ function Export-RecoveryKeys {
     Clear-Host
     Show-SouliTEKHeader "EXPORT RECOVERY KEYS" "Save recovery keys to secure file" -Color ([ConsoleColor]::Yellow)
     
-    Write-SouliTEKWarning "Recovery keys will be saved to Desktop. Protect this file!"
+    Write-Ui -Message "Recovery keys will be saved to Desktop. Protect this file" -Level "WARN"
     Write-Host ""
     
     if (-not (Test-BitLockerAvailable)) {
-        Write-SouliTEKError "BitLocker is not available on this system."
+        Write-Ui -Message "BitLocker is not available on this system" -Level "ERROR"
         Write-Host ""
         Read-Host "Press Enter to return to menu"
         return
@@ -298,14 +298,14 @@ function Export-RecoveryKeys {
         $content | Out-File -FilePath $filePath -Encoding UTF8
         
         if ($hasKeys) {
-            Write-SouliTEKSuccess "Recovery keys exported to: $filePath"
-            Write-SouliTEKWarning "IMPORTANT: Secure this file immediately!"
+            Write-Ui -Message "Recovery keys exported to: $filePath" -Level "OK"
+            Write-Ui -Message "IMPORTANT: Secure this file immediately" -Level "WARN"
         } else {
-            Write-SouliTEKInfo "No recovery keys found. File created but empty."
+            Write-Ui -Message "No recovery keys found. File created but empty" -Level "INFO"
         }
     }
     catch {
-        Write-SouliTEKError "Failed to export recovery keys: $($_.Exception.Message)"
+        Write-Ui -Message "Failed to export recovery keys: $($_.Exception.Message)" -Level "ERROR"
     }
     
     Write-Host ""
@@ -318,7 +318,7 @@ function Show-DetailedReport {
     Show-SouliTEKHeader "DETAILED VOLUME REPORT" "Comprehensive BitLocker information" -Color ([ConsoleColor]::Magenta)
     
     if (-not (Test-BitLockerAvailable)) {
-        Write-SouliTEKError "BitLocker is not available on this system."
+        Write-Ui -Message "BitLocker is not available on this system" -Level "ERROR"
         Write-Host ""
         Read-Host "Press Enter to return to menu"
         return
@@ -372,7 +372,7 @@ function Show-SecurityAudit {
     Show-SouliTEKHeader "SECURITY AUDIT" "BitLocker compliance and security analysis" -Color ([ConsoleColor]::Green)
     
     if (-not (Test-BitLockerAvailable)) {
-        Write-SouliTEKError "BitLocker is not available on this system."
+        Write-Ui -Message "BitLocker is not available on this system" -Level "ERROR"
         Write-Host ""
         Read-Host "Press Enter to return to menu"
         return
@@ -474,10 +474,10 @@ function Show-SecurityAudit {
             }
             
             $content | Out-File -FilePath $filePath -Encoding UTF8
-            Write-SouliTEKSuccess "Audit report exported to: $filePath"
+            Write-Ui -Message "Audit report exported to: $filePath" -Level "OK"
         }
         catch {
-            Write-SouliTEKError "Failed to export audit report: $($_.Exception.Message)"
+            Write-Ui -Message "Failed to export audit report: $($_.Exception.Message)" -Level "ERROR"
         }
     }
     
@@ -539,6 +539,10 @@ function Show-Help {
     
     Read-Host "Press Enter to return to menu"
 }
+
+# Show banner
+Clear-Host
+Show-ScriptBanner -ScriptName "BitLocker Status Report" -Purpose "View BitLocker encryption status and recovery keys for all volumes"
 
 # Main execution
 try {

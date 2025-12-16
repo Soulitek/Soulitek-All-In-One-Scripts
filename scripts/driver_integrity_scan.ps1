@@ -108,17 +108,17 @@ function Get-WinGetAvailability {
     try {
         $wingetPath = Get-Command winget.exe -ErrorAction SilentlyContinue
         if ($wingetPath) {
-            Write-SouliTEKSuccess "WinGet is available on this system"
+            Write-Ui -Message "WinGet is available on this system" -Level "OK"
             return $true
         } else {
-            Write-SouliTEKWarning "WinGet is not available on this system"
+            Write-Ui -Message "WinGet is not available on this system" -Level "WARN"
             Write-Host "  [!] WinGet comes pre-installed on Windows 11 and Windows 10 (version 1809+)" -ForegroundColor Yellow
             Write-Host "  [!] You can install it from: https://aka.ms/getwinget" -ForegroundColor Yellow
             return $false
         }
     }
     catch {
-        Write-SouliTEKError "Error checking WinGet availability: $($_.Exception.Message)"
+        Write-Ui -Message "Error checking WinGet availability: $($_.Exception.Message)" -Level "ERROR"
         return $false
     }
 }
@@ -128,7 +128,7 @@ function Get-DriverIntegrityStatus {
     .SYNOPSIS
         Scans for driver issues using WMI and PnP cmdlets
     #>
-    Write-SouliTEKInfo "Scanning for driver integrity issues..."
+    Write-Ui -Message "Scanning for driver integrity issues" -Level "INFO"
     Write-Host ""
     
     $Script:ProblemDevices = @()
@@ -224,7 +224,7 @@ function Get-DriverIntegrityStatus {
                 Write-Host ""
             }
         } else {
-            Write-SouliTEKSuccess "All devices are working properly!"
+            Write-Ui -Message "All devices are working properly" -Level "OK"
             Write-Host ""
         }
         
@@ -234,7 +234,7 @@ function Get-DriverIntegrityStatus {
         return $true
     }
     catch {
-        Write-SouliTEKError "Failed to scan drivers: $($_.Exception.Message)"
+        Write-Ui -Message "Failed to scan drivers: $($_.Exception.Message)" -Level "ERROR"
         return $false
     }
 }
@@ -275,7 +275,7 @@ function Export-DriverList {
     )
     
     if ($Script:AllDrivers.Count -eq 0) {
-        Write-SouliTEKWarning "No driver data available. Please run a scan first."
+        Write-Ui -Message "No driver data available. Please run a scan first" -Level "WARN"
         return $false
     }
     
@@ -294,14 +294,14 @@ function Export-DriverList {
         }
         
         # Export to CSV
-        Write-SouliTEKInfo "Exporting to CSV format..."
+        Write-Ui -Message "Exporting to CSV format" -Level "INFO"
         $exportData | Select-Object DeviceName, Manufacturer, Status, DriverVersion, DriverDate, ErrorCode, ErrorDescription, DeviceID | 
             Export-Csv -Path $csvFile -NoTypeInformation -Encoding UTF8
         
-        Write-SouliTEKSuccess "CSV exported: $csvFile"
+        Write-Ui -Message "CSV exported: $csvFile" -Level "OK"
         
         # Export to TXT
-        Write-SouliTEKInfo "Exporting to TXT format..."
+        Write-Ui -Message "Exporting to TXT format" -Level "INFO"
         
         $txtContent = @"
 ============================================================
@@ -353,7 +353,7 @@ Website: www.soulitek.co.il
 "@
         
         Set-Content -Path $txtFile -Value $txtContent -Encoding UTF8
-        Write-SouliTEKSuccess "TXT report exported: $txtFile"
+        Write-Ui -Message "TXT report exported: $txtFile" -Level "OK"
         
         Write-Host ""
         Write-Host "  [+] Export completed successfully!" -ForegroundColor Green
@@ -363,7 +363,7 @@ Website: www.soulitek.co.il
         return $true
     }
     catch {
-        Write-SouliTEKError "Failed to export driver list: $($_.Exception.Message)"
+        Write-Ui -Message "Failed to export driver list: $($_.Exception.Message)" -Level "ERROR"
         return $false
     }
 }
@@ -384,7 +384,7 @@ function Update-InstalledSoftware {
         return $false
     }
     
-    Write-SouliTEKInfo "Checking for available software updates..."
+    Write-Ui -Message "Checking for available software updates" -Level "INFO"
     Write-Host ""
     
     try {
@@ -393,7 +393,7 @@ function Update-InstalledSoftware {
         $upgradeList = winget upgrade 2>&1
         
         if ($upgradeList -like "*No installed package found*" -or $upgradeList -like "*No applicable update found*") {
-            Write-SouliTEKSuccess "All installed software is up to date!"
+            Write-Ui -Message "All installed software is up to date" -Level "OK"
             return $true
         }
         
@@ -434,7 +434,7 @@ function Update-InstalledSoftware {
             $errors = Get-Content "$env:TEMP\winget_upgrade_error.txt" -Raw -ErrorAction SilentlyContinue
             
             if ($upgradeProcess.ExitCode -eq 0) {
-                Write-SouliTEKSuccess "Software updates completed successfully!"
+                Write-Ui -Message "Software updates completed successfully" -Level "OK"
                 if ($output) {
                     Write-Host ""
                     Write-Host "  " -NoNewline
@@ -443,7 +443,7 @@ function Update-InstalledSoftware {
                     $output -split "`n" | ForEach-Object { Write-Host "  $_" -ForegroundColor Gray }
                 }
             } else {
-                Write-SouliTEKWarning "Software update completed with warnings (Exit Code: $($upgradeProcess.ExitCode))"
+                Write-Ui -Message "Software update completed with warnings (Exit Code: $($upgradeProcess.ExitCode))" -Level "WARN"
                 if ($errors) {
                     Write-Host ""
                     Write-Host "  " -NoNewline
@@ -464,13 +464,13 @@ function Update-InstalledSoftware {
             
             Start-Process -FilePath "winget.exe" -ArgumentList "upgrade", "--all" -Wait -NoNewWindow
             
-            Write-SouliTEKSuccess "Interactive update session completed"
+            Write-Ui -Message "Interactive update session completed" -Level "OK"
         }
         
         return $true
     }
     catch {
-        Write-SouliTEKError "Failed to update software: $($_.Exception.Message)"
+        Write-Ui -Message "Failed to update software: $($_.Exception.Message)" -Level "ERROR"
         return $false
     }
 }
@@ -571,6 +571,10 @@ function Show-Menu {
 # ============================================================
 
 function Main {
+    # Show banner
+    Clear-Host
+    Show-ScriptBanner -ScriptName "Driver Integrity Scan" -Purpose "Scan driver integrity and check for software updates"
+    
     # Check WinGet availability at startup
     $Script:WinGetAvailable = Get-WinGetAvailability
     Write-Host ""

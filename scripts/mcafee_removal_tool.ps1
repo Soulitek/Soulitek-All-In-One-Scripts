@@ -228,6 +228,10 @@ function Invoke-McAfeeRemoval {
 # MAIN EXECUTION
 # ============================================================
 
+# Show banner
+Clear-Host
+Show-ScriptBanner -ScriptName "McAfee Removal Tool" -Purpose "Completely remove all McAfee products from the system"
+
 # Check for administrator privileges
 if (-not (Test-SouliTEKAdministrator)) {
     Show-AdminError

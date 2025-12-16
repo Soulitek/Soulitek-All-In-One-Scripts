@@ -1261,6 +1261,10 @@ function Show-ExitMessage {
 	Show-SouliTEKExitMessage -ScriptPath $PSCommandPath -ToolName "SouliTEK Microsoft 365 User List Tool"
 }
 
+# Show banner
+Clear-Host
+Show-ScriptBanner -ScriptName "Microsoft 365 User List" -Purpose "List and manage Microsoft 365 users and licenses"
+
 # Main execution loop
 while ($true) {
 	Show-Menu

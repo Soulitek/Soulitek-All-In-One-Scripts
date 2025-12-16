@@ -52,7 +52,7 @@ function Get-WindowsProductKey {
     
     # Method 1: WMI - SoftwareLicensingProduct
     try {
-        Write-SouliTEKResult "Attempting to retrieve Windows key via WMI..." -Level INFO
+        Write-Ui -Message "Attempting to retrieve Windows key via WMI" -Level "INFO"
         $licensing = Get-WmiObject -Class SoftwareLicensingProduct -ErrorAction SilentlyContinue | 
                      Where-Object { $_.ApplicationID -eq "55c92734-d682-4d71-983e-d6ec3f16059f" -and $_.LicenseStatus -eq 1 }
         
@@ -71,12 +71,12 @@ function Get-WindowsProductKey {
         }
     }
     catch {
-        Write-SouliTEKResult "WMI method failed: $_" -Level WARNING
+        Write-Ui -Message "WMI method failed: $_" -Level "WARN"
     }
     
     # Method 2: WMI - SoftwareLicensingService
     try {
-        Write-SouliTEKResult "Attempting to retrieve Windows key via SoftwareLicensingService..." -Level INFO
+        Write-Ui -Message "Attempting to retrieve Windows key via SoftwareLicensingService" -Level "INFO"
         $service = Get-WmiObject -Class SoftwareLicensingService -ErrorAction SilentlyContinue
         
         if ($service -and $service.OA3xOriginalProductKey) {
@@ -90,12 +90,12 @@ function Get-WindowsProductKey {
         }
     }
     catch {
-        Write-SouliTEKResult "SoftwareLicensingService method failed: $_" -Level WARNING
+        Write-Ui -Message "SoftwareLicensingService method failed: $_" -Level "WARN"
     }
     
     # Method 3: Registry - DigitalProductId (requires decoding)
     try {
-        Write-SouliTEKResult "Attempting to retrieve Windows key from registry..." -Level INFO
+        Write-Ui -Message "Attempting to retrieve Windows key from registry" -Level "INFO"
         $regPath = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
         $digitalProductId = (Get-ItemProperty -Path $regPath -Name DigitalProductId -ErrorAction SilentlyContinue).DigitalProductId
         
@@ -122,7 +122,7 @@ function Get-WindowsProductKey {
         }
     }
     catch {
-        Write-SouliTEKResult "Registry method failed: $_" -Level WARNING
+        Write-Ui -Message "Registry method failed: $_" -Level "WARN"
     }
     
     # If no keys found, try to get Windows version info anyway
@@ -145,7 +145,7 @@ function Get-WindowsProductKey {
             }
         }
         catch {
-            Write-SouliTEKResult "Could not retrieve Windows information: $_" -Level ERROR
+            Write-Ui -Message "Could not retrieve Windows information: $_" -Level "ERROR"
         }
     }
     
@@ -195,7 +195,7 @@ function Convert-DigitalProductIdToKey {
         return $key
     }
     catch {
-        Write-SouliTEKResult "Failed to decode DigitalProductId: $_" -Level WARNING
+        Write-Ui -Message "Failed to decode DigitalProductId: $_" -Level "WARN"
         return $null
     }
 }
@@ -221,7 +221,7 @@ function Get-OfficeProductKeys {
     foreach ($officeVersion in $officeVersions) {
         if (Test-Path $officeVersion.Path) {
             try {
-                Write-SouliTEKResult "Checking for $($officeVersion.Version)..." -Level INFO
+                Write-Ui -Message "Checking for $($officeVersion.Version)" -Level "INFO"
                 
                 $regKeys = Get-ChildItem -Path $officeVersion.Path -ErrorAction SilentlyContinue
                 
@@ -280,12 +280,12 @@ function Get-OfficeProductKeys {
                         }
                     }
                     catch {
-                        Write-SouliTEKResult "Error reading Office key from $($regKey.Name): $_" -Level WARNING
+                        Write-Ui -Message "Error reading Office key from $($regKey.Name): $_" -Level "WARN"
                     }
                 }
             }
             catch {
-                Write-SouliTEKResult "Error accessing $($officeVersion.Path): $_" -Level WARNING
+                Write-Ui -Message "Error accessing $($officeVersion.Path): $_" -Level "WARN"
             }
         }
     }
@@ -304,19 +304,15 @@ function Show-ProductKeys {
     #>
     
     Clear-Host
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  PRODUCT KEYS RETRIEVAL RESULTS" -ForegroundColor Cyan
-    Write-Host "============================================================" -ForegroundColor Cyan
+    Show-Section "Product Keys Retrieval Results"
     Write-Host ""
     
     if ($Script:ProductKeys.Count -eq 0) {
-        Write-Host "  No product keys found." -ForegroundColor Yellow
+        Write-Ui -Message "No product keys found" -Level "WARN"
         Write-Host ""
-        Write-Host "  This could mean:" -ForegroundColor Gray
-        Write-Host "  - Windows/Office is digitally activated" -ForegroundColor Gray
-        Write-Host "  - Product key is stored in BIOS/UEFI" -ForegroundColor Gray
-        Write-Host "  - Product key is linked to Microsoft account" -ForegroundColor Gray
+        Write-Ui -Message "This could mean: Windows/Office is digitally activated" -Level "INFO"
+        Write-Ui -Message "Product key is stored in BIOS/UEFI" -Level "INFO"
+        Write-Ui -Message "Product key is linked to Microsoft account" -Level "INFO"
         Write-Host ""
     } else {
         $index = 1
@@ -340,12 +336,10 @@ function Show-ProductKeys {
         }
     }
     
-    Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "  IMPORTANT:" -ForegroundColor Yellow
-    Write-Host "  - Save these keys in a secure location" -ForegroundColor Gray
-    Write-Host "  - Product keys are sensitive information" -ForegroundColor Gray
-    Write-Host "  - Some keys may not be retrievable if digitally activated" -ForegroundColor Gray
+    Write-Ui -Message "IMPORTANT: Save these keys in a secure location" -Level "WARN"
+    Write-Ui -Message "Product keys are sensitive information" -Level "INFO"
+    Write-Ui -Message "Some keys may not be retrievable if digitally activated" -Level "INFO"
     Write-Host ""
     
     Wait-SouliTEKKeyPress
@@ -358,26 +352,23 @@ function Invoke-FullScan {
     #>
     
     Clear-Host
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  SCANNING FOR PRODUCT KEYS..." -ForegroundColor Cyan
-    Write-Host "============================================================" -ForegroundColor Cyan
+    Show-Section "Scanning for Product Keys"
     Write-Host ""
     
     $Script:ProductKeys = @()
     
     # Get Windows keys
-    Write-SouliTEKResult "Retrieving Windows product key..." -Level INFO
+    Write-Ui -Message "Retrieving Windows product key" -Level "INFO"
     $windowsKeys = Get-WindowsProductKey
     $Script:ProductKeys += $windowsKeys
     
     # Get Office keys
-    Write-SouliTEKResult "Retrieving Office product keys..." -Level INFO
+    Write-Ui -Message "Retrieving Office product keys" -Level "INFO"
     $officeKeys = Get-OfficeProductKeys
     $Script:ProductKeys += $officeKeys
     
     Write-Host ""
-    Write-SouliTEKResult "Scan complete. Found $($Script:ProductKeys.Count) product key(s)." -Level SUCCESS
+    Write-Ui -Message "Scan complete. Found $($Script:ProductKeys.Count) product key(s)" -Level "OK"
     Write-Host ""
     
     Start-Sleep -Seconds 2
@@ -392,7 +383,7 @@ function Export-ProductKeys {
     
     if ($Script:ProductKeys.Count -eq 0) {
         Write-Host ""
-        Write-Host "No product keys to export. Please run a full scan first." -ForegroundColor Yellow
+        Write-Ui -Message "No product keys to export. Please run a full scan first" -Level "WARN"
         Wait-SouliTEKKeyPress
         return
     }
@@ -501,21 +492,15 @@ function Show-Menu {
     #>
     
     Clear-Host
-    Show-SouliTEKBanner
+    Show-ScriptBanner -ScriptName "Product Key Retriever" -Purpose "Retrieve product keys for Windows and Office installations"
     
-    Write-Host "============================================================" -ForegroundColor Magenta
-    Write-Host "  PRODUCT KEY RETRIEVER v$Script:Version" -ForegroundColor Magenta
-    Write-Host "  Retrieve Windows and Office product keys" -ForegroundColor Gray
-    Write-Host "============================================================" -ForegroundColor Magenta
     Write-Host ""
     
     if ($Script:ProductKeys.Count -gt 0) {
         $foundCount = ($Script:ProductKeys | Where-Object { $_.Status -eq "Found" }).Count
-        Write-Host "  Last Scan: $($Script:ProductKeys.Count) product(s) found ($foundCount key(s) retrieved)" -ForegroundColor Cyan
+        Write-Ui -Message "Last Scan: $($Script:ProductKeys.Count) product(s) found ($foundCount key(s) retrieved)" -Level "INFO"
     }
     
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "  [1] Full Scan" -ForegroundColor Yellow
     Write-Host "      Scan for Windows and Office product keys" -ForegroundColor Gray
@@ -531,16 +516,15 @@ function Show-Menu {
     Write-Host ""
     Write-Host "  [0] Exit" -ForegroundColor Red
     Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host ""
 }
 
 # ============================================================
 # MAIN EXECUTION
 # ============================================================
 
-# Initialize
-Initialize-SouliTEKScript -WindowTitle "SouliTEK - Product Key Retriever v$Script:Version"
+# Show banner
+Clear-Host
+Show-ScriptBanner -ScriptName "Product Key Retriever" -Purpose "Retrieve product keys for Windows and Office installations"
 
 # Main loop
 do {
@@ -557,7 +541,7 @@ do {
             exit 0
         }
         default {
-            Write-Host "Invalid option. Please try again." -ForegroundColor Red
+            Write-Ui -Message "Invalid option. Please try again" -Level "ERROR"
             Start-Sleep -Seconds 1
         }
     }
