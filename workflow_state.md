@@ -2,6 +2,59 @@
 
 ## Status: Completed
 
+### Task: Improved WinGet Installation Handling in 1-Click PC Install
+
+**Completed:** Enhanced the WinGet application installation process to handle timeouts, errors, and provide better diagnostics.
+
+#### Issues Identified:
+- Google Chrome installation timing out after 10 minutes (too aggressive for large downloads)
+- AnyDesk and Microsoft Office installations failing with exit code -1978335212 (0x8A150014) but no detailed error information
+- No pre-installation checks to verify if applications are already installed
+- Insufficient error diagnostics from winget log files
+- WinGet verification only checked if command exists, not if it's actually functional
+
+#### Solutions Implemented:
+
+1. **Increased Timeout Values**
+   - Chrome: Increased from 10 to 20 minutes (large download size)
+   - AnyDesk: 10 minutes (default)
+   - Microsoft Office: 15 minutes
+   - Made timeout configurable per application
+
+2. **Added Pre-Installation Checks**
+   - New `Test-ApplicationInstalled` function checks if app is already installed before attempting installation
+   - Skips installation if app is already present
+   - Improves user experience and avoids unnecessary operations
+
+3. **Enhanced Error Diagnostics**
+   - New `Get-WinGetErrorDetails` function parses winget log files to extract meaningful error messages
+   - Extracts error patterns (error, failed, exception, denied, timeout, network, etc.)
+   - Shows relevant error details in console output
+   - Improved `Show-InstallationLog` function with better log parsing and error highlighting
+
+4. **Improved WinGet Verification**
+   - `Ensure-WinGet` now verifies WinGet is actually functional (not just that it exists)
+   - Tests WinGet by running `winget --version` command
+   - Provides better error messages if WinGet is found but not working
+
+5. **Better Error Handling**
+   - Enhanced log parsing to check last 30 lines (increased from 20) for success indicators
+   - Better handling of edge cases in exit code interpretation
+   - More informative error messages with actionable information
+
+#### Files Modified:
+- `scripts/1-click_pc_install.ps1`
+  - Added `Test-ApplicationInstalled` function
+  - Added `Get-WinGetErrorDetails` function  
+  - Enhanced `Install-WinGetApplication` function (timeout handling, pre-checks, better errors)
+  - Enhanced `Show-InstallationLog` function (better parsing, error highlighting)
+  - Enhanced `Ensure-WinGet` function (functional verification)
+  - Updated `Install-Applications` function to pass appropriate timeouts per application
+
+---
+
+## Status: Completed
+
 ### Task: Fixed Missing SharePoint Site Inventory Script
 
 **Completed:** Recreated the missing `sharepoint_site_inventory.ps1` script that was referenced in the launcher but missing from the scripts directory.

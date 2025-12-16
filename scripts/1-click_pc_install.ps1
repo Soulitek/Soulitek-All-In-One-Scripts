@@ -375,6 +375,66 @@ function Remove-Bloatware {
     }
 }
 
+function Test-ApplicationInstalled {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$WinGetId
+    )
+    
+    try {
+        $result = & winget.exe list --id $WinGetId --exact --accept-source-agreements --disable-interactivity 2>&1
+        if ($LASTEXITCODE -eq 0 -and $result -match $WinGetId) {
+            return $true
+        }
+        return $false
+    } catch {
+        return $false
+    }
+}
+
+function Get-WinGetErrorDetails {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$LogPath,
+        
+        [Parameter(Mandatory = $true)]
+        [string]$AppName
+    )
+    
+    if (-not (Test-Path $LogPath)) {
+        return "Log file not found"
+    }
+    
+    try {
+        $logContent = Get-Content $LogPath -ErrorAction SilentlyContinue
+        
+        # Look for error patterns in the log
+        $errorLines = @()
+        
+        # Common error patterns in winget logs
+        foreach ($line in $logContent) {
+            if ($line -match "(?i)(error|failed|exception|unable|denied|access|permission|timeout|network|connection)") {
+                if ($line.Trim() -and $line.Trim() -notmatch "^[-=]+$") {
+                    $errorLines += $line.Trim()
+                }
+            }
+        }
+        
+        # Get the last meaningful error lines (up to 3)
+        $relevantErrors = $errorLines | Select-Object -Last 3
+        
+        if ($relevantErrors.Count -gt 0) {
+            return ($relevantErrors -join "; ")
+        }
+        
+        # If no error patterns found, get last few lines
+        $lastLines = $logContent | Select-Object -Last 5
+        return ($lastLines -join " | ")
+    } catch {
+        return "Could not parse log file: $($_.Exception.Message)"
+    }
+}
+
 function Install-WinGetApplication {
     param(
         [Parameter(Mandatory = $true)]
@@ -384,10 +444,18 @@ function Install-WinGetApplication {
         [string]$WinGetId,
         
         [Parameter(Mandatory = $false)]
-        [int]$TimeoutMinutes = 10
+        [int]$TimeoutMinutes = 15
     )
     
     Write-Host "  [*] Installing $AppName..." -ForegroundColor Cyan
+    
+    # Check if already installed
+    Write-Host "      -> Checking if already installed..." -ForegroundColor Gray
+    if (Test-ApplicationInstalled -WinGetId $WinGetId) {
+        Write-Host "      -> $AppName is already installed" -ForegroundColor Yellow
+        return "SUCCESS"
+    }
+    
     Write-Host "      -> This may take up to $TimeoutMinutes minutes. Please be patient..." -ForegroundColor Gray
     
     try {
@@ -501,19 +569,27 @@ function Install-WinGetApplication {
             Write-Host "      -> $AppName is already installed and up to date" -ForegroundColor Yellow
             return "SUCCESS"
         } elseif ($exitCode -eq -1978335212 -or $exitCode -eq 0x8A150014) {
-            # Install failed
+            # Install failed - get detailed error from log
             Write-Host "      -> Installation failed (Exit Code: $exitCode)" -ForegroundColor Red
+            $errorDetails = Get-WinGetErrorDetails -LogPath $logPath -AppName $AppName
+            if ($errorDetails -and $errorDetails -ne "Log file not found") {
+                Write-Host "      -> Error details: $errorDetails" -ForegroundColor DarkYellow
+            }
             Show-InstallationLog -LogPath $logPath -AppName $AppName
             return "ERROR"
         } else {
             Write-Host "      -> Installation completed with exit code: $exitCode" -ForegroundColor Yellow
             # Check log to see if it was actually successful
             if (Test-Path $logPath) {
-                $logContent = Get-Content $logPath -Tail 20 -ErrorAction SilentlyContinue
-                if ($logContent -match "successfully installed" -or $logContent -match "already installed") {
+                $logContent = Get-Content $logPath -Tail 30 -ErrorAction SilentlyContinue | Out-String
+                if ($logContent -match "(?i)(successfully installed|already installed|install completed)") {
                     Write-Host "      -> $AppName appears to be installed successfully" -ForegroundColor Green
                     return "SUCCESS"
                 }
+            }
+            $errorDetails = Get-WinGetErrorDetails -LogPath $logPath -AppName $AppName
+            if ($errorDetails -and $errorDetails -ne "Log file not found") {
+                Write-Host "      -> Error details: $errorDetails" -ForegroundColor DarkYellow
             }
             Show-InstallationLog -LogPath $logPath -AppName $AppName
             return "ERROR"
@@ -538,17 +614,39 @@ function Show-InstallationLog {
     if (Test-Path $LogPath) {
         Write-Host "      -> Installation log details:" -ForegroundColor Gray
         
-        $logContent = Get-Content $LogPath -Tail 10 -ErrorAction SilentlyContinue
-        if ($logContent) {
-            $logContent | Select-Object -Last 5 | ForEach-Object {
-                $line = $_.Trim()
-                if ($line -and $line -notmatch "^[-=]+$") {
-                    Write-Host "         $line" -ForegroundColor DarkGray
+        try {
+            $logContent = Get-Content $LogPath -ErrorAction SilentlyContinue
+            if ($logContent) {
+                # Show last 10 lines that contain meaningful information
+                $relevantLines = $logContent | Where-Object { 
+                    $_.Trim() -and 
+                    $_.Trim() -notmatch "^[-=]+$" -and
+                    $_.Trim() -notmatch "^\s*$"
+                } | Select-Object -Last 10
+                
+                if ($relevantLines) {
+                    $relevantLines | ForEach-Object {
+                        $line = $_.Trim()
+                        # Highlight error lines
+                        if ($line -match "(?i)(error|failed|exception)") {
+                            Write-Host "         $line" -ForegroundColor DarkRed
+                        } else {
+                            Write-Host "         $line" -ForegroundColor DarkGray
+                        }
+                    }
+                } else {
+                    Write-Host "         (Log file is empty or contains no readable content)" -ForegroundColor DarkGray
                 }
+            } else {
+                Write-Host "         (Log file is empty)" -ForegroundColor DarkGray
             }
+        } catch {
+            Write-Host "         (Could not read log file: $($_.Exception.Message))" -ForegroundColor DarkGray
         }
         
         Write-Host "      -> Full log saved: $LogPath" -ForegroundColor DarkGray
+    } else {
+        Write-Host "      -> Log file not found: $LogPath" -ForegroundColor DarkGray
     }
 }
 
@@ -556,15 +654,11 @@ function Ensure-WinGet {
     Write-Host "  [*] Checking WinGet installation..." -ForegroundColor Cyan
     
     $wingetCmd = Get-Command winget.exe -ErrorAction SilentlyContinue
-    if ($wingetCmd) {
-        Write-Host "      -> WinGet is available" -ForegroundColor Green
-        return $true
-    }
-    
-    Write-Host "      -> WinGet not found" -ForegroundColor Yellow
-    Write-Host "  [*] Attempting to install WinGet..." -ForegroundColor Cyan
-    
-    try {
+    if (-not $wingetCmd) {
+        Write-Host "      -> WinGet not found" -ForegroundColor Yellow
+        Write-Host "  [*] Attempting to install WinGet..." -ForegroundColor Cyan
+        
+        try {
         $nuget = Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue
         if (-not $nuget) {
             Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser | Out-Null
@@ -575,10 +669,27 @@ function Ensure-WinGet {
         
         Repair-WinGetPackageManager -ErrorAction Stop
         
-        Write-Host "      -> WinGet installed successfully" -ForegroundColor Green
-        return $true
+            Write-Host "      -> WinGet installed successfully" -ForegroundColor Green
+        } catch {
+            Write-Host "      -> Failed to install WinGet: $($_.Exception.Message)" -ForegroundColor Red
+            return $false
+        }
+    }
+    
+    # Verify WinGet is actually working
+    Write-Host "      -> Verifying WinGet functionality..." -ForegroundColor Gray
+    try {
+        $testResult = & winget.exe --version 2>&1
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "      -> WinGet is available and working" -ForegroundColor Green
+            return $true
+        } else {
+            Write-Host "      -> WinGet found but not responding correctly" -ForegroundColor Yellow
+            Write-Host "      -> Error: $testResult" -ForegroundColor DarkYellow
+            return $false
+        }
     } catch {
-        Write-Host "      -> Failed to install WinGet: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host "      -> WinGet test failed: $($_.Exception.Message)" -ForegroundColor Red
         return $false
     }
 }
@@ -597,31 +708,31 @@ function Install-Applications {
         Write-Host ""
         
         Write-Host "  [1/3] Google Chrome" -ForegroundColor Yellow
-        $chromeResult = Install-WinGetApplication -AppName "Google Chrome" -WinGetId "Google.Chrome"
+        $chromeResult = Install-WinGetApplication -AppName "Google Chrome" -WinGetId "Google.Chrome" -TimeoutMinutes 20
         Add-LogEntry -Task "Install Google Chrome" -Status $chromeResult -Details "WinGet ID: Google.Chrome"
         
         Write-Host ""
         
         Write-Host "  [2/3] AnyDesk" -ForegroundColor Yellow
-        $anydeskResult = Install-WinGetApplication -AppName "AnyDesk" -WinGetId "AnyDeskSoftwareGmbH.AnyDesk"
+        $anydeskResult = Install-WinGetApplication -AppName "AnyDesk" -WinGetId "AnyDeskSoftwareGmbH.AnyDesk" -TimeoutMinutes 10
         Add-LogEntry -Task "Install AnyDesk" -Status $anydeskResult -Details "WinGet ID: AnyDeskSoftwareGmbH.AnyDesk"
         
         Write-Host ""
         
-    Write-Host "  [3/3] Microsoft Office" -ForegroundColor Yellow
-    Write-Host "  [!] Note: Office installation via WinGet may require manual setup" -ForegroundColor Yellow
-    
-    $officeResult = Install-WinGetApplication -AppName "Microsoft Office" -WinGetId "Microsoft.Office"
-    
-    if ($officeResult -eq "ERROR") {
-        Write-Host ""
-        Write-Host "  [!] Automatic Office installation failed" -ForegroundColor Yellow
-        Write-Host "  [!] Please install Office manually from:" -ForegroundColor Yellow
-        Write-Host "      https://www.office.com/setup" -ForegroundColor Cyan
-        Add-LogEntry -Task "Install Microsoft Office" -Status "WARNING" -Details "Manual installation required"
-    } else {
-        Add-LogEntry -Task "Install Microsoft Office" -Status $officeResult -Details "WinGet ID: Microsoft.Office"
-    }
+        Write-Host "  [3/3] Microsoft Office" -ForegroundColor Yellow
+        Write-Host "  [!] Note: Office installation via WinGet may require manual setup" -ForegroundColor Yellow
+        
+        $officeResult = Install-WinGetApplication -AppName "Microsoft Office" -WinGetId "Microsoft.Office" -TimeoutMinutes 15
+        
+        if ($officeResult -eq "ERROR" -or $officeResult -eq "TIMEOUT") {
+            Write-Host ""
+            Write-Host "  [!] Automatic Office installation failed" -ForegroundColor Yellow
+            Write-Host "  [!] Please install Office manually from:" -ForegroundColor Yellow
+            Write-Host "      https://www.office.com/setup" -ForegroundColor Cyan
+            Add-LogEntry -Task "Install Microsoft Office" -Status "WARNING" -Details "Manual installation required"
+        } else {
+            Add-LogEntry -Task "Install Microsoft Office" -Status $officeResult -Details "WinGet ID: Microsoft.Office"
+        }
         
         Write-Host ""
         Write-Ui -Message "Application installation process complete" -Level "OK"
@@ -738,51 +849,6 @@ function Show-InstallationSummary {
         
         Write-Host ""
         Write-Host "============================================================" -ForegroundColor Cyan
-        Write-Host ""
-        
-        $summaryPath = "$env:USERPROFILE\Desktop\1-Click-PC-Install-Summary.txt"
-        
-        $summaryContent = "============================================================`r`n"
-        $summaryContent += "1-CLICK PC INSTALL - INSTALLATION SUMMARY`r`n"
-        $summaryContent += "============================================================`r`n"
-        $summaryContent += "`r`n"
-        $summaryContent += "Installation Date: $($endTime.ToString('yyyy-MM-dd HH:mm:ss'))`r`n"
-        $summaryContent += "Duration: $([math]::Round($duration.TotalMinutes, 2)) minutes`r`n"
-        $summaryContent += "`r`n"
-        $summaryContent += "RESULTS:`r`n"
-        $summaryContent += "- Successful: $Script:SuccessCount task(s)`r`n"
-        $summaryContent += "- Warnings: $Script:WarningCount task(s)`r`n"
-        $summaryContent += "- Errors: $Script:ErrorCount task(s)`r`n"
-        $summaryContent += "`r`n"
-        $summaryContent += "DETAILED LOG:`r`n"
-        $summaryContent += "============================================================`r`n"
-        $summaryContent += "`r`n"
-        
-        $Script:InstallLog | ForEach-Object {
-            $summaryContent += "[$($_.Time)] [$($_.Status)] $($_.Task)`r`n"
-            if ($_.Details) {
-                $summaryContent += "  -> $($_.Details)`r`n"
-            }
-            $summaryContent += "`r`n"
-        }
-        
-        $summaryContent += "============================================================`r`n"
-        $summaryContent += "Generated by SouliTEK All-In-One Scripts`r`n"
-        $summaryContent += "Website: www.soulitek.co.il`r`n"
-        $summaryContent += "Email: letstalk@soulitek.co.il`r`n"
-        $summaryContent += "(C) 2025 SouliTEK - All Rights Reserved`r`n"
-        $summaryContent += "============================================================`r`n"
-        
-        $saveResult = $summaryContent | Out-File -FilePath $summaryPath -Encoding UTF8 -ErrorAction SilentlyContinue
-        
-        if ($?) {
-            Write-Host "  Summary saved to: " -NoNewline -ForegroundColor Gray
-            Write-Host "$summaryPath" -ForegroundColor Cyan
-            Write-Host ""
-        } else {
-            Write-Host "  [!] Could not save summary to desktop" -ForegroundColor Yellow
-        }
-        
         Write-Host ""
         Write-Host "  RECOMMENDED NEXT STEPS:" -ForegroundColor Yellow
         Write-Host "  * Restart your computer to apply all changes" -ForegroundColor White

@@ -307,7 +307,7 @@ $Script:Tools = @(
     },
     @{
         Name = "BitLocker Status Report"
-        Icon = "Lock"
+        Icon = "ShieldCheck"
         Description = "Check BitLocker encryption status and recovery keys"
         Script = "bitlocker_status_report.ps1"
         Category = "Security"
@@ -325,7 +325,7 @@ $Script:Tools = @(
     },
     @{
         Name = "License Expiration Checker"
-        Icon = "License"
+        Icon = "Calendar"
         Description = "Monitor M365 license subscriptions and expiration alerts"
         Script = "license_expiration_checker.ps1"
         Category = "M365"
