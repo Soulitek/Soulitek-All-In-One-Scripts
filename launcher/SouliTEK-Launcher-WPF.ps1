@@ -1437,7 +1437,7 @@ Set-FooterButtonIcon -Button $SelfDestructButton -IconName "Trash2" -TextColor "
 # Set logo image and make it clickable
 $LogoButton = $Window.FindName("LogoButton")
 if ($null -ne $LogoImage) {
-    $logoPath = Join-Path $Script:AssetsPath "images\Final-Logo_Soulitek (1).png"
+    $logoPath = Join-Path $Script:AssetsPath "images\Logo.png"
     if (Test-Path $logoPath) {
         try {
             $bitmap = New-Object System.Windows.Media.Imaging.BitmapImage
