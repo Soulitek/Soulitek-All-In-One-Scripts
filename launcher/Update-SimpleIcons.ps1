@@ -72,3 +72,6 @@ $output | Out-File -FilePath "launcher\simple-icons-paths.txt" -Encoding UTF8
 Write-Host ""
 Write-Host "Paths saved to launcher\simple-icons-paths.txt" -ForegroundColor Yellow
 
+
+
+

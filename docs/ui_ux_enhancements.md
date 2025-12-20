@@ -162,3 +162,6 @@ Potential improvements:
 - Sound effects for notifications
 - Animation improvements
 
+
+
+

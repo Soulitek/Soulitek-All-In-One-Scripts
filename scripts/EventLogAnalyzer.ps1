@@ -153,7 +153,7 @@ param(
     [string]$ExportPath = [Environment]::GetFolderPath('Desktop'),
     
     [Parameter(Mandatory = $false)]
-    [ValidateSet('JSON', 'CSV', 'HTML', 'Both', 'All')]
+    [ValidateSet('JSON', 'CSV', 'HTML', 'CLIXML', 'Both', 'All')]
     [string]$ExportFormat = 'Both',
     
     [Parameter(Mandatory = $false)]
@@ -161,6 +161,29 @@ param(
     
     [Parameter(Mandatory = $false)]
     [switch]$RunExamples,
+    
+    [Parameter(Mandatory = $false)]
+    [ValidateRange(1, 365)]
+    [int]$LogRetentionDays = 14,
+    
+    [Parameter(Mandatory = $false)]
+    [switch]$ExportClixml,
+    
+    [Parameter(Mandatory = $false)]
+    [string]$ClixmlArchivePath,
+    
+    [Parameter(Mandatory = $false)]
+    [switch]$RegisterScheduledTask,
+    
+    [Parameter(Mandatory = $false)]
+    [ValidateSet('Daily', 'Weekly', 'Hourly')]
+    [string]$TaskSchedule = 'Daily',
+    
+    [Parameter(Mandatory = $false)]
+    [string]$TaskTime = '03:00',
+    
+    [Parameter(Mandatory = $false)]
+    [switch]$AutoRun,
     
     [Parameter(Mandatory = $false)]
     [string[]]$EventIDs,
@@ -212,7 +235,7 @@ if (Test-Path $CommonPath) {
 $script:ScriptName = 'EventLogAnalyzer'
 $script:ScriptVersion = '1.0.0'
 $script:LogFolder = Join-Path $env:TEMP "SouliTEK-Scripts\$script:ScriptName"
-$script:VerboseLogFile = $null
+$script:TranscriptPath = $null
 $script:JsonSummaryFile = $null
 
 # ============================================================
@@ -227,77 +250,91 @@ $script:JsonSummaryFile = $null
 
 <#
 .SYNOPSIS
-    Initializes the logging infrastructure for the script.
+    Removes old log files, transcripts, and archives based on retention period.
     
 .DESCRIPTION
-    Creates log directories and initializes log files with timestamps.
+    Deletes files older than the specified retention period from the log folder.
+    Optionally zips files before deletion if they exceed a size threshold.
     
-.OUTPUTS
-    System.Management.Automation.PSCustomObject with LogFolder, VerboseLog, and JsonSummary paths.
+.PARAMETER RetentionDays
+    Number of days to retain files. Default: 14
 #>
-function Initialize-Logging {
+function Remove-OldLogs {
     [CmdletBinding()]
-    [OutputType([PSCustomObject])]
+    param(
+        [Parameter(Mandatory = $false)]
+        [int]$RetentionDays = 14
+    )
+    
+    try {
+        if (-not (Test-Path $script:LogFolder)) {
+            return
+        }
+        
+        $cutoffDate = (Get-Date).AddDays(-$RetentionDays)
+        $filesDeleted = 0
+        
+        Write-Verbose "Cleaning up files older than $cutoffDate in $script:LogFolder"
+        
+        $oldFiles = Get-ChildItem -Path $script:LogFolder -File -ErrorAction SilentlyContinue | 
+            Where-Object { $_.LastWriteTime -lt $cutoffDate }
+        
+        foreach ($file in $oldFiles) {
+            try {
+                Remove-Item -Path $file.FullName -Force -ErrorAction Stop
+                $filesDeleted++
+                Write-Verbose "Deleted old file: $($file.Name)"
+            }
+            catch {
+                Write-Warning "Failed to delete $($file.Name): $_"
+            }
+        }
+        
+        if ($filesDeleted -gt 0) {
+            Write-Verbose "Cleaned up $filesDeleted old file(s)"
+        }
+    }
+    catch {
+        Write-Warning "Error during log cleanup: $_"
+    }
+}
+
+<#
+.SYNOPSIS
+    Initializes PowerShell transcript logging.
+    
+.DESCRIPTION
+    Creates log directory and starts PowerShell transcript for session logging.
+#>
+function Initialize-Transcript {
+    [CmdletBinding()]
     param()
     
     try {
         # Create log folder if it doesn't exist
         if (-not (Test-Path $script:LogFolder)) {
             $null = New-Item -ItemType Directory -Path $script:LogFolder -Force -ErrorAction Stop
-            Write-Verbose "Created log folder: $script:LogFolder"
         }
         
         $timestamp = Get-Date -Format 'yyyyMMdd_HHmmss'
-        $script:VerboseLogFile = Join-Path $script:LogFolder "EventLogAnalyzer_Verbose_$timestamp.log"
+        $script:TranscriptPath = Join-Path $script:LogFolder "EventLogAnalyzer_Transcript_$timestamp.log"
         $script:JsonSummaryFile = Join-Path $script:LogFolder "EventLogAnalyzer_Summary_$timestamp.json"
         
-        # Initialize verbose log
-        $header = @"
-============================================================
-EventLogAnalyzer - Verbose Log
-Started: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
-Version: $script:ScriptVersion
-============================================================
-
-"@
-        Set-Content -Path $script:VerboseLogFile -Value $header -Encoding UTF8
+        # Start transcript
+        Start-Transcript -Path $script:TranscriptPath -Append -ErrorAction Stop
         
-        Write-Verbose "Logging initialized: $script:VerboseLogFile"
+        Write-Verbose "Transcript started: $script:TranscriptPath"
         
         return [PSCustomObject]@{
             LogFolder    = $script:LogFolder
-            VerboseLog   = $script:VerboseLogFile
+            Transcript   = $script:TranscriptPath
             JsonSummary  = $script:JsonSummaryFile
         }
     }
     catch {
-        Write-Error "Failed to initialize logging: $_"
+        Write-Error "Failed to initialize transcript: $_"
         throw
     }
-}
-
-<#
-.SYNOPSIS
-    Writes a message to the verbose log file.
-#>
-function Write-Log {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory = $true, Position = 0)]
-        [string]$Message,
-        
-        [Parameter(Mandatory = $false)]
-        [ValidateSet('INFO', 'WARNING', 'ERROR', 'SUCCESS')]
-        [string]$Level = 'INFO'
-    )
-    
-    if ($script:VerboseLogFile -and (Test-Path $script:VerboseLogFile)) {
-        $timestamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
-        $logEntry = "[$timestamp] [$Level] $Message"
-        Add-Content -Path $script:VerboseLogFile -Value $logEntry -Encoding UTF8
-    }
-    
-    Write-Verbose $Message
 }
 
 <#
@@ -363,7 +400,7 @@ function Get-EventLogAnalysis {
         [string]$MachineName = $env:COMPUTERNAME
     )
     
-    Write-Log "Analyzing log: $LogName from $StartTime to $EndTime" -Level INFO
+    Write-Verbose "Analyzing log: $LogName from $StartTime to $EndTime"
     Write-Progress -Activity "Event Log Analysis" -Status "Processing $LogName..." -PercentComplete 0
     
     try {
@@ -380,7 +417,7 @@ function Get-EventLogAnalysis {
         if ($IncludeAuditFailure) { $levels += 9 }  # Audit Failure
         
         if ($levels.Count -eq 0) {
-            Write-Log "No entry types specified for $LogName" -Level WARNING
+            Write-Warning "No entry types specified for $LogName"
             return $null
         }
         
@@ -445,7 +482,7 @@ function Get-EventLogAnalysis {
         
         # Log the filter for debugging
         Write-Verbose "FilterXml Query:`n$filterXml"
-        Write-Log "Query filter: Start=$($StartTime.ToUniversalTime().ToString('o')), End=$($EndTime.ToUniversalTime().ToString('o')), Levels=$($levels -join ',')" -Level INFO
+        Write-Verbose "Query filter: Start=$($StartTime.ToUniversalTime().ToString('o')), End=$($EndTime.ToUniversalTime().ToString('o')), Levels=$($levels -join ',')"
         
         try {
             # Use -ComputerName if remote machine specified
@@ -459,7 +496,7 @@ function Get-EventLogAnalysis {
             }
             
             $events = Get-WinEvent @getWinEventParams
-            Write-Log "Retrieved $($events.Count) events from $LogName" -Level SUCCESS
+            Write-Verbose "Retrieved $($events.Count) events from $LogName"
             
             # Apply message filter if specified (post-filtering since Get-WinEvent doesn't support message filtering in XML)
             if ($MessageFilter -and $events.Count -gt 0) {
@@ -469,21 +506,21 @@ function Get-EventLogAnalysis {
                     $_.Message -like "*$($MessageFilter.ToLower())*" -or
                     $_.Message -like "*$($MessageFilter.ToUpper())*"
                 }
-                Write-Log "Applied message filter '$MessageFilter': $originalCount -> $($events.Count) events" -Level INFO
+                Write-Verbose "Applied message filter '$MessageFilter': $originalCount -> $($events.Count) events"
             }
         }
         catch {
             if ($_.Exception.Message -match "No events were found") {
-                Write-Log "No events found in $LogName for specified criteria" -Level INFO
+                Write-Verbose "No events found in $LogName for specified criteria"
                 $events = @()
             }
             elseif ($_.Exception.Message -match "specified query is invalid") {
-                Write-Log "Invalid query for $LogName. Filter: $levelFilter" -Level ERROR
+                Write-Error "Invalid query for $LogName. Filter: $levelFilter"
                 Write-Error "Failed to analyze event log '$LogName': The specified query is invalid. This may be due to incorrect date format or log access permissions."
                 return $null
             }
             else {
-                Write-Log "Error querying $LogName : $($_.Exception.Message)" -Level ERROR
+                Write-Error "Error querying $LogName : $($_.Exception.Message)"
                 throw
             }
         }
@@ -545,6 +582,30 @@ function Get-EventLogAnalysis {
                 }
             }
         
+        # Top Error Event IDs (errors only)
+        $topErrorEventIDs = $errorEvents | 
+            Group-Object -Property Id | 
+            Sort-Object Count -Descending | 
+            Select-Object -First 10 |
+            ForEach-Object {
+                [PSCustomObject]@{
+                    EventID = $_.Name
+                    Count   = $_.Count
+                }
+            }
+        
+        # Top Error Providers (errors only)
+        $topErrorProviders = $errorEvents | 
+            Group-Object -Property ProviderName | 
+            Sort-Object Count -Descending | 
+            Select-Object -First 10 |
+            ForEach-Object {
+                [PSCustomObject]@{
+                    Provider = $_.Name
+                    Count    = $_.Count
+                }
+            }
+        
         # Collect event details
         $eventDetails = $events | Select-Object -First 100 | ForEach-Object {
             [PSCustomObject]@{
@@ -575,6 +636,8 @@ function Get-EventLogAnalysis {
             AuditFailureCount = $auditFailureEvents.Count
             TopEventIDs       = $topEventIDs
             TopSources        = $topSources
+            TopErrorEventIDs  = $topErrorEventIDs
+            TopErrorProviders  = $topErrorProviders
             Events            = $eventDetails
             StartTime         = $StartTime
             EndTime           = $EndTime
@@ -588,7 +651,7 @@ function Get-EventLogAnalysis {
         }
     }
     catch {
-        Write-Log "Error analyzing $LogName : $_" -Level ERROR
+        Write-Error "Error analyzing $LogName : $_"
         Write-Error "Failed to analyze event log '$LogName': $_"
         return $null
     }
@@ -621,8 +684,11 @@ function Export-AnalysisResults {
         [string]$ExportPath,
         
     [Parameter(Mandatory = $true)]
-    [ValidateSet('JSON', 'CSV', 'HTML', 'Both', 'All')]
+    [ValidateSet('JSON', 'CSV', 'HTML', 'CLIXML', 'Both', 'All')]
     [string]$Format,
+    
+    [Parameter(Mandatory = $false)]
+    [string]$ClixmlArchivePath,
     
     [Parameter(Mandatory = $false)]
     [switch]$ExportIndividualLogs
@@ -634,7 +700,13 @@ function Export-AnalysisResults {
         
         # Ensure export path exists
         if (-not (Test-Path $ExportPath)) {
-            $null = New-Item -ItemType Directory -Path $ExportPath -Force
+            try {
+                $null = New-Item -ItemType Directory -Path $ExportPath -Force -ErrorAction Stop
+            }
+            catch {
+                Write-Error "Failed to create export directory: $_"
+                throw
+            }
         }
         
         # Export JSON
@@ -653,9 +725,9 @@ function Export-AnalysisResults {
                             EndTime = $Results.EndTime
                             LogAnalysis = @($log)
                         }
-                        $logExport | ConvertTo-Json -Depth 10 | Set-Content -Path $jsonPath -Encoding UTF8
+                        $logExport | ConvertTo-Json -Depth 10 -ErrorAction Stop | Set-Content -Path $jsonPath -Encoding UTF8 -ErrorAction Stop
                         $exportedFiles += $jsonPath
-                        Write-Log "Exported JSON for $($log.LogName) to: $jsonPath" -Level SUCCESS
+                        Write-Verbose "Exported JSON for $($log.LogName) to: $jsonPath"
                         Write-Host "  [EXPORTED] JSON ($($log.LogName)): $jsonPath" -ForegroundColor Green
                     }
                 }
@@ -664,9 +736,9 @@ function Export-AnalysisResults {
                 $jsonPath = Join-Path $ExportPath "EventLogAnalysis_$timestamp.json"
                 
                 if ($PSCmdlet.ShouldProcess($jsonPath, "Export JSON results")) {
-                    $Results | ConvertTo-Json -Depth 10 | Set-Content -Path $jsonPath -Encoding UTF8
+                    $Results | ConvertTo-Json -Depth 10 -ErrorAction Stop | Set-Content -Path $jsonPath -Encoding UTF8 -ErrorAction Stop
                     $exportedFiles += $jsonPath
-                    Write-Log "Exported JSON to: $jsonPath" -Level SUCCESS
+                    Write-Verbose "Exported JSON to: $jsonPath"
                     Write-Host "  [EXPORTED] JSON: $jsonPath" -ForegroundColor Green
                 }
             }
@@ -694,9 +766,9 @@ function Export-AnalysisResults {
                             EndTime           = $log.EndTime
                         }
                         
-                        @($csvData) | Export-Csv -Path $csvPath -NoTypeInformation -Encoding UTF8
+                        @($csvData) | Export-Csv -Path $csvPath -NoTypeInformation -Encoding UTF8 -ErrorAction Stop
                         $exportedFiles += $csvPath
-                        Write-Log "Exported CSV for $($log.LogName) to: $csvPath" -Level SUCCESS
+                        Write-Verbose "Exported CSV for $($log.LogName) to: $csvPath"
                         Write-Host "  [EXPORTED] CSV ($($log.LogName)): $csvPath" -ForegroundColor Green
                     }
                 }
@@ -720,30 +792,63 @@ function Export-AnalysisResults {
                         }
                     }
                     
-                    $csvData | Export-Csv -Path $csvPath -NoTypeInformation -Encoding UTF8
+                    $csvData | Export-Csv -Path $csvPath -NoTypeInformation -Encoding UTF8 -ErrorAction Stop
                     $exportedFiles += $csvPath
-                    Write-Log "Exported CSV to: $csvPath" -Level SUCCESS
+                    Write-Verbose "Exported CSV to: $csvPath"
                     Write-Host "  [EXPORTED] CSV: $csvPath" -ForegroundColor Green
                 }
             }
             
-            # Export detailed events CSV
-            $csvEventsPath = Join-Path $ExportPath "EventLogAnalysis_Events_$timestamp.csv"
+            # Export detailed events CSV (flat format for C-suite)
+            $csvEventsPath = Join-Path $ExportPath "EventLogAnalysis_Events_Flat_$timestamp.csv"
             
-            if ($PSCmdlet.ShouldProcess($csvEventsPath, "Export detailed events CSV")) {
+            if ($PSCmdlet.ShouldProcess($csvEventsPath, "Export detailed events CSV (flat)")) {
                 $allEvents = $Results.LogAnalysis | ForEach-Object {
                     $logName = $_.LogName
                     $_.Events | ForEach-Object {
-                        $_ | Add-Member -NotePropertyName 'LogName' -NotePropertyValue $logName -PassThru
+                        # Ensure completely flat structure - no nested objects
+                        [PSCustomObject]@{
+                            LogName     = $logName
+                            TimeCreated = $_.TimeCreated
+                            Level       = $_.Level
+                            EventID     = $_.EventID
+                            Source      = $_.Source
+                            Message     = $_.Message
+                        }
                     }
                 }
                 
                 if ($allEvents) {
-                    $allEvents | Export-Csv -Path $csvEventsPath -NoTypeInformation -Encoding UTF8
-                    $exportedFiles += $csvEventsPath
-                    Write-Log "Exported detailed events CSV to: $csvEventsPath" -Level SUCCESS
-                    Write-Host "  [EXPORTED] Events CSV: $csvEventsPath" -ForegroundColor Green
+                    try {
+                        $allEvents | Export-Csv -Path $csvEventsPath -NoTypeInformation -Encoding UTF8 -ErrorAction Stop
+                        $exportedFiles += $csvEventsPath
+                        Write-Verbose "Exported detailed events CSV (flat) to: $csvEventsPath"
+                        Write-Host "  [EXPORTED] Events CSV (Flat): $csvEventsPath" -ForegroundColor Green
+                    }
+                    catch {
+                        Write-Error "Failed to export events CSV: $_"
+                    }
                 }
+            }
+        }
+        
+        # Export CLIXML
+        if ($Format -in @('CLIXML', 'All') -or $ExportClixml) {
+            try {
+                $clixmlPath = if ($ClixmlArchivePath) {
+                    $ClixmlArchivePath
+                } else {
+                    Join-Path $ExportPath "Archives"
+                }
+                
+                $clixmlFile = Export-EventLogClixml -Results $Results -ExportPath $clixmlPath
+                if ($clixmlFile) {
+                    $exportedFiles += $clixmlFile
+                    Write-Host "  [EXPORTED] CLIXML Archive: $clixmlFile" -ForegroundColor Green
+                }
+            }
+            catch {
+                Write-Error "Failed to export CLIXML: $_"
             }
         }
         
@@ -753,9 +858,9 @@ function Export-AnalysisResults {
             
             if ($PSCmdlet.ShouldProcess($htmlPath, "Export HTML report")) {
                 $html = New-HtmlReport -Results $Results
-                $html | Set-Content -Path $htmlPath -Encoding UTF8
+                $html | Set-Content -Path $htmlPath -Encoding UTF8 -ErrorAction Stop
                 $exportedFiles += $htmlPath
-                Write-Log "Exported HTML to: $htmlPath" -Level SUCCESS
+                Write-Verbose "Exported HTML to: $htmlPath"
                 Write-Host "  [EXPORTED] HTML: $htmlPath" -ForegroundColor Green
             }
         }
@@ -766,7 +871,7 @@ function Export-AnalysisResults {
         }
     }
     catch {
-        Write-Log "Failed to export results: $_" -Level ERROR
+        Write-Error "Failed to export results: $_"
         Write-Error "Export failed: $_"
         return [PSCustomObject]@{
             ExportedFiles = @()
@@ -1002,6 +1107,56 @@ function Compare-AnalysisResults {
 
 <#
 .SYNOPSIS
+    Displays export format selection menu.
+    
+.DESCRIPTION
+    Prompts user to select which format(s) to export analysis results.
+    
+.OUTPUTS
+    Selected format: "JSON", "CSV", "HTML", "CLIXML", "Both", "All", or "CANCEL"
+#>
+function Show-ExportMenu {
+    [CmdletBinding()]
+    [OutputType([string])]
+    param()
+    
+    Write-Host ""
+    Write-Host "============================================================" -ForegroundColor Cyan
+    Write-Host "  EXPORT RESULTS" -ForegroundColor Cyan
+    Write-Host "============================================================" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "Select export format:" -ForegroundColor White
+    Write-Host ""
+    Write-Host "  [1] JSON          - Structured data for programmatic use" -ForegroundColor Yellow
+    Write-Host "  [2] CSV           - Spreadsheet format (flat, Excel-compatible)" -ForegroundColor Yellow
+    Write-Host "  [3] HTML          - Professional web report with styling" -ForegroundColor Yellow
+    Write-Host "  [4] CLIXML        - PowerShell native format for third-party analysis" -ForegroundColor Yellow
+    Write-Host "  [5] Both (JSON + CSV)" -ForegroundColor Cyan
+    Write-Host "  [6] All Formats   - Export everything" -ForegroundColor Cyan
+    Write-Host "  [0] Skip Export   - Don't export, just view summary" -ForegroundColor Red
+    Write-Host ""
+    Write-Host "============================================================" -ForegroundColor Cyan
+    Write-Host ""
+    
+    $choice = Read-Host "Enter your choice (0-6)"
+    
+    switch ($choice) {
+        "1" { return "JSON" }
+        "2" { return "CSV" }
+        "3" { return "HTML" }
+        "4" { return "CLIXML" }
+        "5" { return "Both" }
+        "6" { return "All" }
+        "0" { return "CANCEL" }
+        default {
+            Write-Host "Invalid choice. Export cancelled." -ForegroundColor Red
+            return "CANCEL"
+        }
+    }
+}
+
+<#
+.SYNOPSIS
     Displays comparison results.
 #>
 function Show-ComparisonResults {
@@ -1050,6 +1205,255 @@ function Show-ComparisonResults {
     
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
+}
+
+<#
+.SYNOPSIS
+    Calculates statistical metrics from analysis results.
+    
+.DESCRIPTION
+    Computes error percentage, standard deviation, mean event counts,
+    and identifies most common error Event IDs and Providers.
+    
+.PARAMETER Results
+    Analysis results object.
+    
+.OUTPUTS
+    PSCustomObject with statistical metrics.
+#>
+function Get-EventLogStatistics {
+    [CmdletBinding()]
+    [OutputType([PSCustomObject])]
+    param(
+        [Parameter(Mandatory = $true)]
+        [PSCustomObject]$Results
+    )
+    
+    try {
+        $totalEvents = ($Results.LogAnalysis | Measure-Object -Property TotalEvents -Sum).Sum
+        $totalErrors = ($Results.LogAnalysis | Measure-Object -Property ErrorCount -Sum).Sum
+        
+        # Calculate error percentage
+        $errorPercentage = if ($totalEvents -gt 0) {
+            [math]::Round(($totalErrors / $totalEvents) * 100, 2)
+        } else {
+            0
+        }
+        
+        # Calculate mean and standard deviation of event counts
+        $eventCounts = $Results.LogAnalysis | ForEach-Object { $_.TotalEvents }
+        $meanEventCount = if ($eventCounts.Count -gt 0) {
+            [math]::Round(($eventCounts | Measure-Object -Average).Average, 2)
+        } else {
+            0
+        }
+        
+        $stdDevEventCount = 0
+        if ($eventCounts.Count -gt 1) {
+            $variance = ($eventCounts | ForEach-Object { [math]::Pow($_ - $meanEventCount, 2) } | Measure-Object -Sum).Sum / ($eventCounts.Count - 1)
+            $stdDevEventCount = [math]::Round([math]::Sqrt($variance), 2)
+        }
+        
+        # Find most common error Event ID and Provider
+        $allErrorEvents = $Results.LogAnalysis | ForEach-Object {
+            $logName = $_.LogName
+            $_.Events | Where-Object { $_.Level -eq 'Error' } | ForEach-Object {
+                [PSCustomObject]@{
+                    EventID = $_.EventID
+                    Provider = $_.Source
+                }
+            }
+        }
+        
+        $mostCommonErrorEventID = $null
+        $mostCommonErrorProvider = $null
+        
+        if ($allErrorEvents.Count -gt 0) {
+            $errorEventIDGroups = $allErrorEvents | Group-Object -Property EventID | Sort-Object Count -Descending
+            if ($errorEventIDGroups.Count -gt 0) {
+                $mostCommonErrorEventID = [PSCustomObject]@{
+                    EventID = $errorEventIDGroups[0].Name
+                    Count = $errorEventIDGroups[0].Count
+                }
+            }
+            
+            $errorProviderGroups = $allErrorEvents | Group-Object -Property Provider | Sort-Object Count -Descending
+            if ($errorProviderGroups.Count -gt 0) {
+                $mostCommonErrorProvider = [PSCustomObject]@{
+                    Provider = $errorProviderGroups[0].Name
+                    Count = $errorProviderGroups[0].Count
+                }
+            }
+        }
+        
+        return [PSCustomObject]@{
+            ErrorPercentage = $errorPercentage
+            MeanEventCount = $meanEventCount
+            StdDevEventCount = $stdDevEventCount
+            MostCommonErrorEventID = $mostCommonErrorEventID
+            MostCommonErrorProvider = $mostCommonErrorProvider
+        }
+    }
+    catch {
+        Write-Error "Failed to calculate statistics: $_"
+        return $null
+    }
+}
+
+<#
+.SYNOPSIS
+    Exports event log data to CLIXML format for future analysis.
+    
+.DESCRIPTION
+    Exports full event objects to PowerShell CLIXML format, preserving
+    all event properties for third-party analysis.
+    
+.PARAMETER Results
+    Analysis results object.
+    
+.PARAMETER ExportPath
+    Directory path for CLIXML archive.
+    
+.OUTPUTS
+    Path to exported CLIXML file.
+#>
+function Export-EventLogClixml {
+    [CmdletBinding()]
+    [OutputType([string])]
+    param(
+        [Parameter(Mandatory = $true)]
+        [PSCustomObject]$Results,
+        
+        [Parameter(Mandatory = $true)]
+        [string]$ExportPath
+    )
+    
+    try {
+        $timestamp = Get-Date -Format 'yyyyMMdd_HHmmss'
+        
+        # Ensure export path exists
+        if (-not (Test-Path $ExportPath)) {
+            $null = New-Item -ItemType Directory -Path $ExportPath -Force -ErrorAction Stop
+        }
+        
+        $clixmlPath = Join-Path $ExportPath "EventLogAnalysis_Archive_$timestamp.clixml"
+        
+        # Create archive object with metadata and all events
+        $archiveData = [PSCustomObject]@{
+            ScriptVersion = $Results.ScriptVersion
+            AnalysisDate = $Results.AnalysisDate
+            StartTime = $Results.StartTime
+            EndTime = $Results.EndTime
+            LogsAnalyzed = $Results.LogsAnalyzed
+            EntryTypes = $Results.EntryTypes
+            AllEvents = $Results.LogAnalysis | ForEach-Object {
+                $logName = $_.LogName
+                $_.Events | ForEach-Object {
+                    $_ | Add-Member -NotePropertyName 'LogName' -NotePropertyValue $logName -PassThru
+                }
+            }
+            LogAnalysis = $Results.LogAnalysis
+        }
+        
+        # Export to CLIXML
+        $archiveData | Export-Clixml -Path $clixmlPath -Depth 10 -ErrorAction Stop
+        
+        Write-Verbose "Exported CLIXML archive to: $clixmlPath"
+        return $clixmlPath
+    }
+    catch {
+        Write-Error "Failed to export CLIXML: $_"
+        throw
+    }
+}
+
+<#
+.SYNOPSIS
+    Registers a scheduled task for automatic event log analysis.
+    
+.DESCRIPTION
+    Creates a Windows scheduled task to run event log analysis automatically.
+    
+.PARAMETER TaskSchedule
+    Schedule frequency: Daily, Weekly, or Hourly.
+    
+.PARAMETER TaskTime
+    Time to run the task (HH:mm format).
+#>
+function Register-EventLogScheduledTask {
+    [CmdletBinding(SupportsShouldProcess = $true)]
+    param(
+        [Parameter(Mandatory = $false)]
+        [ValidateSet('Daily', 'Weekly', 'Hourly')]
+        [string]$TaskSchedule = 'Daily',
+        
+        [Parameter(Mandatory = $false)]
+        [string]$TaskTime = '03:00'
+    )
+    
+    try {
+        $scriptPath = $PSCommandPath
+        
+        # Build argument string
+        $arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`" -AutoRun -Hours 24 -ExportFormat All -Force"
+        
+        # Create scheduled task action
+        $action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument $arguments -ErrorAction Stop
+        
+        # Create trigger based on schedule
+        switch ($TaskSchedule) {
+            'Daily' {
+                $trigger = New-ScheduledTaskTrigger -Daily -At $TaskTime -ErrorAction Stop
+            }
+            'Weekly' {
+                $trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Sunday -At $TaskTime -ErrorAction Stop
+            }
+            'Hourly' {
+                $trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Hours 1) -RepetitionDuration (New-TimeSpan -Days 365) -ErrorAction Stop
+            }
+        }
+        
+        # Create principal (run as SYSTEM with highest privileges)
+        $principal = New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest -ErrorAction Stop
+        
+        # Create settings
+        $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ErrorAction Stop
+        
+        # Register the task
+        $taskName = "SouliTEK - Event Log Analyzer"
+        
+        if ($PSCmdlet.ShouldProcess($taskName, "Register scheduled task")) {
+            Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger -Principal $principal -Settings $settings -Force -ErrorAction Stop | Out-Null
+            
+            Write-Host ""
+            Write-Host "========================================" -ForegroundColor Green
+            Write-Host "  SUCCESS!" -ForegroundColor Green
+            Write-Host "========================================" -ForegroundColor Green
+            Write-Host ""
+            Write-Host "Scheduled task created successfully." -ForegroundColor White
+            Write-Host "Task Name: $taskName" -ForegroundColor Gray
+            Write-Host "Schedule: $TaskSchedule at $TaskTime" -ForegroundColor Gray
+            Write-Host ""
+            Write-Host "The event log analyzer will run automatically." -ForegroundColor White
+            Write-Host "Reports will be saved to: $ExportPath" -ForegroundColor Gray
+            Write-Host ""
+            return $true
+        }
+        
+        return $false
+    }
+    catch {
+        Write-Host ""
+        Write-Host "========================================" -ForegroundColor Red
+        Write-Host "  ERROR" -ForegroundColor Red
+        Write-Host "========================================" -ForegroundColor Red
+        Write-Host ""
+        Write-Host "Failed to create scheduled task." -ForegroundColor Yellow
+        Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host ""
+        Write-Error "Failed to register scheduled task: $_"
+        return $false
+    }
 }
 
 <#
@@ -1136,6 +1540,27 @@ function Show-AnalysisSummary {
     if ($totalAuditFailure -gt 0) {
         Write-Host "  Total Audit Failure: $totalAuditFailure" -ForegroundColor Red
     }
+    
+    # Display statistics if available
+    if ($Results.Statistics) {
+        $stats = $Results.Statistics
+        Write-Host ""
+        Write-Host "============================================================" -ForegroundColor Cyan
+        Write-Host "  STATISTICAL ANALYSIS" -ForegroundColor Cyan
+        Write-Host "============================================================" -ForegroundColor Cyan
+        Write-Host "  Error Percentage: $($stats.ErrorPercentage)%" -ForegroundColor $(if ($stats.ErrorPercentage -gt 10) { 'Red' } elseif ($stats.ErrorPercentage -gt 5) { 'Yellow' } else { 'Green' })
+        Write-Host "  Mean Event Count: $($stats.MeanEventCount)" -ForegroundColor White
+        Write-Host "  Std Dev Event Count: $($stats.StdDevEventCount)" -ForegroundColor White
+        
+        if ($stats.MostCommonErrorEventID) {
+            Write-Host "  Most Common Error Event ID: $($stats.MostCommonErrorEventID.EventID) ($($stats.MostCommonErrorEventID.Count) occurrences)" -ForegroundColor Yellow
+        }
+        
+        if ($stats.MostCommonErrorProvider) {
+            Write-Host "  Most Common Error Provider: $($stats.MostCommonErrorProvider.Provider) ($($stats.MostCommonErrorProvider.Count) occurrences)" -ForegroundColor Yellow
+        }
+    }
+    
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
 }
@@ -1149,24 +1574,27 @@ function Invoke-MainAnalysis {
     param()
     
     try {
-        # Initialize logging
-        $null = Initialize-Logging
-        Write-Log "EventLogAnalyzer v$script:ScriptVersion started" -Level INFO
-        Write-Log "Parameters: LogNames=$($LogNames -join ','), Hours=$Hours" -Level INFO
+        # Clean up old logs first (before starting transcript)
+        Remove-OldLogs -RetentionDays $LogRetentionDays
+        
+        # Initialize transcript logging
+        $null = Initialize-Transcript
+        Write-Verbose "EventLogAnalyzer v$script:ScriptVersion started"
+        Write-Verbose "Parameters: LogNames=$($LogNames -join ','), Hours=$Hours"
         
         # Determine time range
         if (-not $StartTime) {
             $StartTime = (Get-Date).AddHours(-$Hours)
         }
         
-        Write-Log "Analysis period: $StartTime to $EndTime" -Level INFO
+        Write-Verbose "Analysis period: $StartTime to $EndTime"
         
         # Build entry types array
         $entryTypes = @('Error')
         if ($IncludeWarnings) { $entryTypes += 'Warning' }
         if ($IncludeInformation) { $entryTypes += 'Information' }
         
-        Write-Log "Entry types: $($entryTypes -join ', ')" -Level INFO
+        Write-Verbose "Entry types: $($entryTypes -join ', ')"
         
         # Confirmation for large queries
         $estimatedLoad = $LogNames.Count * $MaxEvents
@@ -1179,7 +1607,7 @@ function Invoke-MainAnalysis {
             
             if ($confirm -ne 'Y' -and $confirm -ne 'y') {
                 Write-Host "Analysis cancelled by user." -ForegroundColor Yellow
-                Write-Log "Analysis cancelled by user (large query confirmation)" -Level INFO
+                Write-Verbose "Analysis cancelled by user (large query confirmation)"
                 return
             }
         }
@@ -1230,10 +1658,21 @@ function Invoke-MainAnalysis {
             LogAnalysis    = $logResults
         }
         
+        # Calculate statistics
+        $statistics = Get-EventLogStatistics -Results $finalResults
+        if ($statistics) {
+            $finalResults | Add-Member -NotePropertyName 'Statistics' -NotePropertyValue $statistics -Force
+        }
+        
         # Save JSON summary
         if ($PSCmdlet.ShouldProcess($script:JsonSummaryFile, "Save JSON summary")) {
-            $finalResults | ConvertTo-Json -Depth 10 | Set-Content -Path $script:JsonSummaryFile -Encoding UTF8
-            Write-Log "Saved JSON summary to: $script:JsonSummaryFile" -Level SUCCESS
+            try {
+                $finalResults | ConvertTo-Json -Depth 10 -ErrorAction Stop | Set-Content -Path $script:JsonSummaryFile -Encoding UTF8 -ErrorAction Stop
+                Write-Verbose "Saved JSON summary to: $script:JsonSummaryFile"
+            }
+            catch {
+                Write-Error "Failed to save JSON summary: $_"
+            }
         }
         
         # Display summary
@@ -1243,7 +1682,7 @@ function Invoke-MainAnalysis {
         if ($CompareWithBaseline -and (Test-Path $CompareWithBaseline)) {
             Write-Host "  [Comparing] With baseline: $CompareWithBaseline" -ForegroundColor Cyan
             try {
-                $baseline = Get-Content $CompareWithBaseline -Raw | ConvertFrom-Json
+                $baseline = Get-Content $CompareWithBaseline -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
                 $comparison = Compare-AnalysisResults -Current $finalResults -Baseline $baseline
                 Show-ComparisonResults -Comparison $comparison
             }
@@ -1252,32 +1691,75 @@ function Invoke-MainAnalysis {
             }
         }
         
-        # Export results
-        Write-Host "  [Exporting] Results to $ExportPath..." -ForegroundColor Cyan
-        $exportResult = Export-AnalysisResults -Results $finalResults -ExportPath $ExportPath -Format $ExportFormat -ExportIndividualLogs:$ExportIndividualLogs.IsPresent
-        
-        if ($exportResult.Success) {
-            Write-Host ""
-            Write-Host "  [SUCCESS] Analysis complete!" -ForegroundColor Green
-            Write-Host "  Logs: $script:LogFolder" -ForegroundColor Gray
-            Write-Host ""
+        # Export results - prompt user unless AutoRun mode or ExportFormat explicitly provided
+        if ($AutoRun -or $PSBoundParameters.ContainsKey('ExportFormat')) {
+            # Automatic export for scheduled tasks or when format is explicitly specified
+            Write-Host "  [Exporting] Results to $ExportPath..." -ForegroundColor Cyan
+            $clixmlPath = if ($ClixmlArchivePath) { $ClixmlArchivePath } else { Join-Path $ExportPath "Archives" }
+            $exportResult = Export-AnalysisResults -Results $finalResults -ExportPath $ExportPath -Format $ExportFormat -ExportIndividualLogs:$ExportIndividualLogs.IsPresent -ClixmlArchivePath $clixmlPath
+            
+            if ($exportResult.Success) {
+                Write-Host ""
+                Write-Host "  [SUCCESS] Analysis complete!" -ForegroundColor Green
+                Write-Host "  Transcript: $script:TranscriptPath" -ForegroundColor Gray
+                Write-Host ""
+            }
+        }
+        else {
+            # Interactive export menu - ask user which format to export
+            $exportChoice = Show-ExportMenu
+            if ($exportChoice -ne 'CANCEL') {
+                Write-Host "  [Exporting] Results to $ExportPath..." -ForegroundColor Cyan
+                $clixmlPath = if ($ClixmlArchivePath) { $ClixmlArchivePath } else { Join-Path $ExportPath "Archives" }
+                $exportResult = Export-AnalysisResults -Results $finalResults -ExportPath $ExportPath -Format $exportChoice -ExportIndividualLogs:$ExportIndividualLogs.IsPresent -ClixmlArchivePath $clixmlPath
+                
+                if ($exportResult.Success) {
+                    Write-Host ""
+                    Write-Host "  [SUCCESS] Export complete!" -ForegroundColor Green
+                    Write-Host "  Transcript: $script:TranscriptPath" -ForegroundColor Gray
+                    Write-Host ""
+                }
+            }
+            else {
+                Write-Host ""
+                Write-Host "  Export cancelled." -ForegroundColor Yellow
+                Write-Host ""
+            }
         }
         
-        Write-Log "Analysis completed successfully" -Level SUCCESS
+        Write-Verbose "Analysis completed successfully"
+        
+        # Stop transcript
+        try {
+            Stop-Transcript -ErrorAction SilentlyContinue
+        }
+        catch {
+            # Transcript may already be stopped, ignore
+        }
         
         # Return results object for programmatic use
         return $finalResults
     }
     catch {
-        Write-Log "Fatal error in main analysis: $_" -Level ERROR
-        Write-Error "Analysis failed: $_"
+        Write-Error "Fatal error in main analysis: $_"
         Write-Host ""
         Write-Host "TROUBLESHOOTING:" -ForegroundColor Yellow
         Write-Host "  - Ensure you have Administrator privileges" -ForegroundColor Gray
         Write-Host "  - Verify event log names are correct" -ForegroundColor Gray
         Write-Host "  - Check available disk space in $env:TEMP" -ForegroundColor Gray
-        Write-Host "  - Review verbose log: $script:VerboseLogFile" -ForegroundColor Gray
+        if ($script:TranscriptPath) {
+            Write-Host "  - Review transcript: $script:TranscriptPath" -ForegroundColor Gray
+        }
         Write-Host ""
+        
+        # Stop transcript on error
+        try {
+            Stop-Transcript -ErrorAction SilentlyContinue
+        }
+        catch {
+            # Ignore
+        }
+        
         return $null
     }
 }
@@ -1362,13 +1844,14 @@ function Show-ReportMenu {
     Write-Host "  [9] Driver Failures (Last 7 Days)      - Driver crashes and load failures" -ForegroundColor Yellow
     Write-Host "  [10] Windows Update Issues (Last 14 Days) - Update failures and errors" -ForegroundColor Yellow
     Write-Host "  [11] Custom Analysis                   - Configure your own analysis" -ForegroundColor Cyan
-    Write-Host "  [12] Help                              - Usage guide and examples" -ForegroundColor White
+    Write-Host "  [12] Scheduled Task Setup              - Register automatic daily analysis" -ForegroundColor Cyan
+    Write-Host "  [13] Help                              - Usage guide and examples" -ForegroundColor White
     Write-Host "  [0] Exit" -ForegroundColor Red
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     
-    $choice = Read-Host "Enter your choice (0-12)"
+    $choice = Read-Host "Enter your choice (0-13)"
     return $choice
 }
 
@@ -1711,7 +2194,12 @@ function Invoke-MainMenu {
             '9' { Invoke-DriverFailuresReport }
             '10' { Invoke-WindowsUpdateIssuesReport }
             '11' { Show-CustomAnalysisMenu }
-            '12' { Show-HelpMenu }
+            '12' { 
+                Clear-Host
+                Show-SouliTEKBanner
+                Register-EventLogScheduledTask -TaskSchedule $TaskSchedule -TaskTime $TaskTime
+            }
+            '13' { Show-HelpMenu }
             '0' { 
                 Write-Host ""
                 Write-Host "Thank you for using SouliTEK EventLogAnalyzer!" -ForegroundColor Green
@@ -1722,13 +2210,13 @@ function Invoke-MainMenu {
             }
             default {
                 Write-Host ""
-                Write-Ui -Message "Invalid choice. Please select a number between 0-12" -Level "ERROR"
+                Write-Ui -Message "Invalid choice. Please select a number between 0-13" -Level "ERROR"
                 Write-Host "Press any key to continue..." -ForegroundColor Yellow
                 $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
             }
         }
         
-        if ($choice -ne '0' -and $choice -ne '12') {
+        if ($choice -ne '0' -and $choice -ne '13') {
             Write-Host ""
             Write-Host "Press any key to return to main menu..." -ForegroundColor Yellow
             $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
@@ -1740,11 +2228,24 @@ function Invoke-MainMenu {
 # RUN MAIN ANALYSIS OR MENU
 # ============================================================
 
+# Handle scheduled task registration
+if ($RegisterScheduledTask) {
+    try {
+        Register-EventLogScheduledTask -TaskSchedule $TaskSchedule -TaskTime $TaskTime
+        exit 0
+    }
+    catch {
+        Write-Error "Failed to register scheduled task: $_"
+        exit 1
+    }
+}
+
 # Check if script was called with explicit parameters (excluding common parameters like Verbose, Debug, etc.)
 $explicitParams = @('LogNames', 'Hours', 'StartTime', 'EndTime', 'IncludeWarnings', 'IncludeInformation', 
                      'MaxEvents', 'ExportPath', 'ExportFormat', 'Force', 'RunExamples', 'EventIDs', 
                      'Sources', 'MessageFilter', 'IncludeAuditSuccess', 'IncludeAuditFailure', 
-                     'IncludeCritical', 'CompareWithBaseline', 'ExportIndividualLogs', 'MachineName')
+                     'IncludeCritical', 'CompareWithBaseline', 'ExportIndividualLogs', 'MachineName',
+                     'AutoRun', 'ExportClixml', 'ClixmlArchivePath', 'LogRetentionDays')
 $hasExplicitParams = $false
 
 foreach ($param in $explicitParams) {

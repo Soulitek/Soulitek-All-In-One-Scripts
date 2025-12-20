@@ -2,6 +2,53 @@
 
 ## Status: Completed
 
+### Task: Updated CONTRIBUTING.md
+
+**Completed:** Updated CONTRIBUTING.md to reflect the unified output standard and current project practices.
+
+#### Changes Made:
+
+1. **Added Reference to STYLE_GUIDE.md**
+   - Added prominent reference to unified output standard documentation
+   - Emphasized importance of following STYLE_GUIDE.md for all scripts
+
+2. **Updated Required Elements Section**
+   - Changed from `Show-SouliTEKBanner` to `Show-ScriptBanner` (unified output standard)
+   - Added requirement for `Write-Ui` unified output function
+   - Added requirement for `Show-Summary` at script completion
+
+3. **Updated Example Script Structure**
+   - Replaced old example with new structure using unified output functions
+   - Added examples of `Show-ScriptBanner`, `Write-Ui`, `Show-Section`, `Show-Step`, and `Show-Summary`
+
+4. **Added Unified Output Standard Section**
+   - Documented all unified output functions and their purposes
+   - Listed message levels (INFO, STEP, OK, WARN, ERROR) with colors
+   - Referenced STYLE_GUIDE.md for complete details
+
+5. **Updated Common Module Functions Section**
+   - Updated to reflect new unified output functions
+   - Added `Show-ScriptBanner`, `Write-Ui`, `Show-Section`, `Show-Step`, `Show-Summary`
+   - Noted `Show-SouliTEKBanner` as legacy (use `Show-ScriptBanner` for new scripts)
+
+6. **Updated Code Quality Checklist**
+   - Added requirement to verify unified output standard compliance
+   - Added requirement to use `Write-Ui` instead of `Write-Host`
+
+7. **Updated Adding New Tool Section**
+   - Added requirement to follow unified output standard
+   - Added requirement to use unified output functions
+
+8. **Updated Additional Resources**
+   - Added STYLE_GUIDE.md to documentation list
+
+#### Files Modified:
+- `CONTRIBUTING.md` - Updated throughout to reflect unified output standard
+
+---
+
+## Status: Completed
+
 ### Task: Improved WinGet Installation Handling in 1-Click PC Install
 
 **Completed:** Enhanced the WinGet application installation process to handle timeouts, errors, and provide better diagnostics.

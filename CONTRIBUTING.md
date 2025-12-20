@@ -32,6 +32,8 @@ There are several ways you can contribute to this project:
 
 ## 📝 Code Style Guide
 
+**Important:** All scripts must follow the unified output standard defined in [STYLE_GUIDE.md](STYLE_GUIDE.md). This ensures consistent visual output across all tools.
+
 ### PowerShell Standards
 
 **Function Naming:**
@@ -58,12 +60,14 @@ There are several ways you can contribute to this project:
 ### Required Elements
 
 **All Scripts Must Include:**
-1. **SouliTEK Banner** - Use `Show-SouliTEKBanner` from common module
+1. **Script Banner** - Use `Show-ScriptBanner` from common module (unified output standard)
 2. **Disclaimer** - Include standard disclaimer at top of script
 3. **Error Handling** - Comprehensive try-catch blocks
 4. **Administrator Checks** - When system modifications are made
 5. **Common Module** - Import and use `SouliTEK-Common.ps1` functions
 6. **Comment-Based Help** - Full `.SYNOPSIS`, `.DESCRIPTION`, `.EXAMPLE`
+7. **Unified Output** - Use `Write-Ui` for all user-facing messages
+8. **End Summary** - Use `Show-Summary` at script completion
 
 **Example Script Structure:**
 ```powershell
@@ -85,8 +89,37 @@ if (Test-Path $CommonPath) {
     . $CommonPath
 }
 
-# Your code here
+# Display script banner
+Show-ScriptBanner -ScriptName "Example Script" -Purpose "Example purpose"
+
+# Your code here using unified output functions
+Write-Ui -Message "Starting process" -Level "INFO"
+Show-Section "Configuration"
+Show-Step -StepNumber 1 -TotalSteps 3 -Description "Configuring settings"
+
+# End with summary
+Show-Summary -Status "Completed" -Steps 3 -Warnings 0 -Errors 0
 ```
+
+### Unified Output Standard
+
+All user-facing output must follow the unified format: `[DD-MM-YYYY HH:mm:ss] [LEVEL] Message`
+
+**Output Functions (from common module):**
+- `Write-Ui` or `Write-Status` - Main unified output function with levels: INFO, STEP, OK, WARN, ERROR
+- `Show-ScriptBanner` - Display standardized script banner
+- `Show-Section` - Display section header separator
+- `Show-Step` - Display step progress (STEP X/Y: Description)
+- `Show-Summary` - Display end summary with status, steps, warnings, errors
+
+**Message Levels:**
+- `INFO` (Cyan) - General information
+- `STEP` (White) - Process step
+- `OK` (Green) - Successful action
+- `WARN` (Yellow) - Non-blocking issue
+- `ERROR` (Red) - Failure
+
+See [STYLE_GUIDE.md](STYLE_GUIDE.md) for complete details and examples.
 
 ---
 
@@ -111,6 +144,8 @@ if (Test-Path $CommonPath) {
    - Fix any linting errors
    - Ensure consistent formatting
    - Remove debug statements
+   - Verify unified output standard compliance (see STYLE_GUIDE.md)
+   - Use `Write-Ui` instead of `Write-Host` for all user-facing messages
 
 ### Submitting Pull Request
 
@@ -217,10 +252,13 @@ Closes #123
 - ✅ Consistent visual style in GUI elements
 
 **Use Common Module Functions:**
-- `Show-SouliTEKBanner` - Display branding
-- `Write-SouliTEKResult` - Formatted output
+- `Show-ScriptBanner` - Display standardized script banner (unified output)
+- `Write-Ui` or `Write-Status` - Unified output with message levels (INFO, STEP, OK, WARN, ERROR)
+- `Show-Section` - Section header separator
+- `Show-Step` - Step progress indicator
+- `Show-Summary` - End summary display
 - `Test-SouliTEKAdministrator` - Check admin privileges
-- `Show-SouliTEKHeader` - Section headers
+- `Show-SouliTEKBanner` - Legacy branding banner (use `Show-ScriptBanner` for new scripts)
 
 **Color Scheme (for GUI):**
 - Primary: #6366f1 (Indigo)
@@ -239,6 +277,8 @@ Closes #123
    - Place in `scripts/` directory
    - Follow naming convention: `tool_name.ps1` (lowercase with underscores)
    - Include all required elements (banner, disclaimer, error handling)
+   - Follow unified output standard (see STYLE_GUIDE.md)
+   - Use `Show-ScriptBanner`, `Write-Ui`, `Show-Section`, `Show-Step`, and `Show-Summary`
 
 2. **Add to Launcher**
    - Edit `launcher/SouliTEK-Launcher-WPF.ps1`
@@ -295,6 +335,7 @@ All complaints will be reviewed and investigated promptly and fairly.
 
 ### Documentation
 - **README.md** - Project overview and quick start
+- **STYLE_GUIDE.md** - Unified output standard and formatting guidelines
 - **docs/** - Individual tool documentation
 - **LICENSE** - License terms and conditions
 - **CHANGELOG.md** - Version history and changes

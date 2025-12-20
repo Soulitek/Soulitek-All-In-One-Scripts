@@ -26,6 +26,10 @@ Provides comprehensive event log analysis:
 - Top event IDs
 - Most common sources
 - Time-based trends
+- Error percentage calculation
+- Standard deviation of event counts
+- Most common error Event IDs
+- Most common error providers
 
 ### 🔍 **Advanced Filtering**
 - Filter by specific Event IDs
@@ -34,10 +38,25 @@ Provides comprehensive event log analysis:
 - Time range selection
 
 ### 📋 **Export Options**
-- Export to CSV format
+- Export to CSV format (flat format for Excel compatibility)
 - Export to JSON format
+- Export to HTML format
+- Export to CLIXML format (PowerShell native format for third-party analysis)
 - Combined or individual log exports
 - Timestamped filenames
+- Automatic log cleanup (14-day retention)
+
+### 🔄 **Automation**
+- Scheduled task support for automatic analysis
+- Configurable schedule (Daily, Weekly, Hourly)
+- Automatic log/transcript cleanup
+- Auto-run mode for scheduled executions
+
+### 📝 **Logging**
+- PowerShell transcript logging (built-in)
+- Automatic cleanup of old transcripts
+- Full session capture
+- Error tracking and diagnostics
 
 ## Requirements
 
@@ -97,6 +116,15 @@ Provides comprehensive event log analysis:
 
 # Compare with previous analysis
 .\EventLogAnalyzer.ps1 -CompareWithBaseline "C:\path\to\previous.json"
+
+# Export to CLIXML format for third-party analysis
+.\EventLogAnalyzer.ps1 -ExportClixml -ClixmlArchivePath "C:\Archives"
+
+# Register scheduled task for daily automatic analysis
+.\EventLogAnalyzer.ps1 -RegisterScheduledTask -TaskSchedule Daily -TaskTime "03:00"
+
+# Configure log retention (default: 14 days)
+.\EventLogAnalyzer.ps1 -LogRetentionDays 30
 ```
 
 ### Menu Options (Interactive Mode)
@@ -129,26 +157,41 @@ Filter by event source/provider.
 - Case-insensitive search
 - Source-specific analysis
 
-#### Option 5: Export Results
-Export analysis to files.
-- CSV format (spreadsheet)
-- JSON format (structured data)
-- Both formats
-- Desktop location
+#### Option 12: Scheduled Task Setup
+Register automatic daily analysis.
+- Create Windows scheduled task
+- Configure schedule (Daily, Weekly, Hourly)
+- Set execution time
+- Run as SYSTEM with highest privileges
+- Automatic report generation
+
+#### Option 13: Help
+View usage guide and examples.
 
 ## Output Files
 
 ### Report Locations
-- **Desktop:** Reports saved to `%USERPROFILE%\Desktop`
-- **Formats:** CSV and JSON
+- **Desktop:** Reports saved to `%USERPROFILE%\Desktop` (default)
+- **Formats:** CSV, JSON, HTML, CLIXML
 - **Filename:** `EventLogAnalysis_YYYYMMDD_HHMMSS.[ext]`
+- **Transcripts:** `%TEMP%\SouliTEK-Scripts\EventLogAnalyzer\EventLogAnalyzer_Transcript_YYYYMMDD_HHMMSS.log`
 
 ### Report Contents
 - Event summary statistics
-- Detailed event list
+- Detailed event list (flat CSV format for Excel)
 - Top event IDs
 - Most common sources
+- Top error Event IDs
+- Top error providers
+- Statistical analysis (error percentage, standard deviation)
 - Time range analyzed
+
+### CLIXML Archive Format
+- Full event objects preserved
+- PowerShell native format
+- Import with `Import-Clixml` for third-party analysis
+- Includes all event properties and metadata
+- Stored in `Archives` subfolder by default
 
 ## Common Event IDs
 
@@ -221,6 +264,7 @@ Export analysis to files.
 - Monitor for critical events
 - Track error trends
 - Document recurring issues
+- Use scheduled tasks for automated daily analysis
 
 ### Filtering Strategy
 - Start with broad analysis
@@ -229,10 +273,23 @@ Export analysis to files.
 - Search messages for keywords
 
 ### Export and Archive
-- Export important analyses
+- Export important analyses to CLIXML for long-term storage
 - Keep historical comparisons
 - Document findings
 - Create baseline comparisons
+- Use flat CSV format for executive reports
+
+### Log Management
+- Configure appropriate retention period (default: 14 days)
+- Monitor transcript folder size
+- Archive important transcripts before cleanup
+- Use CLIXML format for third-party analysis tools
+
+### Scheduled Tasks
+- Set up daily analysis for critical systems
+- Configure appropriate time (default: 3:00 AM)
+- Monitor scheduled task execution
+- Review exported reports regularly
 
 ## Technical Details
 
@@ -253,6 +310,22 @@ Export analysis to files.
 - Efficient event filtering
 - Progress indicators
 - Memory-efficient processing
+- Automatic cleanup of old logs/transcripts
+- Error handling with proper exception management
+
+### Logging and Diagnostics
+- PowerShell transcript logging (built-in feature)
+- Full session capture
+- Automatic cleanup based on retention period
+- Error tracking and diagnostics
+- Transcript files stored in `%TEMP%\SouliTEK-Scripts\EventLogAnalyzer\`
+
+### Statistical Analysis
+- Error percentage: `(TotalErrors / TotalEvents) * 100`
+- Mean event count per log
+- Standard deviation of event counts across logs
+- Most common error Event ID identification
+- Most common error provider identification
 
 ## Support
 
