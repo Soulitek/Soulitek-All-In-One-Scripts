@@ -570,14 +570,14 @@ function Show-PerformanceSummary {
     Clear-Host
     Write-Host ""
     Write-Host "====================================================================" -ForegroundColor Cyan
-    Write-Host "           BOOT PERFORMANCE SUMMARY" -ForegroundColor Cyan
+    Write-Ui -Message "           BOOT PERFORMANCE SUMMARY" -Level "INFO"
     Write-Host "====================================================================" -ForegroundColor Cyan
     Write-Host ""
     
     # Get last boot info
     $lastBoot = Get-CimInstance Win32_OperatingSystem | Select-Object -ExpandProperty LastBootUpTime
     Write-Host "Last Boot: " -NoNewline
-    Write-Host "$($lastBoot.ToString('MMMM dd, yyyy hh:mm:ss tt'))" -ForegroundColor Green
+    Write-Ui -Message "$($lastBoot.ToString('MMMM dd, yyyy hh:mm:ss tt'))" -Level "OK"
     
     # Boot duration from event log if available
     if ($BootData -and $BootData.Count -gt 0) {
@@ -591,20 +591,20 @@ function Show-PerformanceSummary {
         # Performance rating
         Write-Host "Performance Rating: " -NoNewline
         if ($duration -lt 30) {
-            Write-Host "EXCELLENT (Very fast)" -ForegroundColor Green
+            Write-Ui -Message "EXCELLENT (Very fast)" -Level "OK"
         } elseif ($duration -lt 45) {
-            Write-Host "GOOD (Fast)" -ForegroundColor Green
+            Write-Ui -Message "GOOD (Fast)" -Level "OK"
         } elseif ($duration -lt 60) {
-            Write-Host "MODERATE (Could be improved)" -ForegroundColor Yellow
+            Write-Ui -Message "MODERATE (Could be improved)" -Level "WARN"
         } else {
-            Write-Host "SLOW (Needs optimization)" -ForegroundColor Red
+            Write-Ui -Message "SLOW (Needs optimization)" -Level "ERROR"
         }
     } else {
         Write-Host "Boot Duration: " -NoNewline
-        Write-Host "Not available (Event log disabled)" -ForegroundColor Gray
+        Write-Ui -Message "Not available (Event log disabled)" -Level "INFO"
         Write-Host ""
-        Write-Host "To enable boot performance tracking:" -ForegroundColor Yellow
-        Write-Host "  Run: wevtutil sl Microsoft-Windows-Diagnostics-Performance/Operational /e:true" -ForegroundColor Gray
+        Write-Ui -Message "To enable boot performance tracking:" -Level "WARN"
+        Write-Ui -Message "  Run: wevtutil sl Microsoft-Windows-Diagnostics-Performance/Operational /e:true" -Level "INFO"
     }
     
     Write-Host ""
@@ -612,7 +612,7 @@ function Show-PerformanceSummary {
     # Historical trend
     $history = Get-BootTimeHistory
     if ($history.Count -gt 1) {
-        Write-Host "Historical Trend (Last $($history.Count) Boots):" -ForegroundColor Cyan
+        Write-Ui -Message "Historical Trend (Last $($history.Count) Boots):" -Level "INFO"
         
         $durations = $history | Select-Object -ExpandProperty DurationSeconds
         $avgDuration = [math]::Round(($durations | Measure-Object -Average).Average, 1)
@@ -620,11 +620,11 @@ function Show-PerformanceSummary {
         $maxDuration = ($durations | Measure-Object -Maximum).Maximum
         
         Write-Host "  Average: " -NoNewline
-        Write-Host "$avgDuration seconds" -ForegroundColor White
+        Write-Ui -Message "$avgDuration seconds" -Level "STEP"
         Write-Host "  Best: " -NoNewline
-        Write-Host "$minDuration seconds" -ForegroundColor Green
+        Write-Ui -Message "$minDuration seconds" -Level "OK"
         Write-Host "  Worst: " -NoNewline
-        Write-Host "$maxDuration seconds" -ForegroundColor Red
+        Write-Ui -Message "$maxDuration seconds" -Level "ERROR"
         
         # Trend analysis (compare last 3 to previous 3)
         if ($history.Count -ge 6) {
@@ -635,21 +635,21 @@ function Show-PerformanceSummary {
             Write-Host "  Trend: " -NoNewline
             if ($diff -lt -2) {
                 $absDiff = [math]::Abs($diff)
-                Write-Host "Improving - $absDiff seconds faster" -ForegroundColor Green
+                Write-Ui -Message "Improving - $absDiff seconds faster" -Level "OK"
             } elseif ($diff -gt 2) {
-                Write-Host "Degrading - $diff seconds slower" -ForegroundColor Red
+                Write-Ui -Message "Degrading - $diff seconds slower" -Level "ERROR"
             } else {
-                Write-Host "Stable" -ForegroundColor White
+                Write-Ui -Message "Stable" -Level "STEP"
             }
         }
     } elseif ($history.Count -eq 1) {
-        Write-Host "Historical Trend: First analysis (no trend data yet)" -ForegroundColor Gray
+        Write-Ui -Message "Historical Trend: First analysis (no trend data yet)" -Level "INFO"
     }
     
     Write-Host ""
     
     # Startup items summary
-    Write-Host "Startup Items Summary:" -ForegroundColor Cyan
+    Write-Ui -Message "Startup Items Summary:" -Level "INFO"
     
     $highImpactCount = ($StartupItems | Where-Object { $_.Impact -eq "High" }).Count
     $mediumImpactCount = ($StartupItems | Where-Object { $_.Impact -eq "Medium" }).Count
@@ -657,26 +657,26 @@ function Show-PerformanceSummary {
     $unknownCount = ($StartupItems | Where-Object { $_.Impact -eq "Unknown" }).Count
     
     Write-Host "  Total Items: " -NoNewline
-    Write-Host $StartupItems.Count -ForegroundColor White
+    Write-Ui -Message $StartupItems.Count -Level "STEP"
     
     if ($highImpactCount -gt 0) {
         Write-Host "  High Impact: " -NoNewline
-        Write-Host "$highImpactCount items" -ForegroundColor Red
+        Write-Ui -Message "$highImpactCount items" -Level "ERROR"
     }
     
     if ($mediumImpactCount -gt 0) {
         Write-Host "  Medium Impact: " -NoNewline
-        Write-Host $mediumImpactCount -ForegroundColor Yellow
+        Write-Ui -Message $mediumImpactCount -Level "WARN"
     }
     
     if ($lowImpactCount -gt 0) {
         Write-Host "  Low Impact: " -NoNewline
-        Write-Host $lowImpactCount -ForegroundColor Green
+        Write-Ui -Message $lowImpactCount -Level "OK"
     }
     
     if ($unknownCount -gt 0) {
         Write-Host "  Unknown: " -NoNewline
-        Write-Host $unknownCount -ForegroundColor Gray
+        Write-Ui -Message $unknownCount -Level "INFO"
     }
     
     Write-Host ""
@@ -684,14 +684,14 @@ function Show-PerformanceSummary {
     # Optimization potential
     Write-Host "Optimization Potential: " -NoNewline
     if ($highImpactCount -ge 5) {
-        Write-Host "HIGH" -ForegroundColor Red
-        Write-Host "  -> Disabling $highImpactCount high-impact items could save significant boot time" -ForegroundColor Yellow
+        Write-Ui -Message "HIGH" -Level "ERROR"
+        Write-Ui -Message "  -> Disabling $highImpactCount high-impact items could save significant boot time" -Level "WARN"
     } elseif ($highImpactCount -ge 2) {
-        Write-Host "MEDIUM" -ForegroundColor Yellow
-        Write-Host "  -> Some optimization opportunities available" -ForegroundColor Gray
+        Write-Ui -Message "MEDIUM" -Level "WARN"
+        Write-Ui -Message "  -> Some optimization opportunities available" -Level "INFO"
     } else {
-        Write-Host "LOW" -ForegroundColor Green
-        Write-Host "  -> System is already well optimized" -ForegroundColor Gray
+        Write-Ui -Message "LOW" -Level "OK"
+        Write-Ui -Message "  -> System is already well optimized" -Level "INFO"
     }
     
     Write-Host ""
@@ -716,7 +716,7 @@ function Show-StartupItemsByCategory {
         Write-Host "====================================================================" -ForegroundColor Cyan
         Write-Host "STARTUP FOLDER ITEMS (" -NoNewline -ForegroundColor Cyan
         Write-Host $folderItems.Count -NoNewline -ForegroundColor White
-        Write-Host " found)" -ForegroundColor Cyan
+        Write-Ui -Message " found)" -Level "INFO"
         Write-Host "====================================================================" -ForegroundColor Cyan
         Write-Host ""
         
@@ -736,14 +736,14 @@ function Show-StartupItemsByCategory {
             }
             
             Write-Host "[$itemNumber] " -NoNewline -ForegroundColor White
-            Write-Host "$($item.Name)" -ForegroundColor White
+            Write-Ui -Message "$($item.Name)" -Level "STEP"
             Write-Host "    Impact: $impactIcon " -NoNewline
             Write-Host "$($item.Impact)" -NoNewline -ForegroundColor $impactColor
-            Write-Host " | Category: $($item.Category) | Scope: $($item.Scope)" -ForegroundColor Gray
+            Write-Ui -Message " | Category: $($item.Category) | Scope: $($item.Scope)" -Level "INFO"
             Write-Host "    Target: " -NoNewline -ForegroundColor Gray
-            Write-Host "$($item.Command)" -ForegroundColor DarkGray
+            Write-Ui -Message "$($item.Command)" -Level "INFO"
             Write-Host "    Location: " -NoNewline -ForegroundColor Gray
-            Write-Host "$($item.Location)" -ForegroundColor DarkGray
+            Write-Ui -Message "$($item.Location)" -Level "INFO"
             Write-Host ""
             
             $itemNumber++
@@ -755,7 +755,7 @@ function Show-StartupItemsByCategory {
         Write-Host "====================================================================" -ForegroundColor Cyan
         Write-Host "TASK SCHEDULER STARTUP ITEMS (" -NoNewline -ForegroundColor Cyan
         Write-Host $taskItems.Count -NoNewline -ForegroundColor White
-        Write-Host " found)" -ForegroundColor Cyan
+        Write-Ui -Message " found)" -Level "INFO"
         Write-Host "====================================================================" -ForegroundColor Cyan
         Write-Host ""
         
@@ -775,14 +775,14 @@ function Show-StartupItemsByCategory {
             }
             
             Write-Host "[$itemNumber] " -NoNewline -ForegroundColor White
-            Write-Host "$($item.Name)" -ForegroundColor White
+            Write-Ui -Message "$($item.Name)" -Level "STEP"
             Write-Host "    Impact: $impactIcon " -NoNewline
             Write-Host "$($item.Impact)" -NoNewline -ForegroundColor $impactColor
-            Write-Host " | Category: $($item.Category) | Trigger: $($item.Type)" -ForegroundColor Gray
+            Write-Ui -Message " | Category: $($item.Category) | Trigger: $($item.Type)" -Level "INFO"
             Write-Host "    Command: " -NoNewline -ForegroundColor Gray
-            Write-Host "$($item.Command)" -ForegroundColor DarkGray
+            Write-Ui -Message "$($item.Command)" -Level "INFO"
             Write-Host "    Location: " -NoNewline -ForegroundColor Gray
-            Write-Host "$($item.Location)" -ForegroundColor DarkGray
+            Write-Ui -Message "$($item.Location)" -Level "INFO"
             Write-Host ""
             
             $itemNumber++
@@ -802,13 +802,13 @@ function Show-StartupItemsByCategory {
         Write-Host $serviceItems.Count -NoNewline -ForegroundColor White
         Write-Host " total, showing " -NoNewline -ForegroundColor Cyan
         Write-Host $nonMSServices.Count -NoNewline -ForegroundColor White
-        Write-Host " non-Microsoft)" -ForegroundColor Cyan
+        Write-Ui -Message " non-Microsoft)" -Level "INFO"
         Write-Host "====================================================================" -ForegroundColor Cyan
         Write-Host ""
         
         if ($nonMSServices.Count -eq 0) {
-            Write-Host "  No third-party auto-start services detected" -ForegroundColor Gray
-            Write-Host "  (Hiding Windows system services for clarity)" -ForegroundColor DarkGray
+            Write-Ui -Message "  No third-party auto-start services detected" -Level "INFO"
+            Write-Ui -Message "  (Hiding Windows system services for clarity)" -Level "INFO"
             Write-Host ""
         } else {
             foreach ($item in $nonMSServices) {
@@ -820,12 +820,12 @@ function Show-StartupItemsByCategory {
                 }
                 
                 Write-Host "[$itemNumber] " -NoNewline -ForegroundColor White
-                Write-Host "$($item.Name)" -ForegroundColor White
+                Write-Ui -Message "$($item.Name)" -Level "STEP"
                 Write-Host "    Impact: $impactIcon " -NoNewline
                 Write-Host "$($item.Impact)" -NoNewline -ForegroundColor Gray
-                Write-Host " | Type: $($item.Type) | Status: $($item.Status)" -ForegroundColor Gray
+                Write-Ui -Message " | Type: $($item.Type) | Status: $($item.Status)" -Level "INFO"
                 Write-Host "    Path: " -NoNewline -ForegroundColor Gray
-                Write-Host "$($item.Command)" -ForegroundColor DarkGray
+                Write-Ui -Message "$($item.Command)" -Level "INFO"
                 Write-Host ""
                 
                 $itemNumber++
@@ -844,19 +844,19 @@ function Show-OptimizationGuidance {
     if ($Recommendations.Count -eq 0) {
         Write-Host ""
         Write-Host "====================================================================" -ForegroundColor Green
-        Write-Host "           OPTIMIZATION RECOMMENDATIONS" -ForegroundColor Green
+        Write-Ui -Message "           OPTIMIZATION RECOMMENDATIONS" -Level "OK"
         Write-Host "====================================================================" -ForegroundColor Green
         Write-Host ""
         Write-Host "(OK) " -NoNewline -ForegroundColor Green
-        Write-Host "Your system is well optimized!" -ForegroundColor White
-        Write-Host "  No major optimization opportunities detected." -ForegroundColor Gray
+        Write-Ui -Message "Your system is well optimized!" -Level "STEP"
+        Write-Ui -Message "  No major optimization opportunities detected." -Level "INFO"
         Write-Host ""
         return
     }
     
     Write-Host ""
     Write-Host "====================================================================" -ForegroundColor Yellow
-    Write-Host "           OPTIMIZATION RECOMMENDATIONS" -ForegroundColor Yellow
+    Write-Ui -Message "           OPTIMIZATION RECOMMENDATIONS" -Level "WARN"
     Write-Host "====================================================================" -ForegroundColor Yellow
     Write-Host ""
     
@@ -871,24 +871,24 @@ function Show-OptimizationGuidance {
         
         Write-Host "[$recNumber] " -NoNewline -ForegroundColor White
         Write-Host "$($rec.Priority) PRIORITY: " -NoNewline -ForegroundColor $priorityColor
-        Write-Host "$($rec.Category) ($($rec.Count) items)" -ForegroundColor White
+        Write-Ui -Message "$($rec.Category) ($($rec.Count) items)" -Level "STEP"
         Write-Host "    (!) " -NoNewline -ForegroundColor Yellow
-        Write-Host "$($rec.Description)" -ForegroundColor Gray
+        Write-Ui -Message "$($rec.Description)" -Level "INFO"
         Write-Host ""
         
-        Write-Host "    Programs:" -ForegroundColor Cyan
+        Write-Ui -Message "    Programs:" -Level "INFO"
         foreach ($itemName in $rec.Items) {
-            Write-Host "      • $itemName" -ForegroundColor White
+            Write-Ui -Message "      • $itemName" -Level "STEP"
         }
         Write-Host ""
         
-        Write-Host "    (*) Recommendation:" -ForegroundColor Cyan
-        Write-Host "    $($rec.Guidance)" -ForegroundColor White
+        Write-Ui -Message "    (*) Recommendation:" -Level "INFO"
+        Write-Ui -Message "    $($rec.Guidance)" -Level "STEP"
         Write-Host ""
         
-        Write-Host "    How to Disable:" -ForegroundColor Cyan
+        Write-Ui -Message "    How to Disable:" -Level "INFO"
         foreach ($line in $rec.HowToDisable) {
-            Write-Host "    $line" -ForegroundColor Gray
+            Write-Ui -Message "    $line" -Level "INFO"
         }
         
         Write-Host ""
@@ -1368,15 +1368,15 @@ function Show-MainMenu {
     Clear-Host
     Write-Host ""
     Write-Host "====================================================================" -ForegroundColor Cyan
-    Write-Host "      STARTUP PROGRAMS & BOOT TIME ANALYZER" -ForegroundColor Cyan
-    Write-Host "      Coded by: Soulitek.co.il" -ForegroundColor Cyan
+    Write-Ui -Message "      STARTUP PROGRAMS & BOOT TIME ANALYZER" -Level "INFO"
+    Write-Ui -Message "      Coded by: Soulitek.co.il" -Level "INFO"
     Write-Host "====================================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "[1] Analyze All Startup Items (Full Scan)" -ForegroundColor White
-    Write-Host "[2] View Boot Time History & Trends" -ForegroundColor White
-    Write-Host "[3] View Optimization Recommendations" -ForegroundColor White
-    Write-Host "[4] Export Full Report to HTML" -ForegroundColor White
-    Write-Host "[5] Exit" -ForegroundColor White
+    Write-Ui -Message "[1] Analyze All Startup Items (Full Scan)" -Level "STEP"
+    Write-Ui -Message "[2] View Boot Time History & Trends" -Level "STEP"
+    Write-Ui -Message "[3] View Optimization Recommendations" -Level "STEP"
+    Write-Ui -Message "[4] Export Full Report to HTML" -Level "STEP"
+    Write-Ui -Message "[5] Exit" -Level "STEP"
     Write-Host ""
     Write-Host "Select an option (1-5): " -NoNewline -ForegroundColor Yellow
 }
@@ -1389,27 +1389,27 @@ function Invoke-FullAnalysis {
     Clear-Host
     Write-Host ""
     Write-Host "====================================================================" -ForegroundColor Cyan
-    Write-Host "      ANALYZING STARTUP ITEMS..." -ForegroundColor Cyan
+    Write-Ui -Message "      ANALYZING STARTUP ITEMS..." -Level "INFO"
     Write-Host "====================================================================" -ForegroundColor Cyan
     Write-Host ""
     
-    Write-Host "Scanning startup sources..." -ForegroundColor Cyan
+    Write-Ui -Message "Scanning startup sources..." -Level "INFO"
     Write-Host ""
     
     Write-Host "  [*] Startup folders..." -NoNewline
     $folderItems = Get-StartupFolderItems
-    Write-Host " Found $($folderItems.Count)" -ForegroundColor Green
+    Write-Ui -Message " Found $($folderItems.Count)" -Level "OK"
     
     Write-Host "  [*] Task Scheduler..." -NoNewline
     $taskItems = Get-TaskSchedulerStartupItems
-    Write-Host " Found $($taskItems.Count)" -ForegroundColor Green
+    Write-Ui -Message " Found $($taskItems.Count)" -Level "OK"
     
     Write-Host "  [*] Auto-start services..." -NoNewline
     $serviceItems = Get-AutoStartServices -ExcludeMicrosoft
-    Write-Host " Found $($serviceItems.Count) (non-Microsoft)" -ForegroundColor Green
+    Write-Ui -Message " Found $($serviceItems.Count) (non-Microsoft)" -Level "OK"
     
     Write-Host ""
-    Write-Host "Analyzing performance impact..." -ForegroundColor Cyan
+    Write-Ui -Message "Analyzing performance impact..." -Level "INFO"
     
     # Combine all items
     $Global:AllStartupItems = @()
@@ -1430,21 +1430,21 @@ function Invoke-FullAnalysis {
     Write-Progress -Activity "Analyzing startup items" -Completed
     
     Write-Host ""
-    Write-Host "Checking boot performance..." -ForegroundColor Cyan
+    Write-Ui -Message "Checking boot performance..." -Level "INFO"
     
     # Get boot performance
     $Global:LastBootData = Get-BootPerformanceFromEventLog -MaxEvents 10
     if ($Global:LastBootData -and $Global:LastBootData.Count -gt 0) {
-        Write-Host "  (OK) Boot performance data retrieved from Event Log" -ForegroundColor Green
+        Write-Ui -Message "  (OK) Boot performance data retrieved from Event Log" -Level "OK"
         # Save to history
         Save-BootTimeToHistory -BootTime $Global:LastBootData[0].TimeGenerated -DurationSeconds $Global:LastBootData[0].BootDurationSeconds -Source "EventLog"
     } else {
-        Write-Host "  (!) Boot performance data not available" -ForegroundColor Yellow
-        Write-Host "      To enable: wevtutil sl Microsoft-Windows-Diagnostics-Performance/Operational /e:true" -ForegroundColor Gray
+        Write-Ui -Message "  (!) Boot performance data not available" -Level "WARN"
+        Write-Ui -Message "      To enable: wevtutil sl Microsoft-Windows-Diagnostics-Performance/Operational /e:true" -Level "INFO"
     }
     
     Write-Host ""
-    Write-Host "Analysis complete!" -ForegroundColor Green
+    Write-Ui -Message "Analysis complete!" -Level "OK"
     Start-Sleep -Seconds 2
     
     # Display results
@@ -1452,7 +1452,7 @@ function Invoke-FullAnalysis {
     Show-StartupItemsByCategory -AllItems $Global:AllStartupItems
     
     Write-Host ""
-    Write-Host "Press any key to return to menu..." -ForegroundColor Gray
+    Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
@@ -1464,19 +1464,19 @@ function Show-BootTimeHistory {
     Clear-Host
     Write-Host ""
     Write-Host "====================================================================" -ForegroundColor Cyan
-    Write-Host "           BOOT TIME HISTORY (Last 30 Boots)" -ForegroundColor Cyan
+    Write-Ui -Message "           BOOT TIME HISTORY (Last 30 Boots)" -Level "INFO"
     Write-Host "====================================================================" -ForegroundColor Cyan
     Write-Host ""
     
     $history = Get-BootTimeHistory
     
     if ($history.Count -eq 0) {
-        Write-Host "No boot time history available yet." -ForegroundColor Yellow
+        Write-Ui -Message "No boot time history available yet." -Level "WARN"
         Write-Host ""
-        Write-Host "History will be built as you run analyses." -ForegroundColor Gray
-        Write-Host "Boot time data is collected from Windows Event Logs." -ForegroundColor Gray
+        Write-Ui -Message "History will be built as you run analyses." -Level "INFO"
+        Write-Ui -Message "Boot time data is collected from Windows Event Logs." -Level "INFO"
         Write-Host ""
-        Write-Host "Press any key to return to menu..." -ForegroundColor Gray
+        Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
         $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
         return
     }
@@ -1485,7 +1485,7 @@ function Show-BootTimeHistory {
     $history = $history | Sort-Object -Property { [DateTime]$_.BootTime } -Descending
     
     # Display table
-    Write-Host "Date & Time              | Duration | Source" -ForegroundColor White
+    Write-Ui -Message "Date & Time              | Duration | Source" -Level "STEP"
     Write-Host "-------------------------+----------+------------" -ForegroundColor DarkGray
     
     $previousDuration = $null
@@ -1517,7 +1517,7 @@ function Show-BootTimeHistory {
         Write-Host " - " -NoNewline -ForegroundColor DarkGray
         Write-Host "$($record.Source)" -NoNewline -ForegroundColor Gray
         if ($trendIndicator) {
-            Write-Host "  $trendIndicator" -ForegroundColor Gray
+            Write-Ui -Message "  $trendIndicator" -Level "INFO"
         } else {
             Write-Host ""
         }
@@ -1526,7 +1526,7 @@ function Show-BootTimeHistory {
     }
     
     Write-Host ""
-    Write-Host "Statistics:" -ForegroundColor Cyan
+    Write-Ui -Message "Statistics:" -Level "INFO"
     
     $durations = $history | Select-Object -ExpandProperty DurationSeconds
     $avgDuration = [math]::Round(($durations | Measure-Object -Average).Average, 1)
@@ -1535,23 +1535,23 @@ function Show-BootTimeHistory {
     $currentDuration = $durations[0]
     
     Write-Host "  Average: " -NoNewline
-    Write-Host "$avgDuration seconds" -ForegroundColor White
+    Write-Ui -Message "$avgDuration seconds" -Level "STEP"
     Write-Host "  Best: " -NoNewline
     Write-Host "$minDuration seconds " -NoNewline -ForegroundColor Green
     $bestDate = ($history | Where-Object { $_.DurationSeconds -eq $minDuration } | Select-Object -First 1).BootTime
-    Write-Host "($([DateTime]$bestDate | Get-Date -Format 'yyyy-MM-dd'))" -ForegroundColor Gray
+    Write-Ui -Message "($([DateTime]$bestDate | Get-Date -Format 'yyyy-MM-dd'))" -Level "INFO"
     Write-Host "  Worst: " -NoNewline
     Write-Host "$maxDuration seconds " -NoNewline -ForegroundColor Red
     $worstDate = ($history | Where-Object { $_.DurationSeconds -eq $maxDuration } | Select-Object -First 1).BootTime
-    Write-Host "($([DateTime]$worstDate | Get-Date -Format 'yyyy-MM-dd'))" -ForegroundColor Gray
+    Write-Ui -Message "($([DateTime]$worstDate | Get-Date -Format 'yyyy-MM-dd'))" -Level "INFO"
     Write-Host "  Current: " -NoNewline
     $currentColor = if ($currentDuration -lt $avgDuration) { "Green" } else { "Yellow" }
     Write-Host "$currentDuration seconds " -NoNewline -ForegroundColor $currentColor
     $comparison = if ($currentDuration -lt $avgDuration) { "Better than average" } else { "Slower than average" }
-    Write-Host "($comparison)" -ForegroundColor Gray
+    Write-Ui -Message "($comparison)" -Level "INFO"
     
     Write-Host ""
-    Write-Host "Trend Analysis:" -ForegroundColor Cyan
+    Write-Ui -Message "Trend Analysis:" -Level "INFO"
     
     # Compare last 7 days to overall average
     if ($history.Count -ge 7) {
@@ -1562,18 +1562,18 @@ function Show-BootTimeHistory {
         Write-Host "  Last 7 boots: " -NoNewline
         if ($diff -lt -5) {
             $absDiffTrend = [math]::Abs($diff)
-            Write-Host "Improving - $absDiffTrend seconds faster than average" -ForegroundColor Green
+            Write-Ui -Message "Improving - $absDiffTrend seconds faster than average" -Level "OK"
         } elseif ($diff -gt 5) {
-            Write-Host ("Degrading - " + $diff + " seconds slower than average") -ForegroundColor Red
+            Write-Ui -Message ("Degrading - " + $diff + " seconds slower than average") -Level "ERROR"
         } else {
-            Write-Host "Stable compared to average" -ForegroundColor White
+            Write-Ui -Message "Stable compared to average" -Level "STEP"
         }
     }
     
     if ($history.Count -ge 30) {
-        Write-Host "  Last 30 boots: full history available" -ForegroundColor White
+        Write-Ui -Message "  Last 30 boots: full history available" -Level "STEP"
     } else {
-        Write-Host "  Total boots tracked: $($history.Count) (need 30 for full trend analysis)" -ForegroundColor Gray
+        Write-Ui -Message "  Total boots tracked: $($history.Count) (need 30 for full trend analysis)" -Level "INFO"
     }
     
     # Warning if boot time suddenly increased
@@ -1585,13 +1585,13 @@ function Show-BootTimeHistory {
         if ($increase -gt 10) {
             Write-Host ""
             Write-Host "(!) Warning: " -NoNewline -ForegroundColor Red
-            Write-Host "Boot time increased by $increase seconds recently" -ForegroundColor Yellow
-            Write-Host "   Consider running optimization analysis (Option 1)" -ForegroundColor Gray
+            Write-Ui -Message "Boot time increased by $increase seconds recently" -Level "WARN"
+            Write-Ui -Message "   Consider running optimization analysis (Option 1)" -Level "INFO"
         }
     }
     
     Write-Host ""
-    Write-Host "Press any key to return to menu..." -ForegroundColor Gray
+    Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
@@ -1607,13 +1607,13 @@ function Show-OptimizationRecommendations {
     if ($Global:AllStartupItems.Count -eq 0) {
         Write-Host ""
         Write-Host "====================================================================" -ForegroundColor Yellow
-        Write-Host "           OPTIMIZATION RECOMMENDATIONS" -ForegroundColor Yellow
+        Write-Ui -Message "           OPTIMIZATION RECOMMENDATIONS" -Level "WARN"
         Write-Host "====================================================================" -ForegroundColor Yellow
         Write-Host ""
-        Write-Host "No startup items loaded yet." -ForegroundColor Yellow
-        Write-Host "Please run 'Analyze All Startup Items' (Option 1) first." -ForegroundColor Gray
+        Write-Ui -Message "No startup items loaded yet." -Level "WARN"
+        Write-Ui -Message "Please run 'Analyze All Startup Items' (Option 1) first." -Level "INFO"
         Write-Host ""
-        Write-Host "Press any key to return to menu..." -ForegroundColor Gray
+        Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
         $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
         return
     }
@@ -1623,7 +1623,7 @@ function Show-OptimizationRecommendations {
     
     Show-OptimizationGuidance -Recommendations $recommendations
     
-    Write-Host "Press any key to return to menu..." -ForegroundColor Gray
+    Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
@@ -1635,13 +1635,13 @@ function Invoke-ExportReport {
     Clear-Host
     Write-Host ""
     Write-Host "====================================================================" -ForegroundColor Cyan
-    Write-Host "           EXPORT FULL REPORT TO HTML" -ForegroundColor Cyan
+    Write-Ui -Message "           EXPORT FULL REPORT TO HTML" -Level "INFO"
     Write-Host "====================================================================" -ForegroundColor Cyan
     Write-Host ""
     
     # Check if analysis has been run
     if ($Global:AllStartupItems.Count -eq 0) {
-        Write-Host "No startup items loaded yet." -ForegroundColor Yellow
+        Write-Ui -Message "No startup items loaded yet." -Level "WARN"
         Write-Host ""
         Write-Host "Would you like to run analysis now? (Y/N): " -NoNewline -ForegroundColor Yellow
         $response = Read-Host
@@ -1653,33 +1653,33 @@ function Invoke-ExportReport {
         }
     }
     
-    Write-Host "Generating comprehensive HTML report..." -ForegroundColor Cyan
+    Write-Ui -Message "Generating comprehensive HTML report..." -Level "INFO"
     Write-Host ""
     
-    Write-Host "  (OK) Performance summary" -ForegroundColor Green
-    Write-Host "  (OK) Boot time history" -ForegroundColor Green
-    Write-Host "  (OK) Startup items ($($Global:AllStartupItems.Count) total)" -ForegroundColor Green
+    Write-Ui -Message "  (OK) Performance summary" -Level "OK"
+    Write-Ui -Message "  (OK) Boot time history" -Level "OK"
+    Write-Ui -Message "  (OK) Startup items ($($Global:AllStartupItems.Count) total)" -Level "OK"
     
     # Generate recommendations
     $recommendations = Get-OptimizationRecommendations -AllStartupItems $Global:AllStartupItems
-    Write-Host "  (OK) Optimization recommendations ($($recommendations.Count) found)" -ForegroundColor Green
-    Write-Host "  (OK) Embedded styling" -ForegroundColor Green
+    Write-Ui -Message "  (OK) Optimization recommendations ($($recommendations.Count) found)" -Level "OK"
+    Write-Ui -Message "  (OK) Embedded styling" -Level "OK"
     
     Write-Host ""
-    Write-Host "Creating HTML file..." -ForegroundColor Cyan
+    Write-Ui -Message "Creating HTML file..." -Level "INFO"
     
     $outputPath = Export-ToHTML -StartupItems $Global:AllStartupItems -BootData $Global:LastBootData -Recommendations $recommendations
     
     if ($outputPath) {
         Write-Host ""
-        Write-Host "Report saved successfully!" -ForegroundColor Green
+        Write-Ui -Message "Report saved successfully!" -Level "OK"
         Write-Host ""
-        Write-Host "Report saved to:" -ForegroundColor Cyan
-        Write-Host "$outputPath" -ForegroundColor White
+        Write-Ui -Message "Report saved to:" -Level "INFO"
+        Write-Ui -Message "$outputPath" -Level "STEP"
         Write-Host ""
-        Write-Host "[O] Open in browser" -ForegroundColor White
-        Write-Host "[C] Copy path to clipboard" -ForegroundColor White
-        Write-Host "[Enter] Return to menu" -ForegroundColor Gray
+        Write-Ui -Message "[O] Open in browser" -Level "STEP"
+        Write-Ui -Message "[C] Copy path to clipboard" -Level "STEP"
+        Write-Ui -Message "[Enter] Return to menu" -Level "INFO"
         Write-Host ""
         Write-Host "Your choice: " -NoNewline -ForegroundColor Yellow
         
@@ -1689,7 +1689,7 @@ function Invoke-ExportReport {
             "O" {
                 try {
                     Start-Process $outputPath
-                    Write-Host "Opening report in browser..." -ForegroundColor Green
+                    Write-Ui -Message "Opening report in browser..." -Level "OK"
                     Start-Sleep -Seconds 2
                 } catch {
                     Write-Warning "Failed to open browser: $_"
@@ -1699,7 +1699,7 @@ function Invoke-ExportReport {
             "C" {
                 try {
                     Set-Clipboard -Value $outputPath
-                    Write-Host "Path copied to clipboard!" -ForegroundColor Green
+                    Write-Ui -Message "Path copied to clipboard!" -Level "OK"
                     Start-Sleep -Seconds 2
                 } catch {
                     Write-Warning "Failed to copy to clipboard: $_"
@@ -1709,9 +1709,9 @@ function Invoke-ExportReport {
         }
     } else {
         Write-Host ""
-        Write-Host "(X) Failed to create HTML report." -ForegroundColor Red
+        Write-Ui -Message "(X) Failed to create HTML report." -Level "ERROR"
         Write-Host ""
-        Write-Host "Press any key to return to menu..." -ForegroundColor Gray
+        Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
         $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
     }
 }
@@ -1730,7 +1730,7 @@ Write-Ui -Message "Analyze boot performance and track trends" -Level "INFO"
 Write-Ui -Message "Get optimization recommendations" -Level "INFO"
 Write-Ui -Message "Export detailed HTML reports" -Level "INFO"
 Write-Host ""
-Write-Host "Press any key to continue..." -ForegroundColor Yellow
+Write-Ui -Message "Press any key to continue..." -Level "WARN"
 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 
 # Main menu loop
@@ -1746,15 +1746,15 @@ while ($true) {
         "5" {
             Clear-Host
             Write-Host ""
-            Write-Host "Thank you for using SouliTEK Startup & Boot Time Analyzer!" -ForegroundColor Cyan
-            Write-Host "Visit www.soulitek.co.il for more professional IT solutions." -ForegroundColor Gray
+            Write-Ui -Message "Thank you for using SouliTEK Startup & Boot Time Analyzer!" -Level "INFO"
+            Write-Ui -Message "Visit www.soulitek.co.il for more professional IT solutions." -Level "INFO"
             Write-Host ""
             
             exit
         }
         default {
             Write-Host ""
-            Write-Host "Invalid option. Please select 1-5." -ForegroundColor Red
+            Write-Ui -Message "Invalid option. Please select 1-5." -Level "ERROR"
             Start-Sleep -Seconds 2
         }
     }

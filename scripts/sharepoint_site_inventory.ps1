@@ -56,7 +56,7 @@ function Connect-ToMicrosoftGraph {
 	Show-Header "Connecting to Microsoft 365"
 	
 	# Use centralized module installation function
-	Write-Host "[Step 1/4] Installing/verifying Microsoft Graph modules..." -ForegroundColor Cyan
+	Write-Ui -Message "[Step 1/4] Installing/verifying Microsoft Graph modules..." -Level "INFO"
 	Write-Host ""
 	
 	$modulesToInstall = @(
@@ -76,22 +76,22 @@ function Connect-ToMicrosoftGraph {
 	
 	if (-not $allModulesInstalled) {
 		Write-Host ""
-		Write-Host "[-] Some required modules failed to install" -ForegroundColor Red
+		Write-Ui -Message "[-] Some required modules failed to install" -Level "ERROR"
 		return $false
 	}
 	
 	Write-Host ""
-	Write-Host "[+] All Microsoft Graph modules ready" -ForegroundColor Green
+	Write-Ui -Message "[+] All Microsoft Graph modules ready" -Level "OK"
 	
 	try {
 		Write-Host ""
-		Write-Host "[Step 2/4] Checking existing connection..." -ForegroundColor Cyan
+		Write-Ui -Message "[Step 2/4] Checking existing connection..." -Level "INFO"
 		# Check if already connected
 		$context = Get-MgContext -ErrorAction SilentlyContinue
 		if ($context) {
-			Write-Host "          [+] Already connected to Microsoft Graph" -ForegroundColor Green
-			Write-Host "          Account: $($context.Account)" -ForegroundColor Gray
-			Write-Host "          Tenant: $($context.TenantId)" -ForegroundColor Gray
+			Write-Ui -Message "          [+] Already connected to Microsoft Graph" -Level "OK"
+			Write-Ui -Message "          Account: $($context.Account)" -Level "INFO"
+			Write-Ui -Message "          Tenant: $($context.TenantId)" -Level "INFO"
 			
 			# Get organization/domain information if not already set
 			if ($Script:TenantDomain -eq "Unknown") {
@@ -110,14 +110,14 @@ function Connect-ToMicrosoftGraph {
 				}
 			}
 			if ($Script:TenantDomain -ne "Unknown") {
-				Write-Host "          Organization: $($Script:TenantName)" -ForegroundColor Gray
-				Write-Host "          Domain: $($Script:TenantDomain)" -ForegroundColor Gray
+				Write-Ui -Message "          Organization: $($Script:TenantName)" -Level "INFO"
+				Write-Ui -Message "          Domain: $($Script:TenantDomain)" -Level "INFO"
 			}
 			Write-Host ""
 			Write-Host "------------------------------------------------------------" -ForegroundColor Yellow
-			Write-Host "Would you like to:" -ForegroundColor Yellow
-			Write-Host "  1. Keep current connection" -ForegroundColor White
-			Write-Host "  2. Disconnect and connect to a different tenant" -ForegroundColor White
+			Write-Ui -Message "Would you like to:" -Level "WARN"
+			Write-Ui -Message "  1. Keep current connection" -Level "STEP"
+			Write-Ui -Message "  2. Disconnect and connect to a different tenant" -Level "STEP"
 			Write-Host ""
 			Write-Host "Select option (1-2): " -NoNewline -ForegroundColor Cyan
 			$reconnectChoice = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
@@ -125,44 +125,44 @@ function Connect-ToMicrosoftGraph {
 			Write-Host ""
 			
 			if ($reconnectChoice.Character -eq '2') {
-				Write-Host "Disconnecting from current tenant..." -ForegroundColor Yellow
+				Write-Ui -Message "Disconnecting from current tenant..." -Level "WARN"
 				try {
 					Disconnect-MgGraph -ErrorAction SilentlyContinue | Out-Null
 					$Script:Connected = $false
 					$Script:TenantDomain = "Unknown"
 					$Script:TenantName = "Unknown"
-					Write-Host "[+] Disconnected successfully" -ForegroundColor Green
+					Write-Ui -Message "[+] Disconnected successfully" -Level "OK"
 					Write-Host ""
 					# Continue to new connection below
 				} catch {
 					Write-Warning "Disconnect failed: $($_.Exception.Message)"
 					Write-Host ""
-					Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+					Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 					$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 					return $false
 				}
 			} else {
-				Write-Host "[+] Using existing connection" -ForegroundColor Green
+				Write-Ui -Message "[+] Using existing connection" -Level "OK"
 				$Script:Connected = $true
 				Write-Host ""
-				Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+				Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 				$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 				return $true
 			}
 		} else {
-			Write-Host "          No existing connection found" -ForegroundColor Yellow
+			Write-Ui -Message "          No existing connection found" -Level "WARN"
 		}
 		
 		Write-Host ""
-		Write-Host "[Step 3/4] Initiating connection to Microsoft Graph..." -ForegroundColor Cyan
-		Write-Host "          This will open a browser window for authentication" -ForegroundColor Yellow
-		Write-Host "          Required permissions:" -ForegroundColor Gray
-		Write-Host "            - Sites.Read.All (Read all SharePoint sites)" -ForegroundColor Gray
-		Write-Host "            - Group.Read.All (Read group information)" -ForegroundColor Gray
-		Write-Host "            - Organization.Read.All (Read organization info)" -ForegroundColor Gray
+		Write-Ui -Message "[Step 3/4] Initiating connection to Microsoft Graph..." -Level "INFO"
+		Write-Ui -Message "          This will open a browser window for authentication" -Level "WARN"
+		Write-Ui -Message "          Required permissions:" -Level "INFO"
+		Write-Ui -Message "            - Sites.Read.All (Read all SharePoint sites)" -Level "INFO"
+		Write-Ui -Message "            - Group.Read.All (Read group information)" -Level "INFO"
+		Write-Ui -Message "            - Organization.Read.All (Read organization info)" -Level "INFO"
 		Write-Host ""
-		Write-Host "          Required roles:" -ForegroundColor Gray
-		Write-Host "            - Global Reader, SharePoint Administrator, or Global Administrator" -ForegroundColor Gray
+		Write-Ui -Message "          Required roles:" -Level "INFO"
+		Write-Ui -Message "            - Global Reader, SharePoint Administrator, or Global Administrator" -Level "INFO"
 		Write-Host ""
 		
 		$scopes = @(
@@ -174,7 +174,7 @@ function Connect-ToMicrosoftGraph {
 		Connect-MgGraph -Scopes $scopes -NoWelcome
 		
 		Write-Host ""
-		Write-Host "[Step 4/4] Retrieving organization information..." -ForegroundColor Cyan
+		Write-Ui -Message "[Step 4/4] Retrieving organization information..." -Level "INFO"
 		
 		# Get organization/domain information
 		try {
@@ -186,8 +186,8 @@ function Connect-ToMicrosoftGraph {
 				} else { 
 					"Unknown" 
 				}
-				Write-Host "          Organization: $($Script:TenantName)" -ForegroundColor Gray
-				Write-Host "          Domain: $($Script:TenantDomain)" -ForegroundColor Gray
+				Write-Ui -Message "          Organization: $($Script:TenantName)" -Level "INFO"
+				Write-Ui -Message "          Domain: $($Script:TenantDomain)" -Level "INFO"
 			}
 		} catch {
 			Write-Warning "Could not retrieve organization details: $($_.Exception.Message)"
@@ -195,7 +195,7 @@ function Connect-ToMicrosoftGraph {
 		
 		Write-Host ""
 		Write-Host "============================================================" -ForegroundColor Green
-		Write-Host "  [+] Microsoft Graph Connected Successfully" -ForegroundColor Green
+		Write-Ui -Message "  [+] Microsoft Graph Connected Successfully" -Level "OK"
 		Write-Host "============================================================" -ForegroundColor Green
 		Write-Host ""
 		$Script:Connected = $true
@@ -203,15 +203,15 @@ function Connect-ToMicrosoftGraph {
 	} catch {
 		Write-Host ""
 		Write-Host "============================================================" -ForegroundColor Red
-		Write-Host "  [-] Microsoft Graph Connection Failed" -ForegroundColor Red
+		Write-Ui -Message "  [-] Microsoft Graph Connection Failed" -Level "ERROR"
 		Write-Host "============================================================" -ForegroundColor Red
 		Write-Host ""
 		Write-Warning "Connection failed: $($_.Exception.Message)"
 		Write-Host ""
-		Write-Host "Troubleshooting steps:" -ForegroundColor Yellow
-		Write-Host "  1. Check your internet connection" -ForegroundColor Gray
-		Write-Host "  2. Verify you have appropriate permissions (Global Administrator or Global Reader)" -ForegroundColor Gray
-		Write-Host "  3. Try running the script again" -ForegroundColor Gray
+		Write-Ui -Message "Troubleshooting steps:" -Level "WARN"
+		Write-Ui -Message "  1. Check your internet connection" -Level "INFO"
+		Write-Ui -Message "  2. Verify you have appropriate permissions (Global Administrator or Global Reader)" -Level "INFO"
+		Write-Ui -Message "  3. Try running the script again" -Level "INFO"
 		Write-Host ""
 	}
 	return $connected
@@ -221,23 +221,23 @@ function Disconnect-FromMicrosoftGraph {
 	Show-Header "Disconnect from Microsoft 365"
 	
 	if (-not $Script:Connected) {
-		Write-Host "Not currently connected to Microsoft Graph." -ForegroundColor Yellow
+		Write-Ui -Message "Not currently connected to Microsoft Graph." -Level "WARN"
 		Write-Host ""
-		Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+		Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 		$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 		return
 	}
 	
-	Write-Host "Current connection:" -ForegroundColor Cyan
+	Write-Ui -Message "Current connection:" -Level "INFO"
 	Write-Host ""
 	if ($Script:TenantDomain -ne "Unknown") {
-		Write-Host "  Organization: $($Script:TenantName)" -ForegroundColor Gray
-		Write-Host "  Domain: $($Script:TenantDomain)" -ForegroundColor Gray
+		Write-Ui -Message "  Organization: $($Script:TenantName)" -Level "INFO"
+		Write-Ui -Message "  Domain: $($Script:TenantDomain)" -Level "INFO"
 	}
 	$context = Get-MgContext -ErrorAction SilentlyContinue
 	if ($context) {
-		Write-Host "  Account: $($context.Account)" -ForegroundColor Gray
-		Write-Host "  Tenant: $($context.TenantId)" -ForegroundColor Gray
+		Write-Ui -Message "  Account: $($context.Account)" -Level "INFO"
+		Write-Ui -Message "  Tenant: $($context.TenantId)" -Level "INFO"
 	}
 	Write-Host ""
 	Write-Host "------------------------------------------------------------" -ForegroundColor Yellow
@@ -248,7 +248,7 @@ function Disconnect-FromMicrosoftGraph {
 	
 	if ($confirm.Character -eq 'Y' -or $confirm.Character -eq 'y') {
 		try {
-			Write-Host "Disconnecting from Microsoft Graph..." -ForegroundColor Cyan
+			Write-Ui -Message "Disconnecting from Microsoft Graph..." -Level "INFO"
 			Disconnect-MgGraph -ErrorAction Stop | Out-Null
 			$Script:Connected = $false
 			$Script:TenantDomain = "Unknown"
@@ -256,26 +256,26 @@ function Disconnect-FromMicrosoftGraph {
 			$Script:SiteData = @()
 			Write-Host ""
 			Write-Host "============================================================" -ForegroundColor Green
-			Write-Host "  [+] Disconnected Successfully" -ForegroundColor Green
+			Write-Ui -Message "  [+] Disconnected Successfully" -Level "OK"
 			Write-Host "============================================================" -ForegroundColor Green
 			Write-Host ""
-			Write-Host "Site data has been cleared." -ForegroundColor Gray
+			Write-Ui -Message "Site data has been cleared." -Level "INFO"
 			Write-Host ""
 		} catch {
 			Write-Host ""
 			Write-Host "============================================================" -ForegroundColor Red
-			Write-Host "  [-] Disconnect Failed" -ForegroundColor Red
+			Write-Ui -Message "  [-] Disconnect Failed" -Level "ERROR"
 			Write-Host "============================================================" -ForegroundColor Red
 			Write-Host ""
 			Write-Warning "Disconnect failed: $($_.Exception.Message)"
 			Write-Host ""
 		}
 	} else {
-		Write-Host "Disconnect cancelled." -ForegroundColor Yellow
+		Write-Ui -Message "Disconnect cancelled." -Level "WARN"
 		Write-Host ""
 	}
 	
-	Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+	Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 	$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
@@ -395,30 +395,30 @@ function Get-AllSites {
 	Show-Header "Retrieving SharePoint Sites"
 	
 	if (-not $Script:Connected) {
-		Write-Host "Not connected to Microsoft Graph. Please connect first." -ForegroundColor Red
+		Write-Ui -Message "Not connected to Microsoft Graph. Please connect first." -Level "ERROR"
 		Write-Host ""
-		Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+		Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 		$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 		return
 	}
 	
 	try {
-		Write-Host "Retrieving all SharePoint sites from Microsoft 365..." -ForegroundColor Cyan
-		Write-Host "This may take a few moments depending on the number of sites..." -ForegroundColor Gray
+		Write-Ui -Message "Retrieving all SharePoint sites from Microsoft 365..." -Level "INFO"
+		Write-Ui -Message "This may take a few moments depending on the number of sites..." -Level "INFO"
 		Write-Host ""
 		
 		# Get all sites
 		$allSites = Get-MgSite -All -Property WebUrl,DisplayName,Description,WebTemplate,GroupId,CreatedDateTime,LastModifiedDateTime -ErrorAction Stop
 		
 		if (-not $allSites -or $allSites.Count -eq 0) {
-			Write-Host "No sites found in the tenant." -ForegroundColor Yellow
+			Write-Ui -Message "No sites found in the tenant." -Level "WARN"
 			Write-Host ""
-			Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+			Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 			$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 			return
 		}
 		
-		Write-Host "Found $($allSites.Count) site(s). Processing site details..." -ForegroundColor Green
+		Write-Ui -Message "Found $($allSites.Count) site(s). Processing site details..." -Level "OK"
 		Write-Host ""
 		
 		$Script:SiteData = @()
@@ -481,19 +481,19 @@ function Get-AllSites {
 		Write-Progress -Activity "Processing Sites" -Completed
 		
 		Write-Host "============================================================" -ForegroundColor Green
-		Write-Host "  [+] Successfully retrieved $($Script:SiteData.Count) sites" -ForegroundColor Green
+		Write-Ui -Message "  [+] Successfully retrieved $($Script:SiteData.Count) sites" -Level "OK"
 		Write-Host "============================================================" -ForegroundColor Green
 		Write-Host ""
 		
 	} catch {
 		Write-Host ""
 		Write-Host "============================================================" -ForegroundColor Red
-		Write-Host "  [-] Error retrieving sites" -ForegroundColor Red
+		Write-Ui -Message "  [-] Error retrieving sites" -Level "ERROR"
 		Write-Host "============================================================" -ForegroundColor Red
 		Write-Host ""
 		Write-Warning "Error: $($_.Exception.Message)"
 		Write-Host ""
-		Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+		Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 		$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 	}
 }
@@ -502,9 +502,9 @@ function Show-SiteSummary {
 	Show-Header "Site Summary"
 	
 	if ($Script:SiteData.Count -eq 0) {
-		Write-Host "No site data available. Please retrieve sites first." -ForegroundColor Yellow
+		Write-Ui -Message "No site data available. Please retrieve sites first." -Level "WARN"
 		Write-Host ""
-		Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+		Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 		$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 		return
 	}
@@ -514,7 +514,7 @@ function Show-SiteSummary {
 	$groupConnected = ($Script:SiteData | Where-Object { $_.ConnectedToGroup -eq $true }).Count
 	$standalone = ($Script:SiteData | Where-Object { $_.ConnectedToGroup -eq $false }).Count
 	
-	Write-Host "SUMMARY STATISTICS" -ForegroundColor Cyan
+	Write-Ui -Message "SUMMARY STATISTICS" -Level "INFO"
 	Write-Host "------------------------------------------------------------" -ForegroundColor Gray
 	Write-Host ""
 	if ($Script:TenantDomain -ne "Unknown") {
@@ -529,7 +529,7 @@ function Show-SiteSummary {
 	Write-SummaryLine "Group Connected" "$groupConnected ($([math]::Round(($groupConnected / $Script:SiteData.Count) * 100, 2))%)" "Green"
 	Write-SummaryLine "Standalone" "$standalone ($([math]::Round(($standalone / $Script:SiteData.Count) * 100, 2))%)" "Yellow"
 	Write-Host ""
-	Write-Host "TOP 10 SITES (by Display Name)" -ForegroundColor Cyan
+	Write-Ui -Message "TOP 10 SITES (by Display Name)" -Level "INFO"
 	Write-Host "------------------------------------------------------------" -ForegroundColor Gray
 	Write-Host ""
 	
@@ -538,18 +538,18 @@ function Show-SiteSummary {
 		$typeColor = if ($site.ConnectedToGroup) { "Green" } else { "Yellow" }
 		$ownerInfo = if ($site.OwnerCount -gt 0) { " ($($site.OwnerCount) owners)" } else { " (No owners)" }
 		
-		Write-Host "  $($site.DisplayName)" -ForegroundColor White
-		Write-Host "    URL: $($site.SiteURL)" -ForegroundColor Gray
+		Write-Ui -Message "  $($site.DisplayName)" -Level "STEP"
+		Write-Ui -Message "    URL: $($site.SiteURL)" -Level "INFO"
 		Write-Host "    Type: $($site.SiteType)" -ForegroundColor $typeColor
-		Write-Host "    Template: $($site.Template)" -ForegroundColor Gray
-		Write-Host "    Storage: $($site.StorageUsed)" -ForegroundColor Gray
-		Write-Host "    Owners: $ownerInfo" -ForegroundColor Gray
+		Write-Ui -Message "    Template: $($site.Template)" -Level "INFO"
+		Write-Ui -Message "    Storage: $($site.StorageUsed)" -Level "INFO"
+		Write-Ui -Message "    Owners: $ownerInfo" -Level "INFO"
 		Write-Host ""
 	}
 	
 	Write-Host "============================================================" -ForegroundColor DarkGray
 	Write-Host ""
-	Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+	Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 	$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
@@ -557,9 +557,9 @@ function Export-ToTXT {
 	Show-Header "Export to TXT Format"
 	
 	if ($Script:SiteData.Count -eq 0) {
-		Write-Host "No site data available. Please retrieve sites first." -ForegroundColor Yellow
+		Write-Ui -Message "No site data available. Please retrieve sites first." -Level "WARN"
 		Write-Host ""
-		Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+		Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 		$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 		return
 	}
@@ -570,7 +570,7 @@ function Export-ToTXT {
 		$filename = "SharePoint_Site_Inventory_$timestamp.txt"
 		$filepath = Join-Path $Script:OutputFolder $filename
 		
-		Write-Host "Exporting site data to TXT format..." -ForegroundColor Cyan
+		Write-Ui -Message "Exporting site data to TXT format..." -Level "INFO"
 		Write-Host ""
 		
 		$content = @()
@@ -619,23 +619,23 @@ function Export-ToTXT {
 		$content | Out-File -FilePath $filepath -Encoding UTF8
 		
 		Write-Host "============================================================" -ForegroundColor Green
-		Write-Host "  [+] Export completed successfully" -ForegroundColor Green
+		Write-Ui -Message "  [+] Export completed successfully" -Level "OK"
 		Write-Host "============================================================" -ForegroundColor Green
 		Write-Host ""
-		Write-Host "File saved to: $filepath" -ForegroundColor Cyan
+		Write-Ui -Message "File saved to: $filepath" -Level "INFO"
 		Write-Host ""
 		
 	} catch {
 		Write-Host ""
 		Write-Host "============================================================" -ForegroundColor Red
-		Write-Host "  [-] Export failed" -ForegroundColor Red
+		Write-Ui -Message "  [-] Export failed" -Level "ERROR"
 		Write-Host "============================================================" -ForegroundColor Red
 		Write-Host ""
 		Write-Warning "Error: $($_.Exception.Message)"
 		Write-Host ""
 	}
 	
-	Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+	Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 	$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
@@ -643,9 +643,9 @@ function Export-ToCSV {
 	Show-Header "Export to CSV Format"
 	
 	if ($Script:SiteData.Count -eq 0) {
-		Write-Host "No site data available. Please retrieve sites first." -ForegroundColor Yellow
+		Write-Ui -Message "No site data available. Please retrieve sites first." -Level "WARN"
 		Write-Host ""
-		Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+		Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 		$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 		return
 	}
@@ -656,7 +656,7 @@ function Export-ToCSV {
 		$filename = "SharePoint_Site_Inventory_$timestamp.csv"
 		$filepath = Join-Path $Script:OutputFolder $filename
 		
-		Write-Host "Exporting site data to CSV format..." -ForegroundColor Cyan
+		Write-Ui -Message "Exporting site data to CSV format..." -Level "INFO"
 		Write-Host ""
 		
 		# Prepare data for CSV export
@@ -679,23 +679,23 @@ function Export-ToCSV {
 		$csvData | Export-Csv -Path $filepath -NoTypeInformation -Encoding UTF8
 		
 		Write-Host "============================================================" -ForegroundColor Green
-		Write-Host "  [+] Export completed successfully" -ForegroundColor Green
+		Write-Ui -Message "  [+] Export completed successfully" -Level "OK"
 		Write-Host "============================================================" -ForegroundColor Green
 		Write-Host ""
-		Write-Host "File saved to: $filepath" -ForegroundColor Cyan
+		Write-Ui -Message "File saved to: $filepath" -Level "INFO"
 		Write-Host ""
 		
 	} catch {
 		Write-Host ""
 		Write-Host "============================================================" -ForegroundColor Red
-		Write-Host "  [-] Export failed" -ForegroundColor Red
+		Write-Ui -Message "  [-] Export failed" -Level "ERROR"
 		Write-Host "============================================================" -ForegroundColor Red
 		Write-Host ""
 		Write-Warning "Error: $($_.Exception.Message)"
 		Write-Host ""
 	}
 	
-	Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+	Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 	$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
@@ -703,9 +703,9 @@ function Export-ToHTML {
 	Show-Header "Export to HTML Format"
 	
 	if ($Script:SiteData.Count -eq 0) {
-		Write-Host "No site data available. Please retrieve sites first." -ForegroundColor Yellow
+		Write-Ui -Message "No site data available. Please retrieve sites first." -Level "WARN"
 		Write-Host ""
-		Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+		Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 		$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 		return
 	}
@@ -716,7 +716,7 @@ function Export-ToHTML {
 		$filename = "SharePoint_Site_Inventory_$timestamp.html"
 		$filepath = Join-Path $Script:OutputFolder $filename
 		
-		Write-Host "Exporting site data to HTML format..." -ForegroundColor Cyan
+		Write-Ui -Message "Exporting site data to HTML format..." -Level "INFO"
 		Write-Host ""
 		
 		$html = @"
@@ -799,23 +799,23 @@ function Export-ToHTML {
 		$html | Out-File -FilePath $filepath -Encoding UTF8
 		
 		Write-Host "============================================================" -ForegroundColor Green
-		Write-Host "  [+] Export completed successfully" -ForegroundColor Green
+		Write-Ui -Message "  [+] Export completed successfully" -Level "OK"
 		Write-Host "============================================================" -ForegroundColor Green
 		Write-Host ""
-		Write-Host "File saved to: $filepath" -ForegroundColor Cyan
+		Write-Ui -Message "File saved to: $filepath" -Level "INFO"
 		Write-Host ""
 		
 	} catch {
 		Write-Host ""
 		Write-Host "============================================================" -ForegroundColor Red
-		Write-Host "  [-] Export failed" -ForegroundColor Red
+		Write-Ui -Message "  [-] Export failed" -Level "ERROR"
 		Write-Host "============================================================" -ForegroundColor Red
 		Write-Host ""
 		Write-Warning "Error: $($_.Exception.Message)"
 		Write-Host ""
 	}
 	
-	Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+	Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 	$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
@@ -823,9 +823,9 @@ function Export-ToJSON {
 	Show-Header "Export to JSON Format"
 	
 	if ($Script:SiteData.Count -eq 0) {
-		Write-Host "No site data available. Please retrieve sites first." -ForegroundColor Yellow
+		Write-Ui -Message "No site data available. Please retrieve sites first." -Level "WARN"
 		Write-Host ""
-		Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+		Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 		$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 		return
 	}
@@ -836,7 +836,7 @@ function Export-ToJSON {
 		$filename = "SharePoint_Site_Inventory_$timestamp.json"
 		$filepath = Join-Path $Script:OutputFolder $filename
 		
-		Write-Host "Exporting site data to JSON format..." -ForegroundColor Cyan
+		Write-Ui -Message "Exporting site data to JSON format..." -Level "INFO"
 		Write-Host ""
 		
 		# Prepare JSON data
@@ -867,68 +867,68 @@ function Export-ToJSON {
 		$jsonData | ConvertTo-Json -Depth 10 | Out-File -FilePath $filepath -Encoding UTF8
 		
 		Write-Host "============================================================" -ForegroundColor Green
-		Write-Host "  [+] Export completed successfully" -ForegroundColor Green
+		Write-Ui -Message "  [+] Export completed successfully" -Level "OK"
 		Write-Host "============================================================" -ForegroundColor Green
 		Write-Host ""
-		Write-Host "File saved to: $filepath" -ForegroundColor Cyan
+		Write-Ui -Message "File saved to: $filepath" -Level "INFO"
 		Write-Host ""
 		
 	} catch {
 		Write-Host ""
 		Write-Host "============================================================" -ForegroundColor Red
-		Write-Host "  [-] Export failed" -ForegroundColor Red
+		Write-Ui -Message "  [-] Export failed" -Level "ERROR"
 		Write-Host "============================================================" -ForegroundColor Red
 		Write-Host ""
 		Write-Warning "Error: $($_.Exception.Message)"
 		Write-Host ""
 	}
 	
-	Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+	Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 	$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
 function Show-Help {
 	Show-Header "Help & Information"
 	
-	Write-Host "SHAREPOINT SITE COLLECTION INVENTORY" -ForegroundColor Cyan
+	Write-Ui -Message "SHAREPOINT SITE COLLECTION INVENTORY" -Level "INFO"
 	Write-Host "------------------------------------------------------------" -ForegroundColor Gray
 	Write-Host ""
-	Write-Host "This tool builds a complete map of your SharePoint environment" -ForegroundColor White
-	Write-Host "by extracting comprehensive information about all SharePoint" -ForegroundColor White
-	Write-Host "sites in your Microsoft 365 tenant." -ForegroundColor White
+	Write-Ui -Message "This tool builds a complete map of your SharePoint environment" -Level "STEP"
+	Write-Ui -Message "by extracting comprehensive information about all SharePoint" -Level "STEP"
+	Write-Ui -Message "sites in your Microsoft 365 tenant." -Level "STEP"
 	Write-Host ""
-	Write-Host "FEATURES:" -ForegroundColor Yellow
-	Write-Host "  - Complete site collection inventory" -ForegroundColor Gray
-	Write-Host "  - Site template identification (Team/Communication sites)" -ForegroundColor Gray
-	Write-Host "  - M365 Group connection status" -ForegroundColor Gray
-	Write-Host "  - Storage usage per site" -ForegroundColor Gray
-	Write-Host "  - Site ownership information" -ForegroundColor Gray
-	Write-Host "  - Last activity tracking" -ForegroundColor Gray
+	Write-Ui -Message "FEATURES:" -Level "WARN"
+	Write-Ui -Message "  - Complete site collection inventory" -Level "INFO"
+	Write-Ui -Message "  - Site template identification (Team/Communication sites)" -Level "INFO"
+	Write-Ui -Message "  - M365 Group connection status" -Level "INFO"
+	Write-Ui -Message "  - Storage usage per site" -Level "INFO"
+	Write-Ui -Message "  - Site ownership information" -Level "INFO"
+	Write-Ui -Message "  - Last activity tracking" -Level "INFO"
 	Write-Host ""
-	Write-Host "EXPORT FORMATS:" -ForegroundColor Yellow
-	Write-Host "  - TXT: Human-readable text format" -ForegroundColor Gray
-	Write-Host "  - CSV: Spreadsheet format for Excel/Google Sheets" -ForegroundColor Gray
-	Write-Host "  - HTML: Professional web report with styling" -ForegroundColor Gray
-	Write-Host "  - JSON: Clean JSON format for automation" -ForegroundColor Gray
+	Write-Ui -Message "EXPORT FORMATS:" -Level "WARN"
+	Write-Ui -Message "  - TXT: Human-readable text format" -Level "INFO"
+	Write-Ui -Message "  - CSV: Spreadsheet format for Excel/Google Sheets" -Level "INFO"
+	Write-Ui -Message "  - HTML: Professional web report with styling" -Level "INFO"
+	Write-Ui -Message "  - JSON: Clean JSON format for automation" -Level "INFO"
 	Write-Host ""
-	Write-Host "REQUIRED PERMISSIONS:" -ForegroundColor Yellow
-	Write-Host "  - Sites.Read.All (Read all SharePoint sites)" -ForegroundColor Gray
-	Write-Host "  - Group.Read.All (Read group information)" -ForegroundColor Gray
-	Write-Host "  - Organization.Read.All (Read organization info)" -ForegroundColor Gray
+	Write-Ui -Message "REQUIRED PERMISSIONS:" -Level "WARN"
+	Write-Ui -Message "  - Sites.Read.All (Read all SharePoint sites)" -Level "INFO"
+	Write-Ui -Message "  - Group.Read.All (Read group information)" -Level "INFO"
+	Write-Ui -Message "  - Organization.Read.All (Read organization info)" -Level "INFO"
 	Write-Host ""
-	Write-Host "REQUIRED ROLES:" -ForegroundColor Yellow
-	Write-Host "  - Global Reader, SharePoint Administrator, or Global Administrator" -ForegroundColor Gray
+	Write-Ui -Message "REQUIRED ROLES:" -Level "WARN"
+	Write-Ui -Message "  - Global Reader, SharePoint Administrator, or Global Administrator" -Level "INFO"
 	Write-Host ""
-	Write-Host "USAGE:" -ForegroundColor Yellow
-	Write-Host "  1. Connect to Microsoft Graph (Option 1)" -ForegroundColor Gray
-	Write-Host "  2. Retrieve all sites (Option 3)" -ForegroundColor Gray
-	Write-Host "  3. View summary or export reports (Options 4-8)" -ForegroundColor Gray
+	Write-Ui -Message "USAGE:" -Level "WARN"
+	Write-Ui -Message "  1. Connect to Microsoft Graph (Option 1)" -Level "INFO"
+	Write-Ui -Message "  2. Retrieve all sites (Option 3)" -Level "INFO"
+	Write-Ui -Message "  3. View summary or export reports (Options 4-8)" -Level "INFO"
 	Write-Host ""
-	Write-Host "For more information, visit: www.soulitek.co.il" -ForegroundColor Cyan
+	Write-Ui -Message "For more information, visit: www.soulitek.co.il" -Level "INFO"
 	Write-Host ""
 	Write-Host "============================================================" -ForegroundColor DarkGray
 	Write-Host ""
-	Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+	Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 	$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
@@ -943,25 +943,25 @@ function Show-MainMenu {
 		Write-Host "Connection Status: " -NoNewline -ForegroundColor Gray
 		Write-Host $connectionStatus -ForegroundColor $connectionColor
 		if ($Script:Connected -and $Script:TenantDomain -ne "Unknown") {
-			Write-Host "Organization: $($Script:TenantName)" -ForegroundColor Gray
-			Write-Host "Domain: $($Script:TenantDomain)" -ForegroundColor Gray
+			Write-Ui -Message "Organization: $($Script:TenantName)" -Level "INFO"
+			Write-Ui -Message "Domain: $($Script:TenantDomain)" -Level "INFO"
 		}
-		Write-Host "Sites Retrieved: $siteCount" -ForegroundColor Gray
+		Write-Ui -Message "Sites Retrieved: $siteCount" -Level "INFO"
 		Write-Host ""
 		Write-Host "============================================================" -ForegroundColor DarkGray
 		Write-Host ""
-		Write-Host "Select an option:" -ForegroundColor White
+		Write-Ui -Message "Select an option:" -Level "STEP"
 		Write-Host ""
-		Write-Host "  [1] Connect to Microsoft Graph" -ForegroundColor Yellow
-		Write-Host "  [2] Disconnect from Current Tenant" -ForegroundColor Yellow
-		Write-Host "  [3] Retrieve All Sites" -ForegroundColor Yellow
-		Write-Host "  [4] View Site Summary" -ForegroundColor Yellow
-		Write-Host "  [5] Export to TXT Format" -ForegroundColor Yellow
-		Write-Host "  [6] Export to CSV Format" -ForegroundColor Yellow
-		Write-Host "  [7] Export to HTML Format" -ForegroundColor Yellow
-		Write-Host "  [8] Export to JSON Format" -ForegroundColor Yellow
-		Write-Host "  [9] Help & Information" -ForegroundColor Yellow
-		Write-Host "  [0] Exit" -ForegroundColor Red
+		Write-Ui -Message "  [1] Connect to Microsoft Graph" -Level "WARN"
+		Write-Ui -Message "  [2] Disconnect from Current Tenant" -Level "WARN"
+		Write-Ui -Message "  [3] Retrieve All Sites" -Level "WARN"
+		Write-Ui -Message "  [4] View Site Summary" -Level "WARN"
+		Write-Ui -Message "  [5] Export to TXT Format" -Level "WARN"
+		Write-Ui -Message "  [6] Export to CSV Format" -Level "WARN"
+		Write-Ui -Message "  [7] Export to HTML Format" -Level "WARN"
+		Write-Ui -Message "  [8] Export to JSON Format" -Level "WARN"
+		Write-Ui -Message "  [9] Help & Information" -Level "WARN"
+		Write-Ui -Message "  [0] Exit" -Level "ERROR"
 		Write-Host ""
 		Write-Host "============================================================" -ForegroundColor DarkGray
 		
@@ -979,13 +979,13 @@ function Show-MainMenu {
 			'9' { Show-Help }
 			'0' { 
 				Write-Host ""
-				Write-Host "Thank you for using SharePoint Site Collection Inventory!" -ForegroundColor Cyan
+				Write-Ui -Message "Thank you for using SharePoint Site Collection Inventory!" -Level "INFO"
 				Write-Host ""
 				return 
 			}
 			default {
 				Write-Host ""
-				Write-Host "Invalid choice. Please try again." -ForegroundColor Red
+				Write-Ui -Message "Invalid choice. Please try again." -Level "ERROR"
 				Start-Sleep -Seconds 2
 			}
 		}
@@ -998,12 +998,12 @@ try {
 } catch {
 	Write-Host ""
 	Write-Host "============================================================" -ForegroundColor Red
-	Write-Host "  [-] An unexpected error occurred" -ForegroundColor Red
+	Write-Ui -Message "  [-] An unexpected error occurred" -Level "ERROR"
 	Write-Host "============================================================" -ForegroundColor Red
 	Write-Host ""
 	Write-Warning "Error: $($_.Exception.Message)"
 	Write-Host ""
-	Write-Host "Press any key to exit..." -ForegroundColor Cyan
+	Write-Ui -Message "Press any key to exit..." -Level "INFO"
 	$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 

@@ -59,10 +59,12 @@ function Get-VTApiKey {
     # Check if saved API key exists
     if (Test-Path $Script:ApiKeyPath) {
         try {
-            $Script:ApiKey = Get-Content $Script:ApiKeyPath -ErrorAction Stop
-            if ($Script:ApiKey.Length -eq 64) {
+            $decrypted = Unprotect-SouliTEKSecret -FilePath $Script:ApiKeyPath
+            if ($decrypted -and $decrypted.Length -eq 64) {
+                $Script:ApiKey = $decrypted
                 return $Script:ApiKey
             }
+            # Falls through to prompt — handles legacy plaintext files gracefully
         }
         catch {
             # Continue to prompt
@@ -72,30 +74,33 @@ function Get-VTApiKey {
     # Prompt for API key
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Yellow
-    Write-Host "  VIRUSTOTAL API KEY REQUIRED" -ForegroundColor Yellow
+    Write-Ui -Message "  VIRUSTOTAL API KEY REQUIRED" -Level "WARN"
     Write-Host "============================================================" -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "To use this tool, you need a free VirusTotal API key." -ForegroundColor White
+    Write-Ui -Message "To use this tool, you need a free VirusTotal API key." -Level "STEP"
     Write-Host ""
-    Write-Host "How to get your API key:" -ForegroundColor Cyan
+    Write-Ui -Message "How to get your API key:" -Level "INFO"
     Write-Host "  1. Go to https://www.virustotal.com" -ForegroundColor Gray
-    Write-Host "  2. Create a free account or sign in" -ForegroundColor Gray
-    Write-Host "  3. Go to your profile settings" -ForegroundColor Gray
-    Write-Host "  4. Find and copy your API key" -ForegroundColor Gray
+    Write-Ui -Message "  2. Create a free account or sign in" -Level "INFO"
+    Write-Ui -Message "  3. Go to your profile settings" -Level "INFO"
+    Write-Ui -Message "  4. Find and copy your API key" -Level "INFO"
     Write-Host ""
-    Write-Host "Note: Free API allows 4 requests per minute." -ForegroundColor Yellow
+    Write-Ui -Message "Note: Free API allows 4 requests per minute." -Level "WARN"
     Write-Host ""
     
-    $key = Read-Host "Enter your VirusTotal API key (64 characters)"
+    $secureKey = Read-Host -AsSecureString "Enter your VirusTotal API key (64 characters)"
+    $bstr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($secureKey)
+    $key = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr)
+    [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr)
     
     if ($key.Length -ne 64) {
-        Write-Host "Invalid API key format. API key must be 64 characters." -ForegroundColor Red
+        Write-Ui -Message "Invalid API key format. API key must be 64 characters." -Level "ERROR"
         return $null
     }
     
     # Test the API key
     Write-Host ""
-    Write-Host "Testing API key..." -ForegroundColor Cyan
+    Write-Ui -Message "Testing API key..." -Level "INFO"
     
     try {
         $headers = @{
@@ -104,7 +109,7 @@ function Get-VTApiKey {
         $testUrl = "$Script:VTApiUrl/files/275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f"
         $response = Invoke-RestMethod -Uri $testUrl -Headers $headers -Method Get -ErrorAction Stop
         
-        Write-Host "API key validated successfully!" -ForegroundColor Green
+        Write-Ui -Message "API key validated successfully!" -Level "OK"
         
         # Save the API key
         $saveChoice = Read-Host "Save API key for future use? (Y/N)"
@@ -113,15 +118,19 @@ function Get-VTApiKey {
             if (-not (Test-Path $keyDir)) {
                 New-Item -ItemType Directory -Path $keyDir -Force | Out-Null
             }
-            $key | Out-File -FilePath $Script:ApiKeyPath -Encoding UTF8
-            Write-Host "API key saved to: $Script:ApiKeyPath" -ForegroundColor Green
+            $secureForStorage = ConvertTo-SecureString -String $key -AsPlainText -Force
+            if (Protect-SouliTEKSecret -SecureValue $secureForStorage -FilePath $Script:ApiKeyPath) {
+                Write-Ui -Message "API key saved securely (DPAPI-encrypted)." -Level "OK"
+            } else {
+                Write-Ui -Message "Could not save API key securely. It will be used for this session only." -Level "WARN"
+            }
         }
         
         $Script:ApiKey = $key
         return $key
     }
     catch {
-        Write-Host "API key validation failed: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Ui -Message "API key validation failed: $($_.Exception.Message)" -Level "ERROR"
         return $null
     }
 }
@@ -183,7 +192,7 @@ function Invoke-VTFileCheck {
         if ($_.Exception.Response.StatusCode -eq 404) {
             return @{ NotFound = $true }
         }
-        Write-Host "Error checking file: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Ui -Message "Error checking file: $($_.Exception.Message)" -Level "ERROR"
         return $null
     }
 }
@@ -220,7 +229,7 @@ function Invoke-VTUrlCheck {
             # URL not in database, need to submit for scanning
             return @{ NotFound = $true }
         }
-        Write-Host "Error checking URL: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Ui -Message "Error checking URL: $($_.Exception.Message)" -Level "ERROR"
         return $null
     }
 }
@@ -252,7 +261,7 @@ function Invoke-VTUrlScan {
         return $response.data
     }
     catch {
-        Write-Host "Error submitting URL for scan: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Ui -Message "Error submitting URL for scan: $($_.Exception.Message)" -Level "ERROR"
         return $null
     }
 }
@@ -270,15 +279,15 @@ function Show-VTFileResult {
     if ($Result.NotFound) {
         Write-Host ""
         Write-Host "============================================================" -ForegroundColor Yellow
-        Write-Host "  FILE NOT FOUND IN VIRUSTOTAL DATABASE" -ForegroundColor Yellow
+        Write-Ui -Message "  FILE NOT FOUND IN VIRUSTOTAL DATABASE" -Level "WARN"
         Write-Host "============================================================" -ForegroundColor Yellow
         Write-Host ""
-        Write-Host "This file has not been analyzed by VirusTotal yet." -ForegroundColor White
-        Write-Host "This could mean:" -ForegroundColor Gray
-        Write-Host "  - The file is unique/custom" -ForegroundColor Gray
-        Write-Host "  - The file has never been submitted for scanning" -ForegroundColor Gray
+        Write-Ui -Message "This file has not been analyzed by VirusTotal yet." -Level "STEP"
+        Write-Ui -Message "This could mean:" -Level "INFO"
+        Write-Ui -Message "  - The file is unique/custom" -Level "INFO"
+        Write-Ui -Message "  - The file has never been submitted for scanning" -Level "INFO"
         Write-Host ""
-        Write-Host "Note: To upload files for scanning, use the VirusTotal website." -ForegroundColor Yellow
+        Write-Ui -Message "Note: To upload files for scanning, use the VirusTotal website." -Level "WARN"
         return
     }
     
@@ -297,7 +306,7 @@ function Show-VTFileResult {
     
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  VIRUSTOTAL SCAN RESULTS" -ForegroundColor Cyan
+    Write-Ui -Message "  VIRUSTOTAL SCAN RESULTS" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     
@@ -321,44 +330,44 @@ function Show-VTFileResult {
     Write-Host $threatLevel -ForegroundColor $threatColor
     Write-Host ""
     
-    Write-Host "  Detection Results:" -ForegroundColor White
+    Write-Ui -Message "  Detection Results:" -Level "STEP"
     Write-Host "  |- Malicious:  " -NoNewline -ForegroundColor Gray
     Write-Host "$malicious" -ForegroundColor $(if ($malicious -gt 0) { "Red" } else { "Green" })
     Write-Host "  |- Suspicious: " -NoNewline -ForegroundColor Gray
     Write-Host "$suspicious" -ForegroundColor $(if ($suspicious -gt 0) { "Yellow" } else { "Green" })
     Write-Host "  |- Harmless:   " -NoNewline -ForegroundColor Gray
-    Write-Host "$harmless" -ForegroundColor Green
+    Write-Ui -Message "$harmless" -Level "OK"
     Write-Host "  \- Undetected: " -NoNewline -ForegroundColor Gray
-    Write-Host "$undetected" -ForegroundColor Cyan
+    Write-Ui -Message "$undetected" -Level "INFO"
     Write-Host ""
     
-    Write-Host "  File Information:" -ForegroundColor White
+    Write-Ui -Message "  File Information:" -Level "STEP"
     if ($attrs.meaningful_name) {
-        Write-Host "  |- Name: $($attrs.meaningful_name)" -ForegroundColor Gray
+        Write-Ui -Message "  |- Name: $($attrs.meaningful_name)" -Level "INFO"
     }
     if ($attrs.type_description) {
-        Write-Host "  |- Type: $($attrs.type_description)" -ForegroundColor Gray
+        Write-Ui -Message "  |- Type: $($attrs.type_description)" -Level "INFO"
     }
     if ($attrs.size) {
         $sizeFormatted = Format-SouliTEKFileSize -SizeInBytes $attrs.size
-        Write-Host "  |- Size: $sizeFormatted" -ForegroundColor Gray
+        Write-Ui -Message "  |- Size: $sizeFormatted" -Level "INFO"
     }
     if ($attrs.sha256) {
-        Write-Host "  \- SHA256: $($attrs.sha256)" -ForegroundColor Gray
+        Write-Ui -Message "  \- SHA256: $($attrs.sha256)" -Level "INFO"
     }
     Write-Host ""
     
     if ($attrs.last_analysis_date) {
         $scanDate = [DateTimeOffset]::FromUnixTimeSeconds($attrs.last_analysis_date).DateTime.ToString("yyyy-MM-dd HH:mm:ss")
-        Write-Host "  Last Scan: $scanDate" -ForegroundColor Gray
+        Write-Ui -Message "  Last Scan: $scanDate" -Level "INFO"
     }
     
     # Show popular threat names if malicious
     if ($malicious -gt 0 -and $attrs.popular_threat_classification) {
         Write-Host ""
-        Write-Host "  Detected Threats:" -ForegroundColor Red
+        Write-Ui -Message "  Detected Threats:" -Level "ERROR"
         if ($attrs.popular_threat_classification.suggested_threat_label) {
-            Write-Host "  \- $($attrs.popular_threat_classification.suggested_threat_label)" -ForegroundColor Red
+            Write-Ui -Message "  \- $($attrs.popular_threat_classification.suggested_threat_label)" -Level "ERROR"
         }
     }
     
@@ -394,21 +403,21 @@ function Show-VTUrlResult {
     if ($Result.NotFound) {
         Write-Host ""
         Write-Host "============================================================" -ForegroundColor Yellow
-        Write-Host "  URL NOT FOUND IN VIRUSTOTAL DATABASE" -ForegroundColor Yellow
+        Write-Ui -Message "  URL NOT FOUND IN VIRUSTOTAL DATABASE" -Level "WARN"
         Write-Host "============================================================" -ForegroundColor Yellow
         Write-Host ""
-        Write-Host "This URL has not been analyzed by VirusTotal recently." -ForegroundColor White
+        Write-Ui -Message "This URL has not been analyzed by VirusTotal recently." -Level "STEP"
         Write-Host ""
         
         $submitChoice = Read-Host "Submit URL for scanning? (Y/N)"
         if ($submitChoice -eq "Y" -or $submitChoice -eq "y") {
-            Write-Host "Submitting URL for scanning..." -ForegroundColor Cyan
+            Write-Ui -Message "Submitting URL for scanning..." -Level "INFO"
             $scanResult = Invoke-VTUrlScan -Url $Url
             if ($scanResult) {
-                Write-Host "URL submitted successfully!" -ForegroundColor Green
-                Write-Host "Analysis ID: $($scanResult.id)" -ForegroundColor Gray
+                Write-Ui -Message "URL submitted successfully!" -Level "OK"
+                Write-Ui -Message "Analysis ID: $($scanResult.id)" -Level "INFO"
                 Write-Host ""
-                Write-Host "Please wait 30-60 seconds and check again for results." -ForegroundColor Yellow
+                Write-Ui -Message "Please wait 30-60 seconds and check again for results." -Level "WARN"
             }
         }
         return
@@ -428,7 +437,7 @@ function Show-VTUrlResult {
     
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  VIRUSTOTAL URL SCAN RESULTS" -ForegroundColor Cyan
+    Write-Ui -Message "  VIRUSTOTAL URL SCAN RESULTS" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     
@@ -448,38 +457,38 @@ function Show-VTUrlResult {
         }
     }
     
-    Write-Host "  URL: $Url" -ForegroundColor White
+    Write-Ui -Message "  URL: $Url" -Level "STEP"
     Write-Host ""
     Write-Host "  Status: " -NoNewline -ForegroundColor White
     Write-Host $threatLevel -ForegroundColor $threatColor
     Write-Host ""
     
-    Write-Host "  Detection Results:" -ForegroundColor White
+    Write-Ui -Message "  Detection Results:" -Level "STEP"
     Write-Host "  |- Malicious:  " -NoNewline -ForegroundColor Gray
     Write-Host "$malicious" -ForegroundColor $(if ($malicious -gt 0) { "Red" } else { "Green" })
     Write-Host "  |- Suspicious: " -NoNewline -ForegroundColor Gray
     Write-Host "$suspicious" -ForegroundColor $(if ($suspicious -gt 0) { "Yellow" } else { "Green" })
     Write-Host "  |- Harmless:   " -NoNewline -ForegroundColor Gray
-    Write-Host "$harmless" -ForegroundColor Green
+    Write-Ui -Message "$harmless" -Level "OK"
     Write-Host "  \- Undetected: " -NoNewline -ForegroundColor Gray
-    Write-Host "$undetected" -ForegroundColor Cyan
+    Write-Ui -Message "$undetected" -Level "INFO"
     Write-Host ""
     
     if ($attrs.last_final_url -and $attrs.last_final_url -ne $Url) {
-        Write-Host "  Final URL (redirects): $($attrs.last_final_url)" -ForegroundColor Yellow
+        Write-Ui -Message "  Final URL (redirects): $($attrs.last_final_url)" -Level "WARN"
     }
     
     if ($attrs.last_analysis_date) {
         $scanDate = [DateTimeOffset]::FromUnixTimeSeconds($attrs.last_analysis_date).DateTime.ToString("yyyy-MM-dd HH:mm:ss")
-        Write-Host "  Last Scan: $scanDate" -ForegroundColor Gray
+        Write-Ui -Message "  Last Scan: $scanDate" -Level "INFO"
     }
     
     # Categories
     if ($attrs.categories -and $attrs.categories.Count -gt 0) {
         Write-Host ""
-        Write-Host "  Categories:" -ForegroundColor White
+        Write-Ui -Message "  Categories:" -Level "STEP"
         foreach ($vendor in $attrs.categories.PSObject.Properties) {
-            Write-Host "  \- [$($vendor.Name)] $($vendor.Value)" -ForegroundColor Gray
+            Write-Ui -Message "  \- [$($vendor.Name)] $($vendor.Value)" -Level "INFO"
         }
     }
     
@@ -522,52 +531,52 @@ function Show-Menu {
     Show-SouliTEKBanner
     
     Write-Host "============================================================" -ForegroundColor Green
-    Write-Host "  VIRUSTOTAL CHECKER v$Script:Version" -ForegroundColor Green
-    Write-Host "  Check files and URLs against VirusTotal" -ForegroundColor Gray
+    Write-Ui -Message "  VIRUSTOTAL CHECKER v$Script:Version" -Level "OK"
+    Write-Ui -Message "  Check files and URLs against VirusTotal" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Green
     Write-Host ""
     
     # Show API key status
     if ($Script:ApiKey) {
         Write-Host "  API Key: " -NoNewline -ForegroundColor Gray
-        Write-Host "Configured" -ForegroundColor Green
+        Write-Ui -Message "Configured" -Level "OK"
     } else {
         Write-Host "  API Key: " -NoNewline -ForegroundColor Gray
-        Write-Host "Not configured" -ForegroundColor Yellow
+        Write-Ui -Message "Not configured" -Level "WARN"
     }
     
     if ($Script:ScanResults.Count -gt 0) {
-        Write-Host "  Results in session: $($Script:ScanResults.Count)" -ForegroundColor Cyan
+        Write-Ui -Message "  Results in session: $($Script:ScanResults.Count)" -Level "INFO"
     }
     
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "  [1] Check File by Path" -ForegroundColor Yellow
-    Write-Host "      Calculate hash and check against VirusTotal" -ForegroundColor Gray
+    Write-Ui -Message "  [1] Check File by Path" -Level "WARN"
+    Write-Ui -Message "      Calculate hash and check against VirusTotal" -Level "INFO"
     Write-Host ""
-    Write-Host "  [2] Check File by Hash" -ForegroundColor Yellow
-    Write-Host "      Enter MD5, SHA1, or SHA256 hash directly" -ForegroundColor Gray
+    Write-Ui -Message "  [2] Check File by Hash" -Level "WARN"
+    Write-Ui -Message "      Enter MD5, SHA1, or SHA256 hash directly" -Level "INFO"
     Write-Host ""
-    Write-Host "  [3] Check URL" -ForegroundColor Yellow
-    Write-Host "      Check if a URL is malicious" -ForegroundColor Gray
+    Write-Ui -Message "  [3] Check URL" -Level "WARN"
+    Write-Ui -Message "      Check if a URL is malicious" -Level "INFO"
     Write-Host ""
-    Write-Host "  [4] Batch Check Files" -ForegroundColor Yellow
-    Write-Host "      Check multiple files in a folder" -ForegroundColor Gray
+    Write-Ui -Message "  [4] Batch Check Files" -Level "WARN"
+    Write-Ui -Message "      Check multiple files in a folder" -Level "INFO"
     Write-Host ""
-    Write-Host "  [5] View Scan Results" -ForegroundColor Yellow
-    Write-Host "      View results from this session" -ForegroundColor Gray
+    Write-Ui -Message "  [5] View Scan Results" -Level "WARN"
+    Write-Ui -Message "      View results from this session" -Level "INFO"
     Write-Host ""
-    Write-Host "  [6] Export Results" -ForegroundColor Yellow
-    Write-Host "      Export scan results to file" -ForegroundColor Gray
+    Write-Ui -Message "  [6] Export Results" -Level "WARN"
+    Write-Ui -Message "      Export scan results to file" -Level "INFO"
     Write-Host ""
-    Write-Host "  [7] Configure API Key" -ForegroundColor Yellow
-    Write-Host "      Set or change VirusTotal API key" -ForegroundColor Gray
+    Write-Ui -Message "  [7] Configure API Key" -Level "WARN"
+    Write-Ui -Message "      Set or change VirusTotal API key" -Level "INFO"
     Write-Host ""
-    Write-Host "  [8] Help" -ForegroundColor Yellow
-    Write-Host "      Show usage instructions" -ForegroundColor Gray
+    Write-Ui -Message "  [8] Help" -Level "WARN"
+    Write-Ui -Message "      Show usage instructions" -Level "INFO"
     Write-Host ""
-    Write-Host "  [0] Exit" -ForegroundColor Red
+    Write-Ui -Message "  [0] Exit" -Level "ERROR"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -582,34 +591,34 @@ function Show-Help {
     Clear-Host
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  VIRUSTOTAL CHECKER - HELP" -ForegroundColor Cyan
+    Write-Ui -Message "  VIRUSTOTAL CHECKER - HELP" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "  ABOUT:" -ForegroundColor Yellow
-    Write-Host "  This tool checks files and URLs against VirusTotal's" -ForegroundColor Gray
-    Write-Host "  extensive malware database using their API." -ForegroundColor Gray
+    Write-Ui -Message "  ABOUT:" -Level "WARN"
+    Write-Ui -Message "  This tool checks files and URLs against VirusTotal's" -Level "INFO"
+    Write-Ui -Message "  extensive malware database using their API." -Level "INFO"
     Write-Host ""
-    Write-Host "  FEATURES:" -ForegroundColor Yellow
-    Write-Host "  - Check local files (calculates hash automatically)" -ForegroundColor Gray
-    Write-Host "  - Check files by hash (MD5, SHA1, SHA256)" -ForegroundColor Gray
-    Write-Host "  - Check URLs for malicious content" -ForegroundColor Gray
-    Write-Host "  - Batch check multiple files" -ForegroundColor Gray
-    Write-Host "  - Export results to TXT, CSV, or HTML" -ForegroundColor Gray
+    Write-Ui -Message "  FEATURES:" -Level "WARN"
+    Write-Ui -Message "  - Check local files (calculates hash automatically)" -Level "INFO"
+    Write-Ui -Message "  - Check files by hash (MD5, SHA1, SHA256)" -Level "INFO"
+    Write-Ui -Message "  - Check URLs for malicious content" -Level "INFO"
+    Write-Ui -Message "  - Batch check multiple files" -Level "INFO"
+    Write-Ui -Message "  - Export results to TXT, CSV, or HTML" -Level "INFO"
     Write-Host ""
-    Write-Host "  API KEY:" -ForegroundColor Yellow
-    Write-Host "  A free VirusTotal API key is required." -ForegroundColor Gray
+    Write-Ui -Message "  API KEY:" -Level "WARN"
+    Write-Ui -Message "  A free VirusTotal API key is required." -Level "INFO"
     Write-Host "  Get yours at: https://www.virustotal.com" -ForegroundColor Cyan
-    Write-Host "  Free tier: 4 requests per minute, 500 per day" -ForegroundColor Gray
+    Write-Ui -Message "  Free tier: 4 requests per minute, 500 per day" -Level "INFO"
     Write-Host ""
-    Write-Host "  UNDERSTANDING RESULTS:" -ForegroundColor Yellow
-    Write-Host "  - Malicious: Detected as malware by engines" -ForegroundColor Red
-    Write-Host "  - Suspicious: Potentially harmful behavior detected" -ForegroundColor Yellow
-    Write-Host "  - Harmless: Known safe file/URL" -ForegroundColor Green
-    Write-Host "  - Undetected: No threat detected" -ForegroundColor Cyan
+    Write-Ui -Message "  UNDERSTANDING RESULTS:" -Level "WARN"
+    Write-Ui -Message "  - Malicious: Detected as malware by engines" -Level "ERROR"
+    Write-Ui -Message "  - Suspicious: Potentially harmful behavior detected" -Level "WARN"
+    Write-Ui -Message "  - Harmless: Known safe file/URL" -Level "OK"
+    Write-Ui -Message "  - Undetected: No threat detected" -Level "INFO"
     Write-Host ""
-    Write-Host "  PRIVACY NOTE:" -ForegroundColor Yellow
-    Write-Host "  This tool only sends file HASHES to VirusTotal," -ForegroundColor Gray
-    Write-Host "  NOT the actual files. Your files stay on your system." -ForegroundColor Gray
+    Write-Ui -Message "  PRIVACY NOTE:" -Level "WARN"
+    Write-Ui -Message "  This tool only sends file HASHES to VirusTotal," -Level "INFO"
+    Write-Ui -Message "  NOT the actual files. Your files stay on your system." -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     
@@ -624,17 +633,17 @@ function Invoke-CheckFileByPath {
     
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  CHECK FILE BY PATH" -ForegroundColor Cyan
+    Write-Ui -Message "  CHECK FILE BY PATH" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "Enter the full path to the file to check." -ForegroundColor Gray
-    Write-Host "Example: C:\Downloads\setup.exe" -ForegroundColor Gray
+    Write-Ui -Message "Enter the full path to the file to check." -Level "INFO"
+    Write-Ui -Message "Example: C:\Downloads\setup.exe" -Level "INFO"
     Write-Host ""
     
     $filePath = Read-Host "File path"
     
     if ([string]::IsNullOrWhiteSpace($filePath)) {
-        Write-Host "No file path provided." -ForegroundColor Yellow
+        Write-Ui -Message "No file path provided." -Level "WARN"
         Wait-SouliTEKKeyPress
         return
     }
@@ -643,29 +652,29 @@ function Invoke-CheckFileByPath {
     $filePath = $filePath.Trim('"').Trim("'")
     
     if (-not (Test-Path $filePath)) {
-        Write-Host "File not found: $filePath" -ForegroundColor Red
+        Write-Ui -Message "File not found: $filePath" -Level "ERROR"
         Wait-SouliTEKKeyPress
         return
     }
     
     Write-Host ""
-    Write-Host "Calculating file hashes..." -ForegroundColor Cyan
+    Write-Ui -Message "Calculating file hashes..." -Level "INFO"
     
     $hashInfo = Get-FileHashInfo -FilePath $filePath
     if (-not $hashInfo) {
-        Write-Host "Failed to calculate file hash." -ForegroundColor Red
+        Write-Ui -Message "Failed to calculate file hash." -Level "ERROR"
         Wait-SouliTEKKeyPress
         return
     }
     
     Write-Host ""
-    Write-Host "  File: $($hashInfo.FileName)" -ForegroundColor White
-    Write-Host "  Size: $(Format-SouliTEKFileSize -SizeInBytes $hashInfo.FileSize)" -ForegroundColor Gray
-    Write-Host "  MD5:    $($hashInfo.MD5)" -ForegroundColor Gray
-    Write-Host "  SHA1:   $($hashInfo.SHA1)" -ForegroundColor Gray
-    Write-Host "  SHA256: $($hashInfo.SHA256)" -ForegroundColor Gray
+    Write-Ui -Message "  File: $($hashInfo.FileName)" -Level "STEP"
+    Write-Ui -Message "  Size: $(Format-SouliTEKFileSize -SizeInBytes $hashInfo.FileSize)" -Level "INFO"
+    Write-Ui -Message "  MD5:    $($hashInfo.MD5)" -Level "INFO"
+    Write-Ui -Message "  SHA1:   $($hashInfo.SHA1)" -Level "INFO"
+    Write-Ui -Message "  SHA256: $($hashInfo.SHA256)" -Level "INFO"
     Write-Host ""
-    Write-Host "Checking against VirusTotal..." -ForegroundColor Cyan
+    Write-Ui -Message "Checking against VirusTotal..." -Level "INFO"
     
     $result = Invoke-VTFileCheck -Hash $hashInfo.SHA256
     Show-VTFileResult -Result $result -FileName $hashInfo.FileName
@@ -681,16 +690,16 @@ function Invoke-CheckFileByHash {
     
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  CHECK FILE BY HASH" -ForegroundColor Cyan
+    Write-Ui -Message "  CHECK FILE BY HASH" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "Enter the file hash (MD5, SHA1, or SHA256)." -ForegroundColor Gray
+    Write-Ui -Message "Enter the file hash (MD5, SHA1, or SHA256)." -Level "INFO"
     Write-Host ""
     
     $hash = Read-Host "File hash"
     
     if ([string]::IsNullOrWhiteSpace($hash)) {
-        Write-Host "No hash provided." -ForegroundColor Yellow
+        Write-Ui -Message "No hash provided." -Level "WARN"
         Wait-SouliTEKKeyPress
         return
     }
@@ -700,19 +709,19 @@ function Invoke-CheckFileByHash {
     # Validate hash format
     $validLengths = @(32, 40, 64)  # MD5, SHA1, SHA256
     if ($hash.Length -notin $validLengths) {
-        Write-Host "Invalid hash format. Expected MD5 (32), SHA1 (40), or SHA256 (64) characters." -ForegroundColor Red
+        Write-Ui -Message "Invalid hash format. Expected MD5 (32), SHA1 (40), or SHA256 (64) characters." -Level "ERROR"
         Wait-SouliTEKKeyPress
         return
     }
     
     if ($hash -notmatch '^[a-fA-F0-9]+$') {
-        Write-Host "Invalid hash format. Hash must contain only hexadecimal characters." -ForegroundColor Red
+        Write-Ui -Message "Invalid hash format. Hash must contain only hexadecimal characters." -Level "ERROR"
         Wait-SouliTEKKeyPress
         return
     }
     
     Write-Host ""
-    Write-Host "Checking hash against VirusTotal..." -ForegroundColor Cyan
+    Write-Ui -Message "Checking hash against VirusTotal..." -Level "INFO"
     
     $result = Invoke-VTFileCheck -Hash $hash
     Show-VTFileResult -Result $result -FileName "Hash: $hash"
@@ -728,7 +737,7 @@ function Invoke-CheckUrl {
     
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  CHECK URL" -ForegroundColor Cyan
+    Write-Ui -Message "  CHECK URL" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "Enter the URL to check (including http:// or https://)." -ForegroundColor Gray
@@ -738,7 +747,7 @@ function Invoke-CheckUrl {
     $url = Read-Host "URL"
     
     if ([string]::IsNullOrWhiteSpace($url)) {
-        Write-Host "No URL provided." -ForegroundColor Yellow
+        Write-Ui -Message "No URL provided." -Level "WARN"
         Wait-SouliTEKKeyPress
         return
     }
@@ -752,7 +761,7 @@ function Invoke-CheckUrl {
     }
     
     Write-Host ""
-    Write-Host "Checking URL against VirusTotal..." -ForegroundColor Cyan
+    Write-Ui -Message "Checking URL against VirusTotal..." -Level "INFO"
     
     $result = Invoke-VTUrlCheck -Url $url
     Show-VTUrlResult -Result $result -Url $url
@@ -768,17 +777,17 @@ function Invoke-BatchCheckFiles {
     
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  BATCH CHECK FILES" -ForegroundColor Cyan
+    Write-Ui -Message "  BATCH CHECK FILES" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "Enter the folder path containing files to check." -ForegroundColor Gray
-    Write-Host "Example: C:\Downloads" -ForegroundColor Gray
+    Write-Ui -Message "Enter the folder path containing files to check." -Level "INFO"
+    Write-Ui -Message "Example: C:\Downloads" -Level "INFO"
     Write-Host ""
     
     $folderPath = Read-Host "Folder path"
     
     if ([string]::IsNullOrWhiteSpace($folderPath)) {
-        Write-Host "No folder path provided." -ForegroundColor Yellow
+        Write-Ui -Message "No folder path provided." -Level "WARN"
         Wait-SouliTEKKeyPress
         return
     }
@@ -786,13 +795,13 @@ function Invoke-BatchCheckFiles {
     $folderPath = $folderPath.Trim('"').Trim("'")
     
     if (-not (Test-Path $folderPath -PathType Container)) {
-        Write-Host "Folder not found: $folderPath" -ForegroundColor Red
+        Write-Ui -Message "Folder not found: $folderPath" -Level "ERROR"
         Wait-SouliTEKKeyPress
         return
     }
     
     Write-Host ""
-    Write-Host "File extensions to check (e.g., exe,dll,msi) or * for all:" -ForegroundColor Gray
+    Write-Ui -Message "File extensions to check (e.g., exe,dll,msi) or * for all:" -Level "INFO"
     $extensions = Read-Host "Extensions"
     
     if ([string]::IsNullOrWhiteSpace($extensions)) {
@@ -811,7 +820,7 @@ function Invoke-BatchCheckFiles {
     }
     
     if ($files.Count -eq 0) {
-        Write-Host "No files found matching criteria." -ForegroundColor Yellow
+        Write-Ui -Message "No files found matching criteria." -Level "WARN"
         Wait-SouliTEKKeyPress
         return
     }
@@ -820,41 +829,41 @@ function Invoke-BatchCheckFiles {
     $maxFiles = 10
     if ($files.Count -gt $maxFiles) {
         Write-Host ""
-        Write-Host "Found $($files.Count) files. Due to API rate limits, only first $maxFiles will be checked." -ForegroundColor Yellow
-        Write-Host "Free API allows 4 requests per minute." -ForegroundColor Gray
+        Write-Ui -Message "Found $($files.Count) files. Due to API rate limits, only first $maxFiles will be checked." -Level "WARN"
+        Write-Ui -Message "Free API allows 4 requests per minute." -Level "INFO"
         $files = $files | Select-Object -First $maxFiles
     }
     
     Write-Host ""
-    Write-Host "Checking $($files.Count) file(s)..." -ForegroundColor Cyan
+    Write-Ui -Message "Checking $($files.Count) file(s)..." -Level "INFO"
     Write-Host ""
     
     $index = 1
     foreach ($file in $files) {
-        Write-Host "[$index/$($files.Count)] $($file.Name)" -ForegroundColor White
+        Write-Ui -Message "[$index/$($files.Count)] $($file.Name)" -Level "STEP"
         
         $hashInfo = Get-FileHashInfo -FilePath $file.FullName
         if ($hashInfo) {
             $result = Invoke-VTFileCheck -Hash $hashInfo.SHA256
             if ($result) {
                 if ($result.NotFound) {
-                    Write-Host "  Status: Not in database" -ForegroundColor Yellow
+                    Write-Ui -Message "  Status: Not in database" -Level "WARN"
                 } else {
                     $stats = $result.attributes.last_analysis_stats
                     $mal = $stats.malicious
                     $sus = $stats.suspicious
                     
                     if ($mal -gt 0) {
-                        Write-Host "  Status: $mal malicious detections" -ForegroundColor Red
+                        Write-Ui -Message "  Status: $mal malicious detections" -Level "ERROR"
                     } elseif ($sus -gt 0) {
-                        Write-Host "  Status: $sus suspicious detections" -ForegroundColor Yellow
+                        Write-Ui -Message "  Status: $sus suspicious detections" -Level "WARN"
                     } else {
-                        Write-Host "  Status: Clean" -ForegroundColor Green
+                        Write-Ui -Message "  Status: Clean" -Level "OK"
                     }
                 }
             }
         } else {
-            Write-Host "  Status: Failed to hash" -ForegroundColor Red
+            Write-Ui -Message "  Status: Failed to hash" -Level "ERROR"
         }
         
         Write-Host ""
@@ -866,7 +875,7 @@ function Invoke-BatchCheckFiles {
         }
     }
     
-    Write-Host "Batch check complete!" -ForegroundColor Green
+    Write-Ui -Message "Batch check complete!" -Level "OK"
     Wait-SouliTEKKeyPress
 }
 
@@ -879,13 +888,13 @@ function Show-ScanResults {
     Clear-Host
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  SCAN RESULTS - THIS SESSION" -ForegroundColor Cyan
+    Write-Ui -Message "  SCAN RESULTS - THIS SESSION" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     
     if ($Script:ScanResults.Count -eq 0) {
-        Write-Host "No scan results yet." -ForegroundColor Yellow
-        Write-Host "Use options 1-4 to scan files or URLs." -ForegroundColor Gray
+        Write-Ui -Message "No scan results yet." -Level "WARN"
+        Write-Ui -Message "Use options 1-4 to scan files or URLs." -Level "INFO"
         Wait-SouliTEKKeyPress
         return
     }
@@ -900,16 +909,16 @@ function Show-ScanResults {
         }
         
         Write-Host "[$index] $($result.Type): " -NoNewline -ForegroundColor White
-        Write-Host $result.Target -ForegroundColor Cyan
+        Write-Ui -Message $result.Target -Level "INFO"
         Write-Host "    Status: " -NoNewline -ForegroundColor Gray
         Write-Host $result.Status -ForegroundColor $statusColor
-        Write-Host "    Detections: Mal=$($result.Malicious), Sus=$($result.Suspicious)" -ForegroundColor Gray
+        Write-Ui -Message "    Detections: Mal=$($result.Malicious), Sus=$($result.Suspicious)" -Level "INFO"
         Write-Host ""
         $index++
     }
     
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "Total: $($Script:ScanResults.Count) scan(s)" -ForegroundColor White
+    Write-Ui -Message "Total: $($Script:ScanResults.Count) scan(s)" -Level "STEP"
     
     Wait-SouliTEKKeyPress
 }
@@ -922,7 +931,7 @@ function Export-ScanResults {
     
     if ($Script:ScanResults.Count -eq 0) {
         Write-Host ""
-        Write-Host "No scan results to export." -ForegroundColor Yellow
+        Write-Ui -Message "No scan results to export." -Level "WARN"
         Wait-SouliTEKKeyPress
         return
     }
@@ -967,19 +976,19 @@ function Set-ApiKey {
     
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  CONFIGURE API KEY" -ForegroundColor Cyan
+    Write-Ui -Message "  CONFIGURE API KEY" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     
     if ($Script:ApiKey) {
         $masked = $Script:ApiKey.Substring(0, 8) + "..." + $Script:ApiKey.Substring(56)
-        Write-Host "Current API key: $masked" -ForegroundColor Gray
+        Write-Ui -Message "Current API key: $masked" -Level "INFO"
         Write-Host ""
     }
     
-    Write-Host "[1] Enter new API key" -ForegroundColor Yellow
-    Write-Host "[2] Remove saved API key" -ForegroundColor Yellow
-    Write-Host "[0] Cancel" -ForegroundColor Gray
+    Write-Ui -Message "[1] Enter new API key" -Level "WARN"
+    Write-Ui -Message "[2] Remove saved API key" -Level "WARN"
+    Write-Ui -Message "[0] Cancel" -Level "INFO"
     Write-Host ""
     
     $choice = Read-Host "Select option"
@@ -992,7 +1001,7 @@ function Set-ApiKey {
         "2" {
             if (Test-Path $Script:ApiKeyPath) {
                 Remove-Item $Script:ApiKeyPath -Force
-                Write-Host "Saved API key removed." -ForegroundColor Green
+                Write-Ui -Message "Saved API key removed." -Level "OK"
             }
             $Script:ApiKey = $null
         }

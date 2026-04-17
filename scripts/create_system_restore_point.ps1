@@ -212,12 +212,12 @@ function Show-RestorePoints {
     
     $count = 1
     foreach ($rp in $restorePoints | Sort-Object CreationTime -Descending) {
-        Write-Host "Restore Point #$count" -ForegroundColor Cyan
+        Write-Ui -Message "Restore Point #$count" -Level "INFO"
         Write-Ui -Message "Sequence Number: $($rp.SequenceNumber)" -Level "INFO"
         Write-Ui -Message "Description: $($rp.Description)" -Level "INFO"
         Write-Ui -Message "Creation Time: $($rp.CreationTime)" -Level "INFO"
         Write-Ui -Message "Type: $($rp.RestorePointType)" -Level "INFO"
-        Write-Host ("-" * 80) -ForegroundColor Gray
+        Write-Ui -Message ("-" * 80) -Level "INFO"
         $count++
     }
     
@@ -255,14 +255,14 @@ function Show-SystemRestoreStatus {
     
     # Try to get more detailed info via vssadmin
     Write-Ui -Message "Detailed Status" -Level "INFO"
-    Write-Host ("=" * 80) -ForegroundColor Gray
+    Write-Ui -Message ("=" * 80) -Level "INFO"
     
     try {
         $vssVolumes = vssadmin list volumes 2>&1
         if ($LASTEXITCODE -eq 0) {
             $volumeInfo = vssadmin list volumes | Select-String -Pattern $systemDrive -Context 0,5
             if ($volumeInfo) {
-                Write-Host $volumeInfo -ForegroundColor White
+                Write-Ui -Message $volumeInfo -Level "STEP"
             }
         }
     }
@@ -282,11 +282,11 @@ function Show-MainMenu {
     Show-ScriptBanner -ScriptName "System Restore Point Creator" -Purpose "Create Windows System Restore Points for system recovery"
     
     Write-Host ""
-    Write-Host "  1. Create System Restore Point (Quick)" -ForegroundColor White
-    Write-Host "  2. Create System Restore Point (Custom Description)" -ForegroundColor White
-    Write-Host "  3. View Restore Point History" -ForegroundColor White
-    Write-Host "  4. Check System Restore Status" -ForegroundColor White
-    Write-Host "  5. Exit" -ForegroundColor White
+    Write-Ui -Message "  1. Create System Restore Point (Quick)" -Level "STEP"
+    Write-Ui -Message "  2. Create System Restore Point (Custom Description)" -Level "STEP"
+    Write-Ui -Message "  3. View Restore Point History" -Level "STEP"
+    Write-Ui -Message "  4. Check System Restore Status" -Level "STEP"
+    Write-Ui -Message "  5. Exit" -Level "STEP"
     Write-Host ""
 }
 

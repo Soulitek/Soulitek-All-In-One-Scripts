@@ -235,37 +235,37 @@ $currentPolicy = Get-ExecutionPolicy
 if ($currentPolicy -eq "Restricted" -or $currentPolicy -eq "AllSigned") {
     try {
         Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
-        Write-Host "Execution policy temporarily set to RemoteSigned for this session." -ForegroundColor Green
+        Write-Ui -Message "Execution policy temporarily set to RemoteSigned for this session." -Level "OK"
     }
     catch {
-        Write-Host "Warning: Could not modify execution policy. Some features may not work properly." -ForegroundColor Yellow
-        Write-Host "Error: $_" -ForegroundColor Red
+        Write-Ui -Message "Warning: Could not modify execution policy. Some features may not work properly." -Level "WARN"
+        Write-Ui -Message "Error: $_" -Level "ERROR"
     }
 }
 
 # Check if running as administrator, relaunch if not
 if (-not (Test-Administrator)) {
-    Write-Host "Relaunching as Administrator..." -ForegroundColor Yellow
+    Write-Ui -Message "Relaunching as Administrator..." -Level "WARN"
 
     try {
         # Get the current script path
         $scriptPath = $MyInvocation.MyCommand.Path
 
         # Relaunch with admin privileges
-        Start-Process -FilePath "powershell.exe" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`"" -Verb RunAs
+        Start-Process -FilePath "powershell.exe" -ArgumentList "-NoProfile -ExecutionPolicy RemoteSigned -File `"$scriptPath`"" -Verb RunAs
 
         # Exit the current non-admin instance
         exit
     }
     catch {
-        Write-Host "Failed to relaunch as Administrator. Error: $_" -ForegroundColor Red
-        Write-Host "Please run this script as Administrator manually." -ForegroundColor Yellow
+        Write-Ui -Message "Failed to relaunch as Administrator. Error: $_" -Level "ERROR"
+        Write-Ui -Message "Please run this script as Administrator manually." -Level "WARN"
         Read-Host "Press Enter to exit"
         exit 1
     }
 }
 
-Write-Host "Running as Administrator." -ForegroundColor Green
+Write-Ui -Message "Running as Administrator." -Level "OK"
 
 # ============================================================
 # GLOBAL VARIABLES
@@ -802,7 +802,7 @@ function Apply-Theme {
         }
         
         if (-not $Silent) {
-            Write-Host "Theme switched to $Theme" -ForegroundColor Green
+            Write-Ui -Message "Theme switched to $Theme" -Level "OK"
         }
     }
     catch {
@@ -827,12 +827,12 @@ function Start-Tool {
     
     try {
         $psPath = "powershell.exe"
-        $arguments = "-NoExit -NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`""
+        $arguments = "-NoExit -NoProfile -ExecutionPolicy RemoteSigned -File `"$scriptPath`""
         Start-Process -FilePath $psPath -ArgumentList $arguments
         
         $Script:StatusLabel.Text = "Launched: $ToolName"
         $Script:StatusLabel.Foreground = "#5B2EFF"
-        Write-Host "Launched: $ToolName" -ForegroundColor Green
+        Write-Ui -Message "Launched: $ToolName" -Level "OK"
     }
     catch {
         Write-Warning "Failed to launch $ToolName`: $_"
@@ -1215,7 +1215,7 @@ Would you like to create a restore point now?
             $createResult = New-QuickRestorePoint
             
                 if ($createResult.Success) {
-                    Write-Host $createResult.Message -ForegroundColor Green
+                    Write-Ui -Message $createResult.Message -Level "OK"
                 } else {
                     Write-Warning $createResult.Message
                 }
@@ -1302,7 +1302,7 @@ Click YES to proceed with uninstallation.
         if (Test-Path $shortcutPath) {
             try {
                 Remove-Item $shortcutPath -Force -ErrorAction Stop
-                Write-Host "Desktop shortcut removed: $shortcutPath" -ForegroundColor Green
+                Write-Ui -Message "Desktop shortcut removed: $shortcutPath" -Level "OK"
             }
             catch {
                 $errors += "Failed to remove desktop shortcut: $_"
@@ -1320,7 +1320,7 @@ Click YES to proceed with uninstallation.
         if (Test-Path $Script:RootPath) {
             try {
                 Remove-Item $Script:RootPath -Recurse -Force -ErrorAction Stop
-                Write-Host "Installation directory removed: $Script:RootPath" -ForegroundColor Green
+                Write-Ui -Message "Installation directory removed: $Script:RootPath" -Level "OK"
             }
             catch {
                 $errors += "Failed to remove installation directory: $_"
@@ -1370,8 +1370,8 @@ Click YES to proceed with uninstallation.
 $xamlPath = Join-Path $Script:LauncherPath "MainWindow.xaml"
 
 if (-not (Test-Path $xamlPath)) {
-    Write-Host "ERROR: MainWindow.xaml not found at: $xamlPath" -ForegroundColor Red
-    Write-Host "Please ensure MainWindow.xaml is in the launcher folder." -ForegroundColor Yellow
+    Write-Ui -Message "ERROR: MainWindow.xaml not found at: $xamlPath" -Level "ERROR"
+    Write-Ui -Message "Please ensure MainWindow.xaml is in the launcher folder." -Level "WARN"
     Read-Host "Press Enter to exit"
     exit 1
 }
@@ -1382,8 +1382,8 @@ try {
     $Script:Window = [Windows.Markup.XamlReader]::Load($reader)
 }
 catch {
-    Write-Host "ERROR: Failed to load XAML. Error: $_" -ForegroundColor Red
-    Write-Host "XAML file may be corrupted or contain invalid syntax." -ForegroundColor Yellow
+    Write-Ui -Message "ERROR: Failed to load XAML. Error: $_" -Level "ERROR"
+    Write-Ui -Message "XAML file may be corrupted or contain invalid syntax." -Level "WARN"
     Write-Host ""
     Read-Host "Press Enter to exit"
     exit 1
@@ -1464,7 +1464,7 @@ if ($null -ne $LogoImage) {
             try {
                 $websiteUrl = "https://www.soulitek.co.il"
                 Start-Process $websiteUrl
-                Write-Host "Opening website: $websiteUrl" -ForegroundColor Cyan
+                Write-Ui -Message "Opening website: $websiteUrl" -Level "INFO"
             }
             catch {
                 Write-Warning "Failed to open website: $_"
@@ -1500,7 +1500,7 @@ if ($null -ne $ThemeToggleButton) {
         try {
             $currentTheme = Get-ThemePreference
             $newTheme = if ($currentTheme -eq "Light") { "Dark" } else { "Light" }
-            Write-Host "Toggling theme from $currentTheme to $newTheme" -ForegroundColor Cyan
+            Write-Ui -Message "Toggling theme from $currentTheme to $newTheme" -Level "INFO"
             Apply-Theme -Theme $newTheme
         }
         catch {

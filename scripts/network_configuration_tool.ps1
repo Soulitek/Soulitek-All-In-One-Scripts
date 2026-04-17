@@ -77,13 +77,13 @@ function Select-NetworkAdapter {
     $adapters = Get-NetworkAdapters
     
     if ($adapters.Count -eq 0) {
-        Write-Host "No network adapters found!" -ForegroundColor Red
+        Write-Ui -Message "No network adapters found!" -Level "ERROR"
         Write-Host ""
         Read-Host "Press Enter to return to main menu"
         return $null
     }
     
-    Write-Host "Available Network Adapters:" -ForegroundColor Cyan
+    Write-Ui -Message "Available Network Adapters:" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Gray
     Write-Host ""
     
@@ -92,10 +92,10 @@ function Select-NetworkAdapter {
     
     foreach ($adapter in $adapters) {
         $statusColor = if ($adapter.Status -eq 'Up') { 'Green' } else { 'Yellow' }
-        Write-Host "[$index] $($adapter.Name)" -ForegroundColor White
+        Write-Ui -Message "[$index] $($adapter.Name)" -Level "STEP"
         Write-Host "    Status: $($adapter.Status)" -ForegroundColor $statusColor
-        Write-Host "    Interface: $($adapter.InterfaceDescription)" -ForegroundColor Gray
-        Write-Host "    Link Speed: $($adapter.LinkSpeed)" -ForegroundColor Gray
+        Write-Ui -Message "    Interface: $($adapter.InterfaceDescription)" -Level "INFO"
+        Write-Ui -Message "    Link Speed: $($adapter.LinkSpeed)" -Level "INFO"
         Write-Host ""
         
         $adapterList += $adapter
@@ -112,13 +112,13 @@ function Select-NetworkAdapter {
         if ($selectedIndex -ge 0 -and $selectedIndex -lt $adapterList.Count) {
             return $adapterList[$selectedIndex]
         } else {
-            Write-Host "Invalid selection!" -ForegroundColor Red
+            Write-Ui -Message "Invalid selection!" -Level "ERROR"
             Start-Sleep -Seconds 2
             return $null
         }
     }
     catch {
-        Write-Host "Invalid input!" -ForegroundColor Red
+        Write-Ui -Message "Invalid input!" -Level "ERROR"
         Start-Sleep -Seconds 2
         return $null
     }
@@ -136,7 +136,7 @@ function Show-IPConfiguration {
     
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  IP CONFIGURATION FOR: $($adapter.Name)" -ForegroundColor Cyan
+    Write-Ui -Message "  IP CONFIGURATION FOR: $($adapter.Name)" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     
@@ -144,72 +144,72 @@ function Show-IPConfiguration {
         # Get IP configuration
         $ipConfig = Get-NetIPConfiguration -InterfaceAlias $adapter.Name -ErrorAction Stop
         
-        Write-Host "Adapter Information:" -ForegroundColor Yellow
+        Write-Ui -Message "Adapter Information:" -Level "WARN"
         Write-Host "----------------------------------------" -ForegroundColor Gray
-        Write-Host "  Name: $($adapter.Name)" -ForegroundColor White
-        Write-Host "  Interface: $($adapter.InterfaceDescription)" -ForegroundColor White
+        Write-Ui -Message "  Name: $($adapter.Name)" -Level "STEP"
+        Write-Ui -Message "  Interface: $($adapter.InterfaceDescription)" -Level "STEP"
         Write-Host "  Status: $($adapter.Status)" -ForegroundColor $(if ($adapter.Status -eq 'Up') { 'Green' } else { 'Yellow' })
-        Write-Host "  Link Speed: $($adapter.LinkSpeed)" -ForegroundColor White
-        Write-Host "  MAC Address: $($adapter.MacAddress)" -ForegroundColor White
+        Write-Ui -Message "  Link Speed: $($adapter.LinkSpeed)" -Level "STEP"
+        Write-Ui -Message "  MAC Address: $($adapter.MacAddress)" -Level "STEP"
         Write-Host ""
         
         if ($ipConfig.IPv4Address) {
-            Write-Host "IPv4 Configuration:" -ForegroundColor Yellow
+            Write-Ui -Message "IPv4 Configuration:" -Level "WARN"
             Write-Host "----------------------------------------" -ForegroundColor Gray
-            Write-Host "  IP Address: $($ipConfig.IPv4Address.IPAddress)" -ForegroundColor Green
-            Write-Host "  Subnet Mask: $($ipConfig.IPv4Address.PrefixLength) bits" -ForegroundColor White
+            Write-Ui -Message "  IP Address: $($ipConfig.IPv4Address.IPAddress)" -Level "OK"
+            Write-Ui -Message "  Subnet Mask: $($ipConfig.IPv4Address.PrefixLength) bits" -Level "STEP"
             
             # Calculate subnet mask
             $prefixLength = $ipConfig.IPv4Address.PrefixLength
             $subnetMask = ([System.Net.IPAddress]::Parse(([System.Net.IPAddress]::HostToNetworkOrder(-1) -shl (32 - $prefixLength)) -band [System.Net.IPAddress]::HostToNetworkOrder(-1))).ToString()
-            Write-Host "  Subnet Mask: $subnetMask" -ForegroundColor White
+            Write-Ui -Message "  Subnet Mask: $subnetMask" -Level "STEP"
             
             if ($ipConfig.IPv4DefaultGateway) {
-                Write-Host "  Default Gateway: $($ipConfig.IPv4DefaultGateway.NextHop)" -ForegroundColor Green
+                Write-Ui -Message "  Default Gateway: $($ipConfig.IPv4DefaultGateway.NextHop)" -Level "OK"
             } else {
-                Write-Host "  Default Gateway: [Not configured]" -ForegroundColor Yellow
+                Write-Ui -Message "  Default Gateway: [Not configured]" -Level "WARN"
             }
             Write-Host ""
         } else {
-            Write-Host "IPv4 Configuration: [Not configured]" -ForegroundColor Yellow
+            Write-Ui -Message "IPv4 Configuration: [Not configured]" -Level "WARN"
             Write-Host ""
         }
         
         if ($ipConfig.IPv6Address) {
-            Write-Host "IPv6 Configuration:" -ForegroundColor Yellow
+            Write-Ui -Message "IPv6 Configuration:" -Level "WARN"
             Write-Host "----------------------------------------" -ForegroundColor Gray
-            Write-Host "  IP Address: $($ipConfig.IPv6Address.IPAddress)" -ForegroundColor Green
-            Write-Host "  Prefix Length: $($ipConfig.IPv6Address.PrefixLength) bits" -ForegroundColor White
+            Write-Ui -Message "  IP Address: $($ipConfig.IPv6Address.IPAddress)" -Level "OK"
+            Write-Ui -Message "  Prefix Length: $($ipConfig.IPv6Address.PrefixLength) bits" -Level "STEP"
             Write-Host ""
         }
         
         # Get DNS configuration
         $dnsConfig = Get-DnsClientServerAddress -InterfaceAlias $adapter.Name -AddressFamily IPv4 -ErrorAction SilentlyContinue
         
-        Write-Host "DNS Configuration:" -ForegroundColor Yellow
+        Write-Ui -Message "DNS Configuration:" -Level "WARN"
         Write-Host "----------------------------------------" -ForegroundColor Gray
         
         if ($dnsConfig -and $dnsConfig.ServerAddresses.Count -gt 0) {
-            Write-Host "  DNS Servers:" -ForegroundColor White
+            Write-Ui -Message "  DNS Servers:" -Level "STEP"
             $dnsIndex = 1
             foreach ($dnsServer in $dnsConfig.ServerAddresses) {
-                Write-Host "    [$dnsIndex] $dnsServer" -ForegroundColor Green
+                Write-Ui -Message "    [$dnsIndex] $dnsServer" -Level "OK"
                 $dnsIndex++
             }
         } else {
-            Write-Host "  DNS Servers: [Not configured]" -ForegroundColor Yellow
+            Write-Ui -Message "  DNS Servers: [Not configured]" -Level "WARN"
         }
         
         # Check if DHCP is enabled
         $dhcpEnabled = (Get-NetIPInterface -InterfaceAlias $adapter.Name -AddressFamily IPv4).Dhcp
         
         Write-Host ""
-        Write-Host "IP Assignment:" -ForegroundColor Yellow
+        Write-Ui -Message "IP Assignment:" -Level "WARN"
         Write-Host "----------------------------------------" -ForegroundColor Gray
         if ($dhcpEnabled -eq 'Enabled') {
-            Write-Host "  Method: DHCP (Automatic)" -ForegroundColor Green
+            Write-Ui -Message "  Method: DHCP (Automatic)" -Level "OK"
         } else {
-            Write-Host "  Method: Static (Manual)" -ForegroundColor Cyan
+            Write-Ui -Message "  Method: Static (Manual)" -Level "INFO"
         }
         Write-Host ""
         
@@ -228,7 +228,7 @@ function Show-IPConfiguration {
         Write-Host "============================================================" -ForegroundColor Cyan
     }
     catch {
-        Write-Host "Error retrieving IP configuration: $_" -ForegroundColor Red
+        Write-Ui -Message "Error retrieving IP configuration: $_" -Level "ERROR"
         Write-Host ""
     }
     
@@ -240,10 +240,10 @@ function Set-StaticIP {
     Show-SouliTEKHeader -Title "SET STATIC IP ADDRESS" -Color Magenta -ClearHost -ShowBanner
     
     if (-not (Test-Administrator)) {
-        Write-Host "WARNING: Administrator privileges required!" -ForegroundColor Red
+        Write-Ui -Message "WARNING: Administrator privileges required!" -Level "ERROR"
         Write-Host ""
-        Write-Host "This operation requires administrator rights." -ForegroundColor Yellow
-        Write-Host "Please run this script as Administrator." -ForegroundColor Yellow
+        Write-Ui -Message "This operation requires administrator rights." -Level "WARN"
+        Write-Ui -Message "Please run this script as Administrator." -Level "WARN"
         Write-Host ""
         Read-Host "Press Enter to return to main menu"
         return
@@ -257,27 +257,27 @@ function Set-StaticIP {
     
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  CONFIGURE STATIC IP ADDRESS" -ForegroundColor Cyan
+    Write-Ui -Message "  CONFIGURE STATIC IP ADDRESS" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     
     if ($currentConfig.IPv4Address) {
-        Write-Host "Current Configuration:" -ForegroundColor Yellow
-        Write-Host "  IP Address: $($currentConfig.IPv4Address.IPAddress)" -ForegroundColor Gray
-        Write-Host "  Prefix Length: $($currentConfig.IPv4Address.PrefixLength)" -ForegroundColor Gray
+        Write-Ui -Message "Current Configuration:" -Level "WARN"
+        Write-Ui -Message "  IP Address: $($currentConfig.IPv4Address.IPAddress)" -Level "INFO"
+        Write-Ui -Message "  Prefix Length: $($currentConfig.IPv4Address.PrefixLength)" -Level "INFO"
         if ($currentConfig.IPv4DefaultGateway) {
-            Write-Host "  Gateway: $($currentConfig.IPv4DefaultGateway.NextHop)" -ForegroundColor Gray
+            Write-Ui -Message "  Gateway: $($currentConfig.IPv4DefaultGateway.NextHop)" -Level "INFO"
         }
         Write-Host ""
     }
     
-    Write-Host "Enter new static IP configuration:" -ForegroundColor White
+    Write-Ui -Message "Enter new static IP configuration:" -Level "STEP"
     Write-Host ""
     
     # Get IP address
     $ipAddress = Read-Host "IP Address (e.g., 192.168.1.100)"
     if ([string]::IsNullOrWhiteSpace($ipAddress)) {
-        Write-Host "IP address is required!" -ForegroundColor Red
+        Write-Ui -Message "IP address is required!" -Level "ERROR"
         Start-Sleep -Seconds 2
         return
     }
@@ -287,16 +287,16 @@ function Set-StaticIP {
         $null = [System.Net.IPAddress]::Parse($ipAddress)
     }
     catch {
-        Write-Host "Invalid IP address format!" -ForegroundColor Red
+        Write-Ui -Message "Invalid IP address format!" -Level "ERROR"
         Start-Sleep -Seconds 2
         return
     }
     
     # Get subnet mask / prefix length
     Write-Host ""
-    Write-Host "Enter subnet mask:" -ForegroundColor White
-    Write-Host "  1. Use prefix length (e.g., 24 for 255.255.255.0)" -ForegroundColor Gray
-    Write-Host "  2. Use subnet mask (e.g., 255.255.255.0)" -ForegroundColor Gray
+    Write-Ui -Message "Enter subnet mask:" -Level "STEP"
+    Write-Ui -Message "  1. Use prefix length (e.g., 24 for 255.255.255.0)" -Level "INFO"
+    Write-Ui -Message "  2. Use subnet mask (e.g., 255.255.255.0)" -Level "INFO"
     $subnetChoice = Read-Host "Choice (1 or 2, default: 1)"
     
     $prefixLength = $null
@@ -308,13 +308,13 @@ function Set-StaticIP {
             try {
                 $prefixLength = [int]$prefixInput
                 if ($prefixLength -lt 0 -or $prefixLength -gt 32) {
-                    Write-Host "Prefix length must be between 0 and 32!" -ForegroundColor Red
+                    Write-Ui -Message "Prefix length must be between 0 and 32!" -Level "ERROR"
                     Start-Sleep -Seconds 2
                     return
                 }
             }
             catch {
-                Write-Host "Invalid prefix length!" -ForegroundColor Red
+                Write-Ui -Message "Invalid prefix length!" -Level "ERROR"
                 Start-Sleep -Seconds 2
                 return
             }
@@ -330,7 +330,7 @@ function Set-StaticIP {
             }
         }
         catch {
-            Write-Host "Invalid subnet mask format!" -ForegroundColor Red
+            Write-Ui -Message "Invalid subnet mask format!" -Level "ERROR"
             Start-Sleep -Seconds 2
             return
         }
@@ -345,7 +345,7 @@ function Set-StaticIP {
             $null = [System.Net.IPAddress]::Parse($gateway)
         }
         catch {
-            Write-Host "Invalid gateway IP address format!" -ForegroundColor Red
+            Write-Ui -Message "Invalid gateway IP address format!" -Level "ERROR"
             Start-Sleep -Seconds 2
             return
         }
@@ -353,42 +353,42 @@ function Set-StaticIP {
     
     # Get DNS servers (optional)
     Write-Host ""
-    Write-Host "DNS Servers (optional):" -ForegroundColor White
+    Write-Ui -Message "DNS Servers (optional):" -Level "STEP"
     $dns1 = Read-Host "  Primary DNS (press Enter to skip)"
     $dns2 = Read-Host "  Secondary DNS (press Enter to skip)"
     
     # Confirm configuration
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  CONFIGURATION SUMMARY" -ForegroundColor Cyan
+    Write-Ui -Message "  CONFIGURATION SUMMARY" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "  Adapter: $($adapter.Name)" -ForegroundColor White
-    Write-Host "  IP Address: $ipAddress/$prefixLength" -ForegroundColor White
+    Write-Ui -Message "  Adapter: $($adapter.Name)" -Level "STEP"
+    Write-Ui -Message "  IP Address: $ipAddress/$prefixLength" -Level "STEP"
     if ($gateway) {
-        Write-Host "  Gateway: $gateway" -ForegroundColor White
+        Write-Ui -Message "  Gateway: $gateway" -Level "STEP"
     }
     if ($dns1) {
-        Write-Host "  Primary DNS: $dns1" -ForegroundColor White
+        Write-Ui -Message "  Primary DNS: $dns1" -Level "STEP"
     }
     if ($dns2) {
-        Write-Host "  Secondary DNS: $dns2" -ForegroundColor White
+        Write-Ui -Message "  Secondary DNS: $dns2" -Level "STEP"
     }
     Write-Host ""
-    Write-Host "WARNING: This will change your network configuration!" -ForegroundColor Red
-    Write-Host "         You may lose connectivity if settings are incorrect." -ForegroundColor Red
+    Write-Ui -Message "WARNING: This will change your network configuration!" -Level "ERROR"
+    Write-Ui -Message "         You may lose connectivity if settings are incorrect." -Level "ERROR"
     Write-Host ""
     
     $confirm = Read-Host "Apply this configuration? (yes/no)"
     
     if ($confirm -ne "yes" -and $confirm -ne "y") {
-        Write-Host "Configuration cancelled." -ForegroundColor Yellow
+        Write-Ui -Message "Configuration cancelled." -Level "WARN"
         Start-Sleep -Seconds 2
         return
     }
     
     Write-Host ""
-    Write-Host "Applying configuration..." -ForegroundColor Yellow
+    Write-Ui -Message "Applying configuration..." -Level "WARN"
     
     try {
         # Remove existing IP configuration
@@ -402,12 +402,12 @@ function Set-StaticIP {
         # Set new IP address
         $newIP = New-NetIPAddress -InterfaceAlias $adapter.Name -IPAddress $ipAddress -PrefixLength $prefixLength -ErrorAction Stop
         
-        Write-Host "  [OK] IP address configured" -ForegroundColor Green
+        Write-Ui -Message "  [OK] IP address configured" -Level "OK"
         
         # Set gateway if provided
         if ($gateway) {
             New-NetRoute -InterfaceAlias $adapter.Name -DestinationPrefix "0.0.0.0/0" -NextHop $gateway -ErrorAction Stop | Out-Null
-            Write-Host "  [OK] Gateway configured" -ForegroundColor Green
+            Write-Ui -Message "  [OK] Gateway configured" -Level "OK"
         }
         
         # Set DNS servers if provided
@@ -417,16 +417,16 @@ function Set-StaticIP {
             if ($dns2) { $dnsServers += $dns2 }
             
             Set-DnsClientServerAddress -InterfaceAlias $adapter.Name -ServerAddresses $dnsServers -ErrorAction Stop
-            Write-Host "  [OK] DNS servers configured" -ForegroundColor Green
+            Write-Ui -Message "  [OK] DNS servers configured" -Level "OK"
         }
         
         # Disable DHCP
         Set-NetIPInterface -InterfaceAlias $adapter.Name -Dhcp Disabled -ErrorAction Stop
-        Write-Host "  [OK] DHCP disabled" -ForegroundColor Green
+        Write-Ui -Message "  [OK] DHCP disabled" -Level "OK"
         
         Write-Host ""
         Write-Host "============================================================" -ForegroundColor Green
-        Write-Host "  CONFIGURATION APPLIED SUCCESSFULLY" -ForegroundColor Green
+        Write-Ui -Message "  CONFIGURATION APPLIED SUCCESSFULLY" -Level "OK"
         Write-Host "============================================================" -ForegroundColor Green
         Write-Host ""
         
@@ -445,12 +445,12 @@ function Set-StaticIP {
     catch {
         Write-Host ""
         Write-Host "============================================================" -ForegroundColor Red
-        Write-Host "  ERROR APPLYING CONFIGURATION" -ForegroundColor Red
+        Write-Ui -Message "  ERROR APPLYING CONFIGURATION" -Level "ERROR"
         Write-Host "============================================================" -ForegroundColor Red
         Write-Host ""
-        Write-Host "Error: $_" -ForegroundColor Red
+        Write-Ui -Message "Error: $_" -Level "ERROR"
         Write-Host ""
-        Write-Host "You may need to restore your network settings manually." -ForegroundColor Yellow
+        Write-Ui -Message "You may need to restore your network settings manually." -Level "WARN"
     }
     
     Write-Host ""
@@ -461,20 +461,20 @@ function Flush-DNSCache {
     Show-SouliTEKHeader -Title "FLUSH DNS CACHE" -Color Yellow -ClearHost -ShowBanner
     
     if (-not (Test-Administrator)) {
-        Write-Host "WARNING: Administrator privileges required!" -ForegroundColor Red
+        Write-Ui -Message "WARNING: Administrator privileges required!" -Level "ERROR"
         Write-Host ""
-        Write-Host "This operation requires administrator rights." -ForegroundColor Yellow
-        Write-Host "Please run this script as Administrator." -ForegroundColor Yellow
+        Write-Ui -Message "This operation requires administrator rights." -Level "WARN"
+        Write-Ui -Message "Please run this script as Administrator." -Level "WARN"
         Write-Host ""
         Read-Host "Press Enter to return to main menu"
         return
     }
     
-    Write-Host "This will flush the DNS resolver cache on your computer." -ForegroundColor White
+    Write-Ui -Message "This will flush the DNS resolver cache on your computer." -Level "STEP"
     Write-Host ""
-    Write-Host "DNS cache stores recently resolved domain names to speed up" -ForegroundColor Gray
-    Write-Host "subsequent lookups. Flushing the cache can help resolve DNS" -ForegroundColor Gray
-    Write-Host "issues but may temporarily slow down DNS resolution." -ForegroundColor Gray
+    Write-Ui -Message "DNS cache stores recently resolved domain names to speed up" -Level "INFO"
+    Write-Ui -Message "subsequent lookups. Flushing the cache can help resolve DNS" -Level "INFO"
+    Write-Ui -Message "issues but may temporarily slow down DNS resolution." -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -482,20 +482,20 @@ function Flush-DNSCache {
     $confirm = Read-Host "Flush DNS cache? (yes/no)"
     
     if ($confirm -ne "yes" -and $confirm -ne "y") {
-        Write-Host "Operation cancelled." -ForegroundColor Yellow
+        Write-Ui -Message "Operation cancelled." -Level "WARN"
         Start-Sleep -Seconds 2
         return
     }
     
     Write-Host ""
-    Write-Host "Flushing DNS cache..." -ForegroundColor Yellow
+    Write-Ui -Message "Flushing DNS cache..." -Level "WARN"
     
     try {
         Clear-DnsClientCache -ErrorAction Stop
         
         Write-Host ""
         Write-Host "============================================================" -ForegroundColor Green
-        Write-Host "  DNS CACHE FLUSHED SUCCESSFULLY" -ForegroundColor Green
+        Write-Ui -Message "  DNS CACHE FLUSHED SUCCESSFULLY" -Level "OK"
         Write-Host "============================================================" -ForegroundColor Green
         Write-Host ""
         
@@ -514,10 +514,10 @@ function Flush-DNSCache {
     catch {
         Write-Host ""
         Write-Host "============================================================" -ForegroundColor Red
-        Write-Host "  ERROR FLUSHING DNS CACHE" -ForegroundColor Red
+        Write-Ui -Message "  ERROR FLUSHING DNS CACHE" -Level "ERROR"
         Write-Host "============================================================" -ForegroundColor Red
         Write-Host ""
-        Write-Host "Error: $_" -ForegroundColor Red
+        Write-Ui -Message "Error: $_" -Level "ERROR"
     }
     
     Write-Host ""
@@ -528,10 +528,10 @@ function Reset-NetworkAdapter {
     Show-SouliTEKHeader -Title "RESET NETWORK ADAPTER" -Color Red -ClearHost -ShowBanner
     
     if (-not (Test-Administrator)) {
-        Write-Host "WARNING: Administrator privileges required!" -ForegroundColor Red
+        Write-Ui -Message "WARNING: Administrator privileges required!" -Level "ERROR"
         Write-Host ""
-        Write-Host "This operation requires administrator rights." -ForegroundColor Yellow
-        Write-Host "Please run this script as Administrator." -ForegroundColor Yellow
+        Write-Ui -Message "This operation requires administrator rights." -Level "WARN"
+        Write-Ui -Message "Please run this script as Administrator." -Level "WARN"
         Write-Host ""
         Read-Host "Press Enter to return to main menu"
         return
@@ -542,19 +542,19 @@ function Reset-NetworkAdapter {
     
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  RESET NETWORK ADAPTER" -ForegroundColor Cyan
+    Write-Ui -Message "  RESET NETWORK ADAPTER" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "Adapter: $($adapter.Name)" -ForegroundColor White
-    Write-Host "Interface: $($adapter.InterfaceDescription)" -ForegroundColor Gray
+    Write-Ui -Message "Adapter: $($adapter.Name)" -Level "STEP"
+    Write-Ui -Message "Interface: $($adapter.InterfaceDescription)" -Level "INFO"
     Write-Host ""
-    Write-Host "WARNING: This will disable and re-enable the network adapter." -ForegroundColor Red
-    Write-Host "         You will temporarily lose network connectivity." -ForegroundColor Red
+    Write-Ui -Message "WARNING: This will disable and re-enable the network adapter." -Level "ERROR"
+    Write-Ui -Message "         You will temporarily lose network connectivity." -Level "ERROR"
     Write-Host ""
-    Write-Host "This operation can help resolve:" -ForegroundColor Yellow
-    Write-Host "  - Network adapter not responding" -ForegroundColor Gray
-    Write-Host "  - Connection issues" -ForegroundColor Gray
-    Write-Host "  - IP configuration problems" -ForegroundColor Gray
+    Write-Ui -Message "This operation can help resolve:" -Level "WARN"
+    Write-Ui -Message "  - Network adapter not responding" -Level "INFO"
+    Write-Ui -Message "  - Connection issues" -Level "INFO"
+    Write-Ui -Message "  - IP configuration problems" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -562,34 +562,34 @@ function Reset-NetworkAdapter {
     $confirm = Read-Host "Reset network adapter? (yes/no)"
     
     if ($confirm -ne "yes" -and $confirm -ne "y") {
-        Write-Host "Operation cancelled." -ForegroundColor Yellow
+        Write-Ui -Message "Operation cancelled." -Level "WARN"
         Start-Sleep -Seconds 2
         return
     }
     
     Write-Host ""
-    Write-Host "Resetting network adapter..." -ForegroundColor Yellow
+    Write-Ui -Message "Resetting network adapter..." -Level "WARN"
     
     try {
-        Write-Host "  [1/2] Disabling adapter..." -ForegroundColor Gray
+        Write-Ui -Message "  [1/2] Disabling adapter..." -Level "INFO"
         Disable-NetAdapter -Name $adapter.Name -Confirm:$false -ErrorAction Stop
         
-        Write-Host "  [OK] Adapter disabled" -ForegroundColor Green
-        Write-Host "  [2/2] Waiting 3 seconds..." -ForegroundColor Gray
+        Write-Ui -Message "  [OK] Adapter disabled" -Level "OK"
+        Write-Ui -Message "  [2/2] Waiting 3 seconds..." -Level "INFO"
         Start-Sleep -Seconds 3
         
-        Write-Host "  [2/2] Enabling adapter..." -ForegroundColor Gray
+        Write-Ui -Message "  [2/2] Enabling adapter..." -Level "INFO"
         Enable-NetAdapter -Name $adapter.Name -Confirm:$false -ErrorAction Stop
         
-        Write-Host "  [OK] Adapter enabled" -ForegroundColor Green
+        Write-Ui -Message "  [OK] Adapter enabled" -Level "OK"
         
         Write-Host ""
         Write-Host "============================================================" -ForegroundColor Green
-        Write-Host "  NETWORK ADAPTER RESET SUCCESSFULLY" -ForegroundColor Green
+        Write-Ui -Message "  NETWORK ADAPTER RESET SUCCESSFULLY" -Level "OK"
         Write-Host "============================================================" -ForegroundColor Green
         Write-Host ""
-        Write-Host "The adapter has been reset. Please wait a few seconds" -ForegroundColor Yellow
-        Write-Host "for the network connection to be restored." -ForegroundColor Yellow
+        Write-Ui -Message "The adapter has been reset. Please wait a few seconds" -Level "WARN"
+        Write-Ui -Message "for the network connection to be restored." -Level "WARN"
         Write-Host ""
         
         # Store result for export
@@ -607,13 +607,13 @@ function Reset-NetworkAdapter {
     catch {
         Write-Host ""
         Write-Host "============================================================" -ForegroundColor Red
-        Write-Host "  ERROR RESETTING NETWORK ADAPTER" -ForegroundColor Red
+        Write-Ui -Message "  ERROR RESETTING NETWORK ADAPTER" -Level "ERROR"
         Write-Host "============================================================" -ForegroundColor Red
         Write-Host ""
-        Write-Host "Error: $_" -ForegroundColor Red
+        Write-Ui -Message "Error: $_" -Level "ERROR"
         Write-Host ""
-        Write-Host "You may need to manually enable the adapter from" -ForegroundColor Yellow
-        Write-Host "Network and Sharing Center or Device Manager." -ForegroundColor Yellow
+        Write-Ui -Message "You may need to manually enable the adapter from" -Level "WARN"
+        Write-Ui -Message "Network and Sharing Center or Device Manager." -Level "WARN"
     }
     
     Write-Host ""
@@ -624,21 +624,21 @@ function Export-ConfigurationReport {
     Show-SouliTEKHeader -Title "EXPORT CONFIGURATION REPORT" -Color Cyan -ClearHost -ShowBanner
     
     if ($Script:ConfigResults.Count -eq 0) {
-        Write-Host "No configuration data to export!" -ForegroundColor Yellow
+        Write-Ui -Message "No configuration data to export!" -Level "WARN"
         Write-Host ""
-        Write-Host "Please perform at least one configuration operation first." -ForegroundColor Gray
+        Write-Ui -Message "Please perform at least one configuration operation first." -Level "INFO"
         Write-Host ""
         Read-Host "Press Enter to return to main menu"
         return
     }
     
-    Write-Host "Select export format:" -ForegroundColor White
+    Write-Ui -Message "Select export format:" -Level "STEP"
     Write-Host ""
-    Write-Host "  1. Text Format (.txt)" -ForegroundColor Gray
-    Write-Host "  2. CSV Format (.csv)" -ForegroundColor Gray
-    Write-Host "  3. HTML Format (.html)" -ForegroundColor Gray
-    Write-Host "  4. All Formats" -ForegroundColor Gray
-    Write-Host "  0. Cancel" -ForegroundColor Gray
+    Write-Ui -Message "  1. Text Format (.txt)" -Level "INFO"
+    Write-Ui -Message "  2. CSV Format (.csv)" -Level "INFO"
+    Write-Ui -Message "  3. HTML Format (.html)" -Level "INFO"
+    Write-Ui -Message "  4. All Formats" -Level "INFO"
+    Write-Ui -Message "  0. Cancel" -Level "INFO"
     Write-Host ""
     
     $choice = Read-Host "Enter your choice"
@@ -656,7 +656,7 @@ function Export-ConfigurationReport {
             Export-HTMLReport -FileName "$baseFileName.html"
         }
         default {
-            Write-Host "Export cancelled." -ForegroundColor Yellow
+            Write-Ui -Message "Export cancelled." -Level "WARN"
             Start-Sleep -Seconds 2
             return
         }
@@ -702,14 +702,14 @@ DHCP: $($result.DHCP)
         $content | Out-File -FilePath $filePath -Encoding UTF8
         
         Write-Host ""
-        Write-Host "Report exported to: $filePath" -ForegroundColor Green
+        Write-Ui -Message "Report exported to: $filePath" -Level "OK"
         Write-Host ""
         
         # Open file
         Start-Process $filePath -ErrorAction SilentlyContinue
     }
     catch {
-        Write-Host "Error exporting report: $_" -ForegroundColor Red
+        Write-Ui -Message "Error exporting report: $_" -Level "ERROR"
     }
 }
 
@@ -722,14 +722,14 @@ function Export-CSVReport {
         $Script:ConfigResults | Export-Csv -Path $filePath -NoTypeInformation -Encoding UTF8
         
         Write-Host ""
-        Write-Host "Report exported to: $filePath" -ForegroundColor Green
+        Write-Ui -Message "Report exported to: $filePath" -Level "OK"
         Write-Host ""
         
         # Open file
         Start-Process $filePath -ErrorAction SilentlyContinue
     }
     catch {
-        Write-Host "Error exporting report: $_" -ForegroundColor Red
+        Write-Ui -Message "Error exporting report: $_" -Level "ERROR"
     }
 }
 
@@ -811,14 +811,14 @@ function Export-HTMLReport {
         $html | Out-File -FilePath $filePath -Encoding UTF8
         
         Write-Host ""
-        Write-Host "Report exported to: $filePath" -ForegroundColor Green
+        Write-Ui -Message "Report exported to: $filePath" -Level "OK"
         Write-Host ""
         
         # Open file
         Start-Process $filePath -ErrorAction SilentlyContinue
     }
     catch {
-        Write-Host "Error exporting report: $_" -ForegroundColor Red
+        Write-Ui -Message "Error exporting report: $_" -Level "ERROR"
     }
 }
 
@@ -908,21 +908,21 @@ function Show-ExitMessage {
 function Show-MainMenu {
     Show-SouliTEKHeader -Title "NETWORK CONFIGURATION TOOL" -ClearHost -ShowBanner
     
-    Write-Host "Main Menu:" -ForegroundColor Cyan
+    Write-Ui -Message "Main Menu:" -Level "INFO"
     Write-Host ""
-    Write-Host "  1. View IP Configuration" -ForegroundColor White
-    Write-Host "  2. Set Static IP Address" -ForegroundColor White
-    Write-Host "  3. Flush DNS Cache" -ForegroundColor White
-    Write-Host "  4. Reset Network Adapter" -ForegroundColor White
-    Write-Host "  5. Export Configuration Report" -ForegroundColor White
-    Write-Host "  6. Help & Information" -ForegroundColor White
-    Write-Host "  0. Exit" -ForegroundColor White
+    Write-Ui -Message "  1. View IP Configuration" -Level "STEP"
+    Write-Ui -Message "  2. Set Static IP Address" -Level "STEP"
+    Write-Ui -Message "  3. Flush DNS Cache" -Level "STEP"
+    Write-Ui -Message "  4. Reset Network Adapter" -Level "STEP"
+    Write-Ui -Message "  5. Export Configuration Report" -Level "STEP"
+    Write-Ui -Message "  6. Help & Information" -Level "STEP"
+    Write-Ui -Message "  0. Exit" -Level "STEP"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     
     if (-not (Test-Administrator)) {
-        Write-Host "NOTE: Administrator privileges required for some operations." -ForegroundColor Yellow
+        Write-Ui -Message "NOTE: Administrator privileges required for some operations." -Level "WARN"
         Write-Host ""
     }
 }
@@ -957,7 +957,7 @@ function Main {
                 exit
             }
             default {
-                Write-Host "Invalid choice! Please select 0-6." -ForegroundColor Red
+                Write-Ui -Message "Invalid choice! Please select 0-6." -Level "ERROR"
                 Start-Sleep -Seconds 2
             }
         }

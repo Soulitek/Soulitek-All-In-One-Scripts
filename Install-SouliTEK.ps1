@@ -18,7 +18,8 @@ param(
     [string]$RepoOwner = "Soulitek",
     [string]$RepoName = "Soulitek-All-In-One-Scripts",
     [string]$Branch = "main",
-    [switch]$Silent
+    [switch]$Silent,
+    [string]$ExpectedZipHash = ""
 )
 
 # Set error action preference
@@ -287,6 +288,15 @@ try {
     try {
         Invoke-WebRequest -Uri $githubZipUrl -OutFile $zipFile -UseBasicParsing -ErrorAction Stop
         Write-Success "Download completed: $([math]::Round((Get-Item $zipFile).Length / 1MB, 2)) MB"
+        if ($ExpectedZipHash -ne "") {
+            $actualHash = (Get-FileHash -Path $zipFile -Algorithm SHA256).Hash
+            if ($actualHash.ToUpper() -ne $ExpectedZipHash.ToUpper()) {
+                Write-Error-Custom "Hash mismatch! Expected: $ExpectedZipHash / Actual: $actualHash"
+                Remove-Item $zipFile -Force -ErrorAction SilentlyContinue
+                exit 1
+            }
+            Write-Success "ZIP integrity verified."
+        }
     }
     catch {
         Write-Error-Custom "Failed to download from GitHub: $($_.Exception.Message)"
@@ -301,6 +311,9 @@ try {
     try {
         Expand-Archive -Path $zipFile -DestinationPath $extractPath -Force
         Write-Success "Files extracted successfully"
+        # Unblock all extracted PS1 files so RemoteSigned policy allows them to run
+        Get-ChildItem -Path $extractPath -Filter "*.ps1" -Recurse |
+            ForEach-Object { Unblock-File -Path $_.FullName -ErrorAction SilentlyContinue }
     }
     catch {
         Write-Error-Custom "Failed to extract ZIP file: $($_.Exception.Message)"
@@ -364,7 +377,7 @@ try {
         $WshShell = New-Object -ComObject WScript.Shell
         $Shortcut = $WshShell.CreateShortcut($shortcutPath)
         $Shortcut.TargetPath = "powershell.exe"
-        $Shortcut.Arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$launcherPath`""
+        $Shortcut.Arguments = "-NoProfile -ExecutionPolicy RemoteSigned -File `"$launcherPath`""
         $Shortcut.WorkingDirectory = $InstallPath
         $Shortcut.Description = "SouliTEK All-In-One Scripts Launcher"
         $Shortcut.Save()
@@ -401,7 +414,7 @@ try {
         if ($launch -eq 'Y' -or $launch -eq 'y') {
             Write-Host ""
             Write-Step "Launching SouliTEK Launcher..."
-            Start-Process powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$launcherPath`"" -WorkingDirectory $InstallPath
+            Start-Process powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy RemoteSigned -File `"$launcherPath`"" -WorkingDirectory $InstallPath
             Write-Success "Launcher started!"
         }
     }

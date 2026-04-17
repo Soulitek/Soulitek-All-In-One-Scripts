@@ -408,7 +408,7 @@ function Show-RecentReports {
                 Start-Process $filePath
             }
             else {
-                Write-Host "File not found." -ForegroundColor Red
+                Write-Ui -Message "File not found." -Level "ERROR"
             }
         }
     }
@@ -435,7 +435,7 @@ function Show-RecentReports {
                 Start-Process explorer $folderPath
             }
             else {
-                Write-Host "Folder not found." -ForegroundColor Red
+                Write-Ui -Message "Folder not found." -Level "ERROR"
             }
         }
     }
@@ -556,7 +556,7 @@ do {
             break
         }
         default {
-            Write-Host "Invalid choice. Please try again." -ForegroundColor Red
+            Write-Ui -Message "Invalid choice. Please try again." -Level "ERROR"
             Start-Sleep -Seconds 2
         }
     }

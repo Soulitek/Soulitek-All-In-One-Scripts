@@ -129,7 +129,7 @@ function Test-PingAdvanced {
             else {
                 $sent++
                 $failed++
-                Write-Host "Request timed out" -ForegroundColor Red
+                Write-Ui -Message "Request timed out" -Level "ERROR"
             }
             
             if ($i -lt $count) { Start-Sleep -Milliseconds 1000 }
@@ -137,7 +137,7 @@ function Test-PingAdvanced {
         
         Write-Host ""
         Write-Host "============================================================" -ForegroundColor Cyan
-        Write-Host "  PING STATISTICS FOR $target" -ForegroundColor Cyan
+        Write-Ui -Message "  PING STATISTICS FOR $target" -Level "INFO"
         Write-Host "============================================================" -ForegroundColor Cyan
         Write-Host ""
         Write-Host "Packets: Sent = $sent, Received = $received, Lost = $failed " -NoNewline
@@ -151,8 +151,8 @@ function Test-PingAdvanced {
             $avg = [math]::Round(($times | Measure-Object -Average).Average, 2)
             
             Write-Host ""
-            Write-Host "Approximate round trip times in milliseconds:" -ForegroundColor White
-            Write-Host "    Minimum = ${min}ms, Maximum = ${max}ms, Average = ${avg}ms" -ForegroundColor Yellow
+            Write-Ui -Message "Approximate round trip times in milliseconds:" -Level "STEP"
+            Write-Ui -Message "    Minimum = ${min}ms, Maximum = ${max}ms, Average = ${avg}ms" -Level "WARN"
             
             $status = if ($lossPercent -eq 0 -and $avg -lt 100) { "Excellent" }
                      elseif ($lossPercent -lt 10 -and $avg -lt 200) { "Good" }
@@ -188,7 +188,7 @@ function Test-PingAdvanced {
 function Test-TraceRoute {
     Show-SouliTEKHeader -Title "TRACE ROUTE TEST" -Color Magenta -ClearHost -ShowBanner
     
-    Write-Host "      Trace network path to destination" -ForegroundColor Gray
+    Write-Ui -Message "      Trace network path to destination" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -206,7 +206,7 @@ function Test-TraceRoute {
     Write-Host ""
     Write-SouliTEKResult "Starting trace route to $target..." -Level INFO
     Write-Host ""
-    Write-Host "This may take 30-60 seconds..." -ForegroundColor Yellow
+    Write-Ui -Message "This may take 30-60 seconds..." -Level "WARN"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -220,26 +220,26 @@ function Test-TraceRoute {
         foreach ($line in $traceOutput) {
             if ($line -match '^\s+\d+\s+') {
                 $hopCount++
-                Write-Host $line -ForegroundColor Gray
+                Write-Ui -Message $line -Level "INFO"
                 $traceDetails += "$line`n"
             }
             elseif ($line -match 'Trace complete' -or $line -match 'Tracing route') {
-                Write-Host $line -ForegroundColor Cyan
+                Write-Ui -Message $line -Level "INFO"
                 $traceDetails += "$line`n"
             }
             else {
-                Write-Host $line -ForegroundColor Gray
+                Write-Ui -Message $line -Level "INFO"
                 $traceDetails += "$line`n"
             }
         }
         
         Write-Host ""
         Write-Host "============================================================" -ForegroundColor Cyan
-        Write-Host "  TRACE ROUTE SUMMARY" -ForegroundColor Cyan
+        Write-Ui -Message "  TRACE ROUTE SUMMARY" -Level "INFO"
         Write-Host "============================================================" -ForegroundColor Cyan
         Write-Host ""
-        Write-Host "Target: $target" -ForegroundColor White
-        Write-Host "Total Hops: $hopCount" -ForegroundColor Yellow
+        Write-Ui -Message "Target: $target" -Level "STEP"
+        Write-Ui -Message "Total Hops: $hopCount" -Level "WARN"
         Write-Host ""
         
         $status = if ($hopCount -gt 0 -and $hopCount -lt 30) { "Complete" } else { "Incomplete/Timeout" }
@@ -263,7 +263,7 @@ function Test-TraceRoute {
 function Test-DNSLookup {
     Show-SouliTEKHeader -Title "DNS LOOKUP TEST" -Color Yellow -ClearHost -ShowBanner
     
-    Write-Host "      Resolve domain names to IP addresses" -ForegroundColor Gray
+    Write-Ui -Message "      Resolve domain names to IP addresses" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -286,7 +286,7 @@ function Test-DNSLookup {
         # Get DNS records
         $dnsResult = Resolve-DnsName -Name $domain -ErrorAction Stop
         
-        Write-Host "DNS RESOLUTION RESULTS:" -ForegroundColor Green
+        Write-Ui -Message "DNS RESOLUTION RESULTS:" -Level "OK"
         Write-Host "============================================================" -ForegroundColor Cyan
         Write-Host ""
         
@@ -296,27 +296,27 @@ function Test-DNSLookup {
         foreach ($record in $dnsResult) {
             switch ($record.Type) {
                 "A" {
-                    Write-Host "[IPv4 Address (A)]" -ForegroundColor Cyan
-                    Write-Host "  IP: $($record.IPAddress)" -ForegroundColor White
-                    Write-Host "  Name: $($record.Name)" -ForegroundColor Gray
-                    Write-Host "  TTL: $($record.TTL) seconds" -ForegroundColor Gray
+                    Write-Ui -Message "[IPv4 Address (A)]" -Level "INFO"
+                    Write-Ui -Message "  IP: $($record.IPAddress)" -Level "STEP"
+                    Write-Ui -Message "  Name: $($record.Name)" -Level "INFO"
+                    Write-Ui -Message "  TTL: $($record.TTL) seconds" -Level "INFO"
                     Write-Host ""
                     $ipAddresses += $record.IPAddress
                     $details += "A: $($record.IPAddress)`n"
                 }
                 "AAAA" {
-                    Write-Host "[IPv6 Address (AAAA)]" -ForegroundColor Cyan
-                    Write-Host "  IP: $($record.IPAddress)" -ForegroundColor White
-                    Write-Host "  Name: $($record.Name)" -ForegroundColor Gray
-                    Write-Host "  TTL: $($record.TTL) seconds" -ForegroundColor Gray
+                    Write-Ui -Message "[IPv6 Address (AAAA)]" -Level "INFO"
+                    Write-Ui -Message "  IP: $($record.IPAddress)" -Level "STEP"
+                    Write-Ui -Message "  Name: $($record.Name)" -Level "INFO"
+                    Write-Ui -Message "  TTL: $($record.TTL) seconds" -Level "INFO"
                     Write-Host ""
                     $ipAddresses += $record.IPAddress
                     $details += "AAAA: $($record.IPAddress)`n"
                 }
                 "CNAME" {
-                    Write-Host "[Canonical Name (CNAME)]" -ForegroundColor Yellow
-                    Write-Host "  Alias: $($record.Name)" -ForegroundColor White
-                    Write-Host "  Points to: $($record.NameHost)" -ForegroundColor Gray
+                    Write-Ui -Message "[Canonical Name (CNAME)]" -Level "WARN"
+                    Write-Ui -Message "  Alias: $($record.Name)" -Level "STEP"
+                    Write-Ui -Message "  Points to: $($record.NameHost)" -Level "INFO"
                     Write-Host ""
                     $details += "CNAME: $($record.NameHost)`n"
                 }
@@ -324,17 +324,17 @@ function Test-DNSLookup {
         }
         
         Write-Host "============================================================" -ForegroundColor Cyan
-        Write-Host "  DNS LOOKUP SUMMARY" -ForegroundColor Cyan
+        Write-Ui -Message "  DNS LOOKUP SUMMARY" -Level "INFO"
         Write-Host "============================================================" -ForegroundColor Cyan
         Write-Host ""
-        Write-Host "Domain: $domain" -ForegroundColor White
-        Write-Host "Resolved IPs: $($ipAddresses.Count)" -ForegroundColor Yellow
+        Write-Ui -Message "Domain: $domain" -Level "STEP"
+        Write-Ui -Message "Resolved IPs: $($ipAddresses.Count)" -Level "WARN"
         
         if ($ipAddresses.Count -gt 0) {
             Write-Host ""
-            Write-Host "IP Addresses:" -ForegroundColor Cyan
+            Write-Ui -Message "IP Addresses:" -Level "INFO"
             foreach ($ip in $ipAddresses) {
-                Write-Host "  - $ip" -ForegroundColor Green
+                Write-Ui -Message "  - $ip" -Level "OK"
             }
         }
         
@@ -342,7 +342,7 @@ function Test-DNSLookup {
         Write-Host ""
         $dnsServers = Get-DnsClientServerAddress -AddressFamily IPv4 | Where-Object { $_.ServerAddresses.Count -gt 0 } | Select-Object -First 1
         if ($dnsServers) {
-            Write-Host "DNS Server Used: $($dnsServers.ServerAddresses[0])" -ForegroundColor Gray
+            Write-Ui -Message "DNS Server Used: $($dnsServers.ServerAddresses[0])" -Level "INFO"
         }
         
         Add-TestResult -TestType "DNS Lookup" -Target $domain -Result "Resolved: $($ipAddresses.Count) IPs" `
@@ -354,11 +354,11 @@ function Test-DNSLookup {
     catch {
         Write-SouliTEKResult "DNS lookup failed: $_" -Level ERROR
         Write-Host ""
-        Write-Host "Possible reasons:" -ForegroundColor Yellow
-        Write-Host "  - Domain does not exist" -ForegroundColor Gray
-        Write-Host "  - DNS server not responding" -ForegroundColor Gray
-        Write-Host "  - Network connectivity issue" -ForegroundColor Gray
-        Write-Host "  - DNS query blocked by firewall" -ForegroundColor Gray
+        Write-Ui -Message "Possible reasons:" -Level "WARN"
+        Write-Ui -Message "  - Domain does not exist" -Level "INFO"
+        Write-Ui -Message "  - DNS server not responding" -Level "INFO"
+        Write-Ui -Message "  - Network connectivity issue" -Level "INFO"
+        Write-Ui -Message "  - DNS query blocked by firewall" -Level "INFO"
         
         Add-TestResult -TestType "DNS Lookup" -Target $domain -Result "Failed" -Details $_.Exception.Message -Status "Error"
     }
@@ -370,7 +370,7 @@ function Test-DNSLookup {
 function Test-Latency {
     Show-SouliTEKHeader -Title "LATENCY TEST - CONTINUOUS" -Color Red -ClearHost -ShowBanner
     
-    Write-Host "      Monitor network latency in real-time" -ForegroundColor Gray
+    Write-Ui -Message "      Monitor network latency in real-time" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -393,11 +393,11 @@ function Test-Latency {
     Write-Host ""
     Write-SouliTEKResult "Starting latency test to $target for $duration seconds..." -Level INFO
     Write-Host ""
-    Write-Host "Press Ctrl+C to stop early" -ForegroundColor Yellow
+    Write-Ui -Message "Press Ctrl+C to stop early" -Level "WARN"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "Time      | Latency | Status | Jitter" -ForegroundColor Cyan
+    Write-Ui -Message "Time      | Latency | Status | Jitter" -Level "INFO"
     Write-Host "----------|---------|--------|--------" -ForegroundColor Cyan
     
     try {
@@ -453,7 +453,7 @@ function Test-Latency {
                 Write-Host " | " -NoNewline -ForegroundColor Gray
                 Write-Host "Failed " -NoNewline -ForegroundColor Red
                 Write-Host " | " -NoNewline -ForegroundColor Gray
-                Write-Host "N/A" -ForegroundColor Gray
+                Write-Ui -Message "N/A" -Level "INFO"
             }
             
             Start-Sleep -Seconds 1
@@ -461,7 +461,7 @@ function Test-Latency {
         
         Write-Host ""
         Write-Host "============================================================" -ForegroundColor Cyan
-        Write-Host "  LATENCY TEST SUMMARY" -ForegroundColor Cyan
+        Write-Ui -Message "  LATENCY TEST SUMMARY" -Level "INFO"
         Write-Host "============================================================" -ForegroundColor Cyan
         Write-Host ""
         
@@ -471,15 +471,15 @@ function Test-Latency {
             $avg = [math]::Round(($measurements | Measure-Object -Average).Average, 2)
             $lossPercent = [math]::Round((($packetsSent - $packetsReceived) / $packetsSent) * 100, 2)
             
-            Write-Host "Target: $target" -ForegroundColor White
-            Write-Host "Duration: $duration seconds" -ForegroundColor White
+            Write-Ui -Message "Target: $target" -Level "STEP"
+            Write-Ui -Message "Duration: $duration seconds" -Level "STEP"
             Write-Host ""
-            Write-Host "Packets: Sent = $packetsSent, Received = $packetsReceived, Lost = $($packetsSent - $packetsReceived) ($lossPercent% loss)" -ForegroundColor Yellow
+            Write-Ui -Message "Packets: Sent = $packetsSent, Received = $packetsReceived, Lost = $($packetsSent - $packetsReceived) ($lossPercent% loss)" -Level "WARN"
             Write-Host ""
-            Write-Host "Latency Statistics:" -ForegroundColor Cyan
-            Write-Host "  Minimum: ${min}ms" -ForegroundColor Green
-            Write-Host "  Maximum: ${max}ms" -ForegroundColor Red
-            Write-Host "  Average: ${avg}ms" -ForegroundColor Yellow
+            Write-Ui -Message "Latency Statistics:" -Level "INFO"
+            Write-Ui -Message "  Minimum: ${min}ms" -Level "OK"
+            Write-Ui -Message "  Maximum: ${max}ms" -Level "ERROR"
+            Write-Ui -Message "  Average: ${avg}ms" -Level "WARN"
             
             # Calculate standard deviation
             $variance = 0
@@ -487,7 +487,7 @@ function Test-Latency {
                 $variance += [Math]::Pow($m - $avg, 2)
             }
             $stdDev = [math]::Round([Math]::Sqrt($variance / $measurements.Count), 2)
-            Write-Host "  Std Dev: ${stdDev}ms" -ForegroundColor Cyan
+            Write-Ui -Message "  Std Dev: ${stdDev}ms" -Level "INFO"
             
             Write-Host ""
             $overallQuality = if ($avg -lt 50 -and $lossPercent -eq 0) { "Excellent" }
@@ -510,7 +510,7 @@ function Test-Latency {
                           -Status $overallQuality
         }
         else {
-            Write-Host "No successful packets received" -ForegroundColor Red
+            Write-Ui -Message "No successful packets received" -Level "ERROR"
             Add-TestResult -TestType "Latency Test" -Target $target -Result "No packets received" `
                           -Details "All packets lost" -Status "Failed"
         }
@@ -530,7 +530,7 @@ function Test-Latency {
 function Test-QuickDiagnostics {
     Show-SouliTEKHeader -Title "QUICK NETWORK DIAGNOSTICS" -Color Cyan -ClearHost -ShowBanner
     
-    Write-Host "      Run comprehensive network tests" -ForegroundColor Gray
+    Write-Ui -Message "      Run comprehensive network tests" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -539,10 +539,10 @@ function Test-QuickDiagnostics {
     Write-Host ""
     
     # Test 1: Local connectivity
-    Write-Host "[1/5] Testing local network connectivity..." -ForegroundColor Yellow
+    Write-Ui -Message "[1/5] Testing local network connectivity..." -Level "WARN"
     $gateway = (Get-NetRoute -DestinationPrefix 0.0.0.0/0 | Select-Object -First 1).NextHop
     if ($gateway) {
-        Write-Host "  Default Gateway: $gateway" -ForegroundColor Gray
+        Write-Ui -Message "  Default Gateway: $gateway" -Level "INFO"
         $gwPing = Test-Connection -ComputerName $gateway -Count 2 -Quiet
         if ($gwPing) {
             Write-SouliTEKResult "Local network: OK" -Level SUCCESS
@@ -558,7 +558,7 @@ function Test-QuickDiagnostics {
     Write-Host ""
     
     # Test 2: Internet connectivity
-    Write-Host "[2/5] Testing internet connectivity..." -ForegroundColor Yellow
+    Write-Ui -Message "[2/5] Testing internet connectivity..." -Level "WARN"
     $internetTest = Test-Connection -ComputerName 8.8.8.8 -Count 2 -Quiet
     if ($internetTest) {
         Write-SouliTEKResult "Internet connectivity: OK" -Level SUCCESS
@@ -570,7 +570,7 @@ function Test-QuickDiagnostics {
     Write-Host ""
     
     # Test 3: DNS resolution
-    Write-Host "[3/5] Testing DNS resolution..." -ForegroundColor Yellow
+    Write-Ui -Message "[3/5] Testing DNS resolution..." -Level "WARN"
     try {
         $null = Resolve-DnsName -Name "google.com" -ErrorAction Stop
         Write-SouliTEKResult "DNS resolution: OK" -Level SUCCESS
@@ -582,28 +582,28 @@ function Test-QuickDiagnostics {
     Write-Host ""
     
     # Test 4: Network adapters
-    Write-Host "[4/5] Checking network adapters..." -ForegroundColor Yellow
+    Write-Ui -Message "[4/5] Checking network adapters..." -Level "WARN"
     $adapters = Get-NetAdapter | Where-Object { $_.Status -eq 'Up' }
-    Write-Host "  Active adapters: $($adapters.Count)" -ForegroundColor Gray
+    Write-Ui -Message "  Active adapters: $($adapters.Count)" -Level "INFO"
     foreach ($adapter in $adapters) {
-        Write-Host "  - $($adapter.Name): $($adapter.LinkSpeed)" -ForegroundColor Green
+        Write-Ui -Message "  - $($adapter.Name): $($adapter.LinkSpeed)" -Level "OK"
     }
     
     Write-Host ""
     
     # Test 5: DNS servers
-    Write-Host "[5/5] Checking DNS servers..." -ForegroundColor Yellow
+    Write-Ui -Message "[5/5] Checking DNS servers..." -Level "WARN"
     $dnsServers = Get-DnsClientServerAddress -AddressFamily IPv4 | Where-Object { $_.ServerAddresses.Count -gt 0 }
     foreach ($dns in $dnsServers) {
-        Write-Host "  $($dns.InterfaceAlias):" -ForegroundColor Gray
+        Write-Ui -Message "  $($dns.InterfaceAlias):" -Level "INFO"
         foreach ($server in $dns.ServerAddresses) {
-            Write-Host "    - $server" -ForegroundColor Green
+            Write-Ui -Message "    - $server" -Level "OK"
         }
     }
     
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  DIAGNOSTICS COMPLETE" -ForegroundColor Cyan
+    Write-Ui -Message "  DIAGNOSTICS COMPLETE" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     
     $gwStatus = if ($gwPing) { 'OK' } else { 'FAIL' }
@@ -620,7 +620,7 @@ function Test-QuickDiagnostics {
 function Export-TestResults {
     Show-SouliTEKHeader -Title "EXPORT TEST RESULTS" -Color Yellow -ClearHost -ShowBanner
     
-    Write-Host "      Save test results to file" -ForegroundColor Gray
+    Write-Ui -Message "      Save test results to file" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -628,20 +628,20 @@ function Export-TestResults {
     if ($Script:TestResults.Count -eq 0) {
         Write-SouliTEKResult "No test results to export" -Level WARNING
         Write-Host ""
-        Write-Host "Run some network tests first, then export the results." -ForegroundColor Yellow
+        Write-Ui -Message "Run some network tests first, then export the results." -Level "WARN"
         Write-Host ""
         Start-Sleep -Seconds 3
         return
     }
     
-    Write-Host "Total tests performed: $($Script:TestResults.Count)" -ForegroundColor Cyan
+    Write-Ui -Message "Total tests performed: $($Script:TestResults.Count)" -Level "INFO"
     Write-Host ""
-    Write-Host "Select export format:" -ForegroundColor White
+    Write-Ui -Message "Select export format:" -Level "STEP"
     Write-Host ""
-    Write-Host "  [1] Text File (.txt)" -ForegroundColor Yellow
-    Write-Host "  [2] CSV File (.csv)" -ForegroundColor Yellow
-    Write-Host "  [3] HTML Report (.html)" -ForegroundColor Yellow
-    Write-Host "  [0] Cancel" -ForegroundColor Red
+    Write-Ui -Message "  [1] Text File (.txt)" -Level "WARN"
+    Write-Ui -Message "  [2] CSV File (.csv)" -Level "WARN"
+    Write-Ui -Message "  [3] HTML Report (.html)" -Level "WARN"
+    Write-Ui -Message "  [0] Cancel" -Level "ERROR"
     Write-Host ""
     
     $choice = Read-Host "Enter your choice (0-3)"
@@ -812,31 +812,31 @@ function Clear-TestResults {
 function Show-MainMenu {
     Show-SouliTEKHeader -Title "NETWORK TEST TOOL - Professional Edition" -Color Cyan -ClearHost -ShowBanner
     
-    Write-Host "      Coded by: Soulitek.co.il" -ForegroundColor Green
-    Write-Host "      IT Solutions for your business" -ForegroundColor Green
-    Write-Host "      www.soulitek.co.il" -ForegroundColor Green
+    Write-Ui -Message "      Coded by: Soulitek.co.il" -Level "OK"
+    Write-Ui -Message "      IT Solutions for your business" -Level "OK"
+    Write-Ui -Message "      www.soulitek.co.il" -Level "OK"
     Write-Host ""
-    Write-Host "      (C) 2025 Soulitek - All Rights Reserved" -ForegroundColor DarkGray
+    Write-Ui -Message "      (C) 2025 Soulitek - All Rights Reserved" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     
     if ($Script:TestResults.Count -gt 0) {
-        Write-Host "  Tests performed: $($Script:TestResults.Count)" -ForegroundColor Yellow
+        Write-Ui -Message "  Tests performed: $($Script:TestResults.Count)" -Level "WARN"
         Write-Host ""
     }
     
-    Write-Host "Select an option:" -ForegroundColor White
+    Write-Ui -Message "Select an option:" -Level "STEP"
     Write-Host ""
-    Write-Host "  [1] Ping Test            - Test connectivity to target" -ForegroundColor Yellow
-    Write-Host "  [2] Trace Route          - Trace network path" -ForegroundColor Yellow
-    Write-Host "  [3] DNS Lookup           - Resolve domain to IP" -ForegroundColor Yellow
-    Write-Host "  [4] Latency Test         - Monitor latency in real-time" -ForegroundColor Yellow
-    Write-Host "  [5] Quick Diagnostics    - Run all basic tests" -ForegroundColor Yellow
-    Write-Host "  [6] Export Results       - Save test results to file" -ForegroundColor Cyan
-    Write-Host "  [7] Clear Results        - Clear test history" -ForegroundColor Magenta
-    Write-Host "  [8] Help                 - Usage guide" -ForegroundColor White
-    Write-Host "  [0] Exit" -ForegroundColor Red
+    Write-Ui -Message "  [1] Ping Test            - Test connectivity to target" -Level "WARN"
+    Write-Ui -Message "  [2] Trace Route          - Trace network path" -Level "WARN"
+    Write-Ui -Message "  [3] DNS Lookup           - Resolve domain to IP" -Level "WARN"
+    Write-Ui -Message "  [4] Latency Test         - Monitor latency in real-time" -Level "WARN"
+    Write-Ui -Message "  [5] Quick Diagnostics    - Run all basic tests" -Level "WARN"
+    Write-Ui -Message "  [6] Export Results       - Save test results to file" -Level "INFO"
+    Write-Ui -Message "  [7] Clear Results        - Clear test history" -Level "INFO"
+    Write-Ui -Message "  [8] Help                 - Usage guide" -Level "STEP"
+    Write-Ui -Message "  [0] Exit" -Level "ERROR"
     Write-Host ""
     Write-Host "========================================" -ForegroundColor DarkGray
     
@@ -847,88 +847,88 @@ function Show-MainMenu {
 function Show-Help {
     Show-SouliTEKHeader -Title "HELP GUIDE" -Color Cyan -ClearHost -ShowBanner
     
-    Write-Host "NETWORK TEST TOOL - USAGE GUIDE" -ForegroundColor Yellow
+    Write-Ui -Message "NETWORK TEST TOOL - USAGE GUIDE" -Level "WARN"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "[1] PING TEST" -ForegroundColor White
-    Write-Host "    Test basic connectivity to a host" -ForegroundColor Gray
-    Write-Host "    Use: Check if a server/website is reachable" -ForegroundColor Gray
-    Write-Host "    Example targets: google.com, 8.8.8.8, 192.168.1.1" -ForegroundColor Gray
+    Write-Ui -Message "[1] PING TEST" -Level "STEP"
+    Write-Ui -Message "    Test basic connectivity to a host" -Level "INFO"
+    Write-Ui -Message "    Use: Check if a server/website is reachable" -Level "INFO"
+    Write-Ui -Message "    Example targets: google.com, 8.8.8.8, 192.168.1.1" -Level "INFO"
     Write-Host ""
-    Write-Host "[2] TRACE ROUTE" -ForegroundColor White
-    Write-Host "    Show the path packets take to reach destination" -ForegroundColor Gray
-    Write-Host "    Use: Identify where network issues occur" -ForegroundColor Gray
-    Write-Host "    Note: Can take 30-60 seconds to complete" -ForegroundColor Gray
+    Write-Ui -Message "[2] TRACE ROUTE" -Level "STEP"
+    Write-Ui -Message "    Show the path packets take to reach destination" -Level "INFO"
+    Write-Ui -Message "    Use: Identify where network issues occur" -Level "INFO"
+    Write-Ui -Message "    Note: Can take 30-60 seconds to complete" -Level "INFO"
     Write-Host ""
-    Write-Host "[3] DNS LOOKUP" -ForegroundColor White
-    Write-Host "    Resolve domain names to IP addresses" -ForegroundColor Gray
-    Write-Host "    Use: Check DNS resolution and find server IPs" -ForegroundColor Gray
-    Write-Host "    Shows: A records, AAAA records, CNAME records" -ForegroundColor Gray
+    Write-Ui -Message "[3] DNS LOOKUP" -Level "STEP"
+    Write-Ui -Message "    Resolve domain names to IP addresses" -Level "INFO"
+    Write-Ui -Message "    Use: Check DNS resolution and find server IPs" -Level "INFO"
+    Write-Ui -Message "    Shows: A records, AAAA records, CNAME records" -Level "INFO"
     Write-Host ""
-    Write-Host "[4] LATENCY TEST" -ForegroundColor White
-    Write-Host "    Monitor network latency continuously" -ForegroundColor Gray
-    Write-Host "    Use: Check connection stability and jitter" -ForegroundColor Gray
-    Write-Host "    Shows: Real-time latency, jitter, packet loss" -ForegroundColor Gray
+    Write-Ui -Message "[4] LATENCY TEST" -Level "STEP"
+    Write-Ui -Message "    Monitor network latency continuously" -Level "INFO"
+    Write-Ui -Message "    Use: Check connection stability and jitter" -Level "INFO"
+    Write-Ui -Message "    Shows: Real-time latency, jitter, packet loss" -Level "INFO"
     Write-Host ""
-    Write-Host "[5] QUICK DIAGNOSTICS" -ForegroundColor White
-    Write-Host "    Run all basic network tests automatically" -ForegroundColor Gray
-    Write-Host "    Use: Quick check of overall network health" -ForegroundColor Gray
-    Write-Host "    Tests: Local network, Internet, DNS, Adapters" -ForegroundColor Gray
+    Write-Ui -Message "[5] QUICK DIAGNOSTICS" -Level "STEP"
+    Write-Ui -Message "    Run all basic network tests automatically" -Level "INFO"
+    Write-Ui -Message "    Use: Quick check of overall network health" -Level "INFO"
+    Write-Ui -Message "    Tests: Local network, Internet, DNS, Adapters" -Level "INFO"
     Write-Host ""
-    Write-Host "[6] EXPORT RESULTS" -ForegroundColor White
-    Write-Host "    Save test results to file" -ForegroundColor Gray
-    Write-Host "    Formats: Text (.txt), CSV (.csv), HTML (.html)" -ForegroundColor Gray
-    Write-Host "    Use: Share results with IT support or for records" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "INTERPRETING RESULTS:" -ForegroundColor Yellow
-    Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "Latency (Ping Time):" -ForegroundColor White
-    Write-Host "  < 50ms   = Excellent (Green)" -ForegroundColor Green
-    Write-Host "  50-100ms = Good (Yellow)" -ForegroundColor Yellow
-    Write-Host "  > 100ms  = Fair/Poor (Red)" -ForegroundColor Red
-    Write-Host ""
-    Write-Host "Packet Loss:" -ForegroundColor White
-    Write-Host "  0%       = Perfect" -ForegroundColor Green
-    Write-Host "  < 1%     = Acceptable" -ForegroundColor Yellow
-    Write-Host "  > 5%     = Problematic" -ForegroundColor Red
-    Write-Host ""
-    Write-Host "Jitter (Latency variation):" -ForegroundColor White
-    Write-Host "  < 10ms   = Stable" -ForegroundColor Green
-    Write-Host "  10-30ms  = Moderate" -ForegroundColor Yellow
-    Write-Host "  > 30ms   = Unstable" -ForegroundColor Red
+    Write-Ui -Message "[6] EXPORT RESULTS" -Level "STEP"
+    Write-Ui -Message "    Save test results to file" -Level "INFO"
+    Write-Ui -Message "    Formats: Text (.txt), CSV (.csv), HTML (.html)" -Level "INFO"
+    Write-Ui -Message "    Use: Share results with IT support or for records" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "COMMON ISSUES:" -ForegroundColor Yellow
+    Write-Ui -Message "INTERPRETING RESULTS:" -Level "WARN"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "Timeout/Request failed:" -ForegroundColor Red
-    Write-Host "  - Target is offline or unreachable" -ForegroundColor Gray
-    Write-Host "  - Firewall blocking ICMP packets" -ForegroundColor Gray
-    Write-Host "  - Network cable unplugged" -ForegroundColor Gray
-    Write-Host "  - Wrong IP address/hostname" -ForegroundColor Gray
+    Write-Ui -Message "Latency (Ping Time):" -Level "STEP"
+    Write-Ui -Message "  < 50ms   = Excellent (Green)" -Level "OK"
+    Write-Ui -Message "  50-100ms = Good (Yellow)" -Level "WARN"
+    Write-Ui -Message "  > 100ms  = Fair/Poor (Red)" -Level "ERROR"
     Write-Host ""
-    Write-Host "High latency:" -ForegroundColor Red
-    Write-Host "  - Network congestion" -ForegroundColor Gray
-    Write-Host "  - Distance to server" -ForegroundColor Gray
-    Write-Host "  - WiFi interference" -ForegroundColor Gray
-    Write-Host "  - ISP throttling" -ForegroundColor Gray
+    Write-Ui -Message "Packet Loss:" -Level "STEP"
+    Write-Ui -Message "  0%       = Perfect" -Level "OK"
+    Write-Ui -Message "  < 1%     = Acceptable" -Level "WARN"
+    Write-Ui -Message "  > 5%     = Problematic" -Level "ERROR"
     Write-Host ""
-    Write-Host "DNS lookup failed:" -ForegroundColor Red
-    Write-Host "  - Domain doesn't exist" -ForegroundColor Gray
-    Write-Host "  - DNS server not responding" -ForegroundColor Gray
-    Write-Host "  - DNS cache issues" -ForegroundColor Gray
+    Write-Ui -Message "Jitter (Latency variation):" -Level "STEP"
+    Write-Ui -Message "  < 10ms   = Stable" -Level "OK"
+    Write-Ui -Message "  10-30ms  = Moderate" -Level "WARN"
+    Write-Ui -Message "  > 30ms   = Unstable" -Level "ERROR"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "TIPS:" -ForegroundColor Yellow
+    Write-Ui -Message "COMMON ISSUES:" -Level "WARN"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "- Test to multiple targets to isolate issues" -ForegroundColor Gray
-    Write-Host "- Export results before closing the tool" -ForegroundColor Gray
-    Write-Host "- Run latency test during peak hours" -ForegroundColor Gray
-    Write-Host "- Use trace route to find where delays occur" -ForegroundColor Gray
-    Write-Host "- Compare WiFi vs Ethernet results" -ForegroundColor Gray
+    Write-Ui -Message "Timeout/Request failed:" -Level "ERROR"
+    Write-Ui -Message "  - Target is offline or unreachable" -Level "INFO"
+    Write-Ui -Message "  - Firewall blocking ICMP packets" -Level "INFO"
+    Write-Ui -Message "  - Network cable unplugged" -Level "INFO"
+    Write-Ui -Message "  - Wrong IP address/hostname" -Level "INFO"
+    Write-Host ""
+    Write-Ui -Message "High latency:" -Level "ERROR"
+    Write-Ui -Message "  - Network congestion" -Level "INFO"
+    Write-Ui -Message "  - Distance to server" -Level "INFO"
+    Write-Ui -Message "  - WiFi interference" -Level "INFO"
+    Write-Ui -Message "  - ISP throttling" -Level "INFO"
+    Write-Host ""
+    Write-Ui -Message "DNS lookup failed:" -Level "ERROR"
+    Write-Ui -Message "  - Domain doesn't exist" -Level "INFO"
+    Write-Ui -Message "  - DNS server not responding" -Level "INFO"
+    Write-Ui -Message "  - DNS cache issues" -Level "INFO"
+    Write-Host ""
+    Write-Host "============================================================" -ForegroundColor Cyan
+    Write-Ui -Message "TIPS:" -Level "WARN"
+    Write-Host "============================================================" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Ui -Message "- Test to multiple targets to isolate issues" -Level "INFO"
+    Write-Ui -Message "- Export results before closing the tool" -Level "INFO"
+    Write-Ui -Message "- Run latency test during peak hours" -Level "INFO"
+    Write-Ui -Message "- Use trace route to find where delays occur" -Level "INFO"
+    Write-Ui -Message "- Compare WiFi vs Ethernet results" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""

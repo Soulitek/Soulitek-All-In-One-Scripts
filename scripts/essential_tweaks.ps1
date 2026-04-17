@@ -86,20 +86,20 @@ function Add-TweakResult {
 function Show-Menu {
     Show-SouliTEKHeader -Title "ESSENTIAL TWEAKS" -ClearHost -ShowBanner
     
-    Write-Host "  Select an option:" -ForegroundColor Yellow
+    Write-Ui -Message "  Select an option:" -Level "WARN"
     Write-Host ""
-    Write-Host "  [1]  Set Google Chrome as default browser" -ForegroundColor Cyan
-    Write-Host "  [2]  Set Adobe Acrobat Reader as default PDF app" -ForegroundColor Cyan
-    Write-Host "  [3]  Add Hebrew keyboard" -ForegroundColor Cyan
-    Write-Host "  [4]  Add English (US) keyboard" -ForegroundColor Cyan
-    Write-Host "  [5]  Set Hebrew as main display language" -ForegroundColor Cyan
-    Write-Host "  [6]  Disable Start Menu ads & suggestions" -ForegroundColor Cyan
-    Write-Host "  [7]  Pin Google Chrome to Taskbar" -ForegroundColor Cyan
-    Write-Host "  [8]  Enable 'End Task' option in Taskbar" -ForegroundColor Cyan
-    Write-Host "  [9]  Disable Microsoft Copilot in Taskbar" -ForegroundColor Cyan
-    Write-Host "  [10] Create a System Restore Point" -ForegroundColor Cyan
-    Write-Host "  [11] Apply All Tweaks" -ForegroundColor Green
-    Write-Host "  [0]  Exit" -ForegroundColor Red
+    Write-Ui -Message "  [1]  Set Google Chrome as default browser" -Level "INFO"
+    Write-Ui -Message "  [2]  Set Adobe Acrobat Reader as default PDF app" -Level "INFO"
+    Write-Ui -Message "  [3]  Add Hebrew keyboard" -Level "INFO"
+    Write-Ui -Message "  [4]  Add English (US) keyboard" -Level "INFO"
+    Write-Ui -Message "  [5]  Set Hebrew as main display language" -Level "INFO"
+    Write-Ui -Message "  [6]  Disable Start Menu ads & suggestions" -Level "INFO"
+    Write-Ui -Message "  [7]  Pin Google Chrome to Taskbar" -Level "INFO"
+    Write-Ui -Message "  [8]  Enable 'End Task' option in Taskbar" -Level "INFO"
+    Write-Ui -Message "  [9]  Disable Microsoft Copilot in Taskbar" -Level "INFO"
+    Write-Ui -Message "  [10] Create a System Restore Point" -Level "INFO"
+    Write-Ui -Message "  [11] Apply All Tweaks" -Level "OK"
+    Write-Ui -Message "  [0]  Exit" -Level "ERROR"
     Write-Host ""
     Write-Host -NoNewline "  Enter your choice: " -ForegroundColor Cyan
 }
@@ -174,7 +174,7 @@ function Set-AcrobatAsDefaultPDF {
         
         if (-not $acrobatFound) {
             Write-Ui -Message "Adobe Acrobat Reader not found in common installation paths"
-            Write-Host "  Please install Acrobat Reader first, or manually set it as default PDF app" -ForegroundColor Yellow
+            Write-Ui -Message "  Please install Acrobat Reader first, or manually set it as default PDF app" -Level "WARN"
             Add-TweakResult -TweakName "Set Acrobat as Default PDF" -Status "ERROR" -Details "Acrobat not found"
             Start-Sleep -Seconds 3
             return $false
@@ -184,8 +184,8 @@ function Set-AcrobatAsDefaultPDF {
         Start-Process "ms-settings:defaultapps" -ErrorAction Stop
         
         Write-Ui -Message "Windows Settings opened"
-        Write-Host "  Please select Adobe Acrobat Reader as your default PDF app in the settings window" -ForegroundColor Yellow
-        Write-Host "  This requires manual confirmation due to Windows security requirements" -ForegroundColor Gray
+        Write-Ui -Message "  Please select Adobe Acrobat Reader as your default PDF app in the settings window" -Level "WARN"
+        Write-Ui -Message "  This requires manual confirmation due to Windows security requirements" -Level "INFO"
         
         Add-TweakResult -TweakName "Set Acrobat as Default PDF" -Status "SUCCESS" -Details "Settings opened - manual confirmation required"
         
@@ -253,7 +253,7 @@ function Add-EnglishKeyboard {
         Set-WinUserLanguageList $languageList -Force -ErrorAction Stop
         
         Write-Ui -Message "English (US) keyboard added successfully"
-        Write-Host "  You can switch keyboards using Windows key + Space" -ForegroundColor Gray
+        Write-Ui -Message "  You can switch keyboards using Windows key + Space" -Level "INFO"
         
         Add-TweakResult -TweakName "Add English (US) Keyboard" -Status "SUCCESS" -Details "English (en-US) added"
         
@@ -298,8 +298,8 @@ function Set-HebrewAsDisplayLanguage {
         Set-WinUserLanguageList $languageList -Force -ErrorAction Stop
         
         Write-Ui -Message "Hebrew set as main display language"
-        Write-Host "  NOTE: You may need to sign out and back in for changes to take full effect" -ForegroundColor Yellow
-        Write-Host "  Windows may need to download the Hebrew language pack" -ForegroundColor Gray
+        Write-Ui -Message "  NOTE: You may need to sign out and back in for changes to take full effect" -Level "WARN"
+        Write-Ui -Message "  Windows may need to download the Hebrew language pack" -Level "INFO"
         
         Add-TweakResult -TweakName "Set Hebrew as Display Language" -Status "SUCCESS" -Details "Hebrew set as primary - sign out required"
         
@@ -340,7 +340,7 @@ function Disable-StartMenuAds {
         }
         
         Write-Ui -Message "Start Menu ads and suggestions disabled"
-        Write-Host "  You may need to restart Explorer or sign out for changes to take effect" -ForegroundColor Gray
+        Write-Ui -Message "  You may need to restart Explorer or sign out for changes to take effect" -Level "INFO"
         
         Add-TweakResult -TweakName "Disable Start Menu Ads" -Status "SUCCESS" -Details "All ad settings disabled"
         
@@ -376,7 +376,7 @@ function Pin-ChromeToTaskbar {
         
         if (-not $chromePath) {
             Write-Ui -Message "Google Chrome not found"
-            Write-Host "  Please install Chrome first" -ForegroundColor Yellow
+            Write-Ui -Message "  Please install Chrome first" -Level "WARN"
             Add-TweakResult -TweakName "Pin Chrome to Taskbar" -Status "ERROR" -Details "Chrome not found"
             Start-Sleep -Seconds 3
             return $false
@@ -418,8 +418,8 @@ function Enable-TaskbarEndTask {
         Set-ItemProperty -Path $regPath -Name "TaskbarEndTask" -Value 1 -Type DWord -ErrorAction Stop
         
         Write-Ui -Message "'End Task' option enabled in taskbar"
-        Write-Host "  Right-click on taskbar icons to see 'End Task' option" -ForegroundColor Gray
-        Write-Host "  You may need to restart Explorer for changes to take effect" -ForegroundColor Yellow
+        Write-Ui -Message "  Right-click on taskbar icons to see 'End Task' option" -Level "INFO"
+        Write-Ui -Message "  You may need to restart Explorer for changes to take effect" -Level "WARN"
         
         Add-TweakResult -TweakName "Enable End Task in Taskbar" -Status "SUCCESS" -Details "End Task enabled"
         
@@ -462,8 +462,8 @@ function Disable-Copilot {
         Set-ItemProperty -Path $explorerPath -Name "ShowCopilotButton" -Value 0 -Type DWord -ErrorAction Stop
         
         Write-Ui -Message "Microsoft Copilot disabled"
-        Write-Host "  You may need to restart Explorer or sign out for changes to take effect" -ForegroundColor Yellow
-        Write-Host "  Restart Explorer: Stop-Process -Name explorer -Force" -ForegroundColor Gray
+        Write-Ui -Message "  You may need to restart Explorer or sign out for changes to take effect" -Level "WARN"
+        Write-Ui -Message "  Restart Explorer: Stop-Process -Name explorer -Force" -Level "INFO"
         
         Add-TweakResult -TweakName "Disable Microsoft Copilot" -Status "SUCCESS" -Details "Copilot disabled via registry"
         
@@ -487,7 +487,7 @@ function New-SystemRestorePoint {
         
         if (-not $restoreEnabled) {
             Write-Ui -Message "System Restore may not be enabled"
-            Write-Host "  Attempting to enable System Restore..." -ForegroundColor Yellow
+            Write-Ui -Message "  Attempting to enable System Restore..." -Level "WARN"
             
             $enableResult = Enable-ComputerRestore -Drive "$systemDrive\" -ErrorAction SilentlyContinue
             if (-not $?) {
@@ -498,7 +498,7 @@ function New-SystemRestorePoint {
         }
         
         $description = "Essential Tweaks - Before Changes ($(Get-Date -Format 'yyyy-MM-dd HH:mm'))"
-        Write-Host "  Creating restore point: $description" -ForegroundColor Cyan
+        Write-Ui -Message "  Creating restore point: $description" -Level "INFO"
         
         Checkpoint-Computer -Description $description -RestorePointType "MODIFY_SETTINGS" -ErrorAction Stop
         
@@ -512,7 +512,7 @@ function New-SystemRestorePoint {
         Add-TweakResult -TweakName "Create System Restore Point" -Status "ERROR" -Details $_.Exception.Message
         
         Write-Host ""
-        Write-Host "  Continuing anyway... (This is not critical)" -ForegroundColor Yellow
+        Write-Ui -Message "  Continuing anyway... (This is not critical)" -Level "WARN"
         
         Start-Sleep -Seconds 3
         return $false
@@ -522,16 +522,16 @@ function New-SystemRestorePoint {
 function Show-Summary {
     Show-SouliTEKHeader -Title "TWEAKS SUMMARY" -ClearHost -ShowBanner
     
-    Write-Host "  Results Summary:" -ForegroundColor Yellow
+    Write-Ui -Message "  Results Summary:" -Level "WARN"
     Write-Host ""
     Write-Host "  Successful: " -NoNewline -ForegroundColor Gray
-    Write-Host "$Script:SuccessCount tweak(s)" -ForegroundColor Green
+    Write-Ui -Message "$Script:SuccessCount tweak(s)" -Level "OK"
     
     Write-Host "  Errors: " -NoNewline -ForegroundColor Gray
-    Write-Host "$Script:ErrorCount tweak(s)" -ForegroundColor Red
+    Write-Ui -Message "$Script:ErrorCount tweak(s)" -Level "ERROR"
     
     Write-Host ""
-    Write-Host "  Detailed Results:" -ForegroundColor Yellow
+    Write-Ui -Message "  Detailed Results:" -Level "WARN"
     Write-Host ""
     
     foreach ($result in $Script:TweakResults) {
@@ -549,10 +549,10 @@ function Show-Summary {
         
         Write-Host "  [$($result.Time)] " -NoNewline -ForegroundColor Gray
         Write-Host "$statusSymbol " -NoNewline -ForegroundColor $statusColor
-        Write-Host "$($result.Tweak)" -ForegroundColor White
+        Write-Ui -Message "$($result.Tweak)" -Level "STEP"
         
         if ($result.Details) {
-            Write-Host "      -> $($result.Details)" -ForegroundColor Gray
+            Write-Ui -Message "      -> $($result.Details)" -Level "INFO"
         }
     }
     
@@ -562,13 +562,13 @@ function Show-Summary {
 function Apply-AllTweaks {
     Show-SouliTEKHeader -Title "APPLY ALL TWEAKS" -ClearHost -ShowBanner
     
-    Write-Host "  This will apply all available tweaks in sequence." -ForegroundColor Yellow
-    Write-Host "  Some tweaks may require manual confirmation or system restart." -ForegroundColor Yellow
+    Write-Ui -Message "  This will apply all available tweaks in sequence." -Level "WARN"
+    Write-Ui -Message "  Some tweaks may require manual confirmation or system restart." -Level "WARN"
     Write-Host ""
-    Write-Host "  Do you want to proceed?" -ForegroundColor White
+    Write-Ui -Message "  Do you want to proceed?" -Level "STEP"
     Write-Host ""
-    Write-Host "  [Y] Yes - Apply all tweaks" -ForegroundColor Green
-    Write-Host "  [N] No  - Cancel" -ForegroundColor Red
+    Write-Ui -Message "  [Y] Yes - Apply all tweaks" -Level "OK"
+    Write-Ui -Message "  [N] No  - Cancel" -Level "ERROR"
     Write-Host ""
     Write-Host -NoNewline "  Enter your choice: " -ForegroundColor Cyan
     
@@ -579,7 +579,7 @@ function Apply-AllTweaks {
     }
     
     Write-Host ""
-    Write-Host "  Applying all tweaks..." -ForegroundColor Cyan
+    Write-Ui -Message "  Applying all tweaks..." -Level "INFO"
     Write-Host ""
     Start-Sleep -Seconds 2
     
@@ -598,7 +598,7 @@ function Apply-AllTweaks {
     Show-Summary
     
     Write-Host ""
-    Write-Host "  All tweaks have been applied!" -ForegroundColor Green
+    Write-Ui -Message "  All tweaks have been applied!" -Level "OK"
     Write-Host ""
 }
 
@@ -636,13 +636,13 @@ function Start-EssentialTweaks {
             "11" { Apply-AllTweaks }
             "0" {
                 Write-Host ""
-                Write-Host "  Exiting..." -ForegroundColor Yellow
+                Write-Ui -Message "  Exiting..." -Level "WARN"
                 Write-Host ""
                 exit 0
             }
             default {
                 Write-Host ""
-                Write-Host "  Invalid choice. Please try again." -ForegroundColor Red
+                Write-Ui -Message "  Invalid choice. Please try again." -Level "ERROR"
                 Start-Sleep -Seconds 2
             }
         }

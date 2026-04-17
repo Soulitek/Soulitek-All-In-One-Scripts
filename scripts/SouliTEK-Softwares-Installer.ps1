@@ -66,17 +66,17 @@ $Script:PackageCatalog = @(
 
 function Write-Banner {
     Write-Host ""
-    Write-Host "  =========================================================" -ForegroundColor Cyan
+    Write-Ui -Message "  =========================================================" -Level "INFO"
     Write-Host "   _____ ____  _    _ _      _____ _______ ______ _  __" -ForegroundColor Cyan
     Write-Host "  / ____/ __ \| |  | | |    |_   _|__   __|  ____| |/ /" -ForegroundColor Cyan
     Write-Host " | (___| |  | | |  | | |      | |    | |  | |__  | ' /" -ForegroundColor Cyan
     Write-Host "  \___ \ |  | | |  | | |      | |    | |  |  __| |  <" -ForegroundColor Cyan
     Write-Host "  ____) | |__| | |__| | |____ _| |_   | |  | |____| . \" -ForegroundColor Cyan
     Write-Host " |_____/ \____/ \____/|______|_____|  |_|  |______|_|\_\" -ForegroundColor Cyan
-    Write-Host "  =========================================================" -ForegroundColor Cyan
+    Write-Ui -Message "  =========================================================" -Level "INFO"
     Write-Host ""
-    Write-Host "  Softwares Installer" -ForegroundColor White
-    Write-Host "  =========================================================" -ForegroundColor DarkGray
+    Write-Ui -Message "  Softwares Installer" -Level "STEP"
+    Write-Ui -Message "  =========================================================" -Level "INFO"
     Write-Host ""
 }
 
@@ -85,8 +85,8 @@ function Ensure-Admin {
     $isAdmin = $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
     
     if (-not $isAdmin) {
-        Write-Host "[!] Administrator privileges required" -ForegroundColor Yellow
-        Write-Host "[*] Relaunching with elevation..." -ForegroundColor Cyan
+        Write-Ui -Message "[!] Administrator privileges required" -Level "WARN"
+        Write-Ui -Message "[*] Relaunching with elevation..." -Level "INFO"
         
         $argList = @()
         $argList += "-NoProfile"
@@ -104,53 +104,53 @@ function Set-ExecutionPolicyIfNeeded {
     try {
         $currentPolicy = Get-ExecutionPolicy -Scope Process
         if ($currentPolicy -eq 'Restricted' -or $currentPolicy -eq 'AllSigned') {
-            Write-Host "[*] Setting execution policy for process scope..." -ForegroundColor Cyan
+            Write-Ui -Message "[*] Setting execution policy for process scope..." -Level "INFO"
             Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force -ErrorAction SilentlyContinue
         }
     }
     catch {
-        Write-Host "[!] Warning: Could not set execution policy: $_" -ForegroundColor Yellow
+        Write-Ui -Message "[!] Warning: Could not set execution policy: $_" -Level "WARN"
     }
 }
 
 function Ensure-WinGet {
-    Write-Host "[*] Checking WinGet installation..." -ForegroundColor Cyan
+    Write-Ui -Message "[*] Checking WinGet installation..." -Level "INFO"
     
     $wingetCmd = Get-Command winget.exe -ErrorAction SilentlyContinue
     if ($wingetCmd) {
         try {
             $versionOutput = winget --version 2>$null
             $Script:WinGetVersion = $versionOutput -replace '[^0-9.]', ''
-            Write-Host "[+] WinGet $Script:WinGetVersion found" -ForegroundColor Green
+            Write-Ui -Message "[+] WinGet $Script:WinGetVersion found" -Level "OK"
             return $true
         }
         catch {
-            Write-Host "[!] WinGet found but version check failed" -ForegroundColor Yellow
+            Write-Ui -Message "[!] WinGet found but version check failed" -Level "WARN"
             $Script:WinGetVersion = "Unknown"
             return $true
         }
     }
     
-    Write-Host "[!] WinGet not found. Installing..." -ForegroundColor Yellow
-    Write-Host "[*] Attempting to install Microsoft.WinGet.Client module..." -ForegroundColor Cyan
+    Write-Ui -Message "[!] WinGet not found. Installing..." -Level "WARN"
+    Write-Ui -Message "[*] Attempting to install Microsoft.WinGet.Client module..." -Level "INFO"
     
     try {
         # Check if NuGet provider is installed
         $nuget = Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue
         if (-not $nuget) {
-            Write-Host "[*] Installing NuGet provider..." -ForegroundColor Cyan
+            Write-Ui -Message "[*] Installing NuGet provider..." -Level "INFO"
             Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser | Out-Null
         }
         
         # Set PSGallery as trusted temporarily
         $psGallery = Get-PSRepository -Name PSGallery -ErrorAction SilentlyContinue
         if ($psGallery -and $psGallery.InstallationPolicy -ne 'Trusted') {
-            Write-Host "[*] Setting PSGallery as trusted..." -ForegroundColor Cyan
+            Write-Ui -Message "[*] Setting PSGallery as trusted..." -Level "INFO"
             Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
         }
         
         # Install WinGet module
-        Write-Host "[*] Installing Microsoft.WinGet.Client module..." -ForegroundColor Cyan
+        Write-Ui -Message "[*] Installing Microsoft.WinGet.Client module..." -Level "INFO"
         Install-Module -Name Microsoft.WinGet.Client -Force -Scope CurrentUser -ErrorAction Stop
         
         # Import the module
@@ -164,19 +164,19 @@ function Ensure-WinGet {
         if ($wingetCmd) {
             $versionOutput = winget --version 2>$null
             $Script:WinGetVersion = $versionOutput -replace '[^0-9.]', ''
-            Write-Host "[+] WinGet $Script:WinGetVersion installed successfully" -ForegroundColor Green
+            Write-Ui -Message "[+] WinGet $Script:WinGetVersion installed successfully" -Level "OK"
             return $true
         }
         else {
-            Write-Host "[X] WinGet installation failed. Please install manually." -ForegroundColor Red
+            Write-Ui -Message "[X] WinGet installation failed. Please install manually." -Level "ERROR"
             Write-Host "    Visit: https://apps.microsoft.com/detail/9NBLGGH4NNS1" -ForegroundColor Yellow
-            Write-Host "    Or use: winget install Microsoft.AppInstaller" -ForegroundColor Yellow
+            Write-Ui -Message "    Or use: winget install Microsoft.AppInstaller" -Level "WARN"
             return $false
         }
     }
     catch {
-        Write-Host "[X] Error installing WinGet: $_" -ForegroundColor Red
-        Write-Host "    Please install App Installer from Microsoft Store" -ForegroundColor Yellow
+        Write-Ui -Message "[X] Error installing WinGet: $_" -Level "ERROR"
+        Write-Ui -Message "    Please install App Installer from Microsoft Store" -Level "WARN"
         Write-Host "    Visit: https://apps.microsoft.com/detail/9NBLGGH4NNS1" -ForegroundColor Yellow
         return $false
     }
@@ -194,7 +194,7 @@ function Show-Menu {
     
     if ($Script:WinGetVersion) {
         Write-Host "  WinGet Version: " -NoNewline -ForegroundColor Gray
-        Write-Host $Script:WinGetVersion -ForegroundColor Green
+        Write-Ui -Message $Script:WinGetVersion -Level "OK"
         Write-Host ""
     }
     
@@ -203,10 +203,10 @@ function Show-Menu {
     
     Write-Host "  Selected: " -NoNewline -ForegroundColor Gray
     Write-Host "$selectedCount" -NoNewline -ForegroundColor Cyan
-    Write-Host " / $totalCount" -ForegroundColor Gray
+    Write-Ui -Message " / $totalCount" -Level "INFO"
     
     Write-Host ""
-    Write-Host "  ============================================================================" -ForegroundColor DarkGray
+    Write-Ui -Message "  ============================================================================" -Level "INFO"
     Write-Host ""
     
     # Grid layout: 2 columns
@@ -261,30 +261,30 @@ function Show-Menu {
     }
     
     if ($Packages.Count -eq 0) {
-        Write-Host "  No applications available." -ForegroundColor Red
+        Write-Ui -Message "  No applications available." -Level "ERROR"
     }
     
     Write-Host ""
-    Write-Host "  ============================================================================" -ForegroundColor DarkGray
+    Write-Ui -Message "  ============================================================================" -Level "INFO"
     Write-Host ""
     
     # Package details
     if ($CursorPosition -ge 0 -and $CursorPosition -lt $Packages.Count) {
         $currentPkg = $Packages[$CursorPosition]
         Write-Host "  Package: " -NoNewline -ForegroundColor Gray
-        Write-Host $currentPkg.Name -ForegroundColor Cyan
+        Write-Ui -Message $currentPkg.Name -Level "INFO"
         Write-Host "  ID: " -NoNewline -ForegroundColor Gray
-        Write-Host $currentPkg.Id -ForegroundColor White
+        Write-Ui -Message $currentPkg.Id -Level "STEP"
         Write-Host "  Category: " -NoNewline -ForegroundColor Gray
-        Write-Host $currentPkg.Category -ForegroundColor Magenta
+        Write-Ui -Message $currentPkg.Category -Level "INFO"
         Write-Host "  Notes: " -NoNewline -ForegroundColor Gray
-        Write-Host $currentPkg.Notes -ForegroundColor Gray
+        Write-Ui -Message $currentPkg.Notes -Level "INFO"
         Write-Host ""
     }
     
-    Write-Host "  Controls:" -ForegroundColor DarkCyan
-    Write-Host "    [Arrows] Navigate  [Space] Toggle  [A] Select All  [N] Select None" -ForegroundColor Gray
-    Write-Host "    [I] Install  [Q] Quit" -ForegroundColor Gray
+    Write-Ui -Message "  Controls:" -Level "INFO"
+    Write-Ui -Message "    [Arrows] Navigate  [Space] Toggle  [A] Select All  [N] Select None" -Level "INFO"
+    Write-Ui -Message "    [I] Install  [Q] Quit" -Level "INFO"
     Write-Host ""
 }
 
@@ -346,7 +346,7 @@ function Show-InteractiveMenu {
                 $selectedIds = $selected.Keys | Where-Object { $selected[$_] }
                 if ($selectedIds.Count -eq 0) {
                     Show-Menu -Packages $packages -Selected $selected -CursorPosition $cursorPosition
-                    Write-Host "  [!] No packages selected" -ForegroundColor Red
+                    Write-Ui -Message "  [!] No packages selected" -Level "ERROR"
                     Start-Sleep -Seconds 2
                 }
                 else {
@@ -367,7 +367,7 @@ function Load-Preset {
     
     try {
         if (-not (Test-Path $PresetPath)) {
-            Write-Host "[X] Preset file not found: $PresetPath" -ForegroundColor Red
+            Write-Ui -Message "[X] Preset file not found: $PresetPath" -Level "ERROR"
             Start-Sleep -Seconds 2
             return $null
         }
@@ -375,12 +375,12 @@ function Load-Preset {
         $content = Get-Content -Path $PresetPath -Raw -Encoding UTF8
         $packageIds = $content | ConvertFrom-Json
         
-        Write-Host "[+] Loaded preset from: $PresetPath" -ForegroundColor Green
-        Write-Host "[*] Packages: $($packageIds -join ', ')" -ForegroundColor Cyan
+        Write-Ui -Message "[+] Loaded preset from: $PresetPath" -Level "OK"
+        Write-Ui -Message "[*] Packages: $($packageIds -join ', ')" -Level "INFO"
         return $packageIds
     }
     catch {
-        Write-Host "[X] Error loading preset: $_" -ForegroundColor Red
+        Write-Ui -Message "[X] Error loading preset: $_" -Level "ERROR"
         Start-Sleep -Seconds 2
         return $null
     }
@@ -441,7 +441,7 @@ function Test-PackageInstalled {
 }
 
 function Install-Office2024 {
-    Write-Host "             [0%] Starting Office 2024 download..." -ForegroundColor Cyan
+    Write-Ui -Message "             [0%] Starting Office 2024 download..." -Level "INFO"
     
     try {
         $officeUrl = "https://c2rsetup.officeapps.live.com/c2r/download.aspx?ProductreleaseID=ProPlus2024Retail&platform=x64&language=he-il&version=O16GA"
@@ -449,31 +449,36 @@ function Install-Office2024 {
         
         # Download Office installer
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-        Write-Host "             [10%] Connecting to download server..." -ForegroundColor Cyan
-        
-        $webClient = New-Object System.Net.WebClient
-        $webClient.DownloadFile($officeUrl, $installerPath)
-        
-        Write-Host "             [30%] Download complete" -ForegroundColor Cyan
-        
+        Write-Ui -Message "             [10%] Connecting to download server..." -Level "INFO"
+
+        Invoke-WebRequest -Uri $officeUrl -OutFile $installerPath -UseBasicParsing -ErrorAction Stop
+
+        Write-Ui -Message "             [30%] Download complete" -Level "INFO"
+
         if (Test-Path $installerPath) {
-            Write-Host "             [40%] Preparing installation..." -ForegroundColor Cyan
-            Write-Host "             [50%] Installing Office 2024 (this may take 10-15 minutes)..." -ForegroundColor Cyan
+            $officeSig = Get-AuthenticodeSignature -FilePath $installerPath
+            if ($officeSig.Status -ne "Valid") {
+                Write-Ui -Message "Office installer signature invalid ($($officeSig.Status)). Aborting." -Level "ERROR"
+                Remove-Item -Path $installerPath -Force -ErrorAction SilentlyContinue
+                return @{ Success = $false; ExitCode = -1; Message = "Signature verification failed" }
+            }
+            Write-Ui -Message "             [40%] Preparing installation..." -Level "INFO"
+            Write-Ui -Message "             [50%] Installing Office 2024 (this may take 10-15 minutes)..." -Level "INFO"
             
             # Run the installer
             $process = Start-Process -FilePath $installerPath -ArgumentList "/configure" -Wait -PassThru -NoNewWindow
             
-            Write-Host "             [90%] Cleaning up..." -ForegroundColor Cyan
+            Write-Ui -Message "             [90%] Cleaning up..." -Level "INFO"
             # Clean up
             Remove-Item -Path $installerPath -Force -ErrorAction SilentlyContinue
             
-            Write-Host "             [100%] Installation process complete" -ForegroundColor Cyan
+            Write-Ui -Message "             [100%] Installation process complete" -Level "INFO"
             
             if ($process.ExitCode -eq 0 -or $process.ExitCode -eq 3010) {
-                Write-Host "             [OK] Office 2024 installed successfully" -ForegroundColor Green
+                Write-Ui -Message "             [OK] Office 2024 installed successfully" -Level "OK"
                 if ($process.ExitCode -eq 3010) {
                     $Script:RebootRequired = $true
-                    Write-Host "             [!] Reboot required" -ForegroundColor Yellow
+                    Write-Ui -Message "             [!] Reboot required" -Level "WARN"
                 }
                 return @{
                     Success = $true
@@ -482,7 +487,7 @@ function Install-Office2024 {
                 }
             }
             else {
-                Write-Host "             [FAIL] Office installation failed (Exit: $($process.ExitCode))" -ForegroundColor Red
+                Write-Ui -Message "             [FAIL] Office installation failed (Exit: $($process.ExitCode))" -Level "ERROR"
                 return @{
                     Success = $false
                     ExitCode = $process.ExitCode
@@ -491,7 +496,7 @@ function Install-Office2024 {
             }
         }
         else {
-            Write-Host "             [FAIL] Failed to download Office installer" -ForegroundColor Red
+            Write-Ui -Message "             [FAIL] Failed to download Office installer" -Level "ERROR"
             return @{
                 Success = $false
                 ExitCode = -1
@@ -500,7 +505,7 @@ function Install-Office2024 {
         }
     }
     catch {
-        Write-Host "             [ERROR] $_" -ForegroundColor Red
+        Write-Ui -Message "             [ERROR] $_" -Level "ERROR"
         return @{
             Success = $false
             ExitCode = -1
@@ -510,7 +515,7 @@ function Install-Office2024 {
 }
 
 function Install-ESETConnector {
-    Write-Host "             [0%] Starting ESET Connector download..." -ForegroundColor Cyan
+    Write-Ui -Message "             [0%] Starting ESET Connector download..." -Level "INFO"
     
     try {
         $esetUrl = "https://download.eset.com/com/eset/apps/business/eei/agent/latest/ei_connector_nt64.msi"
@@ -518,31 +523,36 @@ function Install-ESETConnector {
         
         # Download ESET Connector MSI
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-        Write-Host "             [10%] Connecting to download server..." -ForegroundColor Cyan
-        
-        $webClient = New-Object System.Net.WebClient
-        $webClient.DownloadFile($esetUrl, $installerPath)
-        
-        Write-Host "             [30%] Download complete" -ForegroundColor Cyan
-        
+        Write-Ui -Message "             [10%] Connecting to download server..." -Level "INFO"
+
+        Invoke-WebRequest -Uri $esetUrl -OutFile $installerPath -UseBasicParsing -ErrorAction Stop
+
+        Write-Ui -Message "             [30%] Download complete" -Level "INFO"
+
         if (Test-Path $installerPath) {
-            Write-Host "             [40%] Preparing installation..." -ForegroundColor Cyan
-            Write-Host "             [50%] Installing ESET Connector (this may take a few minutes)..." -ForegroundColor Cyan
+            $esetSig = Get-AuthenticodeSignature -FilePath $installerPath
+            if ($esetSig.Status -ne "Valid") {
+                Write-Ui -Message "ESET installer signature invalid ($($esetSig.Status)). Aborting." -Level "ERROR"
+                Remove-Item -Path $installerPath -Force -ErrorAction SilentlyContinue
+                return @{ Success = $false; ExitCode = -1; Message = "Signature verification failed" }
+            }
+            Write-Ui -Message "             [40%] Preparing installation..." -Level "INFO"
+            Write-Ui -Message "             [50%] Installing ESET Connector (this may take a few minutes)..." -Level "INFO"
             
             # Run the MSI installer silently
             $process = Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$installerPath`" /qn /norestart" -Wait -PassThru -NoNewWindow
             
-            Write-Host "             [90%] Cleaning up..." -ForegroundColor Cyan
+            Write-Ui -Message "             [90%] Cleaning up..." -Level "INFO"
             # Clean up
             Remove-Item -Path $installerPath -Force -ErrorAction SilentlyContinue
             
-            Write-Host "             [100%] Installation process complete" -ForegroundColor Cyan
+            Write-Ui -Message "             [100%] Installation process complete" -Level "INFO"
             
             if ($process.ExitCode -eq 0 -or $process.ExitCode -eq 3010) {
-                Write-Host "             [OK] ESET Connector installed successfully" -ForegroundColor Green
+                Write-Ui -Message "             [OK] ESET Connector installed successfully" -Level "OK"
                 if ($process.ExitCode -eq 3010) {
                     $Script:RebootRequired = $true
-                    Write-Host "             [!] Reboot required" -ForegroundColor Yellow
+                    Write-Ui -Message "             [!] Reboot required" -Level "WARN"
                 }
                 return @{
                     Success = $true
@@ -551,7 +561,7 @@ function Install-ESETConnector {
                 }
             }
             else {
-                Write-Host "             [FAIL] ESET Connector installation failed (Exit: $($process.ExitCode))" -ForegroundColor Red
+                Write-Ui -Message "             [FAIL] ESET Connector installation failed (Exit: $($process.ExitCode))" -Level "ERROR"
                 return @{
                     Success = $false
                     ExitCode = $process.ExitCode
@@ -560,7 +570,7 @@ function Install-ESETConnector {
             }
         }
         else {
-            Write-Host "             [FAIL] Failed to download ESET Connector installer" -ForegroundColor Red
+            Write-Ui -Message "             [FAIL] Failed to download ESET Connector installer" -Level "ERROR"
             return @{
                 Success = $false
                 ExitCode = -1
@@ -569,7 +579,7 @@ function Install-ESETConnector {
         }
     }
     catch {
-        Write-Host "             [ERROR] $_" -ForegroundColor Red
+        Write-Ui -Message "             [ERROR] $_" -Level "ERROR"
         return @{
             Success = $false
             ExitCode = -1
@@ -585,7 +595,7 @@ function Install-Packages {
     
     Write-Host ""
     Write-Host "=============================================" -ForegroundColor DarkCyan
-    Write-Host "Starting Package Installation" -ForegroundColor Cyan
+    Write-Ui -Message "Starting Package Installation" -Level "INFO"
     Write-Host "=============================================" -ForegroundColor DarkCyan
     Write-Host ""
     
@@ -599,8 +609,8 @@ function Install-Packages {
         
         Write-Host "[$currentPackage/$totalPackages] " -NoNewline -ForegroundColor Cyan
         Write-Host "Processing: " -NoNewline -ForegroundColor White
-        Write-Host $pkgName -ForegroundColor Yellow
-        Write-Host "             ID: $pkgId" -ForegroundColor Gray
+        Write-Ui -Message $pkgName -Level "WARN"
+        Write-Ui -Message "             ID: $pkgId" -Level "INFO"
         
         $startTime = Get-Date
         $status = "Unknown"
@@ -610,12 +620,12 @@ function Install-Packages {
             $isInstalled = Test-PackageInstalled -PackageId $pkgId
             
             if ($isInstalled) {
-                Write-Host "             [SKIP] Already installed" -ForegroundColor Yellow
+                Write-Ui -Message "             [SKIP] Already installed" -Level "WARN"
                 $status = "Skipped"
                 $message = "Already installed"
             }
             else {
-                Write-Host "             [*] Installing..." -ForegroundColor Cyan
+                Write-Ui -Message "             [*] Installing..." -Level "INFO"
                 
                 # Special handling for Office 2024
                 if ($pkgId -eq "OFFICE2024") {
@@ -645,7 +655,7 @@ function Install-Packages {
                 }
                 else {
                     # Standard WinGet installation with silent mode and timeout handling
-                    Write-Host "             [0%] Starting installation..." -ForegroundColor Cyan
+                    Write-Ui -Message "             [0%] Starting installation..." -Level "INFO"
                     
                     # WinGet arguments with silent mode to prevent hanging on prompts
                     $wingetArgs = @(
@@ -664,8 +674,8 @@ function Install-Packages {
                     if (Test-Path $logFile) { Remove-Item $logFile -Force -ErrorAction SilentlyContinue }
                     if (Test-Path $errFile) { Remove-Item $errFile -Force -ErrorAction SilentlyContinue }
                     
-                    Write-Host "             [10%] Preparing installation..." -ForegroundColor Cyan
-                    Write-Host "             [20%] Starting WinGet process..." -ForegroundColor Cyan
+                    Write-Ui -Message "             [10%] Preparing installation..." -Level "INFO"
+                    Write-Ui -Message "             [20%] Starting WinGet process..." -Level "INFO"
                     
                     # Start process with file redirection for reliable output capture
                     $proc = Start-Process -FilePath "winget" -ArgumentList $wingetArgs -NoNewWindow -PassThru -RedirectStandardOutput $logFile -RedirectStandardError $errFile
@@ -675,13 +685,13 @@ function Install-Packages {
                     $timer = [Diagnostics.Stopwatch]::StartNew()
                     $timedOut = $false
                     
-                    Write-Host "             [30%] Installing package (this may take several minutes)..." -ForegroundColor Cyan
+                    Write-Ui -Message "             [30%] Installing package (this may take several minutes)..." -Level "INFO"
                     
                     # Wait for process with timeout check
                     $lastProgressTime = 0
                     while (-not $proc.HasExited) {
                         if ($timer.Elapsed.TotalSeconds -gt $timeout) {
-                            Write-Host "             [!] Installation timeout exceeded (30 minutes)" -ForegroundColor Yellow
+                            Write-Ui -Message "             [!] Installation timeout exceeded (30 minutes)" -Level "WARN"
                             try {
                                 if (-not $proc.HasExited) {
                                     $proc.Kill()
@@ -689,7 +699,7 @@ function Install-Packages {
                                 }
                             }
                             catch {
-                                Write-Host "             [!] Could not terminate process" -ForegroundColor Yellow
+                                Write-Ui -Message "             [!] Could not terminate process" -Level "WARN"
                             }
                             break
                         }
@@ -700,7 +710,7 @@ function Install-Packages {
                         if ($elapsedSeconds -gt $lastProgressTime + 30) {
                             $lastProgressTime = $elapsedSeconds
                             $progressPercent = [Math]::Min(90, 30 + [int]($elapsedSeconds / $timeout * 60))
-                            Write-Host "             [$progressPercent%] Still installing... ($elapsedSeconds seconds elapsed)" -ForegroundColor Cyan
+                            Write-Ui -Message "             [$progressPercent%] Still installing... ($elapsedSeconds seconds elapsed)" -Level "INFO"
                         }
                     }
                     
@@ -727,36 +737,36 @@ function Install-Packages {
                     }
                     
                     if ($timedOut) {
-                        Write-Host "             [FAIL] Installation timed out after 30 minutes" -ForegroundColor Red
+                        Write-Ui -Message "             [FAIL] Installation timed out after 30 minutes" -Level "ERROR"
                         $status = "Failed"
                         $message = "Timeout after 30 minutes"
                     }
                     else {
-                        Write-Host "             [95%] Finalizing..." -ForegroundColor Cyan
+                        Write-Ui -Message "             [95%] Finalizing..." -Level "INFO"
                         
                         $exitCode = $proc.ExitCode
                         
                         # Check exit code
                         if ($exitCode -eq 0) {
-                            Write-Host "             [100%] Installation complete" -ForegroundColor Green
-                            Write-Host "             [OK] Installed successfully" -ForegroundColor Green
+                            Write-Ui -Message "             [100%] Installation complete" -Level "OK"
+                            Write-Ui -Message "             [OK] Installed successfully" -Level "OK"
                             $status = "Installed"
                             $message = "Success"
                         }
                         elseif ($exitCode -eq 3010) {
-                            Write-Host "             [100%] Installation complete" -ForegroundColor Green
-                            Write-Host "             [OK] Installed (reboot required)" -ForegroundColor Green
+                            Write-Ui -Message "             [100%] Installation complete" -Level "OK"
+                            Write-Ui -Message "             [OK] Installed (reboot required)" -Level "OK"
                             $status = "Installed"
                             $message = "Success - Reboot Required"
                             $Script:RebootRequired = $true
                         }
                         elseif ($exitCode -eq -1978335189 -or $stdOut -like "*already installed*" -or $stdErr -like "*already installed*") {
-                            Write-Host "             [SKIP] Already installed" -ForegroundColor Yellow
+                            Write-Ui -Message "             [SKIP] Already installed" -Level "WARN"
                             $status = "Skipped"
                             $message = "Already installed"
                         }
                         else {
-                            Write-Host "             [FAIL] Installation failed (Exit: $exitCode)" -ForegroundColor Red
+                            Write-Ui -Message "             [FAIL] Installation failed (Exit: $exitCode)" -Level "ERROR"
                             if ($stdErr) {
                                 $errorLines = ($stdErr -split "`n" | Where-Object { $_.Trim() -ne "" }) | Select-Object -First 3
                                 foreach ($errorLine in $errorLines) {
@@ -790,7 +800,7 @@ function Install-Packages {
             }
         }
         catch {
-            Write-Host "             [ERROR] $_" -ForegroundColor Red
+            Write-Ui -Message "             [ERROR] $_" -Level "ERROR"
             $status = "Error"
             $message = $_.Exception.Message
         }
@@ -812,7 +822,7 @@ function Install-Packages {
 function Write-Summary {
     Write-Host ""
     Write-Host "=============================================" -ForegroundColor DarkCyan
-    Write-Host "Installation Summary" -ForegroundColor Cyan
+    Write-Ui -Message "Installation Summary" -Level "INFO"
     Write-Host "=============================================" -ForegroundColor DarkCyan
     Write-Host ""
     
@@ -821,19 +831,19 @@ function Write-Summary {
     $failed = ($Script:InstallResults | Where-Object { $_.Status -eq "Failed" -or $_.Status -eq "Error" }).Count
     
     Write-Host "  Total Packages: " -NoNewline -ForegroundColor Gray
-    Write-Host $Script:InstallResults.Count -ForegroundColor White
+    Write-Ui -Message $Script:InstallResults.Count -Level "STEP"
     Write-Host "  Installed: " -NoNewline -ForegroundColor Gray
-    Write-Host $installed -ForegroundColor Green
+    Write-Ui -Message $installed -Level "OK"
     Write-Host "  Skipped: " -NoNewline -ForegroundColor Gray
-    Write-Host $skipped -ForegroundColor Yellow
+    Write-Ui -Message $skipped -Level "WARN"
     Write-Host "  Failed: " -NoNewline -ForegroundColor Gray
-    Write-Host $failed -ForegroundColor Red
+    Write-Ui -Message $failed -Level "ERROR"
     Write-Host ""
     
-    Write-Host "  Detailed Results:" -ForegroundColor Gray
-    Write-Host "  " + ("-" * 75) -ForegroundColor DarkGray
-    Write-Host ("  {0,-30} {1,-15} {2,-10} {3}" -f "Package", "Status", "Elapsed", "Message") -ForegroundColor DarkCyan
-    Write-Host "  " + ("-" * 75) -ForegroundColor DarkGray
+    Write-Ui -Message "  Detailed Results:" -Level "INFO"
+    Write-Ui -Message "  " + ("-" * 75) -Level "INFO"
+    Write-Ui -Message ("  {0,-30} {1,-15} {2,-10} {3}" -f "Package", "Status", "Elapsed", "Message") -Level "INFO"
+    Write-Ui -Message "  " + ("-" * 75) -Level "INFO"
     
     foreach ($result in $Script:InstallResults) {
         $color = "White"
@@ -850,15 +860,15 @@ function Write-Summary {
         Write-Host ("  {0,-30} " -f $pkgName) -NoNewline
         Write-Host ("{0,-15} " -f $result.Status) -NoNewline -ForegroundColor $color
         Write-Host ("{0,-10} " -f $elapsed) -NoNewline -ForegroundColor Gray
-        Write-Host $result.Message -ForegroundColor Gray
+        Write-Ui -Message $result.Message -Level "INFO"
     }
     
-    Write-Host "  " + ("-" * 75) -ForegroundColor DarkGray
+    Write-Ui -Message "  " + ("-" * 75) -Level "INFO"
     Write-Host ""
     
     if ($Script:RebootRequired) {
-        Write-Host "  [!] REBOOT REQUIRED" -ForegroundColor Yellow
-        Write-Host "      Some packages require a system reboot to complete installation." -ForegroundColor Gray
+        Write-Ui -Message "  [!] REBOOT REQUIRED" -Level "WARN"
+        Write-Ui -Message "      Some packages require a system reboot to complete installation." -Level "INFO"
         Write-Host ""
     }
     
@@ -877,10 +887,10 @@ function Write-Summary {
         }
         
         $summaryData | ConvertTo-Json -Depth 10 | Set-Content -Path $Script:SummaryPath -Encoding UTF8
-        Write-Host "  [+] Summary saved to: $Script:SummaryPath" -ForegroundColor Green
+        Write-Ui -Message "  [+] Summary saved to: $Script:SummaryPath" -Level "OK"
     }
     catch {
-        Write-Host "  [!] Warning: Could not save summary JSON: $_" -ForegroundColor Yellow
+        Write-Ui -Message "  [!] Warning: Could not save summary JSON: $_" -Level "WARN"
     }
     
     Write-Host ""
@@ -889,7 +899,7 @@ function Write-Summary {
         Write-Host "  Reboot now? (Y/N): " -NoNewline -ForegroundColor Yellow
         $rebootChoice = Read-Host
         if ($rebootChoice -eq "Y" -or $rebootChoice -eq "y") {
-            Write-Host "  [*] Rebooting in 10 seconds..." -ForegroundColor Cyan
+            Write-Ui -Message "  [*] Rebooting in 10 seconds..." -Level "INFO"
             shutdown /r /t 10 /c "SouliTEK Softwares Installer - Reboot Required"
         }
     }
@@ -897,7 +907,7 @@ function Write-Summary {
 
 function Stop-Gracefully {
     Write-Host ""
-    Write-Host "[!] Operation cancelled by user" -ForegroundColor Yellow
+    Write-Ui -Message "[!] Operation cancelled by user" -Level "WARN"
     Write-Host ""
     
     if ($Script:InstallResults.Count -gt 0) {
@@ -938,16 +948,16 @@ try {
     $packageIds = @()
     
     if ($Preset) {
-        Write-Host "[*] Loading preset from: $Preset" -ForegroundColor Cyan
+        Write-Ui -Message "[*] Loading preset from: $Preset" -Level "INFO"
         $packageIds = Load-Preset -PresetPath $Preset
         
         if (-not $packageIds -or $packageIds.Count -eq 0) {
-            Write-Host "[X] No packages loaded from preset" -ForegroundColor Red
+            Write-Ui -Message "[X] No packages loaded from preset" -Level "ERROR"
             Read-Host "Press Enter to exit"
             exit 1
         }
         
-        Write-Host "[+] Loaded $($packageIds.Count) packages from preset" -ForegroundColor Green
+        Write-Ui -Message "[+] Loaded $($packageIds.Count) packages from preset" -Level "OK"
         Write-Host ""
     }
     else {
@@ -955,7 +965,7 @@ try {
         
         if (-not $packageIds -or $packageIds.Count -eq 0) {
             Write-Host ""
-            Write-Host "[*] No packages selected. Exiting." -ForegroundColor Cyan
+            Write-Ui -Message "[*] No packages selected. Exiting." -Level "INFO"
             Write-Host ""
             exit 0
         }
@@ -968,17 +978,17 @@ try {
     
     Write-Summary
     
-    Write-Host "Installation complete!" -ForegroundColor Green
+    Write-Ui -Message "Installation complete!" -Level "OK"
     Write-Host ""
     
     Read-Host "Press Enter to exit"
 }
 catch {
     Write-Host ""
-    Write-Host "[X] Fatal Error: $_" -ForegroundColor Red
+    Write-Ui -Message "[X] Fatal Error: $_" -Level "ERROR"
     Write-Host ""
-    Write-Host "Stack Trace:" -ForegroundColor Yellow
-    Write-Host $_.ScriptStackTrace -ForegroundColor Gray
+    Write-Ui -Message "Stack Trace:" -Level "WARN"
+    Write-Ui -Message $_.ScriptStackTrace -Level "INFO"
     Write-Host ""
     
     Read-Host "Press Enter to exit"

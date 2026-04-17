@@ -137,7 +137,7 @@ function Initialize-WhoisTool {
     # Set path to whois.exe in tools directory
     # Use $PSScriptRoot (automatic PowerShell variable) for reliable path resolution
     if (-not $PSScriptRoot) {
-        Write-Host "  [-] Cannot determine script path" -ForegroundColor Red
+        Write-Ui -Message "  [-] Cannot determine script path" -Level "ERROR"
         return $false
     }
     
@@ -155,8 +155,8 @@ function Initialize-WhoisTool {
     # Download whois.exe from Sysinternals
     try {
         Write-Host ""
-        Write-Host "  [*] Downloading Microsoft Sysinternals Whois tool..." -ForegroundColor Yellow
-        Write-Host "      This is required for WHOIS lookups." -ForegroundColor Gray
+        Write-Ui -Message "  [*] Downloading Microsoft Sysinternals Whois tool..." -Level "WARN"
+        Write-Ui -Message "      This is required for WHOIS lookups." -Level "INFO"
         Write-Host ""
         
         # Ensure tools directory exists
@@ -167,28 +167,46 @@ function Initialize-WhoisTool {
         
         # Download from Sysinternals Live
         $whoisUrl = "https://live.sysinternals.com/whois.exe"
-        
-        Write-Host "  [*] Downloading from: $whoisUrl" -ForegroundColor Gray
-        
-        $webClient = New-Object System.Net.WebClient
-        $webClient.DownloadFile($whoisUrl, $WhoisPath)
-        
+        # MAINTENANCE NOTE: Update hash after each Sysinternals whois.exe release.
+        # Compute with: (Get-FileHash "$env:TEMP\whois_v.exe" -Algorithm SHA256).Hash
+        # Last verified: 2026-04-17
+        $whoisExpectedHash = "PASTE_SHA256_HERE"
+
+        Write-Ui -Message "  [*] Downloading from: $whoisUrl" -Level "INFO"
+
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        Invoke-WebRequest -Uri $whoisUrl -OutFile $WhoisPath -UseBasicParsing -ErrorAction Stop
+
         if (Test-Path $WhoisPath) {
-            Write-Host "  [+] Whois tool downloaded successfully" -ForegroundColor Green
+            # Verify hash
+            if ($whoisExpectedHash -ne "PASTE_SHA256_HERE") {
+                if (-not (Confirm-SouliTEKFileHash -FilePath $WhoisPath -ExpectedHash $whoisExpectedHash)) {
+                    Write-Ui -Message "whois.exe hash verification failed. Binary removed for safety." -Level "ERROR"
+                    return $false
+                }
+            }
+            # Verify Authenticode signature
+            $sig = Get-AuthenticodeSignature -FilePath $WhoisPath
+            if ($sig.Status -ne "Valid") {
+                Write-Ui -Message "whois.exe signature invalid ($($sig.Status)). Removing." -Level "ERROR"
+                Remove-Item -Path $WhoisPath -Force -ErrorAction SilentlyContinue
+                return $false
+            }
+            Write-Ui -Message "  [+] Whois tool downloaded successfully" -Level "OK"
             $Script:WhoisToolPath = $WhoisPath
             $Script:WhoisToolChecked = $true
             return $true
         } else {
-            Write-Host "  [-] Download failed - file not found" -ForegroundColor Red
+            Write-Ui -Message "  [-] Download failed - file not found" -Level "ERROR"
             return $false
         }
     }
     catch {
-        Write-Host "  [-] Failed to download Whois tool: $($_.Exception.Message)" -ForegroundColor Red
-        Write-Host "  [!] Please ensure you have internet connectivity" -ForegroundColor Yellow
-        Write-Host "  [!] You can manually download from:" -ForegroundColor Yellow
+        Write-Ui -Message "  [-] Failed to download Whois tool: $($_.Exception.Message)" -Level "ERROR"
+        Write-Ui -Message "  [!] Please ensure you have internet connectivity" -Level "WARN"
+        Write-Ui -Message "  [!] You can manually download from:" -Level "WARN"
         Write-Host "      https://learn.microsoft.com/en-us/sysinternals/downloads/whois" -ForegroundColor Cyan
-        Write-Host "      And place whois.exe in: $toolsDir" -ForegroundColor Cyan
+        Write-Ui -Message "      And place whois.exe in: $toolsDir" -Level "INFO"
         return $false
     }
 }
@@ -198,7 +216,7 @@ function Get-DomainWhois {
     
     Show-SouliTEKHeader -Title "WHOIS LOOKUP" -Color Yellow -ClearHost -ShowBanner
     
-    Write-Host "      Query domain registration information" -ForegroundColor Gray
+    Write-Ui -Message "      Query domain registration information" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -227,7 +245,7 @@ function Get-DomainWhois {
     $whoisData = $null
     
     try {
-        Write-Host "  [*] Querying WHOIS servers..." -ForegroundColor Gray
+        Write-Ui -Message "  [*] Querying WHOIS servers..." -Level "INFO"
         
         # Use Sysinternals Whois tool
         $whoisProcess = Start-Process -FilePath $Script:WhoisToolPath -ArgumentList $Domain -NoNewWindow -Wait -PassThru -RedirectStandardOutput "$env:TEMP\whois_output.txt" -RedirectStandardError "$env:TEMP\whois_error.txt"
@@ -324,38 +342,38 @@ function Get-DomainWhois {
             # Display results
             Write-Host ""
             Write-Host "============================================================" -ForegroundColor Green
-            Write-Host "  WHOIS INFORMATION FOR $($Domain.ToUpper())" -ForegroundColor Green
+            Write-Ui -Message "  WHOIS INFORMATION FOR $($Domain.ToUpper())" -Level "OK"
             Write-Host "============================================================" -ForegroundColor Green
             Write-Host ""
             
             Write-Host "  Domain:      " -NoNewline -ForegroundColor White
-            Write-Host $whoisData.Domain -ForegroundColor Cyan
+            Write-Ui -Message $whoisData.Domain -Level "INFO"
             
             Write-Host "  Status:      " -NoNewline -ForegroundColor White
             if ($whoisData.Status) {
                 $statusColor = if ($whoisData.Status -match "active|ok|clientTransferProhibited") { 'Green' } else { 'Yellow' }
                 Write-Host $whoisData.Status -ForegroundColor $statusColor
             } else {
-                Write-Host "N/A" -ForegroundColor Gray
+                Write-Ui -Message "N/A" -Level "INFO"
             }
             
             Write-Host "  Registrar:   " -NoNewline -ForegroundColor White
-            Write-Host $(if ($whoisData.Registrar) { $whoisData.Registrar } else { "N/A" }) -ForegroundColor Gray
+            Write-Ui -Message $(if ($whoisData.Registrar) { $whoisData.Registrar } else { "N/A" }) -Level "INFO"
             
             Write-Host ""
-            Write-Host "  DATES:" -ForegroundColor Yellow
+            Write-Ui -Message "  DATES:" -Level "WARN"
             
             # Created Date
             if ($whoisData.Created) {
                 Write-Host "  Created:     " -NoNewline -ForegroundColor White
                 try {
                     $createdDate = [DateTime]::Parse($whoisData.Created)
-                    Write-Host $createdDate.ToString("yyyy-MM-dd") -ForegroundColor Gray
+                    Write-Ui -Message $createdDate.ToString("yyyy-MM-dd") -Level "INFO"
                 } catch {
-                    Write-Host $whoisData.Created -ForegroundColor Gray
+                    Write-Ui -Message $whoisData.Created -Level "INFO"
                 }
             } else {
-                Write-Host "  Created:     N/A" -ForegroundColor Gray
+                Write-Ui -Message "  Created:     N/A" -Level "INFO"
             }
             
             # Updated Date
@@ -363,12 +381,12 @@ function Get-DomainWhois {
                 Write-Host "  Updated:     " -NoNewline -ForegroundColor White
                 try {
                     $updatedDate = [DateTime]::Parse($whoisData.Updated)
-                    Write-Host $updatedDate.ToString("yyyy-MM-dd") -ForegroundColor Gray
+                    Write-Ui -Message $updatedDate.ToString("yyyy-MM-dd") -Level "INFO"
                 } catch {
-                    Write-Host $whoisData.Updated -ForegroundColor Gray
+                    Write-Ui -Message $whoisData.Updated -Level "INFO"
                 }
             } else {
-                Write-Host "  Updated:     N/A" -ForegroundColor Gray
+                Write-Ui -Message "  Updated:     N/A" -Level "INFO"
             }
             
             # Expiration Date
@@ -384,17 +402,17 @@ function Get-DomainWhois {
                     Write-Host "$($expiresDate.ToString('yyyy-MM-dd')) " -NoNewline -ForegroundColor $expiryColor
                     Write-Host "($daysUntilExpiry days remaining)" -ForegroundColor $expiryColor
                 } catch {
-                    Write-Host $whoisData.Expires -ForegroundColor Gray
+                    Write-Ui -Message $whoisData.Expires -Level "INFO"
                 }
             } else {
-                Write-Host "  Expires:     N/A" -ForegroundColor Gray
+                Write-Ui -Message "  Expires:     N/A" -Level "INFO"
             }
             
             Write-Host ""
-            Write-Host "  NAME SERVERS:" -ForegroundColor Yellow
+            Write-Ui -Message "  NAME SERVERS:" -Level "WARN"
             if ($whoisData.NameServers -and $whoisData.NameServers.Count -gt 0) {
                 foreach ($ns in $whoisData.NameServers) {
-                    Write-Host "    - $ns" -ForegroundColor Cyan
+                    Write-Ui -Message "    - $ns" -Level "INFO"
                 }
             } else {
                 # Try to get NS from DNS as fallback
@@ -403,22 +421,22 @@ function Get-DomainWhois {
                     if ($nsRecords) {
                         $whoisData.NameServers = ($nsRecords | Where-Object { $_.Type -eq "NS" }).NameHost
                         foreach ($ns in $whoisData.NameServers) {
-                            Write-Host "    - $ns (from DNS)" -ForegroundColor Cyan
+                            Write-Ui -Message "    - $ns (from DNS)" -Level "INFO"
                         }
                     } else {
-                        Write-Host "    No nameservers found" -ForegroundColor Gray
+                        Write-Ui -Message "    No nameservers found" -Level "INFO"
                     }
                 } catch {
-                    Write-Host "    No nameservers found" -ForegroundColor Gray
+                    Write-Ui -Message "    No nameservers found" -Level "INFO"
                 }
             }
             
             Write-Host ""
             Write-Host "  DNSSEC:      " -NoNewline -ForegroundColor White
             if ($whoisData.DnsSec) {
-                Write-Host "Enabled" -ForegroundColor Green
+                Write-Ui -Message "Enabled" -Level "OK"
             } else {
-                Write-Host "Not Enabled / Unknown" -ForegroundColor Yellow
+                Write-Ui -Message "Not Enabled / Unknown" -Level "WARN"
             }
             
             # Add to results
@@ -433,9 +451,9 @@ function Get-DomainWhois {
             # Always show raw WHOIS data
             Write-Host ""
             Write-Host "============================================================" -ForegroundColor Gray
-            Write-Host "  RAW WHOIS DATA" -ForegroundColor Gray
+            Write-Ui -Message "  RAW WHOIS DATA" -Level "INFO"
             Write-Host "============================================================" -ForegroundColor Gray
-            Write-Host $whoisText -ForegroundColor DarkGray
+            Write-Ui -Message $whoisText -Level "INFO"
             Write-Host "============================================================" -ForegroundColor Gray
         }
         else {
@@ -448,7 +466,7 @@ function Get-DomainWhois {
             if (-not $whoisText -or $whoisText.Trim().Length -eq 0) {
                 Write-SouliTEKResult "No WHOIS data returned" -Level WARNING
                 if ($errorText) {
-                    Write-Host "  Error: $errorText" -ForegroundColor Yellow
+                    Write-Ui -Message "  Error: $errorText" -Level "WARN"
                 }
                 Add-AnalysisResult -Domain $Domain -RecordType "WHOIS" -Value "No data" -Status "Unknown"
             }
@@ -458,13 +476,13 @@ function Get-DomainWhois {
         Write-Host ""
         Write-SouliTEKResult "WHOIS lookup failed: $($_.Exception.Message)" -Level ERROR
         Write-Host ""
-        Write-Host "Possible reasons:" -ForegroundColor Yellow
-        Write-Host "  - Domain does not exist" -ForegroundColor Gray
-        Write-Host "  - WHOIS server unavailable" -ForegroundColor Gray
-        Write-Host "  - Network connectivity issue" -ForegroundColor Gray
-        Write-Host "  - Rate limiting from WHOIS server" -ForegroundColor Gray
+        Write-Ui -Message "Possible reasons:" -Level "WARN"
+        Write-Ui -Message "  - Domain does not exist" -Level "INFO"
+        Write-Ui -Message "  - WHOIS server unavailable" -Level "INFO"
+        Write-Ui -Message "  - Network connectivity issue" -Level "INFO"
+        Write-Ui -Message "  - Rate limiting from WHOIS server" -Level "INFO"
         Write-Host ""
-        Write-Host "Try using an online WHOIS service:" -ForegroundColor Yellow
+        Write-Ui -Message "Try using an online WHOIS service:" -Level "WARN"
         Write-Host "  https://who.is/whois/$Domain" -ForegroundColor Cyan
         
         Add-AnalysisResult -Domain $Domain -RecordType "WHOIS" -Value "Failed" -Status "Error" -Details $_.Exception.Message
@@ -485,7 +503,7 @@ function Get-DNSRecords {
     
     Show-SouliTEKHeader -Title "DNS RECORDS LOOKUP" -Color Green -ClearHost -ShowBanner
     
-    Write-Host "      Query all DNS record types for a domain" -ForegroundColor Gray
+    Write-Ui -Message "      Query all DNS record types for a domain" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -505,12 +523,12 @@ function Get-DNSRecords {
     $recordTypes = @("A", "AAAA", "MX", "TXT", "CNAME", "NS", "SOA", "SRV")
     
     Write-Host "============================================================" -ForegroundColor Green
-    Write-Host "  DNS RECORDS FOR $($Domain.ToUpper())" -ForegroundColor Green
+    Write-Ui -Message "  DNS RECORDS FOR $($Domain.ToUpper())" -Level "OK"
     Write-Host "============================================================" -ForegroundColor Green
     Write-Host ""
     
     foreach ($type in $recordTypes) {
-        Write-Host "  [$type RECORDS]" -ForegroundColor Yellow
+        Write-Ui -Message "  [$type RECORDS]" -Level "WARN"
         
         try {
             $records = Resolve-DnsName -Name $Domain -Type $type -ErrorAction Stop -DnsOnly
@@ -520,19 +538,19 @@ function Get-DNSRecords {
                     switch ($type) {
                         "A" {
                             if ($record.Type -eq "A") {
-                                Write-Host "    $($record.IPAddress)" -ForegroundColor Cyan
+                                Write-Ui -Message "    $($record.IPAddress)" -Level "INFO"
                                 Add-AnalysisResult -Domain $Domain -RecordType "A" -Value $record.IPAddress -Status "Found"
                             }
                         }
                         "AAAA" {
                             if ($record.Type -eq "AAAA") {
-                                Write-Host "    $($record.IPAddress)" -ForegroundColor Cyan
+                                Write-Ui -Message "    $($record.IPAddress)" -Level "INFO"
                                 Add-AnalysisResult -Domain $Domain -RecordType "AAAA" -Value $record.IPAddress -Status "Found"
                             }
                         }
                         "MX" {
                             if ($record.Type -eq "MX") {
-                                Write-Host "    Priority: $($record.Preference) -> $($record.NameExchange)" -ForegroundColor Cyan
+                                Write-Ui -Message "    Priority: $($record.Preference) -> $($record.NameExchange)" -Level "INFO"
                                 Add-AnalysisResult -Domain $Domain -RecordType "MX" -Value "$($record.Preference) $($record.NameExchange)" -Status "Found"
                             }
                         }
@@ -541,33 +559,33 @@ function Get-DNSRecords {
                                 $txtValue = $record.Strings -join ""
                                 # Truncate long TXT records for display
                                 $displayValue = if ($txtValue.Length -gt 80) { $txtValue.Substring(0, 77) + "..." } else { $txtValue }
-                                Write-Host "    $displayValue" -ForegroundColor Cyan
+                                Write-Ui -Message "    $displayValue" -Level "INFO"
                                 Add-AnalysisResult -Domain $Domain -RecordType "TXT" -Value $txtValue -Status "Found"
                             }
                         }
                         "CNAME" {
                             if ($record.Type -eq "CNAME") {
-                                Write-Host "    $($record.Name) -> $($record.NameHost)" -ForegroundColor Cyan
+                                Write-Ui -Message "    $($record.Name) -> $($record.NameHost)" -Level "INFO"
                                 Add-AnalysisResult -Domain $Domain -RecordType "CNAME" -Value $record.NameHost -Status "Found"
                             }
                         }
                         "NS" {
                             if ($record.Type -eq "NS") {
-                                Write-Host "    $($record.NameHost)" -ForegroundColor Cyan
+                                Write-Ui -Message "    $($record.NameHost)" -Level "INFO"
                                 Add-AnalysisResult -Domain $Domain -RecordType "NS" -Value $record.NameHost -Status "Found"
                             }
                         }
                         "SOA" {
                             if ($record.Type -eq "SOA") {
-                                Write-Host "    Primary NS: $($record.PrimaryServer)" -ForegroundColor Cyan
-                                Write-Host "    Admin: $($record.NameAdministrator)" -ForegroundColor Gray
-                                Write-Host "    Serial: $($record.SerialNumber)" -ForegroundColor Gray
+                                Write-Ui -Message "    Primary NS: $($record.PrimaryServer)" -Level "INFO"
+                                Write-Ui -Message "    Admin: $($record.NameAdministrator)" -Level "INFO"
+                                Write-Ui -Message "    Serial: $($record.SerialNumber)" -Level "INFO"
                                 Add-AnalysisResult -Domain $Domain -RecordType "SOA" -Value $record.PrimaryServer -Status "Found" -Details "Serial: $($record.SerialNumber)"
                             }
                         }
                         "SRV" {
                             if ($record.Type -eq "SRV") {
-                                Write-Host "    $($record.Name) -> $($record.NameTarget):$($record.Port) (Priority: $($record.Priority))" -ForegroundColor Cyan
+                                Write-Ui -Message "    $($record.Name) -> $($record.NameTarget):$($record.Port) (Priority: $($record.Priority))" -Level "INFO"
                                 Add-AnalysisResult -Domain $Domain -RecordType "SRV" -Value "$($record.NameTarget):$($record.Port)" -Status "Found"
                             }
                         }
@@ -576,7 +594,7 @@ function Get-DNSRecords {
             }
         }
         catch {
-            Write-Host "    No $type records found" -ForegroundColor Gray
+            Write-Ui -Message "    No $type records found" -Level "INFO"
         }
         
         Write-Host ""
@@ -596,7 +614,7 @@ function Get-EmailSecurityRecords {
     
     Show-SouliTEKHeader -Title "EMAIL SECURITY CHECK" -Color Magenta -ClearHost -ShowBanner
     
-    Write-Host "      Analyze SPF, DKIM, and DMARC records" -ForegroundColor Gray
+    Write-Ui -Message "      Analyze SPF, DKIM, and DMARC records" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -617,13 +635,13 @@ function Get-EmailSecurityRecords {
     $maxScore = 3
     
     Write-Host "============================================================" -ForegroundColor Magenta
-    Write-Host "  EMAIL SECURITY ANALYSIS FOR $($Domain.ToUpper())" -ForegroundColor Magenta
+    Write-Ui -Message "  EMAIL SECURITY ANALYSIS FOR $($Domain.ToUpper())" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Magenta
     Write-Host ""
     
     # ========== SPF CHECK ==========
-    Write-Host "  [SPF - Sender Policy Framework]" -ForegroundColor Yellow
-    Write-Host "  Purpose: Specifies which mail servers can send email for your domain" -ForegroundColor Gray
+    Write-Ui -Message "  [SPF - Sender Policy Framework]" -Level "WARN"
+    Write-Ui -Message "  Purpose: Specifies which mail servers can send email for your domain" -Level "INFO"
     Write-Host ""
     
     try {
@@ -633,43 +651,43 @@ function Get-EmailSecurityRecords {
         if ($spfRecord) {
             $spfValue = $spfRecord.Strings -join ""
             Write-Host "  Status: " -NoNewline -ForegroundColor White
-            Write-Host "FOUND" -ForegroundColor Green
-            Write-Host "  Record: " -ForegroundColor White
-            Write-Host "    $spfValue" -ForegroundColor Cyan
+            Write-Ui -Message "FOUND" -Level "OK"
+            Write-Ui -Message "  Record: " -Level "STEP"
+            Write-Ui -Message "    $spfValue" -Level "INFO"
             
             # Analyze SPF record
             $spfAnalysis = @()
             if ($spfValue -match "-all") {
                 $spfAnalysis += "Hard fail (-all) - Strict policy"
                 Write-Host "  Policy: " -NoNewline -ForegroundColor White
-                Write-Host "STRICT (Hard Fail)" -ForegroundColor Green
+                Write-Ui -Message "STRICT (Hard Fail)" -Level "OK"
             } elseif ($spfValue -match "~all") {
                 $spfAnalysis += "Soft fail (~all) - Moderate policy"
                 Write-Host "  Policy: " -NoNewline -ForegroundColor White
-                Write-Host "MODERATE (Soft Fail)" -ForegroundColor Yellow
+                Write-Ui -Message "MODERATE (Soft Fail)" -Level "WARN"
             } elseif ($spfValue -match "\+all") {
                 $spfAnalysis += "Pass all (+all) - INSECURE!"
                 Write-Host "  Policy: " -NoNewline -ForegroundColor White
-                Write-Host "INSECURE (Pass All)" -ForegroundColor Red
+                Write-Ui -Message "INSECURE (Pass All)" -Level "ERROR"
             } elseif ($spfValue -match "\?all") {
                 $spfAnalysis += "Neutral (?all) - No policy"
                 Write-Host "  Policy: " -NoNewline -ForegroundColor White
-                Write-Host "NEUTRAL (No Policy)" -ForegroundColor Yellow
+                Write-Ui -Message "NEUTRAL (No Policy)" -Level "WARN"
             }
             
             $securityScore++
             Add-AnalysisResult -Domain $Domain -RecordType "SPF" -Value $spfValue -Status "Found" -Details ($spfAnalysis -join "; ")
         } else {
             Write-Host "  Status: " -NoNewline -ForegroundColor White
-            Write-Host "NOT FOUND" -ForegroundColor Red
-            Write-Host "  Warning: No SPF record found - email spoofing possible!" -ForegroundColor Red
+            Write-Ui -Message "NOT FOUND" -Level "ERROR"
+            Write-Ui -Message "  Warning: No SPF record found - email spoofing possible!" -Level "ERROR"
             Add-AnalysisResult -Domain $Domain -RecordType "SPF" -Value "Not configured" -Status "Missing"
         }
     }
     catch {
         Write-Host "  Status: " -NoNewline -ForegroundColor White
-        Write-Host "ERROR" -ForegroundColor Red
-        Write-Host "  $($_.Exception.Message)" -ForegroundColor Gray
+        Write-Ui -Message "ERROR" -Level "ERROR"
+        Write-Ui -Message "  $($_.Exception.Message)" -Level "INFO"
     }
     
     Write-Host ""
@@ -677,8 +695,8 @@ function Get-EmailSecurityRecords {
     Write-Host ""
     
     # ========== DKIM CHECK ==========
-    Write-Host "  [DKIM - DomainKeys Identified Mail]" -ForegroundColor Yellow
-    Write-Host "  Purpose: Cryptographically signs emails to verify sender authenticity" -ForegroundColor Gray
+    Write-Ui -Message "  [DKIM - DomainKeys Identified Mail]" -Level "WARN"
+    Write-Ui -Message "  Purpose: Cryptographically signs emails to verify sender authenticity" -Level "INFO"
     Write-Host ""
     
     $dkimFound = $false
@@ -706,22 +724,22 @@ function Get-EmailSecurityRecords {
     
     if ($dkimFound) {
         Write-Host "  Status: " -NoNewline -ForegroundColor White
-        Write-Host "FOUND" -ForegroundColor Green
-        Write-Host "  Selectors found:" -ForegroundColor White
+        Write-Ui -Message "FOUND" -Level "OK"
+        Write-Ui -Message "  Selectors found:" -Level "STEP"
         
         foreach ($found in $foundSelectors) {
-            Write-Host "    - $($found.Selector)._domainkey.$Domain" -ForegroundColor Cyan
+            Write-Ui -Message "    - $($found.Selector)._domainkey.$Domain" -Level "INFO"
             $truncatedRecord = if ($found.Record.Length -gt 60) { $found.Record.Substring(0, 57) + "..." } else { $found.Record }
-            Write-Host "      $truncatedRecord" -ForegroundColor Gray
+            Write-Ui -Message "      $truncatedRecord" -Level "INFO"
             Add-AnalysisResult -Domain $Domain -RecordType "DKIM" -Value "$($found.Selector)._domainkey" -Status "Found" -Details $found.Record
         }
         
         $securityScore++
     } else {
         Write-Host "  Status: " -NoNewline -ForegroundColor White
-        Write-Host "NOT FOUND" -ForegroundColor Yellow
-        Write-Host "  Note: Checked selectors: $($Script:DKIMSelectors -join ', ')" -ForegroundColor Gray
-        Write-Host "  Tip: DKIM may exist with a different selector" -ForegroundColor Gray
+        Write-Ui -Message "NOT FOUND" -Level "WARN"
+        Write-Ui -Message "  Note: Checked selectors: $($Script:DKIMSelectors -join ', ')" -Level "INFO"
+        Write-Ui -Message "  Tip: DKIM may exist with a different selector" -Level "INFO"
         
         # Prompt for custom selector
         Write-Host ""
@@ -734,17 +752,17 @@ function Get-EmailSecurityRecords {
                 if ($customDkimRecord -and ($customDkimRecord.Strings -join "") -match "v=DKIM1") {
                     $dkimValue = $customDkimRecord.Strings -join ""
                     Write-Host ""
-                    Write-Host "  DKIM found with selector '$customSelector'!" -ForegroundColor Green
-                    Write-Host "  Record: $dkimValue" -ForegroundColor Cyan
+                    Write-Ui -Message "  DKIM found with selector '$customSelector'!" -Level "OK"
+                    Write-Ui -Message "  Record: $dkimValue" -Level "INFO"
                     $dkimFound = $true
                     $securityScore++
                     Add-AnalysisResult -Domain $Domain -RecordType "DKIM" -Value "$customSelector._domainkey" -Status "Found" -Details $dkimValue
                 } else {
-                    Write-Host "  No DKIM record found for selector '$customSelector'" -ForegroundColor Yellow
+                    Write-Ui -Message "  No DKIM record found for selector '$customSelector'" -Level "WARN"
                 }
             }
             catch {
-                Write-Host "  No DKIM record found for selector '$customSelector'" -ForegroundColor Yellow
+                Write-Ui -Message "  No DKIM record found for selector '$customSelector'" -Level "WARN"
             }
         }
         
@@ -758,8 +776,8 @@ function Get-EmailSecurityRecords {
     Write-Host ""
     
     # ========== DMARC CHECK ==========
-    Write-Host "  [DMARC - Domain-based Message Authentication]" -ForegroundColor Yellow
-    Write-Host "  Purpose: Defines policy for handling emails that fail SPF/DKIM" -ForegroundColor Gray
+    Write-Ui -Message "  [DMARC - Domain-based Message Authentication]" -Level "WARN"
+    Write-Ui -Message "  Purpose: Defines policy for handling emails that fail SPF/DKIM" -Level "INFO"
     Write-Host ""
     
     $dmarcDomain = "_dmarc.$Domain"
@@ -770,45 +788,45 @@ function Get-EmailSecurityRecords {
         
         if ($dmarcValue -match "v=DMARC1") {
             Write-Host "  Status: " -NoNewline -ForegroundColor White
-            Write-Host "FOUND" -ForegroundColor Green
-            Write-Host "  Record: " -ForegroundColor White
-            Write-Host "    $dmarcValue" -ForegroundColor Cyan
+            Write-Ui -Message "FOUND" -Level "OK"
+            Write-Ui -Message "  Record: " -Level "STEP"
+            Write-Ui -Message "    $dmarcValue" -Level "INFO"
             
             # Parse DMARC policy
             if ($dmarcValue -match "p=reject") {
                 Write-Host "  Policy: " -NoNewline -ForegroundColor White
-                Write-Host "REJECT - Strict protection" -ForegroundColor Green
+                Write-Ui -Message "REJECT - Strict protection" -Level "OK"
             } elseif ($dmarcValue -match "p=quarantine") {
                 Write-Host "  Policy: " -NoNewline -ForegroundColor White
-                Write-Host "QUARANTINE - Moderate protection" -ForegroundColor Yellow
+                Write-Ui -Message "QUARANTINE - Moderate protection" -Level "WARN"
             } elseif ($dmarcValue -match "p=none") {
                 Write-Host "  Policy: " -NoNewline -ForegroundColor White
-                Write-Host "NONE - Monitoring only" -ForegroundColor Yellow
+                Write-Ui -Message "NONE - Monitoring only" -Level "WARN"
             }
             
             # Check for reporting
             if ($dmarcValue -match "rua=") {
                 Write-Host "  Aggregate Reports: " -NoNewline -ForegroundColor White
-                Write-Host "Configured" -ForegroundColor Green
+                Write-Ui -Message "Configured" -Level "OK"
             }
             if ($dmarcValue -match "ruf=") {
                 Write-Host "  Forensic Reports: " -NoNewline -ForegroundColor White
-                Write-Host "Configured" -ForegroundColor Green
+                Write-Ui -Message "Configured" -Level "OK"
             }
             
             $securityScore++
             Add-AnalysisResult -Domain $Domain -RecordType "DMARC" -Value $dmarcValue -Status "Found"
         } else {
             Write-Host "  Status: " -NoNewline -ForegroundColor White
-            Write-Host "INVALID" -ForegroundColor Red
-            Write-Host "  Record exists but is not valid DMARC" -ForegroundColor Yellow
+            Write-Ui -Message "INVALID" -Level "ERROR"
+            Write-Ui -Message "  Record exists but is not valid DMARC" -Level "WARN"
             Add-AnalysisResult -Domain $Domain -RecordType "DMARC" -Value "Invalid" -Status "Error"
         }
     }
     catch {
         Write-Host "  Status: " -NoNewline -ForegroundColor White
-        Write-Host "NOT FOUND" -ForegroundColor Red
-        Write-Host "  Warning: No DMARC record - no policy for failed authentication!" -ForegroundColor Red
+        Write-Ui -Message "NOT FOUND" -Level "ERROR"
+        Write-Ui -Message "  Warning: No DMARC record - no policy for failed authentication!" -Level "ERROR"
         Add-AnalysisResult -Domain $Domain -RecordType "DMARC" -Value "Not configured" -Status "Missing"
     }
     
@@ -817,7 +835,7 @@ function Get-EmailSecurityRecords {
     Write-Host ""
     
     # Security Score Summary
-    Write-Host "  EMAIL SECURITY SCORE" -ForegroundColor White
+    Write-Ui -Message "  EMAIL SECURITY SCORE" -Level "STEP"
     Write-Host ""
     
     $scorePercent = [math]::Round(($securityScore / $maxScore) * 100)
@@ -838,23 +856,23 @@ function Get-EmailSecurityRecords {
     Write-Host "  [" -NoNewline -ForegroundColor White
     Write-Host $filledBar -NoNewline -ForegroundColor $scoreColor
     Write-Host $emptyBar -NoNewline -ForegroundColor DarkGray
-    Write-Host "]" -ForegroundColor White
+    Write-Ui -Message "]" -Level "STEP"
     Write-Host ""
     
     # Recommendations
     if ($securityScore -lt $maxScore) {
-        Write-Host "  RECOMMENDATIONS:" -ForegroundColor Yellow
+        Write-Ui -Message "  RECOMMENDATIONS:" -Level "WARN"
         if (-not ($Script:AnalysisResults | Where-Object { $_.RecordType -eq "SPF" -and $_.Status -eq "Found" })) {
-            Write-Host "    - Add SPF record to prevent email spoofing" -ForegroundColor Gray
+            Write-Ui -Message "    - Add SPF record to prevent email spoofing" -Level "INFO"
         }
         if (-not $dkimFound) {
-            Write-Host "    - Configure DKIM for email authentication" -ForegroundColor Gray
+            Write-Ui -Message "    - Configure DKIM for email authentication" -Level "INFO"
         }
         if (-not ($Script:AnalysisResults | Where-Object { $_.RecordType -eq "DMARC" -and $_.Status -eq "Found" })) {
-            Write-Host "    - Add DMARC record to define authentication policy" -ForegroundColor Gray
+            Write-Ui -Message "    - Add DMARC record to define authentication policy" -Level "INFO"
         }
     } else {
-        Write-Host "  All email security records are configured!" -ForegroundColor Green
+        Write-Ui -Message "  All email security records are configured!" -Level "OK"
     }
     
     Write-Host ""
@@ -872,7 +890,7 @@ function Get-FullDomainAnalysis {
     
     Show-SouliTEKHeader -Title "FULL DOMAIN ANALYSIS" -Color Cyan -ClearHost -ShowBanner
     
-    Write-Host "      Complete WHOIS and DNS analysis" -ForegroundColor Gray
+    Write-Ui -Message "      Complete WHOIS and DNS analysis" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -888,10 +906,10 @@ function Get-FullDomainAnalysis {
     Write-Host ""
     Write-SouliTEKResult "Starting full analysis for $Domain..." -Level INFO
     Write-Host ""
-    Write-Host "This will check:" -ForegroundColor Yellow
-    Write-Host "  - WHOIS registration data" -ForegroundColor Gray
-    Write-Host "  - All DNS record types" -ForegroundColor Gray
-    Write-Host "  - Email security (SPF, DKIM, DMARC)" -ForegroundColor Gray
+    Write-Ui -Message "This will check:" -Level "WARN"
+    Write-Ui -Message "  - WHOIS registration data" -Level "INFO"
+    Write-Ui -Message "  - All DNS record types" -Level "INFO"
+    Write-Ui -Message "  - Email security (SPF, DKIM, DMARC)" -Level "INFO"
     Write-Host ""
     
     $confirm = Read-Host "Continue? [Y/n]"
@@ -907,7 +925,7 @@ function Get-FullDomainAnalysis {
     
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  PART 1: WHOIS INFORMATION" -ForegroundColor Yellow
+    Write-Ui -Message "  PART 1: WHOIS INFORMATION" -Level "WARN"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     
@@ -917,7 +935,7 @@ function Get-FullDomainAnalysis {
     }
     else {
         try {
-            Write-Host "  [*] Querying WHOIS..." -ForegroundColor Gray
+            Write-Ui -Message "  [*] Querying WHOIS..." -Level "INFO"
             
             # Use Sysinternals Whois tool
             $whoisProcess = Start-Process -FilePath $Script:WhoisToolPath -ArgumentList $Domain -NoNewWindow -Wait -PassThru -RedirectStandardOutput "$env:TEMP\whois_output.txt" -RedirectStandardError "$env:TEMP\whois_error.txt"
@@ -958,13 +976,13 @@ function Get-FullDomainAnalysis {
                 }
                 
                 # Display
-                Write-Host "  Registrar: $registrar" -ForegroundColor Cyan
+                Write-Ui -Message "  Registrar: $registrar" -Level "INFO"
                 
                 if ($created) {
                     try {
-                        Write-Host "  Created:   $([DateTime]::Parse($created).ToString('yyyy-MM-dd'))" -ForegroundColor Gray
+                        Write-Ui -Message "  Created:   $([DateTime]::Parse($created).ToString('yyyy-MM-dd'))" -Level "INFO"
                     } catch {
-                        Write-Host "  Created:   $created" -ForegroundColor Gray
+                        Write-Ui -Message "  Created:   $created" -Level "INFO"
                     }
                 }
                 
@@ -975,7 +993,7 @@ function Get-FullDomainAnalysis {
                         $expiryColor = if ($daysUntilExpiry -lt 30) { 'Red' } elseif ($daysUntilExpiry -lt 90) { 'Yellow' } else { 'Green' }
                         Write-Host "  Expires:   $($expiresDate.ToString('yyyy-MM-dd')) ($daysUntilExpiry days)" -ForegroundColor $expiryColor
                     } catch {
-                        Write-Host "  Expires:   $expires" -ForegroundColor Gray
+                        Write-Ui -Message "  Expires:   $expires" -Level "INFO"
                     }
                 }
                 
@@ -993,7 +1011,7 @@ function Get-FullDomainAnalysis {
                 $nsRecords = Resolve-DnsName -Name $Domain -Type NS -ErrorAction SilentlyContinue -DnsOnly
                 if ($nsRecords) {
                     $nsList = ($nsRecords | Where-Object { $_.Type -eq "NS" }).NameHost -join ", "
-                    Write-Host "  Name Servers (from DNS): $nsList" -ForegroundColor Cyan
+                    Write-Ui -Message "  Name Servers (from DNS): $nsList" -Level "INFO"
                     Add-AnalysisResult -Domain $Domain -RecordType "WHOIS" -Value "NS: $nsList" -Status "DNS Only"
                 }
             }
@@ -1003,7 +1021,7 @@ function Get-FullDomainAnalysis {
     
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  PART 2: DNS RECORDS" -ForegroundColor Yellow
+    Write-Ui -Message "  PART 2: DNS RECORDS" -Level "WARN"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     
@@ -1021,28 +1039,28 @@ function Get-FullDomainAnalysis {
                 switch ($type) {
                     "A" { 
                         $values = ($records | Where-Object { $_.Type -eq "A" }).IPAddress -join ", "
-                        Write-Host $values -ForegroundColor Cyan
+                        Write-Ui -Message $values -Level "INFO"
                         Add-AnalysisResult -Domain $Domain -RecordType "A" -Value $values -Status "Found"
                     }
                     "AAAA" { 
                         $values = ($records | Where-Object { $_.Type -eq "AAAA" }).IPAddress -join ", "
-                        Write-Host $values -ForegroundColor Cyan
+                        Write-Ui -Message $values -Level "INFO"
                         Add-AnalysisResult -Domain $Domain -RecordType "AAAA" -Value $values -Status "Found"
                     }
                     "MX" { 
                         $mxRecords = $records | Where-Object { $_.Type -eq "MX" }
                         $values = ($mxRecords | ForEach-Object { "$($_.Preference) $($_.NameExchange)" }) -join ", "
-                        Write-Host $values -ForegroundColor Cyan
+                        Write-Ui -Message $values -Level "INFO"
                         Add-AnalysisResult -Domain $Domain -RecordType "MX" -Value $values -Status "Found"
                     }
                     "NS" {
                         $values = ($records | Where-Object { $_.Type -eq "NS" }).NameHost -join ", "
-                        Write-Host $values -ForegroundColor Cyan
+                        Write-Ui -Message $values -Level "INFO"
                         Add-AnalysisResult -Domain $Domain -RecordType "NS" -Value $values -Status "Found"
                     }
                     "CNAME" {
                         $values = ($records | Where-Object { $_.Type -eq "CNAME" }).NameHost -join ", "
-                        Write-Host $values -ForegroundColor Cyan
+                        Write-Ui -Message $values -Level "INFO"
                         Add-AnalysisResult -Domain $Domain -RecordType "CNAME" -Value $values -Status "Found"
                     }
                 }
@@ -1050,7 +1068,7 @@ function Get-FullDomainAnalysis {
         }
         catch {
             Write-Host "  [$type] " -NoNewline -ForegroundColor Yellow
-            Write-Host "Not found" -ForegroundColor Gray
+            Write-Ui -Message "Not found" -Level "INFO"
         }
     }
     
@@ -1058,7 +1076,7 @@ function Get-FullDomainAnalysis {
     
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  PART 3: EMAIL SECURITY" -ForegroundColor Yellow
+    Write-Ui -Message "  PART 3: EMAIL SECURITY" -Level "WARN"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     
@@ -1069,16 +1087,16 @@ function Get-FullDomainAnalysis {
         
         Write-Host "  [SPF] " -NoNewline -ForegroundColor Yellow
         if ($spfRecord) {
-            Write-Host "Configured" -ForegroundColor Green
+            Write-Ui -Message "Configured" -Level "OK"
             Add-AnalysisResult -Domain $Domain -RecordType "SPF" -Value ($spfRecord.Strings -join "") -Status "Found"
         } else {
-            Write-Host "Missing" -ForegroundColor Red
+            Write-Ui -Message "Missing" -Level "ERROR"
             Add-AnalysisResult -Domain $Domain -RecordType "SPF" -Value "Not configured" -Status "Missing"
         }
     }
     catch {
         Write-Host "  [SPF] " -NoNewline -ForegroundColor Yellow
-        Write-Host "Error" -ForegroundColor Red
+        Write-Ui -Message "Error" -Level "ERROR"
     }
     
     # DKIM (check common selectors)
@@ -1088,7 +1106,7 @@ function Get-FullDomainAnalysis {
         try {
             $dkimRecord = Resolve-DnsName -Name "$selector._domainkey.$Domain" -Type TXT -ErrorAction Stop -DnsOnly
             if ($dkimRecord -and ($dkimRecord.Strings -join "") -match "v=DKIM1") {
-                Write-Host "Found (selector: $selector)" -ForegroundColor Green
+                Write-Ui -Message "Found (selector: $selector)" -Level "OK"
                 Add-AnalysisResult -Domain $Domain -RecordType "DKIM" -Value "$selector._domainkey" -Status "Found"
                 $dkimFound = $true
                 break
@@ -1097,7 +1115,7 @@ function Get-FullDomainAnalysis {
         catch { }
     }
     if (-not $dkimFound) {
-        Write-Host "Not found (checked common selectors)" -ForegroundColor Yellow
+        Write-Ui -Message "Not found (checked common selectors)" -Level "WARN"
         Add-AnalysisResult -Domain $Domain -RecordType "DKIM" -Value "Not found" -Status "Missing"
     }
     
@@ -1111,15 +1129,15 @@ function Get-FullDomainAnalysis {
             $policy = if ($dmarcValue -match "p=reject") { "reject" } 
                      elseif ($dmarcValue -match "p=quarantine") { "quarantine" }
                      else { "none" }
-            Write-Host "Configured (policy: $policy)" -ForegroundColor Green
+            Write-Ui -Message "Configured (policy: $policy)" -Level "OK"
             Add-AnalysisResult -Domain $Domain -RecordType "DMARC" -Value $dmarcValue -Status "Found"
         } else {
-            Write-Host "Invalid" -ForegroundColor Red
+            Write-Ui -Message "Invalid" -Level "ERROR"
         }
     }
     catch {
         Write-Host "  [DMARC] " -NoNewline -ForegroundColor Yellow
-        Write-Host "Missing" -ForegroundColor Red
+        Write-Ui -Message "Missing" -Level "ERROR"
         Add-AnalysisResult -Domain $Domain -RecordType "DMARC" -Value "Not configured" -Status "Missing"
     }
     
@@ -1127,11 +1145,11 @@ function Get-FullDomainAnalysis {
     
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  ANALYSIS COMPLETE" -ForegroundColor Green
+    Write-Ui -Message "  ANALYSIS COMPLETE" -Level "OK"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "  Total records found: $($Script:AnalysisResults.Count)" -ForegroundColor Yellow
-    Write-Host "  Use option [5] to export results" -ForegroundColor Gray
+    Write-Ui -Message "  Total records found: $($Script:AnalysisResults.Count)" -Level "WARN"
+    Write-Ui -Message "  Use option [5] to export results" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -1145,7 +1163,7 @@ function Get-FullDomainAnalysis {
 function Export-AnalysisResults {
     Show-SouliTEKHeader -Title "EXPORT RESULTS" -Color Yellow -ClearHost -ShowBanner
     
-    Write-Host "      Save analysis results to file" -ForegroundColor Gray
+    Write-Ui -Message "      Save analysis results to file" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -1153,20 +1171,20 @@ function Export-AnalysisResults {
     if ($Script:AnalysisResults.Count -eq 0) {
         Write-SouliTEKResult "No results to export" -Level WARNING
         Write-Host ""
-        Write-Host "Run some analysis first, then export the results." -ForegroundColor Yellow
+        Write-Ui -Message "Run some analysis first, then export the results." -Level "WARN"
         Write-Host ""
         Start-Sleep -Seconds 3
         return
     }
     
-    Write-Host "Total records: $($Script:AnalysisResults.Count)" -ForegroundColor Cyan
+    Write-Ui -Message "Total records: $($Script:AnalysisResults.Count)" -Level "INFO"
     Write-Host ""
-    Write-Host "Select export format:" -ForegroundColor White
+    Write-Ui -Message "Select export format:" -Level "STEP"
     Write-Host ""
-    Write-Host "  [1] Text File (.txt)" -ForegroundColor Yellow
-    Write-Host "  [2] CSV File (.csv)" -ForegroundColor Yellow
-    Write-Host "  [3] HTML Report (.html)" -ForegroundColor Yellow
-    Write-Host "  [0] Cancel" -ForegroundColor Red
+    Write-Ui -Message "  [1] Text File (.txt)" -Level "WARN"
+    Write-Ui -Message "  [2] CSV File (.csv)" -Level "WARN"
+    Write-Ui -Message "  [3] HTML Report (.html)" -Level "WARN"
+    Write-Ui -Message "  [0] Cancel" -Level "ERROR"
     Write-Host ""
     
     $choice = Read-Host "Enter your choice (0-3)"
@@ -1334,70 +1352,70 @@ function Export-AnalysisResults {
 function Show-Help {
     Show-SouliTEKHeader -Title "HELP GUIDE" -Color Cyan -ClearHost -ShowBanner
     
-    Write-Host "DOMAIN & DNS ANALYZER - USAGE GUIDE" -ForegroundColor Yellow
+    Write-Ui -Message "DOMAIN & DNS ANALYZER - USAGE GUIDE" -Level "WARN"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "DOMAIN ANALYSIS TOOLS:" -ForegroundColor Yellow
+    Write-Ui -Message "DOMAIN ANALYSIS TOOLS:" -Level "WARN"
     Write-Host ""
-    Write-Host "[1] FULL DOMAIN ANALYSIS" -ForegroundColor White
-    Write-Host "    Comprehensive analysis including:" -ForegroundColor Gray
-    Write-Host "    - WHOIS data (registrar, dates, nameservers)" -ForegroundColor Gray
-    Write-Host "    - All DNS records (A, AAAA, MX, NS, CNAME, TXT)" -ForegroundColor Gray
-    Write-Host "    - Email security (SPF, DKIM, DMARC)" -ForegroundColor Gray
+    Write-Ui -Message "[1] FULL DOMAIN ANALYSIS" -Level "STEP"
+    Write-Ui -Message "    Comprehensive analysis including:" -Level "INFO"
+    Write-Ui -Message "    - WHOIS data (registrar, dates, nameservers)" -Level "INFO"
+    Write-Ui -Message "    - All DNS records (A, AAAA, MX, NS, CNAME, TXT)" -Level "INFO"
+    Write-Ui -Message "    - Email security (SPF, DKIM, DMARC)" -Level "INFO"
     Write-Host ""
-    Write-Host "[2] WHOIS LOOKUP" -ForegroundColor White
-    Write-Host "    Query domain registration information:" -ForegroundColor Gray
-    Write-Host "    - Domain status, registrar, expiration dates" -ForegroundColor Gray
-    Write-Host "    - Name servers and DNSSEC status" -ForegroundColor Gray
+    Write-Ui -Message "[2] WHOIS LOOKUP" -Level "STEP"
+    Write-Ui -Message "    Query domain registration information:" -Level "INFO"
+    Write-Ui -Message "    - Domain status, registrar, expiration dates" -Level "INFO"
+    Write-Ui -Message "    - Name servers and DNSSEC status" -Level "INFO"
     Write-Host ""
-    Write-Host "[3] DNS RECORDS" -ForegroundColor White
-    Write-Host "    Query all DNS record types:" -ForegroundColor Gray
-    Write-Host "    - A, AAAA, MX, TXT, CNAME, NS, SOA, SRV" -ForegroundColor Gray
+    Write-Ui -Message "[3] DNS RECORDS" -Level "STEP"
+    Write-Ui -Message "    Query all DNS record types:" -Level "INFO"
+    Write-Ui -Message "    - A, AAAA, MX, TXT, CNAME, NS, SOA, SRV" -Level "INFO"
     Write-Host ""
-    Write-Host "[4] EMAIL SECURITY CHECK" -ForegroundColor White
-    Write-Host "    Analyze email authentication records:" -ForegroundColor Gray
-    Write-Host "    - SPF, DKIM, DMARC with security scoring" -ForegroundColor Gray
+    Write-Ui -Message "[4] EMAIL SECURITY CHECK" -Level "STEP"
+    Write-Ui -Message "    Analyze email authentication records:" -Level "INFO"
+    Write-Ui -Message "    - SPF, DKIM, DMARC with security scoring" -Level "INFO"
     Write-Host ""
-    Write-Host "[5] SSL CERTIFICATE CHECK" -ForegroundColor White
-    Write-Host "    Analyze SSL/TLS certificate:" -ForegroundColor Gray
-    Write-Host "    - Validity dates and expiration warning" -ForegroundColor Gray
-    Write-Host "    - Issuer information (CA)" -ForegroundColor Gray
-    Write-Host "    - Encryption algorithm and key size" -ForegroundColor Gray
-    Write-Host "    - Subject Alternative Names (SAN)" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "DNS RECORD TYPES:" -ForegroundColor Yellow
-    Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "A      - IPv4 address (e.g., 93.184.216.34)" -ForegroundColor Gray
-    Write-Host "AAAA   - IPv6 address" -ForegroundColor Gray
-    Write-Host "MX     - Mail servers (with priority)" -ForegroundColor Gray
-    Write-Host "TXT    - Text records (SPF, DKIM, verification)" -ForegroundColor Gray
-    Write-Host "CNAME  - Alias to another domain" -ForegroundColor Gray
-    Write-Host "NS     - Authoritative name servers" -ForegroundColor Gray
-    Write-Host "SOA    - Start of Authority (zone info)" -ForegroundColor Gray
-    Write-Host "SRV    - Service location records" -ForegroundColor Gray
+    Write-Ui -Message "[5] SSL CERTIFICATE CHECK" -Level "STEP"
+    Write-Ui -Message "    Analyze SSL/TLS certificate:" -Level "INFO"
+    Write-Ui -Message "    - Validity dates and expiration warning" -Level "INFO"
+    Write-Ui -Message "    - Issuer information (CA)" -Level "INFO"
+    Write-Ui -Message "    - Encryption algorithm and key size" -Level "INFO"
+    Write-Ui -Message "    - Subject Alternative Names (SAN)" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "EMAIL SECURITY:" -ForegroundColor Yellow
+    Write-Ui -Message "DNS RECORD TYPES:" -Level "WARN"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "SPF    - Sender Policy Framework" -ForegroundColor Gray
-    Write-Host "         Specifies allowed mail servers" -ForegroundColor Gray
-    Write-Host "DKIM   - DomainKeys Identified Mail" -ForegroundColor Gray
-    Write-Host "         Cryptographic email signing" -ForegroundColor Gray
-    Write-Host "DMARC  - Domain Message Authentication" -ForegroundColor Gray
-    Write-Host "         Policy: none, quarantine, reject" -ForegroundColor Gray
+    Write-Ui -Message "A      - IPv4 address (e.g., 93.184.216.34)" -Level "INFO"
+    Write-Ui -Message "AAAA   - IPv6 address" -Level "INFO"
+    Write-Ui -Message "MX     - Mail servers (with priority)" -Level "INFO"
+    Write-Ui -Message "TXT    - Text records (SPF, DKIM, verification)" -Level "INFO"
+    Write-Ui -Message "CNAME  - Alias to another domain" -Level "INFO"
+    Write-Ui -Message "NS     - Authoritative name servers" -Level "INFO"
+    Write-Ui -Message "SOA    - Start of Authority (zone info)" -Level "INFO"
+    Write-Ui -Message "SRV    - Service location records" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "SSL CERTIFICATE FIELDS:" -ForegroundColor Yellow
+    Write-Ui -Message "EMAIL SECURITY:" -Level "WARN"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "Validity   - Certificate expiration date" -ForegroundColor Gray
-    Write-Host "Issuer     - Certificate Authority (CA)" -ForegroundColor Gray
-    Write-Host "SAN        - Subject Alternative Names (domains covered)" -ForegroundColor Gray
-    Write-Host "Algorithm  - Encryption algorithm (RSA, ECDSA)" -ForegroundColor Gray
-    Write-Host "Key Size   - Encryption strength (2048+ bits recommended)" -ForegroundColor Gray
+    Write-Ui -Message "SPF    - Sender Policy Framework" -Level "INFO"
+    Write-Ui -Message "         Specifies allowed mail servers" -Level "INFO"
+    Write-Ui -Message "DKIM   - DomainKeys Identified Mail" -Level "INFO"
+    Write-Ui -Message "         Cryptographic email signing" -Level "INFO"
+    Write-Ui -Message "DMARC  - Domain Message Authentication" -Level "INFO"
+    Write-Ui -Message "         Policy: none, quarantine, reject" -Level "INFO"
+    Write-Host ""
+    Write-Host "============================================================" -ForegroundColor Cyan
+    Write-Ui -Message "SSL CERTIFICATE FIELDS:" -Level "WARN"
+    Write-Host "============================================================" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Ui -Message "Validity   - Certificate expiration date" -Level "INFO"
+    Write-Ui -Message "Issuer     - Certificate Authority (CA)" -Level "INFO"
+    Write-Ui -Message "SAN        - Subject Alternative Names (domains covered)" -Level "INFO"
+    Write-Ui -Message "Algorithm  - Encryption algorithm (RSA, ECDSA)" -Level "INFO"
+    Write-Ui -Message "Key Size   - Encryption strength (2048+ bits recommended)" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -1414,7 +1432,7 @@ function Get-SSLCertificate {
     
     Show-SouliTEKHeader -Title "SSL CERTIFICATE CHECK" -Color DarkYellow -ClearHost -ShowBanner
     
-    Write-Host "      Analyze SSL/TLS certificate for a domain" -ForegroundColor Gray
+    Write-Ui -Message "      Analyze SSL/TLS certificate for a domain" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -1434,7 +1452,7 @@ function Get-SSLCertificate {
     try {
         # Create TCP connection to get certificate
         $port = 443
-        Write-Host "  [*] Connecting to ${Domain}:$port..." -ForegroundColor Gray
+        Write-Ui -Message "  [*] Connecting to ${Domain}:$port..." -Level "INFO"
         
         $tcpClient = New-Object System.Net.Sockets.TcpClient
         $tcpClient.Connect($Domain, $port)
@@ -1458,14 +1476,14 @@ function Get-SSLCertificate {
         Write-Host ""
         
         # Certificate validity
-        Write-Host "  VALIDITY:" -ForegroundColor Yellow
+        Write-Ui -Message "  VALIDITY:" -Level "WARN"
         
         $notBefore = $cert2.NotBefore
         $notAfter = $cert2.NotAfter
         $daysRemaining = ($notAfter - (Get-Date)).Days
         
         Write-Host "  Valid From:    " -NoNewline -ForegroundColor White
-        Write-Host $notBefore.ToString("yyyy-MM-dd HH:mm:ss") -ForegroundColor Gray
+        Write-Ui -Message $notBefore.ToString("yyyy-MM-dd HH:mm:ss") -Level "INFO"
         
         Write-Host "  Valid Until:   " -NoNewline -ForegroundColor White
         $expiryColor = if ($daysRemaining -lt 30) { 'Red' } elseif ($daysRemaining -lt 90) { 'Yellow' } else { 'Green' }
@@ -1474,13 +1492,13 @@ function Get-SSLCertificate {
         
         Write-Host "  Status:        " -NoNewline -ForegroundColor White
         if ($daysRemaining -gt 0) {
-            Write-Host "VALID" -ForegroundColor Green
+            Write-Ui -Message "VALID" -Level "OK"
         } else {
-            Write-Host "EXPIRED" -ForegroundColor Red
+            Write-Ui -Message "EXPIRED" -Level "ERROR"
         }
         
         Write-Host ""
-        Write-Host "  ISSUER:" -ForegroundColor Yellow
+        Write-Ui -Message "  ISSUER:" -Level "WARN"
         
         # Parse issuer
         $issuerParts = $cert2.Issuer -split ', '
@@ -1489,29 +1507,29 @@ function Get-SSLCertificate {
         $issuerC = ($issuerParts | Where-Object { $_ -match '^C=' }) -replace '^C=', ''
         
         Write-Host "  Common Name:   " -NoNewline -ForegroundColor White
-        Write-Host $issuerCN -ForegroundColor Cyan
+        Write-Ui -Message $issuerCN -Level "INFO"
         
         Write-Host "  Organization:  " -NoNewline -ForegroundColor White
-        Write-Host $issuerO -ForegroundColor Gray
+        Write-Ui -Message $issuerO -Level "INFO"
         
         Write-Host "  Country:       " -NoNewline -ForegroundColor White
-        Write-Host $issuerC -ForegroundColor Gray
+        Write-Ui -Message $issuerC -Level "INFO"
         
         Write-Host ""
-        Write-Host "  SUBJECT:" -ForegroundColor Yellow
+        Write-Ui -Message "  SUBJECT:" -Level "WARN"
         
         # Parse subject
         $subjectParts = $cert2.Subject -split ', '
         $subjectCN = ($subjectParts | Where-Object { $_ -match '^CN=' }) -replace '^CN=', ''
         
         Write-Host "  Common Name:   " -NoNewline -ForegroundColor White
-        Write-Host $subjectCN -ForegroundColor Cyan
+        Write-Ui -Message $subjectCN -Level "INFO"
         
         Write-Host ""
-        Write-Host "  ENCRYPTION:" -ForegroundColor Yellow
+        Write-Ui -Message "  ENCRYPTION:" -Level "WARN"
         
         Write-Host "  Algorithm:     " -NoNewline -ForegroundColor White
-        Write-Host $cert2.SignatureAlgorithm.FriendlyName -ForegroundColor Cyan
+        Write-Ui -Message $cert2.SignatureAlgorithm.FriendlyName -Level "INFO"
         
         Write-Host "  Key Size:      " -NoNewline -ForegroundColor White
         $keySize = $cert2.PublicKey.Key.KeySize
@@ -1519,14 +1537,14 @@ function Get-SSLCertificate {
         Write-Host "$keySize bits" -ForegroundColor $keySizeColor
         
         Write-Host "  Thumbprint:    " -NoNewline -ForegroundColor White
-        Write-Host $cert2.Thumbprint -ForegroundColor Gray
+        Write-Ui -Message $cert2.Thumbprint -Level "INFO"
         
         Write-Host "  Serial Number: " -NoNewline -ForegroundColor White
-        Write-Host $cert2.SerialNumber -ForegroundColor Gray
+        Write-Ui -Message $cert2.SerialNumber -Level "INFO"
         
         # Get SAN (Subject Alternative Names)
         Write-Host ""
-        Write-Host "  SUBJECT ALTERNATIVE NAMES (SAN):" -ForegroundColor Yellow
+        Write-Ui -Message "  SUBJECT ALTERNATIVE NAMES (SAN):" -Level "WARN"
         
         $sanExtension = $cert2.Extensions | Where-Object { $_.Oid.FriendlyName -eq "Subject Alternative Name" }
         if ($sanExtension) {
@@ -1536,20 +1554,20 @@ function Get-SSLCertificate {
             if ($sanNames.Count -gt 0) {
                 foreach ($san in $sanNames) {
                     $sanValue = $san -replace '^DNS Name=', ''
-                    Write-Host "    - $sanValue" -ForegroundColor Cyan
+                    Write-Ui -Message "    - $sanValue" -Level "INFO"
                 }
             } else {
-                Write-Host "    No SAN entries found" -ForegroundColor Gray
+                Write-Ui -Message "    No SAN entries found" -Level "INFO"
             }
         } else {
-            Write-Host "    No SAN extension present" -ForegroundColor Gray
+            Write-Ui -Message "    No SAN extension present" -Level "INFO"
         }
         
         # TLS version check
         Write-Host ""
-        Write-Host "  TLS PROTOCOL:" -ForegroundColor Yellow
+        Write-Ui -Message "  TLS PROTOCOL:" -Level "WARN"
         Write-Host "  Protocol:      " -NoNewline -ForegroundColor White
-        Write-Host $sslStream.SslProtocol -ForegroundColor Cyan
+        Write-Ui -Message $sslStream.SslProtocol -Level "INFO"
         
         # Certificate chain
         Write-Host ""
@@ -1557,7 +1575,7 @@ function Get-SSLCertificate {
         
         # Summary assessment
         Write-Host ""
-        Write-Host "  CERTIFICATE ASSESSMENT:" -ForegroundColor Yellow
+        Write-Ui -Message "  CERTIFICATE ASSESSMENT:" -Level "WARN"
         
         $issues = @()
         if ($daysRemaining -lt 30) { $issues += "Expires soon (less than 30 days)" }
@@ -1566,12 +1584,12 @@ function Get-SSLCertificate {
         
         if ($issues.Count -eq 0) {
             Write-Host "  Status:        " -NoNewline -ForegroundColor White
-            Write-Host "GOOD - No issues detected" -ForegroundColor Green
+            Write-Ui -Message "GOOD - No issues detected" -Level "OK"
         } else {
             Write-Host "  Status:        " -NoNewline -ForegroundColor White
-            Write-Host "ISSUES DETECTED" -ForegroundColor Red
+            Write-Ui -Message "ISSUES DETECTED" -Level "ERROR"
             foreach ($issue in $issues) {
-                Write-Host "    - $issue" -ForegroundColor Yellow
+                Write-Ui -Message "    - $issue" -Level "WARN"
             }
         }
         
@@ -1587,11 +1605,11 @@ function Get-SSLCertificate {
         Write-Host ""
         Write-SouliTEKResult "SSL certificate check failed: $($_.Exception.Message)" -Level ERROR
         Write-Host ""
-        Write-Host "Possible reasons:" -ForegroundColor Yellow
-        Write-Host "  - Domain does not have HTTPS enabled" -ForegroundColor Gray
-        Write-Host "  - Connection blocked by firewall" -ForegroundColor Gray
-        Write-Host "  - Invalid domain name" -ForegroundColor Gray
-        Write-Host "  - Server not responding on port 443" -ForegroundColor Gray
+        Write-Ui -Message "Possible reasons:" -Level "WARN"
+        Write-Ui -Message "  - Domain does not have HTTPS enabled" -Level "INFO"
+        Write-Ui -Message "  - Connection blocked by firewall" -Level "INFO"
+        Write-Ui -Message "  - Invalid domain name" -Level "INFO"
+        Write-Ui -Message "  - Server not responding on port 443" -Level "INFO"
         
         Add-AnalysisResult -Domain $Domain -RecordType "SSL Certificate" -Value "Failed" -Status "Error" -Details $_.Exception.Message
     }
@@ -1607,37 +1625,37 @@ function Get-SSLCertificate {
 function Show-MainMenu {
     Show-SouliTEKHeader -Title "DOMAIN & DNS ANALYZER - Professional Edition" -Color Cyan -ClearHost -ShowBanner
     
-    Write-Host "      Coded by: Soulitek.co.il" -ForegroundColor Green
-    Write-Host "      IT Solutions for your business" -ForegroundColor Green
-    Write-Host "      www.soulitek.co.il" -ForegroundColor Green
+    Write-Ui -Message "      Coded by: Soulitek.co.il" -Level "OK"
+    Write-Ui -Message "      IT Solutions for your business" -Level "OK"
+    Write-Ui -Message "      www.soulitek.co.il" -Level "OK"
     Write-Host ""
-    Write-Host "      (C) 2025 Soulitek - All Rights Reserved" -ForegroundColor DarkGray
+    Write-Ui -Message "      (C) 2025 Soulitek - All Rights Reserved" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     
     if ($Script:AnalysisResults.Count -gt 0) {
-        Write-Host "  Records analyzed: $($Script:AnalysisResults.Count)" -ForegroundColor Yellow
+        Write-Ui -Message "  Records analyzed: $($Script:AnalysisResults.Count)" -Level "WARN"
         if ($Script:LastDomain) {
-            Write-Host "  Last domain: $($Script:LastDomain)" -ForegroundColor Gray
+            Write-Ui -Message "  Last domain: $($Script:LastDomain)" -Level "INFO"
         }
         Write-Host ""
     }
     
-    Write-Host "Select an option:" -ForegroundColor White
+    Write-Ui -Message "Select an option:" -Level "STEP"
     Write-Host ""
-    Write-Host "  DOMAIN ANALYSIS:" -ForegroundColor DarkCyan
-    Write-Host "  [1] Full Domain Analysis     - WHOIS + DNS + Email Security" -ForegroundColor Yellow
-    Write-Host "  [2] WHOIS Lookup             - Domain registration info" -ForegroundColor Yellow
-    Write-Host "  [3] DNS Records              - All DNS record types" -ForegroundColor Yellow
-    Write-Host "  [4] Email Security Check     - SPF, DKIM, DMARC" -ForegroundColor Yellow
-    Write-Host "  [5] SSL Certificate Check    - Validity, issuer, encryption" -ForegroundColor Yellow
+    Write-Ui -Message "  DOMAIN ANALYSIS:" -Level "INFO"
+    Write-Ui -Message "  [1] Full Domain Analysis     - WHOIS + DNS + Email Security" -Level "WARN"
+    Write-Ui -Message "  [2] WHOIS Lookup             - Domain registration info" -Level "WARN"
+    Write-Ui -Message "  [3] DNS Records              - All DNS record types" -Level "WARN"
+    Write-Ui -Message "  [4] Email Security Check     - SPF, DKIM, DMARC" -Level "WARN"
+    Write-Ui -Message "  [5] SSL Certificate Check    - Validity, issuer, encryption" -Level "WARN"
     Write-Host ""
-    Write-Host "  OTHER:" -ForegroundColor DarkCyan
-    Write-Host "  [9] Export Results           - Save to file" -ForegroundColor Cyan
-    Write-Host "  [C] Clear Results            - Clear analysis history" -ForegroundColor Magenta
-    Write-Host "  [H] Help                     - Usage guide" -ForegroundColor White
-    Write-Host "  [0] Exit" -ForegroundColor Red
+    Write-Ui -Message "  OTHER:" -Level "INFO"
+    Write-Ui -Message "  [9] Export Results           - Save to file" -Level "INFO"
+    Write-Ui -Message "  [C] Clear Results            - Clear analysis history" -Level "INFO"
+    Write-Ui -Message "  [H] Help                     - Usage guide" -Level "STEP"
+    Write-Ui -Message "  [0] Exit" -Level "ERROR"
     Write-Host ""
     Write-Host "========================================" -ForegroundColor DarkGray
     

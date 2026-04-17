@@ -61,7 +61,7 @@ function Connect-ToMicrosoftGraph {
 	Show-Header "Connecting to Microsoft 365"
 	
 	# Use centralized module installation function
-	Write-Host "[Step 1/4] Installing/verifying Microsoft Graph modules..." -ForegroundColor Cyan
+	Write-Ui -Message "[Step 1/4] Installing/verifying Microsoft Graph modules..." -Level "INFO"
 	Write-Host ""
 	
 	$modulesToInstall = @(
@@ -83,22 +83,22 @@ function Connect-ToMicrosoftGraph {
 	
 	if (-not $allModulesInstalled) {
 		Write-Host ""
-		Write-Host "[-] Some required modules failed to install" -ForegroundColor Red
+		Write-Ui -Message "[-] Some required modules failed to install" -Level "ERROR"
 		return $false
 	}
 	
 	Write-Host ""
-	Write-Host "[+] All Microsoft Graph modules ready" -ForegroundColor Green
+	Write-Ui -Message "[+] All Microsoft Graph modules ready" -Level "OK"
 	
 	try {
 	Write-Host ""
-	Write-Host "[Step 2/4] Checking existing connection..." -ForegroundColor Cyan
+	Write-Ui -Message "[Step 2/4] Checking existing connection..." -Level "INFO"
 	# Check if already connected
 	$context = Get-MgContext -ErrorAction SilentlyContinue
 	if ($context) {
-		Write-Host "          [+] Already connected to Microsoft Graph" -ForegroundColor Green
-		Write-Host "          Account: $($context.Account)" -ForegroundColor Gray
-		Write-Host "          Tenant: $($context.TenantId)" -ForegroundColor Gray
+		Write-Ui -Message "          [+] Already connected to Microsoft Graph" -Level "OK"
+		Write-Ui -Message "          Account: $($context.Account)" -Level "INFO"
+		Write-Ui -Message "          Tenant: $($context.TenantId)" -Level "INFO"
 		
 		# Get organization/domain information if not already set
 		if ($Script:TenantDomain -eq "Unknown") {
@@ -117,14 +117,14 @@ function Connect-ToMicrosoftGraph {
 			}
 		}
 		if ($Script:TenantDomain -ne "Unknown") {
-			Write-Host "          Organization: $($Script:TenantName)" -ForegroundColor Gray
-			Write-Host "          Domain: $($Script:TenantDomain)" -ForegroundColor Gray
+			Write-Ui -Message "          Organization: $($Script:TenantName)" -Level "INFO"
+			Write-Ui -Message "          Domain: $($Script:TenantDomain)" -Level "INFO"
 		}
 		Write-Host ""
 		Write-Host "------------------------------------------------------------" -ForegroundColor Yellow
-		Write-Host "Would you like to:" -ForegroundColor Yellow
-		Write-Host "  1. Keep current connection" -ForegroundColor White
-		Write-Host "  2. Disconnect and connect to a different tenant" -ForegroundColor White
+		Write-Ui -Message "Would you like to:" -Level "WARN"
+		Write-Ui -Message "  1. Keep current connection" -Level "STEP"
+		Write-Ui -Message "  2. Disconnect and connect to a different tenant" -Level "STEP"
 		Write-Host ""
 		Write-Host "Select option (1-2): " -NoNewline -ForegroundColor Cyan
 		$reconnectChoice = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
@@ -132,46 +132,46 @@ function Connect-ToMicrosoftGraph {
 		Write-Host ""
 		
 		if ($reconnectChoice.Character -eq '2') {
-			Write-Host "Disconnecting from current tenant..." -ForegroundColor Yellow
+			Write-Ui -Message "Disconnecting from current tenant..." -Level "WARN"
 			try {
 				Disconnect-MgGraph -ErrorAction SilentlyContinue | Out-Null
 				$Script:Connected = $false
 				$Script:TenantDomain = "Unknown"
 				$Script:TenantName = "Unknown"
-				Write-Host "[+] Disconnected successfully" -ForegroundColor Green
+				Write-Ui -Message "[+] Disconnected successfully" -Level "OK"
 				Write-Host ""
 				# Continue to new connection below
 			} catch {
 				Write-Warning "Disconnect failed: $($_.Exception.Message)"
 				Write-Host ""
-				Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+				Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 				$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 				return $false
 			}
 		} else {
-			Write-Host "[+] Using existing connection" -ForegroundColor Green
+			Write-Ui -Message "[+] Using existing connection" -Level "OK"
 			$Script:Connected = $true
 			Write-Host ""
-			Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+			Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 			$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 			return $true
 		}
 	}
-	Write-Host "          No existing connection found" -ForegroundColor Yellow
+	Write-Ui -Message "          No existing connection found" -Level "WARN"
 		
 		Write-Host ""
-		Write-Host "[Step 3/3] Initiating connection to Microsoft Graph..." -ForegroundColor Cyan
-		Write-Host "          This will open a browser window for authentication" -ForegroundColor Yellow
-		Write-Host "          Required permissions:" -ForegroundColor Gray
-		Write-Host "            - User.Read.All (read user information)" -ForegroundColor Gray
-		Write-Host "            - UserAuthenticationMethod.Read.All (read MFA status)" -ForegroundColor Gray
-		Write-Host "            - Organization.Read.All (read organization info)" -ForegroundColor Gray
-		Write-Host "            - Directory.Read.All (read roles and groups)" -ForegroundColor Gray
-		Write-Host "            - Group.Read.All (read group memberships)" -ForegroundColor Gray
-		Write-Host "            - Mail.Read (read mailbox settings)" -ForegroundColor Gray
-		Write-Host "            - MailboxSettings.Read (read mailbox configuration)" -ForegroundColor Gray
+		Write-Ui -Message "[Step 3/3] Initiating connection to Microsoft Graph..." -Level "INFO"
+		Write-Ui -Message "          This will open a browser window for authentication" -Level "WARN"
+		Write-Ui -Message "          Required permissions:" -Level "INFO"
+		Write-Ui -Message "            - User.Read.All (read user information)" -Level "INFO"
+		Write-Ui -Message "            - UserAuthenticationMethod.Read.All (read MFA status)" -Level "INFO"
+		Write-Ui -Message "            - Organization.Read.All (read organization info)" -Level "INFO"
+		Write-Ui -Message "            - Directory.Read.All (read roles and groups)" -Level "INFO"
+		Write-Ui -Message "            - Group.Read.All (read group memberships)" -Level "INFO"
+		Write-Ui -Message "            - Mail.Read (read mailbox settings)" -Level "INFO"
+		Write-Ui -Message "            - MailboxSettings.Read (read mailbox configuration)" -Level "INFO"
 		Write-Host ""
-		Write-Host "          Opening authentication browser window..." -ForegroundColor Cyan
+		Write-Ui -Message "          Opening authentication browser window..." -Level "INFO"
 		
 		# Scopes for users, authentication methods, organization, roles, groups, and mail
 		$scopes = @(
@@ -185,15 +185,15 @@ function Connect-ToMicrosoftGraph {
 		)
 		Connect-MgGraph -Scopes $scopes -ErrorAction Stop | Out-Null
 		
-		Write-Host "          [+] Authentication successful!" -ForegroundColor Green
+		Write-Ui -Message "          [+] Authentication successful!" -Level "OK"
 		
 		$context = Get-MgContext
-		Write-Host "          Connected as: $($context.Account)" -ForegroundColor Gray
-		Write-Host "          Tenant: $($context.TenantId)" -ForegroundColor Gray
+		Write-Ui -Message "          Connected as: $($context.Account)" -Level "INFO"
+		Write-Ui -Message "          Tenant: $($context.TenantId)" -Level "INFO"
 		
 		# Get organization/domain information
 		Write-Host ""
-		Write-Host "[Step 4/4] Retrieving organization details..." -ForegroundColor Cyan
+		Write-Ui -Message "[Step 4/4] Retrieving organization details..." -Level "INFO"
 		try {
 			$org = Get-MgOrganization -ErrorAction Stop | Select-Object -First 1
 			if ($org) {
@@ -203,8 +203,8 @@ function Connect-ToMicrosoftGraph {
 				} else { 
 					"Unknown" 
 				}
-				Write-Host "          Organization: $($Script:TenantName)" -ForegroundColor Gray
-				Write-Host "          Domain: $($Script:TenantDomain)" -ForegroundColor Gray
+				Write-Ui -Message "          Organization: $($Script:TenantName)" -Level "INFO"
+				Write-Ui -Message "          Domain: $($Script:TenantDomain)" -Level "INFO"
 			}
 		} catch {
 			Write-Warning "Could not retrieve organization details: $($_.Exception.Message)"
@@ -212,7 +212,7 @@ function Connect-ToMicrosoftGraph {
 		
 		Write-Host ""
 		Write-Host "============================================================" -ForegroundColor Green
-		Write-Host "  [+] Microsoft Graph Connected Successfully" -ForegroundColor Green
+		Write-Ui -Message "  [+] Microsoft Graph Connected Successfully" -Level "OK"
 		Write-Host "============================================================" -ForegroundColor Green
 		Write-Host ""
 		$Script:Connected = $true
@@ -220,15 +220,15 @@ function Connect-ToMicrosoftGraph {
 	} catch {
 		Write-Host ""
 		Write-Host "============================================================" -ForegroundColor Red
-		Write-Host "  [-] Microsoft Graph Connection Failed" -ForegroundColor Red
+		Write-Ui -Message "  [-] Microsoft Graph Connection Failed" -Level "ERROR"
 		Write-Host "============================================================" -ForegroundColor Red
 		Write-Host ""
 		Write-Warning "Connection failed: $($_.Exception.Message)"
 		Write-Host ""
-		Write-Host "Troubleshooting steps:" -ForegroundColor Yellow
-		Write-Host "  1. Check your internet connection" -ForegroundColor Gray
-		Write-Host "  2. Verify you have appropriate permissions (Global Administrator or Global Reader)" -ForegroundColor Gray
-		Write-Host "  3. Try running the script again" -ForegroundColor Gray
+		Write-Ui -Message "Troubleshooting steps:" -Level "WARN"
+		Write-Ui -Message "  1. Check your internet connection" -Level "INFO"
+		Write-Ui -Message "  2. Verify you have appropriate permissions (Global Administrator or Global Reader)" -Level "INFO"
+		Write-Ui -Message "  3. Try running the script again" -Level "INFO"
 		Write-Host ""
 	}
 	return $connected
@@ -459,23 +459,23 @@ function Disconnect-FromMicrosoftGraph {
 	Show-Header "Disconnect from Microsoft 365"
 	
 	if (-not $Script:Connected) {
-		Write-Host "Not currently connected to Microsoft Graph." -ForegroundColor Yellow
+		Write-Ui -Message "Not currently connected to Microsoft Graph." -Level "WARN"
 		Write-Host ""
-		Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+		Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 		$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 		return
 	}
 	
-	Write-Host "Current connection:" -ForegroundColor Cyan
+	Write-Ui -Message "Current connection:" -Level "INFO"
 	Write-Host ""
 	if ($Script:TenantDomain -ne "Unknown") {
-		Write-Host "  Organization: $($Script:TenantName)" -ForegroundColor Gray
-		Write-Host "  Domain: $($Script:TenantDomain)" -ForegroundColor Gray
+		Write-Ui -Message "  Organization: $($Script:TenantName)" -Level "INFO"
+		Write-Ui -Message "  Domain: $($Script:TenantDomain)" -Level "INFO"
 	}
 	$context = Get-MgContext -ErrorAction SilentlyContinue
 	if ($context) {
-		Write-Host "  Account: $($context.Account)" -ForegroundColor Gray
-		Write-Host "  Tenant: $($context.TenantId)" -ForegroundColor Gray
+		Write-Ui -Message "  Account: $($context.Account)" -Level "INFO"
+		Write-Ui -Message "  Tenant: $($context.TenantId)" -Level "INFO"
 	}
 	Write-Host ""
 	Write-Host "------------------------------------------------------------" -ForegroundColor Yellow
@@ -486,7 +486,7 @@ function Disconnect-FromMicrosoftGraph {
 	
 	if ($confirm.Character -eq 'Y' -or $confirm.Character -eq 'y') {
 		try {
-			Write-Host "Disconnecting from Microsoft Graph..." -ForegroundColor Cyan
+			Write-Ui -Message "Disconnecting from Microsoft Graph..." -Level "INFO"
 			Disconnect-MgGraph -ErrorAction Stop | Out-Null
 			$Script:Connected = $false
 			$Script:TenantDomain = "Unknown"
@@ -494,26 +494,26 @@ function Disconnect-FromMicrosoftGraph {
 			$Script:UserData = @()
 			Write-Host ""
 			Write-Host "============================================================" -ForegroundColor Green
-			Write-Host "  [+] Disconnected Successfully" -ForegroundColor Green
+			Write-Ui -Message "  [+] Disconnected Successfully" -Level "OK"
 			Write-Host "============================================================" -ForegroundColor Green
 			Write-Host ""
-			Write-Host "User data has been cleared." -ForegroundColor Gray
+			Write-Ui -Message "User data has been cleared." -Level "INFO"
 			Write-Host ""
 		} catch {
 			Write-Host ""
 			Write-Host "============================================================" -ForegroundColor Red
-			Write-Host "  [-] Disconnect Failed" -ForegroundColor Red
+			Write-Ui -Message "  [-] Disconnect Failed" -Level "ERROR"
 			Write-Host "============================================================" -ForegroundColor Red
 			Write-Host ""
 			Write-Warning "Disconnect failed: $($_.Exception.Message)"
 			Write-Host ""
 		}
 	} else {
-		Write-Host "Disconnect cancelled." -ForegroundColor Yellow
+		Write-Ui -Message "Disconnect cancelled." -Level "WARN"
 		Write-Host ""
 	}
 	
-	Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+	Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 	$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
@@ -521,29 +521,29 @@ function Get-AllUsers {
 	Show-Header "Retrieving Microsoft 365 Users"
 	
 	if (-not $Script:Connected) {
-		Write-Host "Not connected to Microsoft Graph. Please connect first." -ForegroundColor Red
+		Write-Ui -Message "Not connected to Microsoft Graph. Please connect first." -Level "ERROR"
 		Write-Host ""
-		Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+		Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 		$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 		return
 	}
 	
 	try {
-		Write-Host "Retrieving all users from Microsoft 365..." -ForegroundColor Cyan
-		Write-Host "This may take a few moments depending on the number of users..." -ForegroundColor Gray
+		Write-Ui -Message "Retrieving all users from Microsoft 365..." -Level "INFO"
+		Write-Ui -Message "This may take a few moments depending on the number of users..." -Level "INFO"
 		Write-Host ""
 		
 		$allUsers = Get-MgUser -All -Property DisplayName,UserPrincipalName,Mail,JobTitle,Department,OfficeLocation,AccountEnabled,CompanyName,BusinessPhones,MobilePhone,AssignedLicenses,LastSignInDateTime,CreatedDateTime -ErrorAction Stop
 		
 		if (-not $allUsers -or $allUsers.Count -eq 0) {
-			Write-Host "No users found in the tenant." -ForegroundColor Yellow
+			Write-Ui -Message "No users found in the tenant." -Level "WARN"
 			Write-Host ""
-			Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+			Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 			$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 			return
 		}
 		
-		Write-Host "Found $($allUsers.Count) user(s). Processing user details..." -ForegroundColor Green
+		Write-Ui -Message "Found $($allUsers.Count) user(s). Processing user details..." -Level "OK"
 		Write-Host ""
 		
 		$Script:UserData = @()
@@ -635,19 +635,19 @@ function Get-AllUsers {
 		Write-Progress -Activity "Processing Users" -Completed
 		
 		Write-Host "============================================================" -ForegroundColor Green
-		Write-Host "  [+] Successfully retrieved $($Script:UserData.Count) users" -ForegroundColor Green
+		Write-Ui -Message "  [+] Successfully retrieved $($Script:UserData.Count) users" -Level "OK"
 		Write-Host "============================================================" -ForegroundColor Green
 		Write-Host ""
 		
 	} catch {
 		Write-Host ""
 		Write-Host "============================================================" -ForegroundColor Red
-		Write-Host "  [-] Error retrieving users" -ForegroundColor Red
+		Write-Ui -Message "  [-] Error retrieving users" -Level "ERROR"
 		Write-Host "============================================================" -ForegroundColor Red
 		Write-Host ""
 		Write-Warning "Error: $($_.Exception.Message)"
 		Write-Host ""
-		Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+		Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 		$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 	}
 }
@@ -656,9 +656,9 @@ function Show-UserSummary {
 	Show-Header "User Summary"
 	
 	if ($Script:UserData.Count -eq 0) {
-		Write-Host "No user data available. Please retrieve users first." -ForegroundColor Yellow
+		Write-Ui -Message "No user data available. Please retrieve users first." -Level "WARN"
 		Write-Host ""
-		Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+		Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 		$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 		return
 	}
@@ -669,7 +669,7 @@ function Show-UserSummary {
 	$mfaDisabledUsers = ($Script:UserData | Where-Object { $_.MfaConfigured -eq $false }).Count
 	$mfaEnabledPct = if ($Script:UserData.Count -gt 0) { [math]::Round(($mfaEnabledUsers / $Script:UserData.Count) * 100, 2) } else { 0 }
 	
-	Write-Host "SUMMARY STATISTICS" -ForegroundColor Cyan
+	Write-Ui -Message "SUMMARY STATISTICS" -Level "INFO"
 	Write-Host "------------------------------------------------------------" -ForegroundColor Gray
 	Write-Host ""
 	if ($Script:TenantDomain -ne "Unknown") {
@@ -684,7 +684,7 @@ function Show-UserSummary {
 	Write-SummaryLine "MFA Enabled" "$mfaEnabledUsers ($mfaEnabledPct%)" "Green"
 	Write-SummaryLine "MFA Disabled" "$mfaDisabledUsers ($([math]::Round(($mfaDisabledUsers / $Script:UserData.Count) * 100, 2))%)" "Red"
 	Write-Host ""
-	Write-Host "TOP 10 USERS (by Display Name)" -ForegroundColor Cyan
+	Write-Ui -Message "TOP 10 USERS (by Display Name)" -Level "INFO"
 	Write-Host "------------------------------------------------------------" -ForegroundColor Gray
 	Write-Host ""
 	
@@ -696,37 +696,37 @@ function Show-UserSummary {
 		$rolesCount = if ($user.RolesCount -gt 0) { " ($($user.RolesCount) roles)" } else { "" }
 		$groupsCount = if ($user.GroupsCount -gt 0) { " ($($user.GroupsCount) groups)" } else { "" }
 		
-		Write-Host "  $($user.DisplayName)" -ForegroundColor White
-		Write-Host "    Email: $($user.EmailAddress)" -ForegroundColor Gray
-		Write-Host "    Phone: $($user.PhoneNumber)" -ForegroundColor Gray
+		Write-Ui -Message "  $($user.DisplayName)" -Level "STEP"
+		Write-Ui -Message "    Email: $($user.EmailAddress)" -Level "INFO"
+		Write-Ui -Message "    Phone: $($user.PhoneNumber)" -Level "INFO"
 		Write-Host "    Status: $accountStatus | MFA: " -NoNewline -ForegroundColor Gray
 		Write-Host "$mfaStatus" -ForegroundColor $mfaColor
 		if ($user.RolesCount -gt 0) {
-			Write-Host "    Roles: $($user.Roles -join ', ')" -ForegroundColor Cyan
+			Write-Ui -Message "    Roles: $($user.Roles -join ', ')" -Level "INFO"
 		}
 		if ($user.GroupsCount -gt 0) {
-			Write-Host "    Groups: $($user.GroupsCount) groups" -ForegroundColor Cyan
+			Write-Ui -Message "    Groups: $($user.GroupsCount) groups" -Level "INFO"
 		}
 		if ($user.LicensesCount -gt 0) {
-			Write-Host "    Licenses: $($user.LicensesCount) assigned" -ForegroundColor Yellow
+			Write-Ui -Message "    Licenses: $($user.LicensesCount) assigned" -Level "WARN"
 		}
 		Write-Host ""
 	}
 	
 	if ($Script:UserData.Count -gt 10) {
-		Write-Host "  ... and $($Script:UserData.Count - 10) more users" -ForegroundColor Gray
+		Write-Ui -Message "  ... and $($Script:UserData.Count - 10) more users" -Level "INFO"
 		Write-Host ""
 	}
 	
-	Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+	Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 	$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
 function Export-UserListTxt {
 	if ($Script:UserData.Count -eq 0) {
-		Write-Host "No user data available. Please retrieve users first." -ForegroundColor Yellow
+		Write-Ui -Message "No user data available. Please retrieve users first." -Level "WARN"
 		Write-Host ""
-		Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+		Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 		$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 		return
 	}
@@ -779,32 +779,32 @@ function Export-UserListTxt {
 		
 		$output | Out-File -FilePath $filePath -Encoding UTF8 -Force
 		
-		Write-Host "Export completed successfully!" -ForegroundColor Green
+		Write-Ui -Message "Export completed successfully!" -Level "OK"
 		Write-Host ""
-		Write-Host "File saved to:" -ForegroundColor Cyan
-		Write-Host $filePath -ForegroundColor White
+		Write-Ui -Message "File saved to:" -Level "INFO"
+		Write-Ui -Message $filePath -Level "STEP"
 		Write-Host ""
-		Write-Host "Total users exported: $($Script:UserData.Count)" -ForegroundColor Green
+		Write-Ui -Message "Total users exported: $($Script:UserData.Count)" -Level "OK"
 		Write-Host ""
 		
-		Write-Host "Opening file..." -ForegroundColor Yellow
+		Write-Ui -Message "Opening file..." -Level "WARN"
 		Start-Sleep -Seconds 1
 		Start-Process $filePath
 		
 	} catch {
-		Write-Host "Export failed: $($_.Exception.Message)" -ForegroundColor Red
+		Write-Ui -Message "Export failed: $($_.Exception.Message)" -Level "ERROR"
 		Write-Host ""
 	}
 	
-	Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+	Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 	$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
 function Export-UserListCsv {
 	if ($Script:UserData.Count -eq 0) {
-		Write-Host "No user data available. Please retrieve users first." -ForegroundColor Yellow
+		Write-Ui -Message "No user data available. Please retrieve users first." -Level "WARN"
 		Write-Host ""
-		Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+		Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 		$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 		return
 	}
@@ -819,37 +819,37 @@ function Export-UserListCsv {
 	try {
 		$Script:UserData | Sort-Object DisplayName | Export-Csv -Path $filePath -NoTypeInformation -Encoding UTF8 -Force
 		
-		Write-Host "Export completed successfully!" -ForegroundColor Green
+		Write-Ui -Message "Export completed successfully!" -Level "OK"
 		Write-Host ""
-		Write-Host "File saved to:" -ForegroundColor Cyan
-		Write-Host $filePath -ForegroundColor White
+		Write-Ui -Message "File saved to:" -Level "INFO"
+		Write-Ui -Message $filePath -Level "STEP"
 		Write-Host ""
-		Write-Host "Total users exported: $($Script:UserData.Count)" -ForegroundColor Green
+		Write-Ui -Message "Total users exported: $($Script:UserData.Count)" -Level "OK"
 		Write-Host ""
-		Write-Host "This file can be opened in:" -ForegroundColor Yellow
-		Write-Host "  - Microsoft Excel" -ForegroundColor Gray
-		Write-Host "  - Google Sheets" -ForegroundColor Gray
-		Write-Host "  - Any spreadsheet program" -ForegroundColor Gray
+		Write-Ui -Message "This file can be opened in:" -Level "WARN"
+		Write-Ui -Message "  - Microsoft Excel" -Level "INFO"
+		Write-Ui -Message "  - Google Sheets" -Level "INFO"
+		Write-Ui -Message "  - Any spreadsheet program" -Level "INFO"
 		Write-Host ""
 		
-		Write-Host "Opening file..." -ForegroundColor Yellow
+		Write-Ui -Message "Opening file..." -Level "WARN"
 		Start-Sleep -Seconds 1
 		Start-Process $filePath
 		
 	} catch {
-		Write-Host "Export failed: $($_.Exception.Message)" -ForegroundColor Red
+		Write-Ui -Message "Export failed: $($_.Exception.Message)" -Level "ERROR"
 		Write-Host ""
 	}
 	
-	Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+	Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 	$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
 function Export-UserListHtml {
 	if ($Script:UserData.Count -eq 0) {
-		Write-Host "No user data available. Please retrieve users first." -ForegroundColor Yellow
+		Write-Ui -Message "No user data available. Please retrieve users first." -Level "WARN"
 		Write-Host ""
-		Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+		Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 		$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 		return
 	}
@@ -992,32 +992,32 @@ h2 { color: #4a5568; margin-top: 30px; }
 		
 		$html | Out-File -FilePath $filePath -Encoding UTF8 -Force
 		
-		Write-Host "Export completed successfully!" -ForegroundColor Green
+		Write-Ui -Message "Export completed successfully!" -Level "OK"
 		Write-Host ""
-		Write-Host "File saved to:" -ForegroundColor Cyan
-		Write-Host $filePath -ForegroundColor White
+		Write-Ui -Message "File saved to:" -Level "INFO"
+		Write-Ui -Message $filePath -Level "STEP"
 		Write-Host ""
-		Write-Host "Total users exported: $($Script:UserData.Count)" -ForegroundColor Green
+		Write-Ui -Message "Total users exported: $($Script:UserData.Count)" -Level "OK"
 		Write-Host ""
 		
-		Write-Host "Opening file in browser..." -ForegroundColor Yellow
+		Write-Ui -Message "Opening file in browser..." -Level "WARN"
 		Start-Sleep -Seconds 1
 		Start-Process $filePath
 		
 	} catch {
-		Write-Host "Export failed: $($_.Exception.Message)" -ForegroundColor Red
+		Write-Ui -Message "Export failed: $($_.Exception.Message)" -Level "ERROR"
 		Write-Host ""
 	}
 	
-	Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+	Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 	$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
 function Export-UserListJson {
 	if ($Script:UserData.Count -eq 0) {
-		Write-Host "No user data available. Please retrieve users first." -ForegroundColor Yellow
+		Write-Ui -Message "No user data available. Please retrieve users first." -Level "WARN"
 		Write-Host ""
-		Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+		Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 		$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 		return
 	}
@@ -1101,110 +1101,110 @@ function Export-UserListJson {
 		# Write to file
 		$jsonContent | Out-File -FilePath $filePath -Encoding UTF8 -Force
 		
-		Write-Host "Export completed successfully!" -ForegroundColor Green
+		Write-Ui -Message "Export completed successfully!" -Level "OK"
 		Write-Host ""
-		Write-Host "File saved to:" -ForegroundColor Cyan
-		Write-Host $filePath -ForegroundColor White
+		Write-Ui -Message "File saved to:" -Level "INFO"
+		Write-Ui -Message $filePath -Level "STEP"
 		Write-Host ""
-		Write-Host "Total users exported: $($Script:UserData.Count)" -ForegroundColor Green
+		Write-Ui -Message "Total users exported: $($Script:UserData.Count)" -Level "OK"
 		Write-Host ""
-		Write-Host "This JSON file can be:" -ForegroundColor Yellow
-		Write-Host "  - Parsed by other tools and scripts" -ForegroundColor Gray
-		Write-Host "  - Imported into databases" -ForegroundColor Gray
-		Write-Host "  - Used for API integrations" -ForegroundColor Gray
-		Write-Host "  - Processed by automation systems" -ForegroundColor Gray
+		Write-Ui -Message "This JSON file can be:" -Level "WARN"
+		Write-Ui -Message "  - Parsed by other tools and scripts" -Level "INFO"
+		Write-Ui -Message "  - Imported into databases" -Level "INFO"
+		Write-Ui -Message "  - Used for API integrations" -Level "INFO"
+		Write-Ui -Message "  - Processed by automation systems" -Level "INFO"
 		Write-Host ""
 		
-		Write-Host "Opening file..." -ForegroundColor Yellow
+		Write-Ui -Message "Opening file..." -Level "WARN"
 		Start-Sleep -Seconds 1
 		Start-Process $filePath
 		
 	} catch {
-		Write-Host "Export failed: $($_.Exception.Message)" -ForegroundColor Red
+		Write-Ui -Message "Export failed: $($_.Exception.Message)" -Level "ERROR"
 		Write-Host ""
 	}
 	
-	Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+	Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 	$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
 function Show-Help {
 	Show-Header "Help & Information"
 	
-	Write-Host "MICROSOFT 365 USER LIST TOOL" -ForegroundColor Cyan
+	Write-Ui -Message "MICROSOFT 365 USER LIST TOOL" -Level "INFO"
 	Write-Host "------------------------------------------------------------" -ForegroundColor Gray
 	Write-Host ""
-	Write-Host "This tool retrieves and lists all users in your Microsoft 365 tenant" -ForegroundColor White
-	Write-Host "with comprehensive information including:" -ForegroundColor White
+	Write-Ui -Message "This tool retrieves and lists all users in your Microsoft 365 tenant" -Level "STEP"
+	Write-Ui -Message "with comprehensive information including:" -Level "STEP"
 	Write-Host ""
-	Write-Host "  - Email addresses (UserPrincipalName and Mail)" -ForegroundColor Gray
-	Write-Host "  - Phone numbers (Business and Mobile)" -ForegroundColor Gray
-	Write-Host "  - MFA status (Enabled/Disabled, methods: Authenticator, SMS, Email, FIDO)" -ForegroundColor Gray
-	Write-Host "  - Account status (Enabled/Disabled/Blocked sign-in)" -ForegroundColor Gray
-	Write-Host "  - Job title, department, office location" -ForegroundColor Gray
-	Write-Host "  - License assignments (with SKU names)" -ForegroundColor Gray
-	Write-Host "  - Directory roles (Global Admin, Exchange Admin, etc.)" -ForegroundColor Gray
-	Write-Host "  - Group memberships (Security groups + M365 groups)" -ForegroundColor Gray
-	Write-Host "  - Mailbox configuration (forwarding, size, litigation hold)" -ForegroundColor Gray
-	Write-Host "  - Last sign-in date and time" -ForegroundColor Gray
-	Write-Host "  - Account creation date" -ForegroundColor Gray
+	Write-Ui -Message "  - Email addresses (UserPrincipalName and Mail)" -Level "INFO"
+	Write-Ui -Message "  - Phone numbers (Business and Mobile)" -Level "INFO"
+	Write-Ui -Message "  - MFA status (Enabled/Disabled, methods: Authenticator, SMS, Email, FIDO)" -Level "INFO"
+	Write-Ui -Message "  - Account status (Enabled/Disabled/Blocked sign-in)" -Level "INFO"
+	Write-Ui -Message "  - Job title, department, office location" -Level "INFO"
+	Write-Ui -Message "  - License assignments (with SKU names)" -Level "INFO"
+	Write-Ui -Message "  - Directory roles (Global Admin, Exchange Admin, etc.)" -Level "INFO"
+	Write-Ui -Message "  - Group memberships (Security groups + M365 groups)" -Level "INFO"
+	Write-Ui -Message "  - Mailbox configuration (forwarding, size, litigation hold)" -Level "INFO"
+	Write-Ui -Message "  - Last sign-in date and time" -Level "INFO"
+	Write-Ui -Message "  - Account creation date" -Level "INFO"
 	Write-Host ""
-	Write-Host "REQUIREMENTS" -ForegroundColor Cyan
+	Write-Ui -Message "REQUIREMENTS" -Level "INFO"
 	Write-Host "------------------------------------------------------------" -ForegroundColor Gray
 	Write-Host ""
-	Write-Host "  - Microsoft Graph PowerShell SDK" -ForegroundColor Gray
-	Write-Host "  - Global Administrator or Global Reader role" -ForegroundColor Gray
-	Write-Host "  - Required permissions:" -ForegroundColor Gray
-	Write-Host "    * User.Read.All" -ForegroundColor Yellow
-	Write-Host "    * UserAuthenticationMethod.Read.All" -ForegroundColor Yellow
-	Write-Host "    * Organization.Read.All" -ForegroundColor Yellow
-	Write-Host "    * Directory.Read.All" -ForegroundColor Yellow
-	Write-Host "    * Group.Read.All" -ForegroundColor Yellow
-	Write-Host "    * Mail.Read" -ForegroundColor Yellow
-	Write-Host "    * MailboxSettings.Read" -ForegroundColor Yellow
+	Write-Ui -Message "  - Microsoft Graph PowerShell SDK" -Level "INFO"
+	Write-Ui -Message "  - Global Administrator or Global Reader role" -Level "INFO"
+	Write-Ui -Message "  - Required permissions:" -Level "INFO"
+	Write-Ui -Message "    * User.Read.All" -Level "WARN"
+	Write-Ui -Message "    * UserAuthenticationMethod.Read.All" -Level "WARN"
+	Write-Ui -Message "    * Organization.Read.All" -Level "WARN"
+	Write-Ui -Message "    * Directory.Read.All" -Level "WARN"
+	Write-Ui -Message "    * Group.Read.All" -Level "WARN"
+	Write-Ui -Message "    * Mail.Read" -Level "WARN"
+	Write-Ui -Message "    * MailboxSettings.Read" -Level "WARN"
 	Write-Host ""
-	Write-Host "USAGE" -ForegroundColor Cyan
+	Write-Ui -Message "USAGE" -Level "INFO"
 	Write-Host "------------------------------------------------------------" -ForegroundColor Gray
 	Write-Host ""
-	Write-Host "  1. Connect to Microsoft Graph" -ForegroundColor White
-	Write-Host "     - First-time users will need to authenticate via browser" -ForegroundColor Gray
-	Write-Host "     - Grant permissions when prompted" -ForegroundColor Gray
-	Write-Host "     - If already connected, you can keep or switch tenants" -ForegroundColor Gray
+	Write-Ui -Message "  1. Connect to Microsoft Graph" -Level "STEP"
+	Write-Ui -Message "     - First-time users will need to authenticate via browser" -Level "INFO"
+	Write-Ui -Message "     - Grant permissions when prompted" -Level "INFO"
+	Write-Ui -Message "     - If already connected, you can keep or switch tenants" -Level "INFO"
 	Write-Host ""
-	Write-Host "  2. Disconnect from Current Tenant" -ForegroundColor White
-	Write-Host "     - Disconnects from the current Microsoft 365 tenant" -ForegroundColor Gray
-	Write-Host "     - Clears all cached user data" -ForegroundColor Gray
-	Write-Host "     - Use this to switch to a different tenant" -ForegroundColor Gray
+	Write-Ui -Message "  2. Disconnect from Current Tenant" -Level "STEP"
+	Write-Ui -Message "     - Disconnects from the current Microsoft 365 tenant" -Level "INFO"
+	Write-Ui -Message "     - Clears all cached user data" -Level "INFO"
+	Write-Ui -Message "     - Use this to switch to a different tenant" -Level "INFO"
 	Write-Host ""
-	Write-Host "  3. Retrieve Users" -ForegroundColor White
-	Write-Host "     - Fetches all users from your Microsoft 365 tenant" -ForegroundColor Gray
-	Write-Host "     - May take a few moments for large tenants" -ForegroundColor Gray
+	Write-Ui -Message "  3. Retrieve Users" -Level "STEP"
+	Write-Ui -Message "     - Fetches all users from your Microsoft 365 tenant" -Level "INFO"
+	Write-Ui -Message "     - May take a few moments for large tenants" -Level "INFO"
 	Write-Host ""
-	Write-Host "  4. View Summary" -ForegroundColor White
-	Write-Host "     - Displays statistics and top 10 users" -ForegroundColor Gray
+	Write-Ui -Message "  4. View Summary" -Level "STEP"
+	Write-Ui -Message "     - Displays statistics and top 10 users" -Level "INFO"
 	Write-Host ""
-	Write-Host "  5-8. Export Reports" -ForegroundColor White
-	Write-Host "     - TXT: Human-readable text format" -ForegroundColor Gray
-	Write-Host "     - CSV: Spreadsheet format for Excel/Google Sheets" -ForegroundColor Gray
-	Write-Host "     - HTML: Professional web report with styling" -ForegroundColor Gray
-	Write-Host "     - JSON: Clean JSON format for automation and integrations" -ForegroundColor Gray
+	Write-Ui -Message "  5-8. Export Reports" -Level "STEP"
+	Write-Ui -Message "     - TXT: Human-readable text format" -Level "INFO"
+	Write-Ui -Message "     - CSV: Spreadsheet format for Excel/Google Sheets" -Level "INFO"
+	Write-Ui -Message "     - HTML: Professional web report with styling" -Level "INFO"
+	Write-Ui -Message "     - JSON: Clean JSON format for automation and integrations" -Level "INFO"
 	Write-Host ""
-	Write-Host "SECURITY NOTES" -ForegroundColor Cyan
+	Write-Ui -Message "SECURITY NOTES" -Level "INFO"
 	Write-Host "------------------------------------------------------------" -ForegroundColor Gray
 	Write-Host ""
-	Write-Host "  - This tool only reads user information (read-only)" -ForegroundColor Gray
-	Write-Host "  - No modifications are made to user accounts" -ForegroundColor Gray
-	Write-Host "  - All data is stored locally on your computer" -ForegroundColor Gray
-	Write-Host "  - Authentication tokens are managed by Microsoft Graph" -ForegroundColor Gray
+	Write-Ui -Message "  - This tool only reads user information (read-only)" -Level "INFO"
+	Write-Ui -Message "  - No modifications are made to user accounts" -Level "INFO"
+	Write-Ui -Message "  - All data is stored locally on your computer" -Level "INFO"
+	Write-Ui -Message "  - Authentication tokens are managed by Microsoft Graph" -Level "INFO"
 	Write-Host ""
-	Write-Host "SUPPORT" -ForegroundColor Cyan
+	Write-Ui -Message "SUPPORT" -Level "INFO"
 	Write-Host "------------------------------------------------------------" -ForegroundColor Gray
 	Write-Host ""
-	Write-Host "  Website: www.soulitek.co.il" -ForegroundColor Cyan
-	Write-Host "  Email: letstalk@soulitek.co.il" -ForegroundColor Cyan
+	Write-Ui -Message "  Website: www.soulitek.co.il" -Level "INFO"
+	Write-Ui -Message "  Email: letstalk@soulitek.co.il" -Level "INFO"
 	Write-Host ""
 	
-	Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+	Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 	$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
@@ -1219,25 +1219,25 @@ function Show-Menu {
 	Write-Host "$status" -ForegroundColor $statusColor
 	if ($Script:Connected -and $Script:TenantDomain -ne "Unknown") {
 		Write-Host "Organization: " -NoNewline -ForegroundColor Gray
-		Write-Host "$($Script:TenantName)" -ForegroundColor Cyan
+		Write-Ui -Message "$($Script:TenantName)" -Level "INFO"
 		Write-Host "Domain: " -NoNewline -ForegroundColor Gray
-		Write-Host "$($Script:TenantDomain)" -ForegroundColor Cyan
+		Write-Ui -Message "$($Script:TenantDomain)" -Level "INFO"
 	}
 	Write-Host "User Data: " -NoNewline -ForegroundColor Gray
 	Write-Host "$($Script:UserData.Count) users$userCount" -ForegroundColor $(if ($Script:UserData.Count -gt 0) { "Green" } else { "Yellow" })
 	Write-Host ""
 	Write-Host "============================================================" -ForegroundColor Cyan
 	Write-Host ""
-	Write-Host "  1. Connect to Microsoft Graph" -ForegroundColor White
-	Write-Host "  2. Disconnect from Current Tenant" -ForegroundColor White
-	Write-Host "  3. Retrieve All Users" -ForegroundColor White
-	Write-Host "  4. View User Summary" -ForegroundColor White
-	Write-Host "  5. Export Report - TXT Format" -ForegroundColor White
-	Write-Host "  6. Export Report - CSV Format" -ForegroundColor White
-	Write-Host "  7. Export Report - HTML Format" -ForegroundColor White
-	Write-Host "  8. Export Report - JSON Format" -ForegroundColor White
-	Write-Host "  9. Help & Information" -ForegroundColor White
-	Write-Host "  0. Exit" -ForegroundColor White
+	Write-Ui -Message "  1. Connect to Microsoft Graph" -Level "STEP"
+	Write-Ui -Message "  2. Disconnect from Current Tenant" -Level "STEP"
+	Write-Ui -Message "  3. Retrieve All Users" -Level "STEP"
+	Write-Ui -Message "  4. View User Summary" -Level "STEP"
+	Write-Ui -Message "  5. Export Report - TXT Format" -Level "STEP"
+	Write-Ui -Message "  6. Export Report - CSV Format" -Level "STEP"
+	Write-Ui -Message "  7. Export Report - HTML Format" -Level "STEP"
+	Write-Ui -Message "  8. Export Report - JSON Format" -Level "STEP"
+	Write-Ui -Message "  9. Help & Information" -Level "STEP"
+	Write-Ui -Message "  0. Exit" -Level "STEP"
 	Write-Host ""
 	Write-Host "============================================================" -ForegroundColor Cyan
 	Write-Host ""
@@ -1253,7 +1253,7 @@ function Show-ExitMessage {
 	# Disconnect if connected
 	try {
 		if ($Script:Connected) {
-			Write-Host "Disconnecting from Microsoft Graph..." -ForegroundColor Cyan
+			Write-Ui -Message "Disconnecting from Microsoft Graph..." -Level "INFO"
 			Disconnect-MgGraph -ErrorAction SilentlyContinue | Out-Null
 		}
 	} catch { }
@@ -1287,9 +1287,9 @@ while ($true) {
 		}
 		default {
 			Write-Host ""
-			Write-Host "Invalid option. Please select 0-9." -ForegroundColor Red
+			Write-Ui -Message "Invalid option. Please select 0-9." -Level "ERROR"
 			Write-Host ""
-			Write-Host "Press any key to continue..." -ForegroundColor Cyan
+			Write-Ui -Message "Press any key to continue..." -Level "INFO"
 			$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 		}
 	}

@@ -49,19 +49,19 @@ function Test-ExchangeOnlineModule {
 		if ($null -eq $module) {
 			Write-Host ""
 			Write-Host "============================================================" -ForegroundColor Yellow
-			Write-Host "  WARNING: ExchangeOnlineManagement Module Not Loaded" -ForegroundColor Yellow
+			Write-Ui -Message "  WARNING: ExchangeOnlineManagement Module Not Loaded" -Level "WARN"
 			Write-Host "============================================================" -ForegroundColor Yellow
 			Write-Host ""
-			Write-Host "The ExchangeOnlineManagement module is not currently loaded." -ForegroundColor Yellow
+			Write-Ui -Message "The ExchangeOnlineManagement module is not currently loaded." -Level "WARN"
 			Write-Host ""
-			Write-Host "To install the module, run:" -ForegroundColor Cyan
-			Write-Host "  Install-Module -Name ExchangeOnlineManagement -Scope CurrentUser" -ForegroundColor White
+			Write-Ui -Message "To install the module, run:" -Level "INFO"
+			Write-Ui -Message "  Install-Module -Name ExchangeOnlineManagement -Scope CurrentUser" -Level "STEP"
 			Write-Host ""
-			Write-Host "To import the module, run:" -ForegroundColor Cyan
-			Write-Host "  Import-Module ExchangeOnlineManagement" -ForegroundColor White
+			Write-Ui -Message "To import the module, run:" -Level "INFO"
+			Write-Ui -Message "  Import-Module ExchangeOnlineManagement" -Level "STEP"
 			Write-Host ""
-			Write-Host "Or connect to Exchange Online (this will auto-import the module):" -ForegroundColor Cyan
-			Write-Host "  Connect-ExchangeOnline" -ForegroundColor White
+			Write-Ui -Message "Or connect to Exchange Online (this will auto-import the module):" -Level "INFO"
+			Write-Ui -Message "  Connect-ExchangeOnline" -Level "STEP"
 			Write-Host ""
 			return $false
 		}
@@ -69,7 +69,7 @@ function Test-ExchangeOnlineModule {
 	}
 	catch {
 		Write-Host ""
-		Write-Host "Error checking for ExchangeOnlineManagement module: $($_.Exception.Message)" -ForegroundColor Red
+		Write-Ui -Message "Error checking for ExchangeOnlineManagement module: $($_.Exception.Message)" -Level "ERROR"
 		Write-Host ""
 		return $false
 	}
@@ -98,7 +98,7 @@ function Get-CalendarFolderName {
 	)
 	
 	try {
-		Write-Host "Finding calendar folder for mailbox: $MailboxIdentity" -ForegroundColor Cyan
+		Write-Ui -Message "Finding calendar folder for mailbox: $MailboxIdentity" -Level "INFO"
 		Write-Host ""
 		
 		# Get all folders for the mailbox
@@ -108,7 +108,7 @@ function Get-CalendarFolderName {
 		$calendarFolder = $folders | Where-Object { $_.FolderType -eq 'Calendar' } | Select-Object -First 1
 		
 		if ($null -eq $calendarFolder) {
-			Write-Host "Calendar folder not found for mailbox: $MailboxIdentity" -ForegroundColor Red
+			Write-Ui -Message "Calendar folder not found for mailbox: $MailboxIdentity" -Level "ERROR"
 			return $null
 		}
 		
@@ -116,13 +116,13 @@ function Get-CalendarFolderName {
 		# FolderPath format is typically: "/Calendar" or "/לוח שנה" etc.
 		$folderName = $calendarFolder.Name
 		
-		Write-Host "Found calendar folder: '$folderName'" -ForegroundColor Green
+		Write-Ui -Message "Found calendar folder: '$folderName'" -Level "OK"
 		Write-Host ""
 		
 		return $folderName
 	}
 	catch {
-		Write-Host "Error finding calendar folder: $($_.Exception.Message)" -ForegroundColor Red
+		Write-Ui -Message "Error finding calendar folder: $($_.Exception.Message)" -Level "ERROR"
 		Write-Host ""
 		return $null
 	}
@@ -153,14 +153,14 @@ function Get-CalendarPermissions {
 	)
 	
 	try {
-		Write-Host "Retrieving calendar permissions..." -ForegroundColor Cyan
+		Write-Ui -Message "Retrieving calendar permissions..." -Level "INFO"
 		Write-Host ""
 		
 		# Get calendar folder permissions
 		$permissions = Get-MailboxFolderPermission -Identity "$MailboxIdentity`:\$CalendarFolderName" -ErrorAction Stop
 		
 		if ($null -eq $permissions -or $permissions.Count -eq 0) {
-			Write-Host "No calendar permissions found for mailbox: $MailboxIdentity" -ForegroundColor Yellow
+			Write-Ui -Message "No calendar permissions found for mailbox: $MailboxIdentity" -Level "WARN"
 			Write-Host ""
 			return
 		}
@@ -198,20 +198,20 @@ function Get-CalendarPermissions {
 		
 		# Display results in formatted table
 		Write-Host "============================================================" -ForegroundColor Green
-		Write-Host "  Calendar Permissions for: $MailboxIdentity" -ForegroundColor Green
+		Write-Ui -Message "  Calendar Permissions for: $MailboxIdentity" -Level "OK"
 		Write-Host "============================================================" -ForegroundColor Green
 		Write-Host ""
 		
 		$results | Format-Table -AutoSize -Property User, AccessRights, SharingPermissionFlags
 		
 		Write-Host ""
-		Write-Host "Total permissions found: $($results.Count)" -ForegroundColor Cyan
+		Write-Ui -Message "Total permissions found: $($results.Count)" -Level "INFO"
 		Write-Host ""
 	}
 	catch {
 		Write-Host ""
 		Write-Host "============================================================" -ForegroundColor Red
-		Write-Host "  Error Retrieving Calendar Permissions" -ForegroundColor Red
+		Write-Ui -Message "  Error Retrieving Calendar Permissions" -Level "ERROR"
 		Write-Host "============================================================" -ForegroundColor Red
 		Write-Host ""
 		Write-Warning "Error: $($_.Exception.Message)"
@@ -233,21 +233,21 @@ function Start-CalendarPermissionsAudit {
 	
 	# Check if module is loaded
 	if (-not (Test-ExchangeOnlineModule)) {
-		Write-Host "Press any key to exit..." -ForegroundColor Cyan
+		Write-Ui -Message "Press any key to exit..." -Level "INFO"
 		$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 		return
 	}
 	
 	# Prompt for target email
-	Write-Host "Enter the target email address to audit calendar permissions:" -ForegroundColor Cyan
+	Write-Ui -Message "Enter the target email address to audit calendar permissions:" -Level "INFO"
 	Write-Host ""
 	$targetEmail = Read-Host "Target Email"
 	
 	if ([string]::IsNullOrWhiteSpace($targetEmail)) {
 		Write-Host ""
-		Write-Host "No email address provided. Exiting." -ForegroundColor Red
+		Write-Ui -Message "No email address provided. Exiting." -Level "ERROR"
 		Write-Host ""
-		Write-Host "Press any key to exit..." -ForegroundColor Cyan
+		Write-Ui -Message "Press any key to exit..." -Level "INFO"
 		$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 		return
 	}
@@ -260,16 +260,16 @@ function Start-CalendarPermissionsAudit {
 	if ([string]::IsNullOrWhiteSpace($calendarFolderName)) {
 		Write-Host ""
 		Write-Host "============================================================" -ForegroundColor Red
-		Write-Host "  Error: Could not find calendar folder" -ForegroundColor Red
+		Write-Ui -Message "  Error: Could not find calendar folder" -Level "ERROR"
 		Write-Host "============================================================" -ForegroundColor Red
 		Write-Host ""
-		Write-Host "Possible reasons:" -ForegroundColor Yellow
-		Write-Host "  - Mailbox does not exist: $targetEmail" -ForegroundColor Gray
-		Write-Host "  - Mailbox does not have a calendar folder" -ForegroundColor Gray
-		Write-Host "  - Insufficient permissions to access the mailbox" -ForegroundColor Gray
-		Write-Host "  - Not connected to Exchange Online" -ForegroundColor Gray
+		Write-Ui -Message "Possible reasons:" -Level "WARN"
+		Write-Ui -Message "  - Mailbox does not exist: $targetEmail" -Level "INFO"
+		Write-Ui -Message "  - Mailbox does not have a calendar folder" -Level "INFO"
+		Write-Ui -Message "  - Insufficient permissions to access the mailbox" -Level "INFO"
+		Write-Ui -Message "  - Not connected to Exchange Online" -Level "INFO"
 		Write-Host ""
-		Write-Host "Press any key to exit..." -ForegroundColor Cyan
+		Write-Ui -Message "Press any key to exit..." -Level "INFO"
 		$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 		return
 	}
@@ -277,7 +277,7 @@ function Start-CalendarPermissionsAudit {
 	# Get calendar permissions
 	Get-CalendarPermissions -MailboxIdentity $targetEmail -CalendarFolderName $calendarFolderName
 	
-	Write-Host "Press any key to exit..." -ForegroundColor Cyan
+	Write-Ui -Message "Press any key to exit..." -Level "INFO"
 	$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
@@ -299,7 +299,7 @@ catch {
 	Write-Host ""
 	Write-Warning "An unexpected error occurred: $($_.Exception.Message)"
 	Write-Host ""
-	Write-Host "Press any key to exit..." -ForegroundColor Cyan
+	Write-Ui -Message "Press any key to exit..." -Level "INFO"
 	$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 	exit 1
 }

@@ -36,6 +36,14 @@
 
 #Requires -Version 5.1
 
+param(
+    [string]$TimeZoneId   = "Israel Standard Time",
+    [string]$CultureCode  = "he-IL",
+    [int]$GeoId           = 117,
+    [string]$SystemLocale = "he-IL",
+    [string]$LanguageTag  = "he-IL"
+)
+
 # Set window title
 $Host.UI.RawUI.WindowTitle = "1-CLICK PC INSTALL"
 
@@ -89,54 +97,54 @@ function Add-LogEntry {
 function Show-TaskList {
     Show-SouliTEKHeader -Title "1-CLICK PC INSTALL - TASK OVERVIEW" -ClearHost -ShowBanner
     
-    Write-Host "  The following tasks will be performed:" -ForegroundColor Yellow
+    Write-Ui -Message "  The following tasks will be performed:" -Level "WARN"
     Write-Host ""
-    Write-Host "  [1]  Set Time Zone" -ForegroundColor Cyan
-    Write-Host "       -> Configure time zone to Jerusalem (Israel Standard Time)" -ForegroundColor Gray
+    Write-Ui -Message "  [1]  Set Time Zone" -Level "INFO"
+    Write-Ui -Message "       -> Configure time zone: $TimeZoneId / Locale: $CultureCode" -Level "INFO"
     Write-Host ""
-    Write-Host "  [2]  Configure Regional Settings" -ForegroundColor Cyan
-    Write-Host "       -> Set regional format, location, and language to Israel/Hebrew" -ForegroundColor Gray
+    Write-Ui -Message "  [2]  Configure Regional Settings" -Level "INFO"
+    Write-Ui -Message "       -> Set regional format, location, and language to Israel/Hebrew" -Level "INFO"
     Write-Host ""
-    Write-Host "  [3]  Create System Restore Point" -ForegroundColor Cyan
-    Write-Host "       -> Create a backup point before making system changes" -ForegroundColor Gray
+    Write-Ui -Message "  [3]  Create System Restore Point" -Level "INFO"
+    Write-Ui -Message "       -> Create a backup point before making system changes" -Level "INFO"
     Write-Host ""
-    Write-Host "  [4]  Configure Power Plan" -ForegroundColor Cyan
-    Write-Host "       -> Set power plan to High Performance for best performance" -ForegroundColor Gray
+    Write-Ui -Message "  [4]  Configure Power Plan" -Level "INFO"
+    Write-Ui -Message "       -> Set power plan to High Performance for best performance" -Level "INFO"
     Write-Host ""
-    Write-Host "  [5]  Remove Bloatware" -ForegroundColor Cyan
-    Write-Host "       -> Remove unnecessary pre-installed Windows applications" -ForegroundColor Gray
+    Write-Ui -Message "  [5]  Remove Bloatware" -Level "INFO"
+    Write-Ui -Message "       -> Remove unnecessary pre-installed Windows applications" -Level "INFO"
     Write-Host ""
-    Write-Host "  [6]  Install Google Chrome" -ForegroundColor Cyan
-    Write-Host "       -> Install Google Chrome web browser via WinGet" -ForegroundColor Gray
+    Write-Ui -Message "  [6]  Install Google Chrome" -Level "INFO"
+    Write-Ui -Message "       -> Install Google Chrome web browser via WinGet" -Level "INFO"
     Write-Host ""
-    Write-Host "  [7]  Install AnyDesk" -ForegroundColor Cyan
-    Write-Host "       -> Install AnyDesk remote desktop software via WinGet" -ForegroundColor Gray
+    Write-Ui -Message "  [7]  Install AnyDesk" -Level "INFO"
+    Write-Ui -Message "       -> Install AnyDesk remote desktop software via WinGet" -Level "INFO"
     Write-Host ""
-    Write-Host "  [8]  Install Microsoft Office" -ForegroundColor Cyan
-    Write-Host "       -> Install Microsoft Office suite (if available)" -ForegroundColor Gray
+    Write-Ui -Message "  [8]  Install Microsoft Office" -Level "INFO"
+    Write-Ui -Message "       -> Install Microsoft Office suite (if available)" -Level "INFO"
     Write-Host ""
-    Write-Host "  [9]  Create Desktop Shortcuts" -ForegroundColor Cyan
-    Write-Host "       -> Create shortcuts for This PC and Documents folder on desktop" -ForegroundColor Gray
+    Write-Ui -Message "  [9]  Create Desktop Shortcuts" -Level "INFO"
+    Write-Ui -Message "       -> Create shortcuts for This PC and Documents folder on desktop" -Level "INFO"
     Write-Host ""
-    Write-Host "  [10] Generate Installation Summary" -ForegroundColor Cyan
-    Write-Host "       -> Create detailed report of all actions performed" -ForegroundColor Gray
+    Write-Ui -Message "  [10] Generate Installation Summary" -Level "INFO"
+    Write-Ui -Message "       -> Create detailed report of all actions performed" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "  IMPORTANT NOTES:" -ForegroundColor Red
-    Write-Host "  * This process may take 20-40 minutes to complete" -ForegroundColor Yellow
-    Write-Host "  * Administrator privileges are required" -ForegroundColor Yellow
-    Write-Host "  * Active internet connection is required" -ForegroundColor Yellow
+    Write-Ui -Message "  IMPORTANT NOTES:" -Level "ERROR"
+    Write-Ui -Message "  * This process may take 20-40 minutes to complete" -Level "WARN"
+    Write-Ui -Message "  * Administrator privileges are required" -Level "WARN"
+    Write-Ui -Message "  * Active internet connection is required" -Level "WARN"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Yellow
     Write-Host ""
 }
 
 function Get-UserApproval {
-    Write-Host "  Do you want to proceed with the 1-Click PC Install?" -ForegroundColor White
+    Write-Ui -Message "  Do you want to proceed with the 1-Click PC Install?" -Level "STEP"
     Write-Host ""
-    Write-Host "  [Y] Yes - Start the installation" -ForegroundColor Green
-    Write-Host "  [N] No  - Cancel and exit" -ForegroundColor Red
+    Write-Ui -Message "  [Y] Yes - Start the installation" -Level "OK"
+    Write-Ui -Message "  [N] No  - Cancel and exit" -Level "ERROR"
     Write-Host ""
     Write-Host -NoNewline "  Enter your choice: " -ForegroundColor Cyan
     
@@ -146,25 +154,25 @@ function Get-UserApproval {
         return $true
     } else {
         Write-Host ""
-        Write-Host "  Installation cancelled by user." -ForegroundColor Yellow
+        Write-Ui -Message "  Installation cancelled by user." -Level "WARN"
         Write-Host ""
         return $false
     }
 }
 
-function Set-TimeZoneToJerusalem {
-    Write-Ui -Message "Configuring time zone to Jerusalem" -Level "INFO"
-    
+function Set-SystemTimeZone {
+    Write-Ui -Message "Configuring time zone: $TimeZoneId" -Level "INFO"
+
     try {
         $currentTimeZone = Get-TimeZone
         Write-Ui -Message "Current time zone: $($currentTimeZone.DisplayName)" -Level "INFO"
-        
-        Set-TimeZone -Id "Israel Standard Time" -ErrorAction Stop
-        
+
+        Set-TimeZone -Id $TimeZoneId -ErrorAction Stop
+
         $newTimeZone = Get-TimeZone
         Write-Ui -Message "Time zone set to: $($newTimeZone.DisplayName)" -Level "OK"
         Add-LogEntry -Task "Set Time Zone" -Status "SUCCESS" -Details "Changed to $($newTimeZone.DisplayName)"
-        
+
         Start-Sleep -Seconds 2
         return $true
     } catch {
@@ -175,31 +183,31 @@ function Set-TimeZoneToJerusalem {
     }
 }
 
-function Set-RegionalSettingsToIsrael {
-    Write-Ui -Message "Setting regional format to Israel" -Level "INFO"
-    
+function Set-RegionalSettings {
+    Write-Ui -Message "Setting regional format: $CultureCode / GeoId: $GeoId" -Level "INFO"
+
     try {
         Write-Ui -Message "Setting regional format" -Level "STEP"
-        Set-Culture -CultureInfo "he-IL" -ErrorAction Stop
-        
+        Set-Culture -CultureInfo $CultureCode -ErrorAction Stop
+
         Write-Ui -Message "Setting geographic location" -Level "STEP"
-        Set-WinHomeLocation -GeoId 117 -ErrorAction Stop
-        
+        Set-WinHomeLocation -GeoId $GeoId -ErrorAction Stop
+
         Write-Ui -Message "Configuring system locale" -Level "STEP"
-        Set-WinSystemLocale -SystemLocale "he-IL" -ErrorAction Stop
-        
+        Set-WinSystemLocale -SystemLocale $SystemLocale -ErrorAction Stop
+
         Write-Ui -Message "Setting user language preferences" -Level "STEP"
         $languageList = Get-WinUserLanguageList
-        if (-not ($languageList | Where-Object { $_.LanguageTag -eq "he-IL" })) {
-            $languageList.Add("he-IL")
+        if (-not ($languageList | Where-Object { $_.LanguageTag -eq $LanguageTag })) {
+            $languageList.Add($LanguageTag)
             Set-WinUserLanguageList $languageList -Force -ErrorAction Stop
         }
-        
-        Write-Ui -Message "Regional settings configured for Israel" -Level "OK"
-        Add-LogEntry -Task "Regional Settings" -Status "SUCCESS" -Details "Configured for Israel (Hebrew)"
-        
+
+        Write-Ui -Message "Regional settings configured for locale: $CultureCode / TZ: $TimeZoneId" -Level "OK"
+        Add-LogEntry -Task "Regional Settings" -Status "SUCCESS" -Details "Configured for locale: $CultureCode / TZ: $TimeZoneId"
+
         Write-Ui -Message "Some changes may require a system restart to take full effect" -Level "WARN"
-        
+
         Start-Sleep -Seconds 3
         return $true
     } catch {
@@ -337,21 +345,21 @@ function Remove-Bloatware {
     
     try {
         foreach ($app in $bloatwareApps) {
-            Write-Host "  [*] Checking $app..." -ForegroundColor Cyan
+            Write-Ui -Message "  [*] Checking $app..." -Level "INFO"
             
             $package = Get-AppxPackage -Name $app -ErrorAction SilentlyContinue
             
             if ($package) {
                 $removeResult = Remove-AppxPackage -Package $package.PackageFullName -ErrorAction SilentlyContinue
                 if ($?) {
-                    Write-Host "      -> Removed" -ForegroundColor Green
+                    Write-Ui -Message "      -> Removed" -Level "OK"
                     $removedCount++
                 } else {
-                    Write-Host "      -> Failed to remove" -ForegroundColor Red
+                    Write-Ui -Message "      -> Failed to remove" -Level "ERROR"
                     $failedCount++
                 }
             } else {
-                Write-Host "      -> Not installed" -ForegroundColor Gray
+                Write-Ui -Message "      -> Not installed" -Level "INFO"
             }
         }
         
@@ -447,16 +455,16 @@ function Install-WinGetApplication {
         [int]$TimeoutMinutes = 15
     )
     
-    Write-Host "  [*] Installing $AppName..." -ForegroundColor Cyan
+    Write-Ui -Message "  [*] Installing $AppName..." -Level "INFO"
     
     # Check if already installed
-    Write-Host "      -> Checking if already installed..." -ForegroundColor Gray
+    Write-Ui -Message "      -> Checking if already installed..." -Level "INFO"
     if (Test-ApplicationInstalled -WinGetId $WinGetId) {
-        Write-Host "      -> $AppName is already installed" -ForegroundColor Yellow
+        Write-Ui -Message "      -> $AppName is already installed" -Level "WARN"
         return "SUCCESS"
     }
     
-    Write-Host "      -> This may take up to $TimeoutMinutes minutes. Please be patient..." -ForegroundColor Gray
+    Write-Ui -Message "      -> This may take up to $TimeoutMinutes minutes. Please be patient..." -Level "INFO"
     
     try {
         # Create log file for this installation
@@ -487,7 +495,7 @@ function Install-WinGetApplication {
         $process = New-Object System.Diagnostics.Process
         $process.StartInfo = $processInfo
         
-        Write-Host "      -> Starting installation..." -ForegroundColor Gray
+        Write-Ui -Message "      -> Starting installation..." -Level "INFO"
         $process.Start() | Out-Null
         
         # Wait for process with timeout using Wait-Process
@@ -505,14 +513,14 @@ function Install-WinGetApplication {
             # Check for timeout
             if ($elapsed.TotalSeconds -ge $timeoutSeconds) {
                 Write-Host ""
-                Write-Host "      [!] INSTALLATION TIMEOUT NOTICE:" -ForegroundColor Yellow
-                Write-Host "      -> The installation exceeded the $TimeoutMinutes minute limit" -ForegroundColor Yellow
-                Write-Host "      -> This may be due to slow internet or large download size" -ForegroundColor Yellow
-                Write-Host "      -> The process has been terminated to prevent indefinite waiting" -ForegroundColor Yellow
+                Write-Ui -Message "      [!] INSTALLATION TIMEOUT NOTICE:" -Level "WARN"
+                Write-Ui -Message "      -> The installation exceeded the $TimeoutMinutes minute limit" -Level "WARN"
+                Write-Ui -Message "      -> This may be due to slow internet or large download size" -Level "WARN"
+                Write-Ui -Message "      -> The process has been terminated to prevent indefinite waiting" -Level "WARN"
                 Write-Host ""
-                Write-Host "      RECOMMENDED ACTION:" -ForegroundColor Cyan
-                Write-Host "      -> Install $AppName manually after setup completes" -ForegroundColor White
-                Write-Host "      -> Command: winget install --id $WinGetId" -ForegroundColor Gray
+                Write-Ui -Message "      RECOMMENDED ACTION:" -Level "INFO"
+                Write-Ui -Message "      -> Install $AppName manually after setup completes" -Level "STEP"
+                Write-Ui -Message "      -> Command: winget install --id $WinGetId" -Level "INFO"
                 Write-Host ""
                 
                 try {
@@ -562,15 +570,15 @@ function Install-WinGetApplication {
         $process.Close()
         
         if ($exitCode -eq 0) {
-            Write-Host "      -> $AppName installed successfully" -ForegroundColor Green
+            Write-Ui -Message "      -> $AppName installed successfully" -Level "OK"
             return "SUCCESS"
         } elseif ($exitCode -eq -1978335189 -or $exitCode -eq 0x8A15000B) {
             # No applicable update found (already installed)
-            Write-Host "      -> $AppName is already installed and up to date" -ForegroundColor Yellow
+            Write-Ui -Message "      -> $AppName is already installed and up to date" -Level "WARN"
             return "SUCCESS"
         } elseif ($exitCode -eq -1978335212 -or $exitCode -eq 0x8A150014) {
             # Install failed - get detailed error from log
-            Write-Host "      -> Installation failed (Exit Code: $exitCode)" -ForegroundColor Red
+            Write-Ui -Message "      -> Installation failed (Exit Code: $exitCode)" -Level "ERROR"
             $errorDetails = Get-WinGetErrorDetails -LogPath $logPath -AppName $AppName
             if ($errorDetails -and $errorDetails -ne "Log file not found") {
                 Write-Host "      -> Error details: $errorDetails" -ForegroundColor DarkYellow
@@ -578,12 +586,12 @@ function Install-WinGetApplication {
             Show-InstallationLog -LogPath $logPath -AppName $AppName
             return "ERROR"
         } else {
-            Write-Host "      -> Installation completed with exit code: $exitCode" -ForegroundColor Yellow
+            Write-Ui -Message "      -> Installation completed with exit code: $exitCode" -Level "WARN"
             # Check log to see if it was actually successful
             if (Test-Path $logPath) {
                 $logContent = Get-Content $logPath -Tail 30 -ErrorAction SilentlyContinue | Out-String
                 if ($logContent -match "(?i)(successfully installed|already installed|install completed)") {
-                    Write-Host "      -> $AppName appears to be installed successfully" -ForegroundColor Green
+                    Write-Ui -Message "      -> $AppName appears to be installed successfully" -Level "OK"
                     return "SUCCESS"
                 }
             }
@@ -595,7 +603,7 @@ function Install-WinGetApplication {
             return "ERROR"
         }
     } catch {
-        Write-Host "      -> Error installing $AppName : $($_.Exception.Message)" -ForegroundColor Red
+        Write-Ui -Message "      -> Error installing $AppName : $($_.Exception.Message)" -Level "ERROR"
         if ($process -and -not $process.HasExited) {
             try {
                 $process.Kill()
@@ -612,7 +620,7 @@ function Show-InstallationLog {
     )
     
     if (Test-Path $LogPath) {
-        Write-Host "      -> Installation log details:" -ForegroundColor Gray
+        Write-Ui -Message "      -> Installation log details:" -Level "INFO"
         
         try {
             $logContent = Get-Content $LogPath -ErrorAction SilentlyContinue
@@ -631,32 +639,32 @@ function Show-InstallationLog {
                         if ($line -match "(?i)(error|failed|exception)") {
                             Write-Host "         $line" -ForegroundColor DarkRed
                         } else {
-                            Write-Host "         $line" -ForegroundColor DarkGray
+                            Write-Ui -Message "         $line" -Level "INFO"
                         }
                     }
                 } else {
-                    Write-Host "         (Log file is empty or contains no readable content)" -ForegroundColor DarkGray
+                    Write-Ui -Message "         (Log file is empty or contains no readable content)" -Level "INFO"
                 }
             } else {
-                Write-Host "         (Log file is empty)" -ForegroundColor DarkGray
+                Write-Ui -Message "         (Log file is empty)" -Level "INFO"
             }
         } catch {
-            Write-Host "         (Could not read log file: $($_.Exception.Message))" -ForegroundColor DarkGray
+            Write-Ui -Message "         (Could not read log file: $($_.Exception.Message))" -Level "INFO"
         }
         
-        Write-Host "      -> Full log saved: $LogPath" -ForegroundColor DarkGray
+        Write-Ui -Message "      -> Full log saved: $LogPath" -Level "INFO"
     } else {
-        Write-Host "      -> Log file not found: $LogPath" -ForegroundColor DarkGray
+        Write-Ui -Message "      -> Log file not found: $LogPath" -Level "INFO"
     }
 }
 
 function Ensure-WinGet {
-    Write-Host "  [*] Checking WinGet installation..." -ForegroundColor Cyan
+    Write-Ui -Message "  [*] Checking WinGet installation..." -Level "INFO"
     
     $wingetCmd = Get-Command winget.exe -ErrorAction SilentlyContinue
     if (-not $wingetCmd) {
-        Write-Host "      -> WinGet not found" -ForegroundColor Yellow
-        Write-Host "  [*] Attempting to install WinGet..." -ForegroundColor Cyan
+        Write-Ui -Message "      -> WinGet not found" -Level "WARN"
+        Write-Ui -Message "  [*] Attempting to install WinGet..." -Level "INFO"
         
         try {
         $nuget = Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue
@@ -669,27 +677,27 @@ function Ensure-WinGet {
         
         Repair-WinGetPackageManager -ErrorAction Stop
         
-            Write-Host "      -> WinGet installed successfully" -ForegroundColor Green
+            Write-Ui -Message "      -> WinGet installed successfully" -Level "OK"
         } catch {
-            Write-Host "      -> Failed to install WinGet: $($_.Exception.Message)" -ForegroundColor Red
+            Write-Ui -Message "      -> Failed to install WinGet: $($_.Exception.Message)" -Level "ERROR"
             return $false
         }
     }
     
     # Verify WinGet is actually working
-    Write-Host "      -> Verifying WinGet functionality..." -ForegroundColor Gray
+    Write-Ui -Message "      -> Verifying WinGet functionality..." -Level "INFO"
     try {
         $testResult = & winget.exe --version 2>&1
         if ($LASTEXITCODE -eq 0) {
-            Write-Host "      -> WinGet is available and working" -ForegroundColor Green
+            Write-Ui -Message "      -> WinGet is available and working" -Level "OK"
             return $true
         } else {
-            Write-Host "      -> WinGet found but not responding correctly" -ForegroundColor Yellow
+            Write-Ui -Message "      -> WinGet found but not responding correctly" -Level "WARN"
             Write-Host "      -> Error: $testResult" -ForegroundColor DarkYellow
             return $false
         }
     } catch {
-        Write-Host "      -> WinGet test failed: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Ui -Message "      -> WinGet test failed: $($_.Exception.Message)" -Level "ERROR"
         return $false
     }
 }
@@ -707,27 +715,27 @@ function Install-Applications {
         Write-Ui -Message "Installing applications via WinGet" -Level "INFO"
         Write-Host ""
         
-        Write-Host "  [1/3] Google Chrome" -ForegroundColor Yellow
+        Write-Ui -Message "  [1/3] Google Chrome" -Level "WARN"
         $chromeResult = Install-WinGetApplication -AppName "Google Chrome" -WinGetId "Google.Chrome" -TimeoutMinutes 20
         Add-LogEntry -Task "Install Google Chrome" -Status $chromeResult -Details "WinGet ID: Google.Chrome"
         
         Write-Host ""
         
-        Write-Host "  [2/3] AnyDesk" -ForegroundColor Yellow
+        Write-Ui -Message "  [2/3] AnyDesk" -Level "WARN"
         $anydeskResult = Install-WinGetApplication -AppName "AnyDesk" -WinGetId "AnyDeskSoftwareGmbH.AnyDesk" -TimeoutMinutes 10
         Add-LogEntry -Task "Install AnyDesk" -Status $anydeskResult -Details "WinGet ID: AnyDeskSoftwareGmbH.AnyDesk"
         
         Write-Host ""
         
-        Write-Host "  [3/3] Microsoft Office" -ForegroundColor Yellow
-        Write-Host "  [!] Note: Office installation via WinGet may require manual setup" -ForegroundColor Yellow
+        Write-Ui -Message "  [3/3] Microsoft Office" -Level "WARN"
+        Write-Ui -Message "  [!] Note: Office installation via WinGet may require manual setup" -Level "WARN"
         
         $officeResult = Install-WinGetApplication -AppName "Microsoft Office" -WinGetId "Microsoft.Office" -TimeoutMinutes 15
         
         if ($officeResult -eq "ERROR" -or $officeResult -eq "TIMEOUT") {
             Write-Host ""
-            Write-Host "  [!] Automatic Office installation failed" -ForegroundColor Yellow
-            Write-Host "  [!] Please install Office manually from:" -ForegroundColor Yellow
+            Write-Ui -Message "  [!] Automatic Office installation failed" -Level "WARN"
+            Write-Ui -Message "  [!] Please install Office manually from:" -Level "WARN"
             Write-Host "      https://www.office.com/setup" -ForegroundColor Cyan
             Add-LogEntry -Task "Install Microsoft Office" -Status "WARNING" -Details "Manual installation required"
         } else {
@@ -755,17 +763,17 @@ function New-DesktopShortcuts {
         $shell = New-Object -ComObject WScript.Shell
         
         # Create This PC shortcut
-        Write-Host "  [*] Creating This PC shortcut..." -ForegroundColor Cyan
+        Write-Ui -Message "  [*] Creating This PC shortcut..." -Level "INFO"
         $thisPCShortcut = $shell.CreateShortcut("$desktopPath\This PC.lnk")
         $thisPCShortcut.TargetPath = "::{20D04FE0-3AEA-1069-A2D8-08002B30309D}"
         $thisPCShortcut.WindowStyle = 1
         $thisPCShortcut.Description = "This PC - Access your computer, drives, and network locations"
         $thisPCShortcut.Save()
         
-        Write-Host "      -> This PC shortcut created successfully" -ForegroundColor Green
+        Write-Ui -Message "      -> This PC shortcut created successfully" -Level "OK"
         
         # Create Documents folder shortcut
-        Write-Host "  [*] Creating Documents folder shortcut..." -ForegroundColor Cyan
+        Write-Ui -Message "  [*] Creating Documents folder shortcut..." -Level "INFO"
         $documentsPath = [Environment]::GetFolderPath("MyDocuments")
         $documentsShortcut = $shell.CreateShortcut("$desktopPath\Documents.lnk")
         $documentsShortcut.TargetPath = $documentsPath
@@ -773,7 +781,7 @@ function New-DesktopShortcuts {
         $documentsShortcut.Description = "Documents - Access your Documents folder"
         $documentsShortcut.Save()
         
-        Write-Host "      -> Documents shortcut created successfully" -ForegroundColor Green
+        Write-Ui -Message "      -> Documents shortcut created successfully" -Level "OK"
         
         Write-Ui -Message "Desktop shortcuts created successfully" -Level "OK"
         Add-LogEntry -Task "Create Desktop Shortcuts" -Status "SUCCESS" -Details "Created This PC and Documents shortcuts"
@@ -796,29 +804,29 @@ function Show-InstallationSummary {
         $duration = $endTime - $Script:StartTime
         
         Write-Host "  Installation completed at: " -NoNewline -ForegroundColor Gray
-        Write-Host "$($endTime.ToString('yyyy-MM-dd HH:mm:ss'))" -ForegroundColor Cyan
+        Write-Ui -Message "$($endTime.ToString('yyyy-MM-dd HH:mm:ss'))" -Level "INFO"
         
         Write-Host "  Total duration: " -NoNewline -ForegroundColor Gray
-        Write-Host "$([math]::Round($duration.TotalMinutes, 2)) minutes" -ForegroundColor Cyan
+        Write-Ui -Message "$([math]::Round($duration.TotalMinutes, 2)) minutes" -Level "INFO"
         
         Write-Host ""
         Write-Host "============================================================" -ForegroundColor Cyan
         Write-Host ""
-        Write-Host "  RESULTS SUMMARY" -ForegroundColor White
+        Write-Ui -Message "  RESULTS SUMMARY" -Level "STEP"
         Write-Host ""
         Write-Host "  Successful: " -NoNewline -ForegroundColor Gray
-        Write-Host "$Script:SuccessCount task(s)" -ForegroundColor Green
+        Write-Ui -Message "$Script:SuccessCount task(s)" -Level "OK"
         
         Write-Host "  Warnings: " -NoNewline -ForegroundColor Gray
-        Write-Host "$Script:WarningCount task(s)" -ForegroundColor Yellow
+        Write-Ui -Message "$Script:WarningCount task(s)" -Level "WARN"
         
         Write-Host "  Errors: " -NoNewline -ForegroundColor Gray
-        Write-Host "$Script:ErrorCount task(s)" -ForegroundColor Red
+        Write-Ui -Message "$Script:ErrorCount task(s)" -Level "ERROR"
         
         Write-Host ""
         Write-Host "============================================================" -ForegroundColor Cyan
         Write-Host ""
-        Write-Host "  DETAILED TASK LOG" -ForegroundColor White
+        Write-Ui -Message "  DETAILED TASK LOG" -Level "STEP"
         Write-Host ""
         
         foreach ($entry in $Script:InstallLog) {
@@ -840,27 +848,27 @@ function Show-InstallationSummary {
             
             Write-Host "  [$($entry.Time)] " -NoNewline -ForegroundColor Gray
             Write-Host "$statusSymbol " -NoNewline -ForegroundColor $statusColor
-            Write-Host "$($entry.Task)" -ForegroundColor White
+            Write-Ui -Message "$($entry.Task)" -Level "STEP"
             
             if ($entry.Details) {
-                Write-Host "      -> $($entry.Details)" -ForegroundColor Gray
+                Write-Ui -Message "      -> $($entry.Details)" -Level "INFO"
             }
         }
         
         Write-Host ""
         Write-Host "============================================================" -ForegroundColor Cyan
         Write-Host ""
-        Write-Host "  RECOMMENDED NEXT STEPS:" -ForegroundColor Yellow
-        Write-Host "  * Restart your computer to apply all changes" -ForegroundColor White
-        Write-Host "  * Review the installation summary above" -ForegroundColor White
-        Write-Host "  * Verify all installed applications work correctly" -ForegroundColor White
+        Write-Ui -Message "  RECOMMENDED NEXT STEPS:" -Level "WARN"
+        Write-Ui -Message "  * Restart your computer to apply all changes" -Level "STEP"
+        Write-Ui -Message "  * Review the installation summary above" -Level "STEP"
+        Write-Ui -Message "  * Verify all installed applications work correctly" -Level "STEP"
         Write-Host ""
         Write-Host "============================================================" -ForegroundColor Cyan
         Write-Host ""
     } catch {
         Write-SouliTEKWarning "Error displaying installation summary: $($_.Exception.Message)"
         Write-Host ""
-        Write-Host "  Summary could not be displayed due to an error." -ForegroundColor Yellow
+        Write-Ui -Message "  Summary could not be displayed due to an error." -Level "WARN"
         Write-Host ""
     }
 }
@@ -902,11 +910,11 @@ function Start-OneClickPCInstall {
     
     $currentStep++
     Show-Step -StepNumber $currentStep -TotalSteps $totalSteps -Description "Setting time zone"
-    if (-not (Set-TimeZoneToJerusalem)) { $errors++ }
+    if (-not (Set-SystemTimeZone)) { $errors++ }
     
     $currentStep++
     Show-Step -StepNumber $currentStep -TotalSteps $totalSteps -Description "Configuring regional settings"
-    if (-not (Set-RegionalSettingsToIsrael)) { $errors++ }
+    if (-not (Set-RegionalSettings)) { $errors++ }
     
     $currentStep++
     Show-Step -StepNumber $currentStep -TotalSteps $totalSteps -Description "Creating system restore point"
