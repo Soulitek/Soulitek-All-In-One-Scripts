@@ -96,32 +96,32 @@ function Show-Warning {
     Write-Host "  WARNING: IMPORTANT NOTICE"
     Write-Host "========================================" -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "This tool will make SIGNIFICANT CHANGES to your" -ForegroundColor Red
-    Write-Host "Windows installation, including:" -ForegroundColor Yellow
+    Write-Ui -Message "This tool will make SIGNIFICANT CHANGES to your" -Level "ERROR"
+    Write-Ui -Message "Windows installation, including:" -Level "WARN"
     Write-Host ""
-    Write-Host "  - Remove pre-installed bloatware apps" -ForegroundColor Gray
-    Write-Host "  - Disable Windows telemetry" -ForegroundColor Gray
-    Write-Host "  - Modify system registry settings" -ForegroundColor Gray
-    Write-Host "  - Change Windows features and services" -ForegroundColor Gray
-    Write-Host "  - Customize UI elements" -ForegroundColor Gray
+    Write-Ui -Message "  - Remove pre-installed bloatware apps" -Level "INFO"
+    Write-Ui -Message "  - Disable Windows telemetry" -Level "INFO"
+    Write-Ui -Message "  - Modify system registry settings" -Level "INFO"
+    Write-Ui -Message "  - Change Windows features and services" -Level "INFO"
+    Write-Ui -Message "  - Customize UI elements" -Level "INFO"
     Write-Host ""
-    Write-Host "STRONGLY RECOMMENDED:" -ForegroundColor Red
-    Write-Host "  - Create a system restore point" -ForegroundColor Yellow
-    Write-Host "  - Backup important data" -ForegroundColor Yellow
-    Write-Host "  - Understand the changes being made" -ForegroundColor Yellow
+    Write-Ui -Message "STRONGLY RECOMMENDED:" -Level "ERROR"
+    Write-Ui -Message "  - Create a system restore point" -Level "WARN"
+    Write-Ui -Message "  - Backup important data" -Level "WARN"
+    Write-Ui -Message "  - Understand the changes being made" -Level "WARN"
     Write-Host ""
-    Write-Host "This tool works for both Windows 10 and Windows 11." -ForegroundColor Cyan
+    Write-Ui -Message "This tool works for both Windows 10 and Windows 11." -Level "INFO"
     Write-Host ""
-    Write-Host "After running, you will be presented with an" -ForegroundColor Gray
-    Write-Host "interactive menu to select which changes to apply." -ForegroundColor Gray
+    Write-Ui -Message "After running, you will be presented with an" -Level "INFO"
+    Write-Ui -Message "interactive menu to select which changes to apply." -Level "INFO"
     Write-Host ""
     Write-Host "========================================" -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "Press 'Y' to continue or any other key to cancel..." -ForegroundColor Cyan
+    Write-Ui -Message "Press 'Y' to continue or any other key to cancel..." -Level "INFO"
     $response = Read-Host
     if ($response -ne 'Y' -and $response -ne 'y') {
         Write-Host ""
-        Write-Host "Operation cancelled by user." -ForegroundColor Yellow
+        Write-Ui -Message "Operation cancelled by user." -Level "WARN"
         Start-Sleep -Seconds 2
         exit 0
     }
@@ -164,41 +164,41 @@ function Invoke-Win11Debloat {
     Write-Host ""
     
     # Check internet connection
-    Write-Host "[*] Checking internet connection..." -ForegroundColor Cyan
+    Write-Ui -Message "[*] Checking internet connection..." -Level "INFO"
     if (-not (Test-InternetConnection)) {
-        Write-Host "    [ERROR] No internet connection detected" -ForegroundColor Red
+        Write-Ui -Message "    [ERROR] No internet connection detected" -Level "ERROR"
         Write-Host ""
-        Write-Host "This tool requires an active internet connection" -ForegroundColor Yellow
-        Write-Host "to download and run the Win11Debloat script." -ForegroundColor Yellow
+        Write-Ui -Message "This tool requires an active internet connection" -Level "WARN"
+        Write-Ui -Message "to download and run the Win11Debloat script." -Level "WARN"
         Write-Host ""
-        Write-Host "Please check your network connection and try again." -ForegroundColor Gray
+        Write-Ui -Message "Please check your network connection and try again." -Level "INFO"
         Write-Host ""
         return $false
     }
-    Write-Host "    [OK] Internet connection verified" -ForegroundColor Green
+    Write-Ui -Message "    [OK] Internet connection verified" -Level "OK"
     Write-Host ""
     
     # Display information
-    Write-Host "[*] About Win11Debloat:" -ForegroundColor Cyan
-    Write-Host "    Tool: Win11Debloat by Raphire" -ForegroundColor Gray
+    Write-Ui -Message "[*] About Win11Debloat:" -Level "INFO"
+    Write-Ui -Message "    Tool: Win11Debloat by Raphire" -Level "INFO"
     Write-Host "    Source: https://github.com/Raphire/Win11Debloat" -ForegroundColor Gray
-    Write-Host "    Download URL: $Win11DebloatURL" -ForegroundColor Gray
+    Write-Ui -Message "    Download URL: $Win11DebloatURL" -Level "INFO"
     Write-Host ""
     
-    Write-Host "[*] Downloading and executing Win11Debloat..." -ForegroundColor Cyan
-    Write-Host "    This will open an interactive menu." -ForegroundColor Yellow
-    Write-Host "    Please follow the on-screen instructions." -ForegroundColor Yellow
+    Write-Ui -Message "[*] Downloading and executing Win11Debloat..." -Level "INFO"
+    Write-Ui -Message "    This will open an interactive menu." -Level "WARN"
+    Write-Ui -Message "    Please follow the on-screen instructions." -Level "WARN"
     Write-Host ""
     
     try {
         # Download and execute the Win11Debloat script
-        Write-Host "[*] Fetching script from remote server..." -ForegroundColor Cyan
+        Write-Ui -Message "[*] Fetching script from remote server..." -Level "INFO"
         $scriptContent = Invoke-RestMethod -Uri $Win11DebloatURL -ErrorAction Stop
         
-        Write-Host "    [OK] Script downloaded successfully" -ForegroundColor Green
+        Write-Ui -Message "    [OK] Script downloaded successfully" -Level "OK"
         Write-Host ""
         
-        Write-Host "[*] Launching Win11Debloat..." -ForegroundColor Cyan
+        Write-Ui -Message "[*] Launching Win11Debloat..." -Level "INFO"
         Write-Host "========================================" -ForegroundColor Cyan
         Write-Host ""
         
@@ -207,16 +207,16 @@ function Invoke-Win11Debloat {
         
         Write-Host ""
         Write-Host "========================================" -ForegroundColor Cyan
-        Write-Host "  WIN11DEBLOAT EXECUTION COMPLETED" -ForegroundColor Green
+        Write-Ui -Message "  WIN11DEBLOAT EXECUTION COMPLETED" -Level "OK"
         Write-Host "========================================" -ForegroundColor Green
         Write-Host ""
-        Write-Host "The Win11Debloat tool has finished." -ForegroundColor Green
+        Write-Ui -Message "The Win11Debloat tool has finished." -Level "OK"
         Write-Host ""
-        Write-Host "IMPORTANT NOTES:" -ForegroundColor Yellow
-        Write-Host "  - Some changes may require a system restart" -ForegroundColor Gray
-        Write-Host "  - Review any warnings or messages displayed above" -ForegroundColor Gray
-        Write-Host "  - If you encounter issues, you can restore from" -ForegroundColor Gray
-        Write-Host "    your system restore point" -ForegroundColor Gray
+        Write-Ui -Message "IMPORTANT NOTES:" -Level "WARN"
+        Write-Ui -Message "  - Some changes may require a system restart" -Level "INFO"
+        Write-Ui -Message "  - Review any warnings or messages displayed above" -Level "INFO"
+        Write-Ui -Message "  - If you encounter issues, you can restore from" -Level "INFO"
+        Write-Ui -Message "    your system restore point" -Level "INFO"
         Write-Host ""
         
         return $true
@@ -224,24 +224,24 @@ function Invoke-Win11Debloat {
     catch {
         Write-Host ""
         Write-Host "========================================" -ForegroundColor Red
-        Write-Host "  ERROR: Failed to execute Win11Debloat" -ForegroundColor Red
+        Write-Ui -Message "  ERROR: Failed to execute Win11Debloat" -Level "ERROR"
         Write-Host "========================================" -ForegroundColor Red
         Write-Host ""
-        Write-Host "Error details:" -ForegroundColor Yellow
-        Write-Host "  $($_.Exception.Message)" -ForegroundColor Red
+        Write-Ui -Message "Error details:" -Level "WARN"
+        Write-Ui -Message "  $($_.Exception.Message)" -Level "ERROR"
         Write-Host ""
-        Write-Host "Possible causes:" -ForegroundColor Yellow
-        Write-Host "  - Network connectivity issues" -ForegroundColor Gray
-        Write-Host "  - Firewall or antivirus blocking the download" -ForegroundColor Gray
-        Write-Host "  - PowerShell execution policy restrictions" -ForegroundColor Gray
-        Write-Host "  - Remote server unavailable" -ForegroundColor Gray
+        Write-Ui -Message "Possible causes:" -Level "WARN"
+        Write-Ui -Message "  - Network connectivity issues" -Level "INFO"
+        Write-Ui -Message "  - Firewall or antivirus blocking the download" -Level "INFO"
+        Write-Ui -Message "  - PowerShell execution policy restrictions" -Level "INFO"
+        Write-Ui -Message "  - Remote server unavailable" -Level "INFO"
         Write-Host ""
-        Write-Host "Troubleshooting steps:" -ForegroundColor Cyan
-        Write-Host "  1. Check your internet connection" -ForegroundColor Gray
-        Write-Host "  2. Temporarily disable antivirus/firewall" -ForegroundColor Gray
-        Write-Host "  3. Verify PowerShell execution policy:" -ForegroundColor Gray
-        Write-Host "     Get-ExecutionPolicy" -ForegroundColor DarkGray
-        Write-Host "  4. Try running directly from GitHub:" -ForegroundColor Gray
+        Write-Ui -Message "Troubleshooting steps:" -Level "INFO"
+        Write-Ui -Message "  1. Check your internet connection" -Level "INFO"
+        Write-Ui -Message "  2. Temporarily disable antivirus/firewall" -Level "INFO"
+        Write-Ui -Message "  3. Verify PowerShell execution policy:" -Level "INFO"
+        Write-Ui -Message "     Get-ExecutionPolicy" -Level "INFO"
+        Write-Ui -Message "  4. Try running directly from GitHub:" -Level "INFO"
         Write-Host "     https://github.com/Raphire/Win11Debloat" -ForegroundColor DarkGray
         Write-Host ""
         
@@ -272,13 +272,13 @@ $success = Invoke-Win11Debloat
 Write-Host ""
 Write-Host "========================================"
 if ($success) {
-    Write-Host "Process completed successfully." -ForegroundColor Green
+    Write-Ui -Message "Process completed successfully." -Level "OK"
     Write-Host ""
-    Write-Host "Thank you for using SouliTEK tools!" -ForegroundColor Cyan
+    Write-Ui -Message "Thank you for using SouliTEK tools!" -Level "INFO"
 } else {
-    Write-Host "Process encountered errors." -ForegroundColor Red
+    Write-Ui -Message "Process encountered errors." -Level "ERROR"
     Write-Host ""
-    Write-Host "Please review the error messages above." -ForegroundColor Yellow
+    Write-Ui -Message "Please review the error messages above." -Level "WARN"
 }
 Write-Host "========================================"
 Write-Host ""

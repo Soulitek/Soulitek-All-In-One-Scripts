@@ -241,10 +241,10 @@ function Invoke-FullScan {
     if ($Script:BSODResults.Count -eq 0) {
         Write-SouliTEKSuccess "No BSOD history found on this system"
         Write-Host ""
-        Write-Host "This could mean:" -ForegroundColor Yellow
-        Write-Host "  - System has never experienced a blue screen" -ForegroundColor Gray
-        Write-Host "  - Minidump files have been cleaned up" -ForegroundColor Gray
-        Write-Host "  - Event log entries have been cleared" -ForegroundColor Gray
+        Write-Ui -Message "This could mean:" -Level "WARN"
+        Write-Ui -Message "  - System has never experienced a blue screen" -Level "INFO"
+        Write-Ui -Message "  - Minidump files have been cleaned up" -Level "INFO"
+        Write-Ui -Message "  - Event log entries have been cleared" -Level "INFO"
         Write-Host ""
     } else {
         Write-Ui -Message "Scan complete! Found $($Script:BSODResults.Count) BSOD record(s)" -Level "OK"
@@ -267,34 +267,34 @@ function Show-BSODResults {
     }
     
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  BSOD HISTORY RESULTS" -ForegroundColor Cyan
+    Write-Ui -Message "  BSOD HISTORY RESULTS" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     
     # Find the most recent BSOD
     $mostRecent = $Script:BSODResults | Sort-Object Timestamp -Descending | Select-Object -First 1
     
-    Write-Host "Last BSOD Occurrence:" -ForegroundColor Yellow
-    Write-Host "  Date/Time: $($mostRecent.Timestamp)" -ForegroundColor White
-    Write-Host "  BugCheck Code: $($mostRecent.BugCheckCode)" -ForegroundColor White
-    Write-Host "  Description: $($mostRecent.BugCheckDescription)" -ForegroundColor White
-    Write-Host "  Source: $($mostRecent.Source)" -ForegroundColor White
+    Write-Ui -Message "Last BSOD Occurrence:" -Level "WARN"
+    Write-Ui -Message "  Date/Time: $($mostRecent.Timestamp)" -Level "STEP"
+    Write-Ui -Message "  BugCheck Code: $($mostRecent.BugCheckCode)" -Level "STEP"
+    Write-Ui -Message "  Description: $($mostRecent.BugCheckDescription)" -Level "STEP"
+    Write-Ui -Message "  Source: $($mostRecent.Source)" -Level "STEP"
     Write-Host ""
     
-    Write-Host "All BSOD Records ($($Script:BSODResults.Count) total):" -ForegroundColor Yellow
+    Write-Ui -Message "All BSOD Records ($($Script:BSODResults.Count) total):" -Level "WARN"
     Write-Host ""
     
     $index = 1
     foreach ($result in ($Script:BSODResults | Sort-Object Timestamp -Descending)) {
-        Write-Host "[$index] $($result.Timestamp.ToString('yyyy-MM-dd HH:mm:ss'))" -ForegroundColor Cyan
-        Write-Host "     Code: $($result.BugCheckCode)" -ForegroundColor White
-        Write-Host "     Description: $($result.BugCheckDescription)" -ForegroundColor Gray
-        Write-Host "     Source: $($result.Source)" -ForegroundColor Gray
+        Write-Ui -Message "[$index] $($result.Timestamp.ToString('yyyy-MM-dd HH:mm:ss'))" -Level "INFO"
+        Write-Ui -Message "     Code: $($result.BugCheckCode)" -Level "STEP"
+        Write-Ui -Message "     Description: $($result.BugCheckDescription)" -Level "INFO"
+        Write-Ui -Message "     Source: $($result.Source)" -Level "INFO"
         if ($result.FileName -ne "Event ID 1001") {
-            Write-Host "     File: $($result.FileName) ($($result.FileSize))" -ForegroundColor Gray
+            Write-Ui -Message "     File: $($result.FileName) ($($result.FileSize))" -Level "INFO"
         }
         if ($result.BugCheckParams) {
-            Write-Host "     Parameters: $($result.BugCheckParams)" -ForegroundColor Gray
+            Write-Ui -Message "     Parameters: $($result.BugCheckParams)" -Level "INFO"
         }
         Write-Host ""
         $index++
@@ -319,37 +319,37 @@ function Show-LastBSOD {
     $lastBSOD = $Script:BSODResults | Sort-Object Timestamp -Descending | Select-Object -First 1
     
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  LAST BLUE SCREEN OF DEATH (BSOD)" -ForegroundColor Cyan
+    Write-Ui -Message "  LAST BLUE SCREEN OF DEATH (BSOD)" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "Date/Time: " -NoNewline -ForegroundColor Yellow
-    Write-Host "$($lastBSOD.Timestamp)" -ForegroundColor White
+    Write-Ui -Message "$($lastBSOD.Timestamp)" -Level "STEP"
     Write-Host ""
     Write-Host "BugCheck Code: " -NoNewline -ForegroundColor Yellow
-    Write-Host "$($lastBSOD.BugCheckCode)" -ForegroundColor Red
+    Write-Ui -Message "$($lastBSOD.BugCheckCode)" -Level "ERROR"
     Write-Host ""
     Write-Host "Description: " -NoNewline -ForegroundColor Yellow
-    Write-Host "$($lastBSOD.BugCheckDescription)" -ForegroundColor White
+    Write-Ui -Message "$($lastBSOD.BugCheckDescription)" -Level "STEP"
     Write-Host ""
     Write-Host "Source: " -NoNewline -ForegroundColor Yellow
-    Write-Host "$($lastBSOD.Source)" -ForegroundColor White
+    Write-Ui -Message "$($lastBSOD.Source)" -Level "STEP"
     Write-Host ""
     
     if ($lastBSOD.FileName -ne "Event ID 1001") {
         Write-Host "Minidump File: " -NoNewline -ForegroundColor Yellow
-        Write-Host "$($lastBSOD.FileName)" -ForegroundColor White
+        Write-Ui -Message "$($lastBSOD.FileName)" -Level "STEP"
         Write-Host ""
         Write-Host "File Size: " -NoNewline -ForegroundColor Yellow
-        Write-Host "$($lastBSOD.FileSize)" -ForegroundColor White
+        Write-Ui -Message "$($lastBSOD.FileSize)" -Level "STEP"
         Write-Host ""
         Write-Host "File Path: " -NoNewline -ForegroundColor Yellow
-        Write-Host "$($lastBSOD.FilePath)" -ForegroundColor Gray
+        Write-Ui -Message "$($lastBSOD.FilePath)" -Level "INFO"
         Write-Host ""
     }
     
     if ($lastBSOD.BugCheckParams) {
         Write-Host "BugCheck Parameters: " -NoNewline -ForegroundColor Yellow
-        Write-Host "$($lastBSOD.BugCheckParams)" -ForegroundColor Gray
+        Write-Ui -Message "$($lastBSOD.BugCheckParams)" -Level "INFO"
         Write-Host ""
     }
     
@@ -357,11 +357,11 @@ function Show-LastBSOD {
     $timeSince = (Get-Date) - $lastBSOD.Timestamp
     Write-Host "Time Since Last BSOD: " -NoNewline -ForegroundColor Yellow
     if ($timeSince.Days -gt 0) {
-        Write-Host "$($timeSince.Days) day(s), $($timeSince.Hours) hour(s) ago" -ForegroundColor White
+        Write-Ui -Message "$($timeSince.Days) day(s), $($timeSince.Hours) hour(s) ago" -Level "STEP"
     } elseif ($timeSince.Hours -gt 0) {
-        Write-Host "$($timeSince.Hours) hour(s), $($timeSince.Minutes) minute(s) ago" -ForegroundColor White
+        Write-Ui -Message "$($timeSince.Hours) hour(s), $($timeSince.Minutes) minute(s) ago" -Level "STEP"
     } else {
-        Write-Host "$($timeSince.Minutes) minute(s) ago" -ForegroundColor White
+        Write-Ui -Message "$($timeSince.Minutes) minute(s) ago" -Level "STEP"
     }
     Write-Host ""
     
@@ -441,36 +441,36 @@ function Show-Help {
     
     Show-Header "BSOD HISTORY SCANNER - HELP"
     
-    Write-Host "This tool scans for Blue Screen of Death (BSOD) history by:" -ForegroundColor White
+    Write-Ui -Message "This tool scans for Blue Screen of Death (BSOD) history by:" -Level "STEP"
     Write-Host ""
-    Write-Host "  1. Scanning Minidump files in C:\Windows\Minidump" -ForegroundColor Gray
-    Write-Host "  2. Checking System event log for BugCheck events (Event ID 1001)" -ForegroundColor Gray
+    Write-Ui -Message "  1. Scanning Minidump files in C:\Windows\Minidump" -Level "INFO"
+    Write-Ui -Message "  2. Checking System event log for BugCheck events (Event ID 1001)" -Level "INFO"
     Write-Host ""
-    Write-Host "Features:" -ForegroundColor Yellow
-    Write-Host "  - Full scan of both Minidump files and event logs" -ForegroundColor Gray
-    Write-Host "  - View last BSOD occurrence with detailed information" -ForegroundColor Gray
-    Write-Host "  - Export results to TXT, CSV, or HTML formats" -ForegroundColor Gray
-    Write-Host "  - BugCheck code descriptions for common error codes" -ForegroundColor Gray
+    Write-Ui -Message "Features:" -Level "WARN"
+    Write-Ui -Message "  - Full scan of both Minidump files and event logs" -Level "INFO"
+    Write-Ui -Message "  - View last BSOD occurrence with detailed information" -Level "INFO"
+    Write-Ui -Message "  - Export results to TXT, CSV, or HTML formats" -Level "INFO"
+    Write-Ui -Message "  - BugCheck code descriptions for common error codes" -Level "INFO"
     Write-Host ""
-    Write-Host "BugCheck Codes:" -ForegroundColor Yellow
-    Write-Host "  The tool identifies common BugCheck codes and provides" -ForegroundColor Gray
-    Write-Host "  human-readable descriptions. Common codes include:" -ForegroundColor Gray
+    Write-Ui -Message "BugCheck Codes:" -Level "WARN"
+    Write-Ui -Message "  The tool identifies common BugCheck codes and provides" -Level "INFO"
+    Write-Ui -Message "  human-readable descriptions. Common codes include:" -Level "INFO"
     Write-Host ""
-    Write-Host "  0x0000000A - IRQL_NOT_LESS_OR_EQUAL" -ForegroundColor Cyan
-    Write-Host "  0x0000003B - SYSTEM_SERVICE_EXCEPTION" -ForegroundColor Cyan
-    Write-Host "  0x00000050 - PAGE_FAULT_IN_NONPAGED_AREA" -ForegroundColor Cyan
-    Write-Host "  0x000000D1 - DRIVER_IRQL_NOT_LESS_OR_EQUAL" -ForegroundColor Cyan
-    Write-Host "  0x00000124 - WHEA_UNCORRECTABLE_ERROR (Hardware)" -ForegroundColor Cyan
-    Write-Host "  0x00000133 - DPC_WATCHDOG_VIOLATION" -ForegroundColor Cyan
+    Write-Ui -Message "  0x0000000A - IRQL_NOT_LESS_OR_EQUAL" -Level "INFO"
+    Write-Ui -Message "  0x0000003B - SYSTEM_SERVICE_EXCEPTION" -Level "INFO"
+    Write-Ui -Message "  0x00000050 - PAGE_FAULT_IN_NONPAGED_AREA" -Level "INFO"
+    Write-Ui -Message "  0x000000D1 - DRIVER_IRQL_NOT_LESS_OR_EQUAL" -Level "INFO"
+    Write-Ui -Message "  0x00000124 - WHEA_UNCORRECTABLE_ERROR (Hardware)" -Level "INFO"
+    Write-Ui -Message "  0x00000133 - DPC_WATCHDOG_VIOLATION" -Level "INFO"
     Write-Host ""
-    Write-Host "Requirements:" -ForegroundColor Yellow
-    Write-Host "  - Windows 10/11" -ForegroundColor Gray
-    Write-Host "  - Administrator privileges (recommended)" -ForegroundColor Gray
+    Write-Ui -Message "Requirements:" -Level "WARN"
+    Write-Ui -Message "  - Windows 10/11" -Level "INFO"
+    Write-Ui -Message "  - Administrator privileges (recommended)" -Level "INFO"
     Write-Host ""
-    Write-Host "Note:" -ForegroundColor Yellow
-    Write-Host "  Minidump files may require WinDbg or other debugging tools" -ForegroundColor Gray
-    Write-Host "  for detailed analysis. This tool extracts basic information" -ForegroundColor Gray
-    Write-Host "  from event logs and file timestamps." -ForegroundColor Gray
+    Write-Ui -Message "Note:" -Level "WARN"
+    Write-Ui -Message "  Minidump files may require WinDbg or other debugging tools" -Level "INFO"
+    Write-Ui -Message "  for detailed analysis. This tool extracts basic information" -Level "INFO"
+    Write-Ui -Message "  from event logs and file timestamps." -Level "INFO"
     Write-Host ""
     
     Wait-SouliTEKKeyPress
@@ -485,14 +485,14 @@ function Show-MainMenu {
     do {
         Show-Header "BSOD HISTORY SCANNER"
         
-        Write-Host "Select an option:" -ForegroundColor White
+        Write-Ui -Message "Select an option:" -Level "STEP"
         Write-Host ""
-        Write-Host "  [1] Full Scan              - Scan Minidump files and event logs" -ForegroundColor Yellow
-        Write-Host "  [2] View Last BSOD         - Show most recent blue screen details" -ForegroundColor Yellow
-        Write-Host "  [3] View All Results       - Display all BSOD records" -ForegroundColor Yellow
-        Write-Host "  [4] Export Results        - Export to TXT, CSV, or HTML" -ForegroundColor Yellow
-        Write-Host "  [5] Help                   - Usage guide and information" -ForegroundColor Yellow
-        Write-Host "  [0] Exit" -ForegroundColor Red
+        Write-Ui -Message "  [1] Full Scan              - Scan Minidump files and event logs" -Level "WARN"
+        Write-Ui -Message "  [2] View Last BSOD         - Show most recent blue screen details" -Level "WARN"
+        Write-Ui -Message "  [3] View All Results       - Display all BSOD records" -Level "WARN"
+        Write-Ui -Message "  [4] Export Results        - Export to TXT, CSV, or HTML" -Level "WARN"
+        Write-Ui -Message "  [5] Help                   - Usage guide and information" -Level "WARN"
+        Write-Ui -Message "  [0] Exit" -Level "ERROR"
         Write-Host ""
         Write-Host "============================================================" -ForegroundColor DarkGray
         

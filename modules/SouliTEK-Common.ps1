@@ -762,12 +762,12 @@ function Invoke-SouliTEKAdminCheck {
             Write-Host "   ERROR: Administrator Required" -ForegroundColor Red
             Write-Host "========================================" -ForegroundColor Red
             Write-Host ""
-            Write-Host "$FeatureName requires administrator privileges." -ForegroundColor Yellow
+            Write-Ui -Message "$FeatureName requires administrator privileges." -Level "WARN"
             Write-Host ""
-            Write-Host "HOW TO FIX:" -ForegroundColor White
-            Write-Host "1. Right-click PowerShell" -ForegroundColor Gray
-            Write-Host "2. Select `"Run as administrator`"" -ForegroundColor Gray
-            Write-Host "3. Navigate to script location and run it" -ForegroundColor Gray
+            Write-Ui -Message "HOW TO FIX:" -Level "STEP"
+            Write-Ui -Message "1. Right-click PowerShell" -Level "INFO"
+            Write-Ui -Message "2. Select `"Run as administrator`"" -Level "INFO"
+            Write-Ui -Message "3. Navigate to script location and run it" -Level "INFO"
             Write-Host ""
             Write-Host "========================================" -ForegroundColor Red
             Write-Host ""
@@ -776,8 +776,8 @@ function Invoke-SouliTEKAdminCheck {
         }
         else {
             Write-Host ""
-            Write-Host "Warning: $FeatureName works best with administrator privileges." -ForegroundColor Yellow
-            Write-Host "Some features may not work without admin rights." -ForegroundColor Yellow
+            Write-Ui -Message "Warning: $FeatureName works best with administrator privileges." -Level "WARN"
+            Write-Ui -Message "Some features may not work without admin rights." -Level "WARN"
             Write-Host ""
             Start-Sleep -Seconds 2
         }
@@ -841,66 +841,66 @@ function Install-SouliTEKModule {
     
     try {
         # Step 1: Ensure NuGet provider is installed
-        Write-Host "  [*] Checking NuGet provider..." -ForegroundColor Cyan
+        Write-Ui -Message "  [*] Checking NuGet provider..." -Level "INFO"
         $nuGetProvider = Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue
-        
+
         if (-not $nuGetProvider -or ($nuGetProvider.Version -lt [version]"2.8.5.201")) {
-            Write-Host "  [*] Installing NuGet provider..." -ForegroundColor Yellow
+            Write-Ui -Message "  [*] Installing NuGet provider..." -Level "WARN"
             try {
                 Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope $Scope -ErrorAction Stop | Out-Null
-                Write-Host "  [+] NuGet provider installed successfully" -ForegroundColor Green
+                Write-Ui -Message "  [+] NuGet provider installed successfully" -Level "OK"
             }
             catch {
-                Write-Host "  [-] Failed to install NuGet provider: $($_.Exception.Message)" -ForegroundColor Red
+                Write-Ui -Message "  [-] Failed to install NuGet provider: $($_.Exception.Message)" -Level "ERROR"
                 return $false
             }
         }
-        
+
         # Step 2: Ensure PowerShellGet is available
         $psGet = Get-Module -Name PowerShellGet -ListAvailable | Sort-Object Version -Descending | Select-Object -First 1
         if (-not $psGet) {
-            Write-Host "  [-] PowerShellGet module not found" -ForegroundColor Red
-            Write-Host "  [!] Please install PowerShellGet manually" -ForegroundColor Yellow
+            Write-Ui -Message "  [-] PowerShellGet module not found" -Level "ERROR"
+            Write-Ui -Message "  [!] Please install PowerShellGet manually" -Level "WARN"
             return $false
         }
-        
+
         # Step 3: Check if module is already installed
-        Write-Host "  [*] Checking for $ModuleName..." -ForegroundColor Cyan
+        Write-Ui -Message "  [*] Checking for $ModuleName..." -Level "INFO"
         $installedModule = Get-Module -Name $ModuleName -ListAvailable | Sort-Object Version -Descending | Select-Object -First 1
-        
+
         $needsInstall = $false
-        
+
         if ($installedModule) {
             if ($MinimumVersion) {
                 if ($installedModule.Version -lt [version]$MinimumVersion) {
-                    Write-Host "  [!] Installed version $($installedModule.Version) is older than required $MinimumVersion" -ForegroundColor Yellow
+                    Write-Ui -Message "  [!] Installed version $($installedModule.Version) is older than required $MinimumVersion" -Level "WARN"
                     $needsInstall = $true
                 }
                 elseif ($Force) {
-                    Write-Host "  [!] Force flag specified, reinstalling..." -ForegroundColor Yellow
+                    Write-Ui -Message "  [!] Force flag specified, reinstalling..." -Level "WARN"
                     $needsInstall = $true
                 }
                 else {
-                    Write-Host "  [+] $ModuleName version $($installedModule.Version) is already installed" -ForegroundColor Green
+                    Write-Ui -Message "  [+] $ModuleName version $($installedModule.Version) is already installed" -Level "OK"
                 }
             }
             elseif ($Force) {
-                Write-Host "  [!] Force flag specified, reinstalling..." -ForegroundColor Yellow
+                Write-Ui -Message "  [!] Force flag specified, reinstalling..." -Level "WARN"
                 $needsInstall = $true
             }
             else {
-                Write-Host "  [+] $ModuleName is already installed (version $($installedModule.Version))" -ForegroundColor Green
+                Write-Ui -Message "  [+] $ModuleName is already installed (version $($installedModule.Version))" -Level "OK"
             }
         }
         else {
-            Write-Host "  [!] $ModuleName not found, installing..." -ForegroundColor Yellow
+            Write-Ui -Message "  [!] $ModuleName not found, installing..." -Level "WARN"
             $needsInstall = $true
         }
-        
+
         # Step 4: Install or update module if needed
         if ($needsInstall) {
-            Write-Host "  [*] Installing $ModuleName..." -ForegroundColor Cyan
-            
+            Write-Ui -Message "  [*] Installing $ModuleName..." -Level "INFO"
+
             try {
                 $installParams = @{
                     Name = $ModuleName
@@ -908,38 +908,38 @@ function Install-SouliTEKModule {
                     Force = $true
                     ErrorAction = 'Stop'
                 }
-                
+
                 if ($MinimumVersion) {
                     $installParams.MinimumVersion = $MinimumVersion
                 }
-                
+
                 Install-Module @installParams | Out-Null
-                Write-Host "  [+] $ModuleName installed successfully" -ForegroundColor Green
+                Write-Ui -Message "  [+] $ModuleName installed successfully" -Level "OK"
             }
             catch {
-                Write-Host "  [-] Failed to install $ModuleName" -ForegroundColor Red
-                Write-Host "  [-] Error: $($_.Exception.Message)" -ForegroundColor Red
+                Write-Ui -Message "  [-] Failed to install $ModuleName" -Level "ERROR"
+                Write-Ui -Message "  [-] Error: $($_.Exception.Message)" -Level "ERROR"
                 Write-Host ""
-                Write-Host "  [!] Try manual installation:" -ForegroundColor Yellow
-                Write-Host "      Install-Module -Name $ModuleName -Scope CurrentUser -Force" -ForegroundColor Gray
+                Write-Ui -Message "  [!] Try manual installation:" -Level "WARN"
+                Write-Ui -Message "      Install-Module -Name $ModuleName -Scope CurrentUser -Force" -Level "INFO"
                 return $false
             }
         }
-        
+
         # Step 5: Import the module
-        Write-Host "  [*] Importing $ModuleName..." -ForegroundColor Cyan
+        Write-Ui -Message "  [*] Importing $ModuleName..." -Level "INFO"
         try {
             Import-Module -Name $ModuleName -Force -ErrorAction Stop
-            Write-Host "  [+] $ModuleName imported successfully" -ForegroundColor Green
+            Write-Ui -Message "  [+] $ModuleName imported successfully" -Level "OK"
             return $true
         }
         catch {
-            Write-Host "  [-] Failed to import ${ModuleName}: $($_.Exception.Message)" -ForegroundColor Red
+            Write-Ui -Message "  [-] Failed to import ${ModuleName}: $($_.Exception.Message)" -Level "ERROR"
             return $false
         }
     }
     catch {
-        Write-Host "  [-] Unexpected error in Install-SouliTEKModule: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Ui -Message "  [-] Unexpected error in Install-SouliTEKModule: $($_.Exception.Message)" -Level "ERROR"
         return $false
     }
 }
@@ -1303,26 +1303,80 @@ function Show-SouliTEKExportMenu {
     Write-Host "  $Title" -ForegroundColor Cyan
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "Select export format:" -ForegroundColor White
+    Write-Ui -Message "Select export format:" -Level "STEP"
     Write-Host ""
-    Write-Host "  [1] Text File (.txt)" -ForegroundColor Yellow
-    Write-Host "  [2] CSV File (.csv)" -ForegroundColor Yellow
-    Write-Host "  [3] HTML Report (.html)" -ForegroundColor Yellow
-    Write-Host "  [4] All Formats" -ForegroundColor Cyan
-    Write-Host "  [0] Cancel" -ForegroundColor Red
+    Write-Ui -Message "  [1] Text File (.txt)" -Level "WARN"
+    Write-Ui -Message "  [2] CSV File (.csv)" -Level "WARN"
+    Write-Ui -Message "  [3] HTML Report (.html)" -Level "WARN"
+    Write-Ui -Message "  [4] All Formats" -Level "INFO"
+    Write-Ui -Message "  [0] Cancel" -Level "ERROR"
     Write-Host ""
-    
+
     $choice = Read-Host "Enter your choice (0-4)"
-    
+
     switch ($choice) {
         "1" { return "TXT" }
         "2" { return "CSV" }
         "3" { return "HTML" }
         "4" { return "ALL" }
         "0" { return "CANCEL" }
-        default { 
-            Write-Host "Invalid choice" -ForegroundColor Red
-            return "CANCEL" 
+        default {
+            Write-Ui -Message "Invalid choice" -Level "ERROR"
+            return "CANCEL"
         }
+    }
+}
+
+function Protect-SouliTEKSecret {
+    param(
+        [Parameter(Mandatory=$true)][System.Security.SecureString]$SecureValue,
+        [Parameter(Mandatory=$true)][string]$FilePath
+    )
+    try {
+        $encryptedString = ConvertFrom-SecureString -SecureString $SecureValue
+        $encryptedString | Out-File -FilePath $FilePath -Encoding UTF8 -Force
+        return $true
+    }
+    catch {
+        Write-Ui -Message "Failed to encrypt and save secret: $($_.Exception.Message)" -Level "ERROR"
+        return $false
+    }
+}
+
+function Unprotect-SouliTEKSecret {
+    param([Parameter(Mandatory=$true)][string]$FilePath)
+    try {
+        $encryptedString = Get-Content -Path $FilePath -Encoding UTF8 -ErrorAction Stop
+        $secureString = ConvertTo-SecureString -String $encryptedString -ErrorAction Stop
+        $bstr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($secureString)
+        $plainText = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr)
+        [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr)
+        return $plainText
+    }
+    catch {
+        Write-Ui -Message "Failed to decrypt secret: $($_.Exception.Message)" -Level "ERROR"
+        return $null
+    }
+}
+
+function Confirm-SouliTEKFileHash {
+    param(
+        [Parameter(Mandatory=$true)][string]$FilePath,
+        [Parameter(Mandatory=$true)][string]$ExpectedHash
+    )
+    try {
+        $actual = (Get-FileHash -Path $FilePath -Algorithm SHA256).Hash
+        if ($actual.ToUpper() -eq $ExpectedHash.ToUpper()) {
+            Write-Ui -Message "Hash verified: $([System.IO.Path]::GetFileName($FilePath))" -Level "OK"
+            return $true
+        }
+        Write-Ui -Message "Hash mismatch for $([System.IO.Path]::GetFileName($FilePath))!" -Level "ERROR"
+        Write-Ui -Message "Expected: $($ExpectedHash.ToUpper()) / Actual: $actual" -Level "ERROR"
+        Remove-Item -Path $FilePath -Force -ErrorAction SilentlyContinue
+        return $false
+    }
+    catch {
+        Write-Ui -Message "Hash check failed: $($_.Exception.Message)" -Level "ERROR"
+        return $false
     }
 }

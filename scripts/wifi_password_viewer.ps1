@@ -121,16 +121,16 @@ function Show-AllPasswords {
         foreach ($profile in $profiles) {
             $count++
             Write-Host "----------------------------------------" -ForegroundColor Gray
-            Write-Host "Network #${count}: $profile" -ForegroundColor White
+            Write-Ui -Message "Network #${count}: $profile" -Level "STEP"
             Write-Host "----------------------------------------" -ForegroundColor Gray
             
             $password = Get-WiFiPassword -ProfileName $profile
             
             if ($password) {
-                Write-Host "Password: $password" -ForegroundColor Green
+                Write-Ui -Message "Password: $password" -Level "OK"
             }
             else {
-                Write-Host "Password: [Open Network - No Password]" -ForegroundColor Yellow
+                Write-Ui -Message "Password: [Open Network - No Password]" -Level "WARN"
             }
             
             Write-Host ""
@@ -141,7 +141,7 @@ function Show-AllPasswords {
     }
     
     Write-Host ""
-    Write-Host "Press any key to return to main menu..." -ForegroundColor Cyan
+    Write-Ui -Message "Press any key to return to main menu..." -Level "INFO"
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
@@ -168,27 +168,27 @@ function Show-CurrentNetwork {
         
         if ($password) {
             Write-Host "========================================" -ForegroundColor Green
-            Write-Host "Password: $password" -ForegroundColor Green
+            Write-Ui -Message "Password: $password" -Level "OK"
             Write-Host "========================================" -ForegroundColor Green
         }
         else {
             Write-Host "========================================" -ForegroundColor Yellow
-            Write-Host "This is an OPEN network (no password)" -ForegroundColor Yellow
+            Write-Ui -Message "This is an OPEN network (no password)" -Level "WARN"
             Write-Host "========================================" -ForegroundColor Yellow
         }
         
         Write-Host ""
-        Write-Host "Additional Information:" -ForegroundColor Cyan
+        Write-Ui -Message "Additional Information:" -Level "INFO"
         Write-Host "----------------------------------------" -ForegroundColor Gray
         
         $interfaceInfo = netsh wlan show interfaces | Select-String "State|Signal|Authentication|Cipher"
         foreach ($line in $interfaceInfo) {
-            Write-Host $line -ForegroundColor Gray
+            Write-Ui -Message $line -Level "INFO"
         }
     }
     
     Write-Host ""
-    Write-Host "Press any key to return to main menu..." -ForegroundColor Cyan
+    Write-Ui -Message "Press any key to return to main menu..." -Level "INFO"
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
@@ -225,18 +225,18 @@ function Search-Network {
         
         if ($password) {
             Write-Host "========================================" -ForegroundColor Green
-            Write-Host "Password: $password" -ForegroundColor Green
+            Write-Ui -Message "Password: $password" -Level "OK"
             Write-Host "========================================" -ForegroundColor Green
         }
         else {
             Write-Host "========================================" -ForegroundColor Yellow
-            Write-Host "This is an OPEN network (no password)" -ForegroundColor Yellow
+            Write-Ui -Message "This is an OPEN network (no password)" -Level "WARN"
             Write-Host "========================================" -ForegroundColor Yellow
         }
     }
     
     Write-Host ""
-    Write-Host "Press any key to return to main menu..." -ForegroundColor Cyan
+    Write-Ui -Message "Press any key to return to main menu..." -Level "INFO"
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
@@ -244,7 +244,7 @@ function Search-Network {
 function Export-ToFile {
     Show-Header
     Write-Host "========================================" -ForegroundColor Yellow
-    Write-Host "   EXPORT ALL PASSWORDS TO FILE" -ForegroundColor Yellow
+    Write-Ui -Message "   EXPORT ALL PASSWORDS TO FILE" -Level "WARN"
     Write-Host "========================================" -ForegroundColor Yellow
     Write-Host ""
     
@@ -252,17 +252,17 @@ function Export-ToFile {
     $fileName = "WiFi_Passwords_$timestamp.txt"
     $filePath = Join-Path -Path ([Environment]::GetFolderPath("Desktop")) -ChildPath $fileName
     
-    Write-Host "Creating export file..." -ForegroundColor Yellow
+    Write-Ui -Message "Creating export file..." -Level "WARN"
     Write-Host ""
     
     $profiles = Get-WiFiProfiles
     
     if ($profiles.Count -eq 0) {
         Write-Host "========================================" -ForegroundColor Red
-        Write-Host "   NO NETWORKS TO EXPORT" -ForegroundColor Red
+        Write-Ui -Message "   NO NETWORKS TO EXPORT" -Level "ERROR"
         Write-Host "========================================" -ForegroundColor Red
         Write-Host ""
-        Write-Host "No saved WiFi networks found on this PC." -ForegroundColor Yellow
+        Write-Ui -Message "No saved WiFi networks found on this PC." -Level "WARN"
     }
     else {
         $content = @()
@@ -312,21 +312,21 @@ function Export-ToFile {
         $content | Out-File -FilePath $filePath -Encoding UTF8
         
         Write-Host "========================================" -ForegroundColor Green
-        Write-Host "   EXPORT SUCCESSFUL" -ForegroundColor Green
+        Write-Ui -Message "   EXPORT SUCCESSFUL" -Level "OK"
         Write-Host "========================================" -ForegroundColor Green
         Write-Host ""
-        Write-Host "Total networks exported: $count" -ForegroundColor Green
+        Write-Ui -Message "Total networks exported: $count" -Level "OK"
         Write-Host ""
-        Write-Host "File saved to:" -ForegroundColor Cyan
-        Write-Host $filePath -ForegroundColor White
+        Write-Ui -Message "File saved to:" -Level "INFO"
+        Write-Ui -Message $filePath -Level "STEP"
         Write-Host ""
-        Write-Host "Opening file..." -ForegroundColor Yellow
+        Write-Ui -Message "Opening file..." -Level "WARN"
         Start-Sleep -Seconds 2
         Start-Process $filePath
     }
     
     Write-Host ""
-    Write-Host "Press any key to return to main menu..." -ForegroundColor Cyan
+    Write-Ui -Message "Press any key to return to main menu..." -Level "INFO"
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
@@ -334,7 +334,7 @@ function Export-ToFile {
 function Export-ToCSV {
     Show-Header
     Write-Host "========================================" -ForegroundColor Magenta
-    Write-Host "   EXPORT TO EXCEL CSV FORMAT" -ForegroundColor Magenta
+    Write-Ui -Message "   EXPORT TO EXCEL CSV FORMAT" -Level "INFO"
     Write-Host "========================================" -ForegroundColor Magenta
     Write-Host ""
     
@@ -342,17 +342,17 @@ function Export-ToCSV {
     $fileName = "WiFi_Passwords_$timestamp.csv"
     $filePath = Join-Path -Path ([Environment]::GetFolderPath("Desktop")) -ChildPath $fileName
     
-    Write-Host "Creating CSV file..." -ForegroundColor Yellow
+    Write-Ui -Message "Creating CSV file..." -Level "WARN"
     Write-Host ""
     
     $profiles = Get-WiFiProfiles
     
     if ($profiles.Count -eq 0) {
         Write-Host "========================================" -ForegroundColor Red
-        Write-Host "   NO NETWORKS TO EXPORT" -ForegroundColor Red
+        Write-Ui -Message "   NO NETWORKS TO EXPORT" -Level "ERROR"
         Write-Host "========================================" -ForegroundColor Red
         Write-Host ""
-        Write-Host "No saved WiFi networks found on this PC." -ForegroundColor Yellow
+        Write-Ui -Message "No saved WiFi networks found on this PC." -Level "WARN"
     }
     else {
         $csvData = @()
@@ -385,26 +385,26 @@ function Export-ToCSV {
         $csvData | Export-Csv -Path $filePath -NoTypeInformation -Encoding UTF8
         
         Write-Host "========================================" -ForegroundColor Green
-        Write-Host "   CSV EXPORT SUCCESSFUL" -ForegroundColor Green
+        Write-Ui -Message "   CSV EXPORT SUCCESSFUL" -Level "OK"
         Write-Host "========================================" -ForegroundColor Green
         Write-Host ""
-        Write-Host "Total networks exported: $($profiles.Count)" -ForegroundColor Green
+        Write-Ui -Message "Total networks exported: $($profiles.Count)" -Level "OK"
         Write-Host ""
-        Write-Host "File saved to:" -ForegroundColor Cyan
-        Write-Host $filePath -ForegroundColor White
+        Write-Ui -Message "File saved to:" -Level "INFO"
+        Write-Ui -Message $filePath -Level "STEP"
         Write-Host ""
-        Write-Host "This file can be opened in:" -ForegroundColor Yellow
-        Write-Host "  - Microsoft Excel" -ForegroundColor Gray
-        Write-Host "  - Google Sheets" -ForegroundColor Gray
-        Write-Host "  - Any spreadsheet program" -ForegroundColor Gray
+        Write-Ui -Message "This file can be opened in:" -Level "WARN"
+        Write-Ui -Message "  - Microsoft Excel" -Level "INFO"
+        Write-Ui -Message "  - Google Sheets" -Level "INFO"
+        Write-Ui -Message "  - Any spreadsheet program" -Level "INFO"
         Write-Host ""
-        Write-Host "Opening file..." -ForegroundColor Yellow
+        Write-Ui -Message "Opening file..." -Level "WARN"
         Start-Sleep -Seconds 2
         Start-Process $filePath
     }
     
     Write-Host ""
-    Write-Host "Press any key to return to main menu..." -ForegroundColor Cyan
+    Write-Ui -Message "Press any key to return to main menu..." -Level "INFO"
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
@@ -412,23 +412,23 @@ function Export-ToCSV {
 function Copy-PasswordToClipboard {
     Show-Header
     Write-Host "========================================" -ForegroundColor Cyan
-    Write-Host "   QUICK COPY PASSWORD TO CLIPBOARD" -ForegroundColor Cyan
+    Write-Ui -Message "   QUICK COPY PASSWORD TO CLIPBOARD" -Level "INFO"
     Write-Host "========================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "Available networks:" -ForegroundColor Yellow
+    Write-Ui -Message "Available networks:" -Level "WARN"
     Write-Host ""
     
     $profiles = Get-WiFiProfiles
     
     if ($profiles.Count -eq 0) {
-        Write-Host "No saved WiFi networks found!" -ForegroundColor Red
+        Write-Ui -Message "No saved WiFi networks found!" -Level "ERROR"
         Write-Host ""
         Start-Sleep -Seconds 3
         return
     }
     
     for ($i = 0; $i -lt $profiles.Count; $i++) {
-        Write-Host "[$($i + 1)] $($profiles[$i])" -ForegroundColor White
+        Write-Ui -Message "[$($i + 1)] $($profiles[$i])" -Level "STEP"
     }
     
     Write-Host ""
@@ -442,7 +442,7 @@ function Copy-PasswordToClipboard {
     $index = [int]$selection - 1
     
     if ($index -lt 0 -or $index -ge $profiles.Count) {
-        Write-Host "Invalid selection!" -ForegroundColor Red
+        Write-Ui -Message "Invalid selection!" -Level "ERROR"
         Start-Sleep -Seconds 2
         Copy-PasswordToClipboard
         return
@@ -451,9 +451,9 @@ function Copy-PasswordToClipboard {
     $selectedNetwork = $profiles[$index]
     
     Write-Host ""
-    Write-Host "Selected: $selectedNetwork" -ForegroundColor White
+    Write-Ui -Message "Selected: $selectedNetwork" -Level "STEP"
     Write-Host ""
-    Write-Host "Retrieving password..." -ForegroundColor Yellow
+    Write-Ui -Message "Retrieving password..." -Level "WARN"
     
     $password = Get-WiFiPassword -ProfileName $selectedNetwork
     
@@ -461,23 +461,23 @@ function Copy-PasswordToClipboard {
         Set-Clipboard -Value $password
         Write-Host ""
         Write-Host "========================================" -ForegroundColor Green
-        Write-Host "   PASSWORD COPIED TO CLIPBOARD!" -ForegroundColor Green
+        Write-Ui -Message "   PASSWORD COPIED TO CLIPBOARD!" -Level "OK"
         Write-Host "========================================" -ForegroundColor Green
         Write-Host ""
-        Write-Host "Network: $selectedNetwork" -ForegroundColor White
-        Write-Host "Password: $password" -ForegroundColor Green
+        Write-Ui -Message "Network: $selectedNetwork" -Level "STEP"
+        Write-Ui -Message "Password: $password" -Level "OK"
         Write-Host ""
-        Write-Host "The password is now in your clipboard." -ForegroundColor Cyan
-        Write-Host "You can paste it with Ctrl+V" -ForegroundColor Cyan
+        Write-Ui -Message "The password is now in your clipboard." -Level "INFO"
+        Write-Ui -Message "You can paste it with Ctrl+V" -Level "INFO"
     }
     else {
         Write-Host "========================================" -ForegroundColor Yellow
-        Write-Host "This is an OPEN network (no password)" -ForegroundColor Yellow
+        Write-Ui -Message "This is an OPEN network (no password)" -Level "WARN"
         Write-Host "========================================" -ForegroundColor Yellow
     }
     
     Write-Host ""
-    Write-Host "Press any key to return to main menu..." -ForegroundColor Cyan
+    Write-Ui -Message "Press any key to return to main menu..." -Level "INFO"
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
@@ -485,102 +485,102 @@ function Copy-PasswordToClipboard {
 function Show-Help {
     Show-Header
     Write-Host "========================================" -ForegroundColor Cyan
-    Write-Host "   HELP GUIDE" -ForegroundColor Cyan
+    Write-Ui -Message "   HELP GUIDE" -Level "INFO"
     Write-Host "========================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "WHEN TO USE EACH OPTION:" -ForegroundColor Yellow
+    Write-Ui -Message "WHEN TO USE EACH OPTION:" -Level "WARN"
     Write-Host "----------------------------------------" -ForegroundColor Gray
     Write-Host ""
-    Write-Host "[1] VIEW ALL WiFi PASSWORDS" -ForegroundColor White
-    Write-Host "    Use when: Need to see all saved networks" -ForegroundColor Gray
-    Write-Host "    Shows: Complete list with passwords" -ForegroundColor Gray
-    Write-Host "    Time: 5 seconds" -ForegroundColor Gray
+    Write-Ui -Message "[1] VIEW ALL WiFi PASSWORDS" -Level "STEP"
+    Write-Ui -Message "    Use when: Need to see all saved networks" -Level "INFO"
+    Write-Ui -Message "    Shows: Complete list with passwords" -Level "INFO"
+    Write-Ui -Message "    Time: 5 seconds" -Level "INFO"
     Write-Host ""
-    Write-Host "[2] VIEW CURRENT NETWORK" -ForegroundColor White
-    Write-Host "    Use when: Need password for connected WiFi" -ForegroundColor Gray
-    Write-Host "    Shows: Currently connected network only" -ForegroundColor Gray
-    Write-Host "    Time: 2 seconds" -ForegroundColor Gray
+    Write-Ui -Message "[2] VIEW CURRENT NETWORK" -Level "STEP"
+    Write-Ui -Message "    Use when: Need password for connected WiFi" -Level "INFO"
+    Write-Ui -Message "    Shows: Currently connected network only" -Level "INFO"
+    Write-Ui -Message "    Time: 2 seconds" -Level "INFO"
     Write-Host ""
-    Write-Host "[3] SEARCH SPECIFIC NETWORK" -ForegroundColor White
-    Write-Host "    Use when: Looking for one specific network" -ForegroundColor Gray
-    Write-Host "    Shows: Single network by name" -ForegroundColor Gray
-    Write-Host "    Time: 3 seconds" -ForegroundColor Gray
+    Write-Ui -Message "[3] SEARCH SPECIFIC NETWORK" -Level "STEP"
+    Write-Ui -Message "    Use when: Looking for one specific network" -Level "INFO"
+    Write-Ui -Message "    Shows: Single network by name" -Level "INFO"
+    Write-Ui -Message "    Time: 3 seconds" -Level "INFO"
     Write-Host ""
-    Write-Host "[4] EXPORT ALL TO FILE" -ForegroundColor White
-    Write-Host "    Use when: Need backup before PC reset" -ForegroundColor Gray
-    Write-Host "    Creates: Text file on Desktop" -ForegroundColor Gray
-    Write-Host "    Time: 5 seconds" -ForegroundColor Gray
+    Write-Ui -Message "[4] EXPORT ALL TO FILE" -Level "STEP"
+    Write-Ui -Message "    Use when: Need backup before PC reset" -Level "INFO"
+    Write-Ui -Message "    Creates: Text file on Desktop" -Level "INFO"
+    Write-Ui -Message "    Time: 5 seconds" -Level "INFO"
     Write-Host ""
-    Write-Host "[5] EXPORT TO EXCEL CSV" -ForegroundColor White
-    Write-Host "    Use when: Need organized spreadsheet" -ForegroundColor Gray
-    Write-Host "    Creates: CSV file for Excel/Sheets" -ForegroundColor Gray
-    Write-Host "    Time: 5 seconds" -ForegroundColor Gray
+    Write-Ui -Message "[5] EXPORT TO EXCEL CSV" -Level "STEP"
+    Write-Ui -Message "    Use when: Need organized spreadsheet" -Level "INFO"
+    Write-Ui -Message "    Creates: CSV file for Excel/Sheets" -Level "INFO"
+    Write-Ui -Message "    Time: 5 seconds" -Level "INFO"
     Write-Host ""
-    Write-Host "[6] QUICK COPY PASSWORD" -ForegroundColor White
-    Write-Host "    Use when: Need to share password quickly" -ForegroundColor Gray
-    Write-Host "    Does: Copies password to clipboard" -ForegroundColor Gray
-    Write-Host "    Time: 5 seconds" -ForegroundColor Gray
+    Write-Ui -Message "[6] QUICK COPY PASSWORD" -Level "STEP"
+    Write-Ui -Message "    Use when: Need to share password quickly" -Level "INFO"
+    Write-Ui -Message "    Does: Copies password to clipboard" -Level "INFO"
+    Write-Ui -Message "    Time: 5 seconds" -Level "INFO"
     Write-Host ""
     Write-Host "========================================" -ForegroundColor Cyan
-    Write-Host "COMMON SCENARIOS:" -ForegroundColor Yellow
+    Write-Ui -Message "COMMON SCENARIOS:" -Level "WARN"
     Write-Host "----------------------------------------" -ForegroundColor Gray
     Write-Host ""
-    Write-Host "Scenario: Forgot home WiFi password" -ForegroundColor White
-    Write-Host "Solution: Use option [1] or [2]" -ForegroundColor Green
+    Write-Ui -Message "Scenario: Forgot home WiFi password" -Level "STEP"
+    Write-Ui -Message "Solution: Use option [1] or [2]" -Level "OK"
     Write-Host ""
-    Write-Host "Scenario: Setting up new device" -ForegroundColor White
-    Write-Host "Solution: Use option [6] to copy password" -ForegroundColor Green
+    Write-Ui -Message "Scenario: Setting up new device" -Level "STEP"
+    Write-Ui -Message "Solution: Use option [6] to copy password" -Level "OK"
     Write-Host ""
-    Write-Host "Scenario: Reinstalling Windows" -ForegroundColor White
-    Write-Host "Solution: Use option [4] to backup all" -ForegroundColor Green
+    Write-Ui -Message "Scenario: Reinstalling Windows" -Level "STEP"
+    Write-Ui -Message "Solution: Use option [4] to backup all" -Level "OK"
     Write-Host ""
-    Write-Host "Scenario: Client documentation" -ForegroundColor White
-    Write-Host "Solution: Use option [5] for professional report" -ForegroundColor Green
+    Write-Ui -Message "Scenario: Client documentation" -Level "STEP"
+    Write-Ui -Message "Solution: Use option [5] for professional report" -Level "OK"
     Write-Host ""
     Write-Host "========================================" -ForegroundColor Cyan
-    Write-Host "SECURITY TIPS:" -ForegroundColor Yellow
+    Write-Ui -Message "SECURITY TIPS:" -Level "WARN"
     Write-Host "----------------------------------------" -ForegroundColor Gray
     Write-Host ""
-    Write-Host "- Delete exported files after use" -ForegroundColor Gray
-    Write-Host "- Don't share password files via email" -ForegroundColor Gray
-    Write-Host "- Keep backups in secure location" -ForegroundColor Gray
-    Write-Host "- Only use on authorized computers" -ForegroundColor Gray
+    Write-Ui -Message "- Delete exported files after use" -Level "INFO"
+    Write-Ui -Message "- Don't share password files via email" -Level "INFO"
+    Write-Ui -Message "- Keep backups in secure location" -Level "INFO"
+    Write-Ui -Message "- Only use on authorized computers" -Level "INFO"
     Write-Host ""
     Write-Host "========================================" -ForegroundColor Cyan
-    Write-Host "TROUBLESHOOTING:" -ForegroundColor Yellow
+    Write-Ui -Message "TROUBLESHOOTING:" -Level "WARN"
     Write-Host "----------------------------------------" -ForegroundColor Gray
     Write-Host ""
-    Write-Host "Q: `"Network not found`" error?" -ForegroundColor White
-    Write-Host "A: Network was never connected on this PC" -ForegroundColor Gray
+    Write-Ui -Message "Q: `"Network not found`" error?" -Level "STEP"
+    Write-Ui -Message "A: Network was never connected on this PC" -Level "INFO"
     Write-Host ""
-    Write-Host "Q: Shows `"Open Network`"?" -ForegroundColor White
-    Write-Host "A: The network has no password (public WiFi)" -ForegroundColor Gray
+    Write-Ui -Message "Q: Shows `"Open Network`"?" -Level "STEP"
+    Write-Ui -Message "A: The network has no password (public WiFi)" -Level "INFO"
     Write-Host ""
-    Write-Host "Q: Can't see current network?" -ForegroundColor White
-    Write-Host "A: Make sure WiFi is connected" -ForegroundColor Gray
+    Write-Ui -Message "Q: Can't see current network?" -Level "STEP"
+    Write-Ui -Message "A: Make sure WiFi is connected" -Level "INFO"
     Write-Host ""
-    Write-Host "Q: Script won't run?" -ForegroundColor White
-    Write-Host "A: Run PowerShell as administrator" -ForegroundColor Gray
+    Write-Ui -Message "Q: Script won't run?" -Level "STEP"
+    Write-Ui -Message "A: Run PowerShell as administrator" -Level "INFO"
     Write-Host ""
     Write-Host "========================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "Press any key to return to main menu..." -ForegroundColor Cyan
+    Write-Ui -Message "Press any key to return to main menu..." -Level "INFO"
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
 # Function to show main menu
 function Show-MainMenu {
     Show-Header
-    Write-Host "Select an option:" -ForegroundColor Yellow
+    Write-Ui -Message "Select an option:" -Level "WARN"
     Write-Host ""
-    Write-Host "  [1] View All WiFi Passwords     - Show all saved networks" -ForegroundColor White
-    Write-Host "  [2] View Current Network        - Show connected network only" -ForegroundColor White
-    Write-Host "  [3] Search Specific Network     - Find password by name" -ForegroundColor White
-    Write-Host "  [4] Export All to File          - Save all passwords to Desktop" -ForegroundColor White
-    Write-Host "  [5] Export to Excel CSV         - Create spreadsheet format" -ForegroundColor White
-    Write-Host "  [6] Quick Copy Password         - Copy to clipboard" -ForegroundColor White
-    Write-Host "  [7] Help                        - Usage guide" -ForegroundColor White
-    Write-Host "  [0] Exit" -ForegroundColor White
+    Write-Ui -Message "  [1] View All WiFi Passwords     - Show all saved networks" -Level "STEP"
+    Write-Ui -Message "  [2] View Current Network        - Show connected network only" -Level "STEP"
+    Write-Ui -Message "  [3] Search Specific Network     - Find password by name" -Level "STEP"
+    Write-Ui -Message "  [4] Export All to File          - Save all passwords to Desktop" -Level "STEP"
+    Write-Ui -Message "  [5] Export to Excel CSV         - Create spreadsheet format" -Level "STEP"
+    Write-Ui -Message "  [6] Quick Copy Password         - Copy to clipboard" -Level "STEP"
+    Write-Ui -Message "  [7] Help                        - Usage guide" -Level "STEP"
+    Write-Ui -Message "  [0] Exit" -Level "STEP"
     Write-Host ""
     Write-Host "========================================" -ForegroundColor Cyan
     $choice = Read-Host "Enter your choice (0-7)"

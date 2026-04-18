@@ -132,12 +132,12 @@ function Get-FriendlySkuName {
 function Connect-ToMicrosoftGraph {
     Show-SouliTEKHeader -Title "CONNECT TO MICROSOFT GRAPH" -Color Green -ClearHost -ShowBanner
     
-    Write-Host "      Connect to Microsoft 365 tenant" -ForegroundColor Gray
+    Write-Ui -Message "      Connect to Microsoft 365 tenant" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     
-    Write-Host "[Step 1/3] Installing/verifying Microsoft Graph modules..." -ForegroundColor Cyan
+    Write-Ui -Message "[Step 1/3] Installing/verifying Microsoft Graph modules..." -Level "INFO"
     Write-Host ""
     
     # Install required Microsoft Graph modules using centralized function
@@ -156,58 +156,58 @@ function Connect-ToMicrosoftGraph {
     }
     
     Write-Host ""
-    Write-Host "[+] All Microsoft Graph modules ready" -ForegroundColor Green
+    Write-Ui -Message "[+] All Microsoft Graph modules ready" -Level "OK"
     
     Write-Host ""
-    Write-Host "[Step 2/3] Checking existing connection..." -ForegroundColor Cyan
+    Write-Ui -Message "[Step 2/3] Checking existing connection..." -Level "INFO"
     # Check if already connected
     $context = Get-MgContext -ErrorAction SilentlyContinue
     if ($context) {
-        Write-Host "          [+] Already connected to Microsoft Graph" -ForegroundColor Green
-        Write-Host "          Account: $($context.Account)" -ForegroundColor Gray
-        Write-Host "          Tenant: $($context.TenantId)" -ForegroundColor Gray
+        Write-Ui -Message "          [+] Already connected to Microsoft Graph" -Level "OK"
+        Write-Ui -Message "          Account: $($context.Account)" -Level "INFO"
+        Write-Ui -Message "          Tenant: $($context.TenantId)" -Level "INFO"
         Write-Host ""
         $Script:Connected = $true
         Write-Host "============================================================" -ForegroundColor Green
-        Write-Host "  [+] Microsoft Graph Connected Successfully" -ForegroundColor Green
+        Write-Ui -Message "  [+] Microsoft Graph Connected Successfully" -Level "OK"
         Write-Host "============================================================" -ForegroundColor Green
         Write-Host ""
-        Write-Host "[*] Returning to main menu..." -ForegroundColor Cyan
+        Write-Ui -Message "[*] Returning to main menu..." -Level "INFO"
         Write-Host ""
         Start-Sleep -Seconds 2
         return $true
     }
-    Write-Host "          No existing connection found" -ForegroundColor Yellow
+    Write-Ui -Message "          No existing connection found" -Level "WARN"
     
     Write-Host ""
-    Write-Host "[Step 3/3] Initiating connection to Microsoft Graph..." -ForegroundColor Cyan
-    Write-Host "          This will open a browser window for authentication" -ForegroundColor Yellow
-    Write-Host "          Required permissions:" -ForegroundColor Gray
-    Write-Host "            - Organization.Read.All (read license information)" -ForegroundColor Gray
+    Write-Ui -Message "[Step 3/3] Initiating connection to Microsoft Graph..." -Level "INFO"
+    Write-Ui -Message "          This will open a browser window for authentication" -Level "WARN"
+    Write-Ui -Message "          Required permissions:" -Level "INFO"
+    Write-Ui -Message "            - Organization.Read.All (read license information)" -Level "INFO"
     Write-Host ""
-    Write-Host "          Opening authentication browser window..." -ForegroundColor Cyan
+    Write-Ui -Message "          Opening authentication browser window..." -Level "INFO"
     Write-Host ""
     
     try {
         # Connect with required scopes
         Connect-MgGraph -Scopes "Organization.Read.All" -ErrorAction Stop | Out-Null
         
-        Write-Host "          [+] Authentication successful!" -ForegroundColor Green
+        Write-Ui -Message "          [+] Authentication successful!" -Level "OK"
         
         $context = Get-MgContext
         
         if ($context) {
-            Write-Host "          Connected as: $($context.Account)" -ForegroundColor Gray
-            Write-Host "          Tenant: $($context.TenantId)" -ForegroundColor Gray
+            Write-Ui -Message "          Connected as: $($context.Account)" -Level "INFO"
+            Write-Ui -Message "          Tenant: $($context.TenantId)" -Level "INFO"
             Write-Host ""
             Write-Host "============================================================" -ForegroundColor Green
-            Write-Host "  [+] Microsoft Graph Connected Successfully" -ForegroundColor Green
+            Write-Ui -Message "  [+] Microsoft Graph Connected Successfully" -Level "OK"
             Write-Host "============================================================" -ForegroundColor Green
             Write-Host ""
             
             $Script:Connected = $true
             
-            Write-Host "[*] Returning to main menu..." -ForegroundColor Cyan
+            Write-Ui -Message "[*] Returning to main menu..." -Level "INFO"
             Write-Host ""
             Start-Sleep -Seconds 2
             return $true
@@ -215,7 +215,7 @@ function Connect-ToMicrosoftGraph {
         else {
             Write-Host ""
             Write-Host "============================================================" -ForegroundColor Red
-            Write-Host "  [-] Microsoft Graph Connection Failed" -ForegroundColor Red
+            Write-Ui -Message "  [-] Microsoft Graph Connection Failed" -Level "ERROR"
             Write-Host "============================================================" -ForegroundColor Red
             Write-Host ""
             Write-SouliTEKResult "Failed to establish connection" -Level ERROR
@@ -227,16 +227,16 @@ function Connect-ToMicrosoftGraph {
     catch {
         Write-Host ""
         Write-Host "============================================================" -ForegroundColor Red
-        Write-Host "  [-] Microsoft Graph Connection Failed" -ForegroundColor Red
+        Write-Ui -Message "  [-] Microsoft Graph Connection Failed" -Level "ERROR"
         Write-Host "============================================================" -ForegroundColor Red
         Write-Host ""
         Write-Warning "Connection failed: $($_.Exception.Message)"
         Write-Host ""
-        Write-Host "Troubleshooting steps:" -ForegroundColor Yellow
-        Write-Host "  1. Check your internet connection" -ForegroundColor Gray
-        Write-Host "  2. Verify you have appropriate permissions (Global Administrator or Global Reader)" -ForegroundColor Gray
-        Write-Host "  3. Complete authentication in the browser window" -ForegroundColor Gray
-        Write-Host "  4. Try running the script again" -ForegroundColor Gray
+        Write-Ui -Message "Troubleshooting steps:" -Level "WARN"
+        Write-Ui -Message "  1. Check your internet connection" -Level "INFO"
+        Write-Ui -Message "  2. Verify you have appropriate permissions (Global Administrator or Global Reader)" -Level "INFO"
+        Write-Ui -Message "  3. Complete authentication in the browser window" -Level "INFO"
+        Write-Ui -Message "  4. Try running the script again" -Level "INFO"
         Write-Host ""
         Read-Host "Press Enter to return to main menu"
         return $false
@@ -260,7 +260,7 @@ function Test-GraphConnection {
     if (-not $Script:Connected) {
         Write-SouliTEKResult "Not connected to Microsoft Graph" -Level ERROR
         Write-Host ""
-        Write-Host "Please connect first using option [1] from the main menu" -ForegroundColor Yellow
+        Write-Ui -Message "Please connect first using option [1] from the main menu" -Level "WARN"
         Write-Host ""
         Read-Host "Press Enter to return to main menu"
         return $false
@@ -286,7 +286,7 @@ function Test-GraphConnection {
 function Get-LicenseStatus {
     Show-SouliTEKHeader -Title "LICENSE STATUS - ALL SUBSCRIPTIONS" -Color Green -ClearHost -ShowBanner
     
-    Write-Host "      Check all Microsoft 365 license subscriptions" -ForegroundColor Gray
+    Write-Ui -Message "      Check all Microsoft 365 license subscriptions" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -317,36 +317,36 @@ function Get-LicenseStatus {
             $usagePercent = if ($enabled -gt 0) { [math]::Round(($consumed / $enabled) * 100, 2) } else { 0 }
             
             Write-Host "============================================================" -ForegroundColor DarkCyan
-            Write-Host "LICENSE: $friendlyName" -ForegroundColor Yellow
+            Write-Ui -Message "LICENSE: $friendlyName" -Level "WARN"
             Write-Host "============================================================" -ForegroundColor DarkCyan
             Write-Host ""
             
             # License Information
-            Write-Host "License Information:" -ForegroundColor Cyan
-            Write-Host "  SKU ID: $($sub.SkuId)" -ForegroundColor Gray
-            Write-Host "  SKU Part Number: $skuPartNumber" -ForegroundColor White
-            Write-Host "  Friendly Name: $friendlyName" -ForegroundColor White
+            Write-Ui -Message "License Information:" -Level "INFO"
+            Write-Ui -Message "  SKU ID: $($sub.SkuId)" -Level "INFO"
+            Write-Ui -Message "  SKU Part Number: $skuPartNumber" -Level "STEP"
+            Write-Ui -Message "  Friendly Name: $friendlyName" -Level "STEP"
             Write-Host ""
             
             # Seat Information
-            Write-Host "Seat Allocation:" -ForegroundColor Cyan
-            Write-Host "  Total Seats: $enabled" -ForegroundColor White
+            Write-Ui -Message "Seat Allocation:" -Level "INFO"
+            Write-Ui -Message "  Total Seats: $enabled" -Level "STEP"
             Write-Host "  Used Seats: $consumed" -ForegroundColor $(if ($consumed -eq $enabled) { 'Red' } elseif ($consumed -ge $enabled * 0.8) { 'Yellow' } else { 'Green' })
             Write-Host "  Available: $available" -ForegroundColor $(if ($available -eq 0) { 'Red' } elseif ($available -le 5) { 'Yellow' } else { 'Green' })
             Write-Host "  Usage: $usagePercent%" -ForegroundColor $(if ($usagePercent -ge 100) { 'Red' } elseif ($usagePercent -ge 80) { 'Yellow' } else { 'Green' })
             Write-Host ""
             
             # Expiration Status
-            Write-Host "Subscription Status:" -ForegroundColor Cyan
+            Write-Ui -Message "Subscription Status:" -Level "INFO"
             
             # Note: Most M365 subscriptions don't have explicit expiration dates in Get-MgSubscribedSku
             # This information is typically in billing/subscription APIs
             Write-Host "  Status: " -NoNewline
             if ($sub.CapabilityStatus -eq "Enabled") {
-                Write-Host "Active" -ForegroundColor Green
+                Write-Ui -Message "Active" -Level "OK"
             }
             else {
-                Write-Host "$($sub.CapabilityStatus)" -ForegroundColor Red
+                Write-Ui -Message "$($sub.CapabilityStatus)" -Level "ERROR"
             }
             
             # Store data
@@ -369,32 +369,32 @@ function Get-LicenseStatus {
             # Warnings
             if ($available -eq 0) {
                 Write-Host ""
-                Write-Host "  [!] WARNING: No available seats!" -ForegroundColor Red
+                Write-Ui -Message "  [!] WARNING: No available seats!" -Level "ERROR"
             }
             elseif ($available -le 5) {
                 Write-Host ""
-                Write-Host "  [!] WARNING: Low seat availability ($available remaining)" -ForegroundColor Yellow
+                Write-Ui -Message "  [!] WARNING: Low seat availability ($available remaining)" -Level "WARN"
             }
             
             Write-Host ""
         }
         
         Write-Host "============================================================" -ForegroundColor Cyan
-        Write-Host "  SUMMARY" -ForegroundColor Cyan
+        Write-Ui -Message "  SUMMARY" -Level "INFO"
         Write-Host "============================================================" -ForegroundColor Cyan
         Write-Host ""
-        Write-Host "Total Subscriptions: $($subscriptions.Count)" -ForegroundColor White
+        Write-Ui -Message "Total Subscriptions: $($subscriptions.Count)" -Level "STEP"
         
         $criticalLicenses = ($Script:LicenseData | Where-Object { $_.AlertStatus -eq "CRITICAL" }).Count
         $warningLicenses = ($Script:LicenseData | Where-Object { $_.AlertStatus -eq "WARNING" }).Count
         $okLicenses = ($Script:LicenseData | Where-Object { $_.AlertStatus -eq "OK" }).Count
         
         Write-Host "  Critical (No seats): " -NoNewline -ForegroundColor Red
-        Write-Host $criticalLicenses -ForegroundColor Red
+        Write-Ui -Message $criticalLicenses -Level "ERROR"
         Write-Host "  Warning (Low seats): " -NoNewline -ForegroundColor Yellow
-        Write-Host $warningLicenses -ForegroundColor Yellow
+        Write-Ui -Message $warningLicenses -Level "WARN"
         Write-Host "  OK: " -NoNewline -ForegroundColor Green
-        Write-Host $okLicenses -ForegroundColor Green
+        Write-Ui -Message $okLicenses -Level "OK"
         
         Write-Host ""
         Write-Host "============================================================" -ForegroundColor Cyan
@@ -402,10 +402,10 @@ function Get-LicenseStatus {
     catch {
         Write-SouliTEKResult "Failed to retrieve licenses: $_" -Level ERROR
         Write-Host ""
-        Write-Host "Possible reasons:" -ForegroundColor Yellow
-        Write-Host "  - Insufficient permissions (requires Organization.Read.All)" -ForegroundColor Gray
-        Write-Host "  - Connection timeout" -ForegroundColor Gray
-        Write-Host "  - API service issue" -ForegroundColor Gray
+        Write-Ui -Message "Possible reasons:" -Level "WARN"
+        Write-Ui -Message "  - Insufficient permissions (requires Organization.Read.All)" -Level "INFO"
+        Write-Ui -Message "  - Connection timeout" -Level "INFO"
+        Write-Ui -Message "  - API service issue" -Level "INFO"
     }
     
     Write-Host ""
@@ -415,7 +415,7 @@ function Get-LicenseStatus {
 function Get-DetailedLicenseReport {
     Show-SouliTEKHeader -Title "DETAILED LICENSE REPORT" -Color Magenta -ClearHost -ShowBanner
     
-    Write-Host "      Comprehensive license analysis with service plans" -ForegroundColor Gray
+    Write-Ui -Message "      Comprehensive license analysis with service plans" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -432,42 +432,42 @@ function Get-DetailedLicenseReport {
             $friendlyName = Get-FriendlySkuName -SkuPartNumber $sub.SkuPartNumber
             
             Write-Host "============================================================" -ForegroundColor DarkCyan
-            Write-Host "DETAILED ANALYSIS: $friendlyName" -ForegroundColor Yellow
+            Write-Ui -Message "DETAILED ANALYSIS: $friendlyName" -Level "WARN"
             Write-Host "============================================================" -ForegroundColor DarkCyan
             Write-Host ""
             
             # Basic Info
-            Write-Host "License Details:" -ForegroundColor Cyan
-            Write-Host "  Friendly Name: $friendlyName" -ForegroundColor White
-            Write-Host "  SKU Part Number: $($sub.SkuPartNumber)" -ForegroundColor White
-            Write-Host "  SKU ID: $($sub.SkuId)" -ForegroundColor Gray
+            Write-Ui -Message "License Details:" -Level "INFO"
+            Write-Ui -Message "  Friendly Name: $friendlyName" -Level "STEP"
+            Write-Ui -Message "  SKU Part Number: $($sub.SkuPartNumber)" -Level "STEP"
+            Write-Ui -Message "  SKU ID: $($sub.SkuId)" -Level "INFO"
             Write-Host "  Capability Status: $($sub.CapabilityStatus)" -ForegroundColor $(if ($sub.CapabilityStatus -eq "Enabled") { 'Green' } else { 'Red' })
             Write-Host ""
             
             # Seat Details
-            Write-Host "Seat Information:" -ForegroundColor Cyan
+            Write-Ui -Message "Seat Information:" -Level "INFO"
             $enabled = $sub.PrepaidUnits.Enabled
             $warning = $sub.PrepaidUnits.Warning
             $suspended = $sub.PrepaidUnits.Suspended
             $consumed = $sub.ConsumedUnits
             
-            Write-Host "  Enabled: $enabled" -ForegroundColor Green
+            Write-Ui -Message "  Enabled: $enabled" -Level "OK"
             if ($warning -gt 0) {
-                Write-Host "  Warning: $warning" -ForegroundColor Yellow
+                Write-Ui -Message "  Warning: $warning" -Level "WARN"
             }
             if ($suspended -gt 0) {
-                Write-Host "  Suspended: $suspended" -ForegroundColor Red
+                Write-Ui -Message "  Suspended: $suspended" -Level "ERROR"
             }
-            Write-Host "  Consumed: $consumed" -ForegroundColor White
+            Write-Ui -Message "  Consumed: $consumed" -Level "STEP"
             Write-Host "  Available: $($enabled - $consumed)" -ForegroundColor $(if ($enabled - $consumed -le 0) { 'Red' } else { 'Green' })
             Write-Host ""
             
             # Service Plans
-            Write-Host "Included Service Plans:" -ForegroundColor Cyan
+            Write-Ui -Message "Included Service Plans:" -Level "INFO"
             if ($sub.ServicePlans.Count -gt 0) {
                 $enabledPlans = $sub.ServicePlans | Where-Object { $_.ProvisioningStatus -eq "Success" }
-                Write-Host "  Total Plans: $($sub.ServicePlans.Count)" -ForegroundColor White
-                Write-Host "  Enabled: $($enabledPlans.Count)" -ForegroundColor Green
+                Write-Ui -Message "  Total Plans: $($sub.ServicePlans.Count)" -Level "STEP"
+                Write-Ui -Message "  Enabled: $($enabledPlans.Count)" -Level "OK"
                 Write-Host ""
                 
                 foreach ($plan in $sub.ServicePlans | Sort-Object ServicePlanName) {
@@ -481,18 +481,18 @@ function Get-DetailedLicenseReport {
                     Write-Host "  [" -NoNewline
                     Write-Host "$($plan.ProvisioningStatus.PadRight(15))" -NoNewline -ForegroundColor $statusColor
                     Write-Host "] " -NoNewline
-                    Write-Host "$($plan.ServicePlanName)" -ForegroundColor White
+                    Write-Ui -Message "$($plan.ServicePlanName)" -Level "STEP"
                 }
             }
             else {
-                Write-Host "  No service plans found" -ForegroundColor Gray
+                Write-Ui -Message "  No service plans found" -Level "INFO"
             }
             
             Write-Host ""
         }
         
         Write-Host "============================================================" -ForegroundColor Cyan
-        Write-Host "  REPORT COMPLETE" -ForegroundColor Cyan
+        Write-Ui -Message "  REPORT COMPLETE" -Level "INFO"
         Write-Host "============================================================" -ForegroundColor Cyan
     }
     catch {
@@ -506,7 +506,7 @@ function Get-DetailedLicenseReport {
 function Get-LicenseUsageStatistics {
     Show-SouliTEKHeader -Title "LICENSE USAGE STATISTICS" -Color Blue -ClearHost -ShowBanner
     
-    Write-Host "      Analyze license allocation and usage patterns" -ForegroundColor Gray
+    Write-Ui -Message "      Analyze license allocation and usage patterns" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -543,24 +543,24 @@ function Get-LicenseUsageStatistics {
         }
         
         Write-Host "============================================================" -ForegroundColor Cyan
-        Write-Host "  OVERALL STATISTICS" -ForegroundColor Cyan
+        Write-Ui -Message "  OVERALL STATISTICS" -Level "INFO"
         Write-Host "============================================================" -ForegroundColor Cyan
         Write-Host ""
-        Write-Host "Total License Count: $totalLicenses" -ForegroundColor White
-        Write-Host "Licenses Used: $totalUsed ($([math]::Round(($totalUsed / $totalLicenses) * 100, 2))%)" -ForegroundColor Yellow
-        Write-Host "Licenses Available: $totalAvailable ($([math]::Round(($totalAvailable / $totalLicenses) * 100, 2))%)" -ForegroundColor Green
+        Write-Ui -Message "Total License Count: $totalLicenses" -Level "STEP"
+        Write-Ui -Message "Licenses Used: $totalUsed ($([math]::Round(($totalUsed / $totalLicenses) * 100, 2))%)" -Level "WARN"
+        Write-Ui -Message "Licenses Available: $totalAvailable ($([math]::Round(($totalAvailable / $totalLicenses) * 100, 2))%)" -Level "OK"
         Write-Host ""
         
         Write-Host "============================================================" -ForegroundColor Cyan
-        Write-Host "  TOP LICENSE CONSUMERS" -ForegroundColor Cyan
+        Write-Ui -Message "  TOP LICENSE CONSUMERS" -Level "INFO"
         Write-Host "============================================================" -ForegroundColor Cyan
         Write-Host ""
         
         $topConsumers = $stats | Sort-Object Used -Descending | Select-Object -First 5
         
         foreach ($stat in $topConsumers) {
-            Write-Host "$($stat.License):" -ForegroundColor White
-            Write-Host "  Used: $($stat.Used) / $($stat.Total) ($($stat.UsagePercent)%)" -ForegroundColor Yellow
+            Write-Ui -Message "$($stat.License):" -Level "STEP"
+            Write-Ui -Message "  Used: $($stat.Used) / $($stat.Total) ($($stat.UsagePercent)%)" -Level "WARN"
             
             # Draw usage bar
             $barLength = 40
@@ -576,7 +576,7 @@ function Get-LicenseUsageStatistics {
         }
         
         Write-Host "============================================================" -ForegroundColor Cyan
-        Write-Host "  LICENSES NEEDING ATTENTION" -ForegroundColor Cyan
+        Write-Ui -Message "  LICENSES NEEDING ATTENTION" -Level "INFO"
         Write-Host "============================================================" -ForegroundColor Cyan
         Write-Host ""
         
@@ -595,11 +595,11 @@ function Get-LicenseUsageStatistics {
                 }
                 
                 Write-Host "[$alertLevel] " -NoNewline -ForegroundColor $color
-                Write-Host "$($stat.License) - $($stat.Available) seats remaining" -ForegroundColor White
+                Write-Ui -Message "$($stat.License) - $($stat.Available) seats remaining" -Level "STEP"
             }
         }
         else {
-            Write-Host "[+] All licenses have sufficient capacity" -ForegroundColor Green
+            Write-Ui -Message "[+] All licenses have sufficient capacity" -Level "OK"
         }
         
         Write-Host ""
@@ -616,7 +616,7 @@ function Get-LicenseUsageStatistics {
 function Send-ExpirationAlert {
     Show-SouliTEKHeader -Title "SEND EXPIRATION ALERT" -Color Yellow -ClearHost -ShowBanner
     
-    Write-Host "      Configure and send license expiration alerts" -ForegroundColor Gray
+    Write-Ui -Message "      Configure and send license expiration alerts" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -624,16 +624,16 @@ function Send-ExpirationAlert {
     if ($Script:LicenseData.Count -eq 0) {
         Write-SouliTEKResult "No license data available" -Level WARNING
         Write-Host ""
-        Write-Host "Please run 'License Status Check' first (option 2)" -ForegroundColor Yellow
+        Write-Ui -Message "Please run 'License Status Check' first (option 2)" -Level "WARN"
         Write-Host ""
         Read-Host "Press Enter to return to main menu"
         return
     }
     
-    Write-Host "Alert Configuration:" -ForegroundColor Cyan
+    Write-Ui -Message "Alert Configuration:" -Level "INFO"
     Write-Host ""
-    Write-Host "  Current Alert Threshold: $Script:AlertThresholdDays days" -ForegroundColor White
-    Write-Host "  Current Warning Threshold: $Script:WarningThresholdDays days" -ForegroundColor White
+    Write-Ui -Message "  Current Alert Threshold: $Script:AlertThresholdDays days" -Level "STEP"
+    Write-Ui -Message "  Current Warning Threshold: $Script:WarningThresholdDays days" -Level "STEP"
     Write-Host ""
     
     # Check for licenses needing alerts
@@ -641,39 +641,39 @@ function Send-ExpirationAlert {
     $warningLicenses = $Script:LicenseData | Where-Object { $_.AlertStatus -eq "WARNING" }
     
     if ($criticalLicenses.Count -eq 0 -and $warningLicenses.Count -eq 0) {
-        Write-Host "[+] No licenses require immediate attention" -ForegroundColor Green
+        Write-Ui -Message "[+] No licenses require immediate attention" -Level "OK"
         Write-Host ""
         Read-Host "Press Enter to return to main menu"
         return
     }
     
-    Write-Host "Licenses Requiring Attention:" -ForegroundColor Yellow
+    Write-Ui -Message "Licenses Requiring Attention:" -Level "WARN"
     Write-Host ""
     
     if ($criticalLicenses.Count -gt 0) {
-        Write-Host "CRITICAL (No Available Seats):" -ForegroundColor Red
+        Write-Ui -Message "CRITICAL (No Available Seats):" -Level "ERROR"
         foreach ($lic in $criticalLicenses) {
-            Write-Host "  - $($lic.FriendlyName): $($lic.UsedSeats)/$($lic.TotalSeats) used" -ForegroundColor Red
+            Write-Ui -Message "  - $($lic.FriendlyName): $($lic.UsedSeats)/$($lic.TotalSeats) used" -Level "ERROR"
         }
         Write-Host ""
     }
     
     if ($warningLicenses.Count -gt 0) {
-        Write-Host "WARNING (Low Availability):" -ForegroundColor Yellow
+        Write-Ui -Message "WARNING (Low Availability):" -Level "WARN"
         foreach ($lic in $warningLicenses) {
-            Write-Host "  - $($lic.FriendlyName): $($lic.AvailableSeats) seats remaining" -ForegroundColor Yellow
+            Write-Ui -Message "  - $($lic.FriendlyName): $($lic.AvailableSeats) seats remaining" -Level "WARN"
         }
         Write-Host ""
     }
     
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "Alert Methods:" -ForegroundColor White
+    Write-Ui -Message "Alert Methods:" -Level "STEP"
     Write-Host ""
-    Write-Host "  [1] Email Alert" -ForegroundColor Yellow
-    Write-Host "  [2] Teams Webhook Alert" -ForegroundColor Yellow
-    Write-Host "  [3] Generate Alert Report" -ForegroundColor Cyan
-    Write-Host "  [0] Cancel" -ForegroundColor Red
+    Write-Ui -Message "  [1] Email Alert" -Level "WARN"
+    Write-Ui -Message "  [2] Teams Webhook Alert" -Level "WARN"
+    Write-Ui -Message "  [3] Generate Alert Report" -Level "INFO"
+    Write-Ui -Message "  [0] Cancel" -Level "ERROR"
     Write-Host ""
     
     $choice = Read-Host "Select alert method (0-3)"
@@ -706,11 +706,11 @@ function Send-EmailAlert {
     
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  EMAIL ALERT CONFIGURATION" -ForegroundColor Cyan
+    Write-Ui -Message "  EMAIL ALERT CONFIGURATION" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     
-    Write-Host "Note: This requires SMTP configuration" -ForegroundColor Yellow
+    Write-Ui -Message "Note: This requires SMTP configuration" -Level "WARN"
     Write-Host ""
     
     $smtpServer = Read-Host "SMTP Server (e.g., smtp.office365.com)"
@@ -775,14 +775,14 @@ function Send-EmailAlert {
         Write-Host ""
         Write-SouliTEKResult "Email alert prepared" -Level SUCCESS
         Write-Host ""
-        Write-Host "SMTP Configuration:" -ForegroundColor Cyan
-        Write-Host "  Server: $smtpServer" -ForegroundColor White
-        Write-Host "  Port: $smtpPort" -ForegroundColor White
-        Write-Host "  From: $from" -ForegroundColor White
-        Write-Host "  To: $to" -ForegroundColor White
+        Write-Ui -Message "SMTP Configuration:" -Level "INFO"
+        Write-Ui -Message "  Server: $smtpServer" -Level "STEP"
+        Write-Ui -Message "  Port: $smtpPort" -Level "STEP"
+        Write-Ui -Message "  From: $from" -Level "STEP"
+        Write-Ui -Message "  To: $to" -Level "STEP"
         Write-Host ""
-        Write-Host "Note: Email sending requires authentication credentials" -ForegroundColor Yellow
-        Write-Host "Use Send-MailMessage or similar cmdlet with proper credentials" -ForegroundColor Yellow
+        Write-Ui -Message "Note: Email sending requires authentication credentials" -Level "WARN"
+        Write-Ui -Message "Use Send-MailMessage or similar cmdlet with proper credentials" -Level "WARN"
         Write-Host ""
         
         # Save email body for reference
@@ -800,12 +800,12 @@ function Send-TeamsAlert {
     
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  TEAMS WEBHOOK ALERT" -ForegroundColor Cyan
+    Write-Ui -Message "  TEAMS WEBHOOK ALERT" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     
-    Write-Host "Note: This requires a Teams incoming webhook URL" -ForegroundColor Yellow
-    Write-Host "Setup: Teams Channel > Connectors > Incoming Webhook" -ForegroundColor Gray
+    Write-Ui -Message "Note: This requires a Teams incoming webhook URL" -Level "WARN"
+    Write-Ui -Message "Setup: Teams Channel > Connectors > Incoming Webhook" -Level "INFO"
     Write-Host ""
     
     $webhookUrl = Read-Host "Enter Teams Webhook URL"
@@ -874,10 +874,10 @@ function Send-TeamsAlert {
     catch {
         Write-SouliTEKResult "Failed to send Teams notification: $_" -Level ERROR
         Write-Host ""
-        Write-Host "Possible reasons:" -ForegroundColor Yellow
-        Write-Host "  - Invalid webhook URL" -ForegroundColor Gray
-        Write-Host "  - Webhook was removed or disabled" -ForegroundColor Gray
-        Write-Host "  - Network connectivity issue" -ForegroundColor Gray
+        Write-Ui -Message "Possible reasons:" -Level "WARN"
+        Write-Ui -Message "  - Invalid webhook URL" -Level "INFO"
+        Write-Ui -Message "  - Webhook was removed or disabled" -Level "INFO"
+        Write-Ui -Message "  - Network connectivity issue" -Level "INFO"
     }
 }
 
@@ -975,7 +975,7 @@ function Export-AlertReport {
 function Export-LicenseReport {
     Show-SouliTEKHeader -Title "EXPORT LICENSE REPORT" -Color Yellow -ClearHost -ShowBanner
     
-    Write-Host "      Save license information to file" -ForegroundColor Gray
+    Write-Ui -Message "      Save license information to file" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -983,21 +983,21 @@ function Export-LicenseReport {
     if ($Script:LicenseData.Count -eq 0) {
         Write-SouliTEKResult "No license data to export" -Level WARNING
         Write-Host ""
-        Write-Host "Please run 'License Status Check' first (option 2)" -ForegroundColor Yellow
+        Write-Ui -Message "Please run 'License Status Check' first (option 2)" -Level "WARN"
         Write-Host ""
         Start-Sleep -Seconds 3
         return
     }
     
-    Write-Host "Total licenses to export: $($Script:LicenseData.Count)" -ForegroundColor Cyan
+    Write-Ui -Message "Total licenses to export: $($Script:LicenseData.Count)" -Level "INFO"
     Write-Host ""
-    Write-Host "Select export format:" -ForegroundColor White
+    Write-Ui -Message "Select export format:" -Level "STEP"
     Write-Host ""
-    Write-Host "  [1] Text File (.txt)" -ForegroundColor Yellow
-    Write-Host "  [2] CSV File (.csv)" -ForegroundColor Yellow
-    Write-Host "  [3] HTML Report (.html)" -ForegroundColor Yellow
-    Write-Host "  [4] All Formats" -ForegroundColor Cyan
-    Write-Host "  [0] Cancel" -ForegroundColor Red
+    Write-Ui -Message "  [1] Text File (.txt)" -Level "WARN"
+    Write-Ui -Message "  [2] CSV File (.csv)" -Level "WARN"
+    Write-Ui -Message "  [3] HTML Report (.html)" -Level "WARN"
+    Write-Ui -Message "  [4] All Formats" -Level "INFO"
+    Write-Ui -Message "  [0] Cancel" -Level "ERROR"
     Write-Host ""
     
     $choice = Read-Host "Enter your choice (0-4)"
@@ -1208,11 +1208,11 @@ function Export-HTMLReport {
 function Show-MainMenu {
     Show-SouliTEKHeader -Title "LICENSE EXPIRATION CHECKER - Professional Tool" -Color Cyan -ClearHost -ShowBanner
     
-    Write-Host "      Coded by: Soulitek.co.il" -ForegroundColor Green
-    Write-Host "      IT Solutions for your business" -ForegroundColor Green
-    Write-Host "      www.soulitek.co.il" -ForegroundColor Green
+    Write-Ui -Message "      Coded by: Soulitek.co.il" -Level "OK"
+    Write-Ui -Message "      IT Solutions for your business" -Level "OK"
+    Write-Ui -Message "      www.soulitek.co.il" -Level "OK"
     Write-Host ""
-    Write-Host "      (C) 2025 Soulitek - All Rights Reserved" -ForegroundColor DarkGray
+    Write-Ui -Message "      (C) 2025 Soulitek - All Rights Reserved" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -1220,32 +1220,32 @@ function Show-MainMenu {
     # Connection Status
     if ($Script:Connected) {
         Write-Host "  Status: " -NoNewline
-        Write-Host "CONNECTED" -ForegroundColor Green
+        Write-Ui -Message "CONNECTED" -Level "OK"
         $context = Get-MgContext
         if ($context) {
-            Write-Host "  Tenant: $($context.TenantId)" -ForegroundColor Gray
+            Write-Ui -Message "  Tenant: $($context.TenantId)" -Level "INFO"
         }
         Write-Host ""
     }
     else {
         Write-Host "  Status: " -NoNewline
-        Write-Host "NOT CONNECTED" -ForegroundColor Red
-        Write-Host "  Please connect first (option 1)" -ForegroundColor Yellow
+        Write-Ui -Message "NOT CONNECTED" -Level "ERROR"
+        Write-Ui -Message "  Please connect first (option 1)" -Level "WARN"
         Write-Host ""
     }
     
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "Select an option:" -ForegroundColor White
+    Write-Ui -Message "Select an option:" -Level "STEP"
     Write-Host ""
-    Write-Host "  [1] Connect to Microsoft Graph  - Authenticate" -ForegroundColor Yellow
-    Write-Host "  [2] License Status Check        - View all licenses" -ForegroundColor Yellow
-    Write-Host "  [3] Detailed License Report     - Service plans included" -ForegroundColor Yellow
-    Write-Host "  [4] Usage Statistics            - Allocation analysis" -ForegroundColor Yellow
-    Write-Host "  [5] Send Alerts                 - Email/Teams notifications" -ForegroundColor Cyan
-    Write-Host "  [6] Export Report               - Save to file" -ForegroundColor Cyan
-    Write-Host "  [7] Help                        - Usage guide" -ForegroundColor White
-    Write-Host "  [0] Exit" -ForegroundColor Red
+    Write-Ui -Message "  [1] Connect to Microsoft Graph  - Authenticate" -Level "WARN"
+    Write-Ui -Message "  [2] License Status Check        - View all licenses" -Level "WARN"
+    Write-Ui -Message "  [3] Detailed License Report     - Service plans included" -Level "WARN"
+    Write-Ui -Message "  [4] Usage Statistics            - Allocation analysis" -Level "WARN"
+    Write-Ui -Message "  [5] Send Alerts                 - Email/Teams notifications" -Level "INFO"
+    Write-Ui -Message "  [6] Export Report               - Save to file" -Level "INFO"
+    Write-Ui -Message "  [7] Help                        - Usage guide" -Level "STEP"
+    Write-Ui -Message "  [0] Exit" -Level "ERROR"
     Write-Host ""
     Write-Host "========================================" -ForegroundColor DarkGray
     
@@ -1256,75 +1256,75 @@ function Show-MainMenu {
 function Show-Help {
     Show-SouliTEKHeader -Title "HELP GUIDE" -Color Cyan -ClearHost -ShowBanner
     
-    Write-Host "LICENSE EXPIRATION CHECKER - USAGE GUIDE" -ForegroundColor Yellow
+    Write-Ui -Message "LICENSE EXPIRATION CHECKER - USAGE GUIDE" -Level "WARN"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "[1] CONNECT TO MICROSOFT GRAPH" -ForegroundColor White
-    Write-Host "    Authenticate to your Microsoft 365 tenant" -ForegroundColor Gray
-    Write-Host "    Required: Global Admin or Global Reader permissions" -ForegroundColor Gray
-    Write-Host "    Opens browser for secure authentication" -ForegroundColor Gray
+    Write-Ui -Message "[1] CONNECT TO MICROSOFT GRAPH" -Level "STEP"
+    Write-Ui -Message "    Authenticate to your Microsoft 365 tenant" -Level "INFO"
+    Write-Ui -Message "    Required: Global Admin or Global Reader permissions" -Level "INFO"
+    Write-Ui -Message "    Opens browser for secure authentication" -Level "INFO"
     Write-Host ""
-    Write-Host "[2] LICENSE STATUS CHECK" -ForegroundColor White
-    Write-Host "    Display all Microsoft 365 license subscriptions" -ForegroundColor Gray
-    Write-Host "    Shows: Total seats, used seats, available seats, usage %" -ForegroundColor Gray
-    Write-Host "    Color-coded alerts for low availability" -ForegroundColor Gray
+    Write-Ui -Message "[2] LICENSE STATUS CHECK" -Level "STEP"
+    Write-Ui -Message "    Display all Microsoft 365 license subscriptions" -Level "INFO"
+    Write-Ui -Message "    Shows: Total seats, used seats, available seats, usage %" -Level "INFO"
+    Write-Ui -Message "    Color-coded alerts for low availability" -Level "INFO"
     Write-Host ""
-    Write-Host "[3] DETAILED LICENSE REPORT" -ForegroundColor White
-    Write-Host "    Comprehensive analysis including service plans" -ForegroundColor Gray
-    Write-Host "    Shows all enabled services for each license" -ForegroundColor Gray
-    Write-Host "    Useful for understanding what's included" -ForegroundColor Gray
+    Write-Ui -Message "[3] DETAILED LICENSE REPORT" -Level "STEP"
+    Write-Ui -Message "    Comprehensive analysis including service plans" -Level "INFO"
+    Write-Ui -Message "    Shows all enabled services for each license" -Level "INFO"
+    Write-Ui -Message "    Useful for understanding what's included" -Level "INFO"
     Write-Host ""
-    Write-Host "[4] USAGE STATISTICS" -ForegroundColor White
-    Write-Host "    Analyze license allocation patterns" -ForegroundColor Gray
-    Write-Host "    Shows: Top consumers, licenses needing attention" -ForegroundColor Gray
-    Write-Host "    Visual usage bars and percentages" -ForegroundColor Gray
+    Write-Ui -Message "[4] USAGE STATISTICS" -Level "STEP"
+    Write-Ui -Message "    Analyze license allocation patterns" -Level "INFO"
+    Write-Ui -Message "    Shows: Top consumers, licenses needing attention" -Level "INFO"
+    Write-Ui -Message "    Visual usage bars and percentages" -Level "INFO"
     Write-Host ""
-    Write-Host "[5] SEND ALERTS" -ForegroundColor White
-    Write-Host "    Configure notifications for critical licenses" -ForegroundColor Gray
-    Write-Host "    Options: Email, Teams webhook, Report file" -ForegroundColor Gray
-    Write-Host "    Automatically triggers for low/no availability" -ForegroundColor Gray
+    Write-Ui -Message "[5] SEND ALERTS" -Level "STEP"
+    Write-Ui -Message "    Configure notifications for critical licenses" -Level "INFO"
+    Write-Ui -Message "    Options: Email, Teams webhook, Report file" -Level "INFO"
+    Write-Ui -Message "    Automatically triggers for low/no availability" -Level "INFO"
     Write-Host ""
-    Write-Host "[6] EXPORT REPORT" -ForegroundColor White
-    Write-Host "    Save license data to file" -ForegroundColor Gray
-    Write-Host "    Formats: Text (.txt), CSV (.csv), HTML (.html)" -ForegroundColor Gray
-    Write-Host "    Use for documentation and auditing" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "UNDERSTANDING LICENSE STATUS:" -ForegroundColor Yellow
-    Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "Alert Levels:" -ForegroundColor White
-    Write-Host "  CRITICAL - No available seats (immediate action required)" -ForegroundColor Red
-    Write-Host "  WARNING  - 5 or fewer seats remaining (plan to purchase)" -ForegroundColor Yellow
-    Write-Host "  OK       - Sufficient seats available" -ForegroundColor Green
-    Write-Host ""
-    Write-Host "Usage Percentage:" -ForegroundColor White
-    Write-Host "  < 80%    - Healthy allocation" -ForegroundColor Green
-    Write-Host "  80-99%   - Approaching capacity" -ForegroundColor Yellow
-    Write-Host "  100%     - At maximum capacity" -ForegroundColor Red
+    Write-Ui -Message "[6] EXPORT REPORT" -Level "STEP"
+    Write-Ui -Message "    Save license data to file" -Level "INFO"
+    Write-Ui -Message "    Formats: Text (.txt), CSV (.csv), HTML (.html)" -Level "INFO"
+    Write-Ui -Message "    Use for documentation and auditing" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "REQUIREMENTS:" -ForegroundColor Yellow
+    Write-Ui -Message "UNDERSTANDING LICENSE STATUS:" -Level "WARN"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "- Microsoft Graph PowerShell SDK" -ForegroundColor Gray
-    Write-Host "  Install-Module Microsoft.Graph -Scope CurrentUser" -ForegroundColor Cyan
+    Write-Ui -Message "Alert Levels:" -Level "STEP"
+    Write-Ui -Message "  CRITICAL - No available seats (immediate action required)" -Level "ERROR"
+    Write-Ui -Message "  WARNING  - 5 or fewer seats remaining (plan to purchase)" -Level "WARN"
+    Write-Ui -Message "  OK       - Sufficient seats available" -Level "OK"
     Write-Host ""
-    Write-Host "- Permissions:" -ForegroundColor Gray
-    Write-Host "  Organization.Read.All (to read subscription data)" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "- Role Requirements:" -ForegroundColor Gray
-    Write-Host "  Global Administrator or Global Reader" -ForegroundColor Gray
+    Write-Ui -Message "Usage Percentage:" -Level "STEP"
+    Write-Ui -Message "  < 80%    - Healthy allocation" -Level "OK"
+    Write-Ui -Message "  80-99%   - Approaching capacity" -Level "WARN"
+    Write-Ui -Message "  100%     - At maximum capacity" -Level "ERROR"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "TIPS:" -ForegroundColor Yellow
+    Write-Ui -Message "REQUIREMENTS:" -Level "WARN"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "- Run regular checks (weekly) to monitor license usage" -ForegroundColor Gray
-    Write-Host "- Set up Teams webhooks for automated alerts" -ForegroundColor Gray
-    Write-Host "- Export reports for compliance documentation" -ForegroundColor Gray
-    Write-Host "- Review usage statistics to optimize license purchases" -ForegroundColor Gray
-    Write-Host "- Keep track of seasonal usage patterns" -ForegroundColor Gray
+    Write-Ui -Message "- Microsoft Graph PowerShell SDK" -Level "INFO"
+    Write-Ui -Message "  Install-Module Microsoft.Graph -Scope CurrentUser" -Level "INFO"
+    Write-Host ""
+    Write-Ui -Message "- Permissions:" -Level "INFO"
+    Write-Ui -Message "  Organization.Read.All (to read subscription data)" -Level "INFO"
+    Write-Host ""
+    Write-Ui -Message "- Role Requirements:" -Level "INFO"
+    Write-Ui -Message "  Global Administrator or Global Reader" -Level "INFO"
+    Write-Host ""
+    Write-Host "============================================================" -ForegroundColor Cyan
+    Write-Ui -Message "TIPS:" -Level "WARN"
+    Write-Host "============================================================" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Ui -Message "- Run regular checks (weekly) to monitor license usage" -Level "INFO"
+    Write-Ui -Message "- Set up Teams webhooks for automated alerts" -Level "INFO"
+    Write-Ui -Message "- Export reports for compliance documentation" -Level "INFO"
+    Write-Ui -Message "- Review usage statistics to optimize license purchases" -Level "INFO"
+    Write-Ui -Message "- Keep track of seasonal usage patterns" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""

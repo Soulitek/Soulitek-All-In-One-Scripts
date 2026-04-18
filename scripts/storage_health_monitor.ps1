@@ -307,7 +307,7 @@ function Show-StorageHealthReport {
     Write-Host ""
     
     Write-Host "==========================================" -ForegroundColor Cyan
-    Write-Host "  STORAGE HEALTH MONITOR REPORT" -ForegroundColor Cyan
+    Write-Ui -Message "  STORAGE HEALTH MONITOR REPORT" -Level "INFO"
     Write-Host "==========================================" -ForegroundColor Cyan
     Write-Host ""
     
@@ -316,14 +316,14 @@ function Show-StorageHealthReport {
         $physicalDisks = Get-PhysicalDisk | Where-Object { $_.BusType -ne "USB" -or $_.BusType -ne "Unknown" }
     }
     catch {
-        Write-Host "Error accessing physical disks: $_" -ForegroundColor Red
+        Write-Ui -Message "Error accessing physical disks: $_" -Level "ERROR"
         Write-Host "Press Enter to return to menu..."
         Read-Host
         return
     }
     
     if (-not $physicalDisks) {
-        Write-Host "No physical disks found." -ForegroundColor Yellow
+        Write-Ui -Message "No physical disks found." -Level "WARN"
         Write-Host "Press Enter to return to menu..."
         Read-Host
         return
@@ -335,43 +335,43 @@ function Show-StorageHealthReport {
     # Load baseline for comparison
     $baseline = Get-BaselineData
     if ($baseline.Count -gt 0) {
-        Write-Host "Baseline data loaded from previous scan" -ForegroundColor Green
-        Write-Host "Comparing current values with baseline to detect trends..." -ForegroundColor Gray
+        Write-Ui -Message "Baseline data loaded from previous scan" -Level "OK"
+        Write-Ui -Message "Comparing current values with baseline to detect trends..." -Level "INFO"
         Write-Host ""
     }
     else {
-        Write-Host "No baseline data found. This scan will establish baseline." -ForegroundColor Yellow
+        Write-Ui -Message "No baseline data found. This scan will establish baseline." -Level "WARN"
         Write-Host ""
     }
     
-    Write-Host "Scanning storage devices..." -ForegroundColor Yellow
+    Write-Ui -Message "Scanning storage devices..." -Level "WARN"
     Write-Host ""
     
     foreach ($disk in $physicalDisks) {
-        Write-Host "Analyzing disk: $($disk.FriendlyName)..." -ForegroundColor Cyan
+        Write-Ui -Message "Analyzing disk: $($disk.FriendlyName)..." -Level "INFO"
         
         $smartData = Get-SMARTData -PhysicalDisk $disk -Baseline $baseline
         $Script:ReportData += $smartData
         
         # Display disk information
-        Write-Host "  Device ID: $($smartData.DiskNumber)" -ForegroundColor White
-        Write-Host "  Media Type: $($smartData.MediaType)" -ForegroundColor White
-        Write-Host "  Size: $([math]::Round($smartData.Size / 1GB, 2)) GB" -ForegroundColor White
+        Write-Ui -Message "  Device ID: $($smartData.DiskNumber)" -Level "STEP"
+        Write-Ui -Message "  Media Type: $($smartData.MediaType)" -Level "STEP"
+        Write-Ui -Message "  Size: $([math]::Round($smartData.Size / 1GB, 2)) GB" -Level "STEP"
         Write-Host "  Health Status: " -NoNewline
         
         switch ($smartData.WarningLevel) {
             "CRITICAL" {
-                Write-Host $smartData.HealthStatus -ForegroundColor Red
+                Write-Ui -Message $smartData.HealthStatus -Level "ERROR"
             }
             "WARNING" {
-                Write-Host $smartData.HealthStatus -ForegroundColor Yellow
+                Write-Ui -Message $smartData.HealthStatus -Level "WARN"
             }
             default {
-                Write-Host $smartData.HealthStatus -ForegroundColor Green
+                Write-Ui -Message $smartData.HealthStatus -Level "OK"
             }
         }
         
-        Write-Host "  Operational Status: $($smartData.OperationalStatus)" -ForegroundColor White
+        Write-Ui -Message "  Operational Status: $($smartData.OperationalStatus)" -Level "STEP"
         
         if ($smartData.ReallocatedSectors -ne $null) {
             $color = if ($smartData.ReallocatedSectors -gt 100) { "Red" } elseif ($smartData.ReallocatedSectors -gt 10) { "Yellow" } else { "Green" }
@@ -384,10 +384,10 @@ function Show-StorageHealthReport {
                 Write-Host ""
             }
             if ($smartData.PreviousReallocatedSectors -ne $null) {
-                Write-Host "    Previous: $($smartData.PreviousReallocatedSectors) (Baseline: $($smartData.BaselineDate))" -ForegroundColor Gray
+                Write-Ui -Message "    Previous: $($smartData.PreviousReallocatedSectors) (Baseline: $($smartData.BaselineDate))" -Level "INFO"
             }
         } else {
-            Write-Host "  Reallocated Sectors: Not available" -ForegroundColor Gray
+            Write-Ui -Message "  Reallocated Sectors: Not available" -Level "INFO"
         }
         
         if ($smartData.ReadErrors -ne $null) {
@@ -401,27 +401,27 @@ function Show-StorageHealthReport {
                 Write-Host ""
             }
             if ($smartData.PreviousReadErrors -ne $null) {
-                Write-Host "    Previous: $($smartData.PreviousReadErrors) (Baseline: $($smartData.BaselineDate))" -ForegroundColor Gray
+                Write-Ui -Message "    Previous: $($smartData.PreviousReadErrors) (Baseline: $($smartData.BaselineDate))" -Level "INFO"
             }
         } else {
-            Write-Host "  Read Errors: Not available" -ForegroundColor Gray
+            Write-Ui -Message "  Read Errors: Not available" -Level "INFO"
         }
         
         if ($smartData.Temperature -ne $null) {
-            Write-Host "  Temperature: $($smartData.Temperature)C" -ForegroundColor White
+            Write-Ui -Message "  Temperature: $($smartData.Temperature)C" -Level "STEP"
         }
         
         if ($smartData.PowerOnHours -ne $null) {
             $hours = [math]::Round($smartData.PowerOnHours / 24, 1)
-            Write-Host "  Power-On Hours: $($smartData.PowerOnHours) ($hours days)" -ForegroundColor White
+            Write-Ui -Message "  Power-On Hours: $($smartData.PowerOnHours) ($hours days)" -Level "STEP"
         }
         
         if ($smartData.PowerCycles -ne $null) {
-            Write-Host "  Power Cycles: $($smartData.PowerCycles)" -ForegroundColor White
+            Write-Ui -Message "  Power Cycles: $($smartData.PowerCycles)" -Level "STEP"
         }
         
         if ($smartData.Wear -ne $null) {
-            Write-Host "  Wear Level: $($smartData.Wear)%" -ForegroundColor White
+            Write-Ui -Message "  Wear Level: $($smartData.Wear)%" -Level "STEP"
         }
         
         Write-Host ""
@@ -430,21 +430,21 @@ function Show-StorageHealthReport {
     # Display warnings
     if ($Script:Warnings.Count -gt 0) {
         Write-Host "==========================================" -ForegroundColor Red
-        Write-Host "  WARNINGS AND ALERTS" -ForegroundColor Red
+        Write-Ui -Message "  WARNINGS AND ALERTS" -Level "ERROR"
         Write-Host "==========================================" -ForegroundColor Red
         Write-Host ""
         
         foreach ($warning in $Script:Warnings) {
             if ($warning -like "CRITICAL:*") {
-                Write-Host $warning -ForegroundColor Red
+                Write-Ui -Message $warning -Level "ERROR"
             } else {
-                Write-Host $warning -ForegroundColor Yellow
+                Write-Ui -Message $warning -Level "WARN"
             }
         }
         Write-Host ""
     } else {
         Write-Host "==========================================" -ForegroundColor Green
-        Write-Host "  NO ISSUES DETECTED" -ForegroundColor Green
+        Write-Ui -Message "  NO ISSUES DETECTED" -Level "OK"
         Write-Host "==========================================" -ForegroundColor Green
         Write-Host ""
     }
@@ -452,7 +452,7 @@ function Show-StorageHealthReport {
     # Save current scan as new baseline
     if ($Script:ReportData.Count -gt 0) {
         Save-BaselineData -CurrentData $Script:ReportData
-        Write-Host "Baseline data updated for future comparisons" -ForegroundColor Green
+        Write-Ui -Message "Baseline data updated for future comparisons" -Level "OK"
         Write-Host ""
     }
     
@@ -466,7 +466,7 @@ function Export-HealthReport {
     )
     
     if ($Script:ReportData.Count -eq 0) {
-        Write-Host "No data to export. Please run 'View Storage Health Report' first." -ForegroundColor Yellow
+        Write-Ui -Message "No data to export. Please run 'View Storage Health Report' first." -Level "WARN"
         Write-Host "Press Enter to continue..."
         Read-Host
         return
@@ -734,8 +734,8 @@ WARNINGS AND ALERTS
     
     if ($outputPath) {
         Write-Host ""
-        Write-Host "Report exported successfully!" -ForegroundColor Green
-        Write-Host "Location: $outputPath" -ForegroundColor Cyan
+        Write-Ui -Message "Report exported successfully!" -Level "OK"
+        Write-Ui -Message "Location: $outputPath" -Level "INFO"
         Write-Host ""
         Write-Host "Press Enter to continue..."
         Read-Host
@@ -750,21 +750,21 @@ function Show-MainMenu {
     Write-Host ""
     
     Write-Host "==========================================" -ForegroundColor Cyan
-    Write-Host "  STORAGE HEALTH MONITOR" -ForegroundColor Cyan
+    Write-Ui -Message "  STORAGE HEALTH MONITOR" -Level "INFO"
     Write-Host "==========================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "Monitor storage device health by reading SMART data" -ForegroundColor White
-    Write-Host "and detecting reallocated sectors or read errors." -ForegroundColor White
+    Write-Ui -Message "Monitor storage device health by reading SMART data" -Level "STEP"
+    Write-Ui -Message "and detecting reallocated sectors or read errors." -Level "STEP"
     Write-Host ""
-    Write-Host "Main Menu:" -ForegroundColor Yellow
+    Write-Ui -Message "Main Menu:" -Level "WARN"
     Write-Host ""
-    Write-Host "  1. View Storage Health Report" -ForegroundColor Cyan
-    Write-Host "  2. Export Report - TXT Format" -ForegroundColor Cyan
-    Write-Host "  3. Export Report - CSV Format" -ForegroundColor Cyan
-    Write-Host "  4. Export Report - HTML Format" -ForegroundColor Cyan
-    Write-Host "  5. Export Report - All Formats" -ForegroundColor Cyan
-    Write-Host "  6. Help & Information" -ForegroundColor Cyan
-    Write-Host "  7. Exit" -ForegroundColor Cyan
+    Write-Ui -Message "  1. View Storage Health Report" -Level "INFO"
+    Write-Ui -Message "  2. Export Report - TXT Format" -Level "INFO"
+    Write-Ui -Message "  3. Export Report - CSV Format" -Level "INFO"
+    Write-Ui -Message "  4. Export Report - HTML Format" -Level "INFO"
+    Write-Ui -Message "  5. Export Report - All Formats" -Level "INFO"
+    Write-Ui -Message "  6. Help & Information" -Level "INFO"
+    Write-Ui -Message "  7. Exit" -Level "INFO"
     Write-Host ""
     Write-Host "==========================================" -ForegroundColor Cyan
     Write-Host ""
@@ -788,57 +788,57 @@ function Show-Help {
     Write-Host ""
     
     Write-Host "==========================================" -ForegroundColor Cyan
-    Write-Host "  HELP & INFORMATION" -ForegroundColor Cyan
+    Write-Ui -Message "  HELP & INFORMATION" -Level "INFO"
     Write-Host "==========================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "STORAGE HEALTH MONITOR" -ForegroundColor Yellow
+    Write-Ui -Message "STORAGE HEALTH MONITOR" -Level "WARN"
     Write-Host ""
-    Write-Host "This tool monitors the health of your storage devices by:" -ForegroundColor White
-    Write-Host "  - Reading SMART (Self-Monitoring, Analysis and Reporting Technology) data" -ForegroundColor Gray
-    Write-Host "  - Detecting reallocated sectors (bad sectors that have been replaced)" -ForegroundColor Gray
-    Write-Host "  - Monitoring read errors (data read failures)" -ForegroundColor Gray
-    Write-Host "  - Warning when these metrics indicate potential disk failure" -ForegroundColor Gray
+    Write-Ui -Message "This tool monitors the health of your storage devices by:" -Level "STEP"
+    Write-Ui -Message "  - Reading SMART (Self-Monitoring, Analysis and Reporting Technology) data" -Level "INFO"
+    Write-Ui -Message "  - Detecting reallocated sectors (bad sectors that have been replaced)" -Level "INFO"
+    Write-Ui -Message "  - Monitoring read errors (data read failures)" -Level "INFO"
+    Write-Ui -Message "  - Warning when these metrics indicate potential disk failure" -Level "INFO"
     Write-Host ""
-    Write-Host "WARNING THRESHOLDS:" -ForegroundColor Yellow
-    Write-Host "  - Reallocated Sectors:" -ForegroundColor White
-    Write-Host "    * > 100 sectors: CRITICAL - Immediate attention required" -ForegroundColor Red
-    Write-Host "    * > 10 sectors: WARNING - Monitor closely" -ForegroundColor Yellow
-    Write-Host "    * Increasing by 5+ sectors: WARNING - Values increasing!" -ForegroundColor Yellow
-    Write-Host "    * <= 10 sectors: OK" -ForegroundColor Green
+    Write-Ui -Message "WARNING THRESHOLDS:" -Level "WARN"
+    Write-Ui -Message "  - Reallocated Sectors:" -Level "STEP"
+    Write-Ui -Message "    * > 100 sectors: CRITICAL - Immediate attention required" -Level "ERROR"
+    Write-Ui -Message "    * > 10 sectors: WARNING - Monitor closely" -Level "WARN"
+    Write-Ui -Message "    * Increasing by 5+ sectors: WARNING - Values increasing!" -Level "WARN"
+    Write-Ui -Message "    * <= 10 sectors: OK" -Level "OK"
     Write-Host ""
-    Write-Host "  - Read Errors:" -ForegroundColor White
-    Write-Host "    * > 100 errors: CRITICAL - Immediate attention required" -ForegroundColor Red
-    Write-Host "    * > 10 errors: WARNING - Monitor closely" -ForegroundColor Yellow
-    Write-Host "    * Increasing by 5+ errors: WARNING - Values increasing!" -ForegroundColor Yellow
-    Write-Host "    * <= 10 errors: OK" -ForegroundColor Green
+    Write-Ui -Message "  - Read Errors:" -Level "STEP"
+    Write-Ui -Message "    * > 100 errors: CRITICAL - Immediate attention required" -Level "ERROR"
+    Write-Ui -Message "    * > 10 errors: WARNING - Monitor closely" -Level "WARN"
+    Write-Ui -Message "    * Increasing by 5+ errors: WARNING - Values increasing!" -Level "WARN"
+    Write-Ui -Message "    * <= 10 errors: OK" -Level "OK"
     Write-Host ""
-    Write-Host "TREND MONITORING:" -ForegroundColor Yellow
-    Write-Host "  - The tool compares current values with previous baseline" -ForegroundColor White
-    Write-Host "  - Warns if reallocated sectors or read errors are INCREASING" -ForegroundColor White
-    Write-Host "  - Baseline is automatically updated after each scan" -ForegroundColor White
-    Write-Host "  - First scan establishes baseline, subsequent scans compare trends" -ForegroundColor White
+    Write-Ui -Message "TREND MONITORING:" -Level "WARN"
+    Write-Ui -Message "  - The tool compares current values with previous baseline" -Level "STEP"
+    Write-Ui -Message "  - Warns if reallocated sectors or read errors are INCREASING" -Level "STEP"
+    Write-Ui -Message "  - Baseline is automatically updated after each scan" -Level "STEP"
+    Write-Ui -Message "  - First scan establishes baseline, subsequent scans compare trends" -Level "STEP"
     Write-Host ""
-    Write-Host "FEATURES:" -ForegroundColor Yellow
-    Write-Host "  - SMART data reading via Get-PhysicalDisk and StorageReliabilityCounter" -ForegroundColor White
-    Write-Host "  - Automatic health status detection" -ForegroundColor White
-    Write-Host "  - Detailed disk information (temperature, power-on hours, wear level)" -ForegroundColor White
-    Write-Host "  - Multiple export formats (TXT, CSV, HTML)" -ForegroundColor White
+    Write-Ui -Message "FEATURES:" -Level "WARN"
+    Write-Ui -Message "  - SMART data reading via Get-PhysicalDisk and StorageReliabilityCounter" -Level "STEP"
+    Write-Ui -Message "  - Automatic health status detection" -Level "STEP"
+    Write-Ui -Message "  - Detailed disk information (temperature, power-on hours, wear level)" -Level "STEP"
+    Write-Ui -Message "  - Multiple export formats (TXT, CSV, HTML)" -Level "STEP"
     Write-Host ""
-    Write-Host "REQUIREMENTS:" -ForegroundColor Yellow
-    Write-Host "  - Windows PowerShell 5.1 or later" -ForegroundColor White
-    Write-Host "  - Administrator privileges (recommended)" -ForegroundColor White
-    Write-Host "  - Storage devices that support SMART" -ForegroundColor White
+    Write-Ui -Message "REQUIREMENTS:" -Level "WARN"
+    Write-Ui -Message "  - Windows PowerShell 5.1 or later" -Level "STEP"
+    Write-Ui -Message "  - Administrator privileges (recommended)" -Level "STEP"
+    Write-Ui -Message "  - Storage devices that support SMART" -Level "STEP"
     Write-Host ""
-    Write-Host "NOTES:" -ForegroundColor Yellow
-    Write-Host "  - Not all storage devices expose SMART data via Windows APIs" -ForegroundColor White
-    Write-Host "  - Some metrics may show 'Not available' for certain disk types" -ForegroundColor White
-    Write-Host "  - USB and external drives may have limited SMART data" -ForegroundColor White
+    Write-Ui -Message "NOTES:" -Level "WARN"
+    Write-Ui -Message "  - Not all storage devices expose SMART data via Windows APIs" -Level "STEP"
+    Write-Ui -Message "  - Some metrics may show 'Not available' for certain disk types" -Level "STEP"
+    Write-Ui -Message "  - USB and external drives may have limited SMART data" -Level "STEP"
     Write-Host ""
-    Write-Host "SUPPORT:" -ForegroundColor Yellow
-    Write-Host "  Website: www.soulitek.co.il" -ForegroundColor Cyan
-    Write-Host "  Email: letstalk@soulitek.co.il" -ForegroundColor Cyan
+    Write-Ui -Message "SUPPORT:" -Level "WARN"
+    Write-Ui -Message "  Website: www.soulitek.co.il" -Level "INFO"
+    Write-Ui -Message "  Email: letstalk@soulitek.co.il" -Level "INFO"
     Write-Host ""
-    Write-Host "Press Enter to return to main menu..." -ForegroundColor Yellow
+    Write-Ui -Message "Press Enter to return to main menu..." -Level "WARN"
     Read-Host
 }
 
@@ -855,7 +855,7 @@ if (-not (Test-SouliTEKAdministrator)) {
     Write-Ui -Message "WARNING: This tool requires Administrator privileges for full functionality" -Level "WARN"
     Write-Ui -Message "Some SMART data may not be accessible without elevation" -Level "INFO"
     Write-Host ""
-    Write-Host "Press Enter to continue anyway, or Ctrl+C to exit..." -ForegroundColor Yellow
+    Write-Ui -Message "Press Enter to continue anyway, or Ctrl+C to exit..." -Level "WARN"
     Read-Host
 }
 

@@ -525,7 +525,7 @@ function Invoke-FullScan {
     if ($Script:OneDriveAccounts.Count -gt 0) {
         Write-Ui -Message "Found $($Script:OneDriveAccounts.Count) configured account(s)" -Level "OK"
         foreach ($account in $Script:OneDriveAccounts) {
-            Write-Host "  [$($account.AccountType)] $($account.UserEmail)" -ForegroundColor Gray
+            Write-Ui -Message "  [$($account.AccountType)] $($account.UserEmail)" -Level "INFO"
             
             $Script:OneDriveResults += [PSCustomObject]@{
                 Category = "Account"
@@ -563,7 +563,7 @@ function Invoke-FullScan {
     Write-Host "  Status: " -NoNewline
     Write-Host "$($syncStatus.Status)" -ForegroundColor $statusColor
     foreach ($detail in $syncStatus.Details) {
-        Write-Host "  - $detail" -ForegroundColor Gray
+        Write-Ui -Message "  - $detail" -Level "INFO"
     }
     
     $Script:OneDriveResults += [PSCustomObject]@{
@@ -582,7 +582,7 @@ function Invoke-FullScan {
     
     if ($folderInfo.Count -gt 0) {
         foreach ($folder in $folderInfo) {
-            Write-Host "  [$($folder.AccountType)] $($folder.FileCount) files ($($folder.TotalSizeFormatted))" -ForegroundColor Gray
+            Write-Ui -Message "  [$($folder.AccountType)] $($folder.FileCount) files ($($folder.TotalSizeFormatted))" -Level "INFO"
             
             $Script:OneDriveResults += [PSCustomObject]@{
                 Category = "Folder"
@@ -605,7 +605,7 @@ function Invoke-FullScan {
         
         # Show first 5 errors
         $Script:SyncErrors | Select-Object -First 5 | ForEach-Object {
-            Write-Host "  [$($_.Timestamp.ToString('MM/dd HH:mm'))] $($_.ErrorType)" -ForegroundColor Yellow
+            Write-Ui -Message "  [$($_.Timestamp.ToString('MM/dd HH:mm'))] $($_.ErrorType)" -Level "WARN"
         }
         
         $Script:OneDriveResults += [PSCustomObject]@{
@@ -634,19 +634,19 @@ function Invoke-FullScan {
     # Summary
     if ($syncStatus.StatusCode -eq 4 -and $Script:SyncErrors.Count -eq 0) {
         Write-Host "  RESULT: " -NoNewline -ForegroundColor White
-        Write-Host "OneDrive is Up To Date!" -ForegroundColor Green
-        Write-Host "  All files are synced and no errors detected." -ForegroundColor Gray
+        Write-Ui -Message "OneDrive is Up To Date!" -Level "OK"
+        Write-Ui -Message "  All files are synced and no errors detected." -Level "INFO"
     } elseif ($syncStatus.StatusCode -eq 3) {
         Write-Host "  RESULT: " -NoNewline -ForegroundColor White
-        Write-Host "OneDrive is Syncing" -ForegroundColor Cyan
-        Write-Host "  Sync is in progress. Please wait for completion." -ForegroundColor Gray
+        Write-Ui -Message "OneDrive is Syncing" -Level "INFO"
+        Write-Ui -Message "  Sync is in progress. Please wait for completion." -Level "INFO"
     } elseif ($Script:SyncErrors.Count -gt 0) {
         Write-Host "  RESULT: " -NoNewline -ForegroundColor White
-        Write-Host "Sync Errors Detected" -ForegroundColor Red
-        Write-Host "  Review errors in 'View Sync Errors' menu option." -ForegroundColor Gray
+        Write-Ui -Message "Sync Errors Detected" -Level "ERROR"
+        Write-Ui -Message "  Review errors in 'View Sync Errors' menu option." -Level "INFO"
     } else {
         Write-Host "  RESULT: " -NoNewline -ForegroundColor White
-        Write-Host "$($syncStatus.Status)" -ForegroundColor Yellow
+        Write-Ui -Message "$($syncStatus.Status)" -Level "WARN"
     }
     
     Write-Host ""
@@ -675,28 +675,28 @@ function Show-QuickStatus {
     # Installation
     Write-Host "  Installation: " -NoNewline -ForegroundColor White
     if ($installed.Installed) {
-        Write-Host "Installed (v$($installed.Version))" -ForegroundColor Green
+        Write-Ui -Message "Installed (v$($installed.Version))" -Level "OK"
     } else {
-        Write-Host "NOT INSTALLED" -ForegroundColor Red
+        Write-Ui -Message "NOT INSTALLED" -Level "ERROR"
     }
     
     # Process
     Write-Host "  Process:      " -NoNewline -ForegroundColor White
     if ($process.Running) {
-        Write-Host "Running ($($process.Count) process(es))" -ForegroundColor Green
+        Write-Ui -Message "Running ($($process.Count) process(es))" -Level "OK"
     } else {
-        Write-Host "NOT RUNNING" -ForegroundColor Red
+        Write-Ui -Message "NOT RUNNING" -Level "ERROR"
     }
     
     # Accounts
     Write-Host "  Accounts:     " -NoNewline -ForegroundColor White
     if ($accounts.Count -gt 0) {
-        Write-Host "$($accounts.Count) configured" -ForegroundColor Green
+        Write-Ui -Message "$($accounts.Count) configured" -Level "OK"
         foreach ($acc in $accounts) {
-            Write-Host "                - $($acc.UserEmail) [$($acc.AccountType)]" -ForegroundColor Gray
+            Write-Ui -Message "                - $($acc.UserEmail) [$($acc.AccountType)]" -Level "INFO"
         }
     } else {
-        Write-Host "None configured" -ForegroundColor Yellow
+        Write-Ui -Message "None configured" -Level "WARN"
     }
     
     # Sync Status
@@ -717,16 +717,16 @@ function Show-QuickStatus {
     # Overall verdict
     if ($installed.Installed -and $process.Running -and $syncStatus.StatusCode -in @(3, 4)) {
         Write-Host "  VERDICT: " -NoNewline -ForegroundColor White
-        Write-Host "OneDrive is working properly" -ForegroundColor Green
+        Write-Ui -Message "OneDrive is working properly" -Level "OK"
     } elseif (-not $installed.Installed) {
         Write-Host "  VERDICT: " -NoNewline -ForegroundColor White
-        Write-Host "OneDrive needs to be installed" -ForegroundColor Red
+        Write-Ui -Message "OneDrive needs to be installed" -Level "ERROR"
     } elseif (-not $process.Running) {
         Write-Host "  VERDICT: " -NoNewline -ForegroundColor White
-        Write-Host "OneDrive needs to be started" -ForegroundColor Yellow
+        Write-Ui -Message "OneDrive needs to be started" -Level "WARN"
     } else {
         Write-Host "  VERDICT: " -NoNewline -ForegroundColor White
-        Write-Host "OneDrive may have issues - run Full Scan" -ForegroundColor Yellow
+        Write-Ui -Message "OneDrive may have issues - run Full Scan" -Level "WARN"
     }
     
     Write-Host ""
@@ -751,28 +751,28 @@ function Show-SyncErrors {
     if ($Script:SyncErrors.Count -eq 0) {
         Write-SouliTEKSuccess "No sync errors found in the last 7 days!"
         Write-Host ""
-        Write-Host "OneDrive appears to be syncing without issues." -ForegroundColor Gray
+        Write-Ui -Message "OneDrive appears to be syncing without issues." -Level "INFO"
         Write-Host ""
         Wait-SouliTEKKeyPress
         return
     }
     
     Write-Host "============================================================" -ForegroundColor Yellow
-    Write-Host "  SYNC ERRORS FOUND: $($Script:SyncErrors.Count)" -ForegroundColor Yellow
+    Write-Ui -Message "  SYNC ERRORS FOUND: $($Script:SyncErrors.Count)" -Level "WARN"
     Write-Host "============================================================" -ForegroundColor Yellow
     Write-Host ""
     
     $index = 1
     foreach ($error in $Script:SyncErrors) {
-        Write-Host "[$index] $($error.Timestamp.ToString('yyyy-MM-dd HH:mm:ss'))" -ForegroundColor Cyan
-        Write-Host "    Type: $($error.ErrorType)" -ForegroundColor Red
-        Write-Host "    Source: $($error.Source)" -ForegroundColor Gray
-        Write-Host "    Message: $($error.Message)" -ForegroundColor White
+        Write-Ui -Message "[$index] $($error.Timestamp.ToString('yyyy-MM-dd HH:mm:ss'))" -Level "INFO"
+        Write-Ui -Message "    Type: $($error.ErrorType)" -Level "ERROR"
+        Write-Ui -Message "    Source: $($error.Source)" -Level "INFO"
+        Write-Ui -Message "    Message: $($error.Message)" -Level "STEP"
         Write-Host ""
         $index++
         
         if ($index -gt 20) {
-            Write-Host "... and $($Script:SyncErrors.Count - 20) more errors" -ForegroundColor Yellow
+            Write-Ui -Message "... and $($Script:SyncErrors.Count - 20) more errors" -Level "WARN"
             break
         }
     }
@@ -780,12 +780,12 @@ function Show-SyncErrors {
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "RECOMMENDATIONS:" -ForegroundColor Cyan
-    Write-Host "  1. Check your internet connection" -ForegroundColor Gray
-    Write-Host "  2. Sign out and sign back into OneDrive" -ForegroundColor Gray
-    Write-Host "  3. Reset OneDrive: onedrive.exe /reset" -ForegroundColor Gray
-    Write-Host "  4. Check for file conflicts in OneDrive folder" -ForegroundColor Gray
-    Write-Host "  5. Verify storage quota isn't exceeded" -ForegroundColor Gray
+    Write-Ui -Message "RECOMMENDATIONS:" -Level "INFO"
+    Write-Ui -Message "  1. Check your internet connection" -Level "INFO"
+    Write-Ui -Message "  2. Sign out and sign back into OneDrive" -Level "INFO"
+    Write-Ui -Message "  3. Reset OneDrive: onedrive.exe /reset" -Level "INFO"
+    Write-Ui -Message "  4. Check for file conflicts in OneDrive folder" -Level "INFO"
+    Write-Ui -Message "  5. Verify storage quota isn't exceeded" -Level "INFO"
     Write-Host ""
     
     Wait-SouliTEKKeyPress
@@ -804,10 +804,10 @@ function Show-AccountDetails {
     if ($accounts.Count -eq 0) {
         Write-SouliTEKWarning "No OneDrive accounts configured on this system"
         Write-Host ""
-        Write-Host "To configure OneDrive:" -ForegroundColor Yellow
-        Write-Host "  1. Open OneDrive from Start Menu" -ForegroundColor Gray
-        Write-Host "  2. Sign in with your Microsoft account" -ForegroundColor Gray
-        Write-Host "  3. Choose folders to sync" -ForegroundColor Gray
+        Write-Ui -Message "To configure OneDrive:" -Level "WARN"
+        Write-Ui -Message "  1. Open OneDrive from Start Menu" -Level "INFO"
+        Write-Ui -Message "  2. Sign in with your Microsoft account" -Level "INFO"
+        Write-Ui -Message "  3. Choose folders to sync" -Level "INFO"
         Write-Host ""
         Wait-SouliTEKKeyPress
         return
@@ -817,37 +817,37 @@ function Show-AccountDetails {
     
     foreach ($account in $accounts) {
         Write-Host "============================================================" -ForegroundColor Cyan
-        Write-Host "  ACCOUNT: $($account.AccountType)" -ForegroundColor Cyan
+        Write-Ui -Message "  ACCOUNT: $($account.AccountType)" -Level "INFO"
         Write-Host "============================================================" -ForegroundColor Cyan
         Write-Host ""
         
         Write-Host "  Email:        " -NoNewline -ForegroundColor Yellow
-        Write-Host "$($account.UserEmail)" -ForegroundColor White
+        Write-Ui -Message "$($account.UserEmail)" -Level "STEP"
         
         Write-Host "  Account Name: " -NoNewline -ForegroundColor Yellow
-        Write-Host "$($account.AccountName)" -ForegroundColor White
+        Write-Ui -Message "$($account.AccountName)" -Level "STEP"
         
         Write-Host "  Folder:       " -NoNewline -ForegroundColor Yellow
-        Write-Host "$($account.UserFolder)" -ForegroundColor White
+        Write-Ui -Message "$($account.UserFolder)" -Level "STEP"
         
         if ($account.TenantId) {
             Write-Host "  Tenant ID:    " -NoNewline -ForegroundColor Yellow
-            Write-Host "$($account.TenantId)" -ForegroundColor Gray
+            Write-Ui -Message "$($account.TenantId)" -Level "INFO"
         }
         
         if ($account.LastSignInTime) {
             Write-Host "  Last Sign-In: " -NoNewline -ForegroundColor Yellow
-            Write-Host "$($account.LastSignInTime)" -ForegroundColor White
+            Write-Ui -Message "$($account.LastSignInTime)" -Level "STEP"
         }
         
         # Find folder info for this account
         $folder = $folderInfo | Where-Object { $_.AccountType -eq $account.AccountName } | Select-Object -First 1
         if ($folder) {
             Write-Host ""
-            Write-Host "  Folder Statistics:" -ForegroundColor Yellow
-            Write-Host "    Files:      $($folder.FileCount)" -ForegroundColor White
-            Write-Host "    Total Size: $($folder.TotalSizeFormatted)" -ForegroundColor White
-            Write-Host "    Modified:   $($folder.LastModified)" -ForegroundColor White
+            Write-Ui -Message "  Folder Statistics:" -Level "WARN"
+            Write-Ui -Message "    Files:      $($folder.FileCount)" -Level "STEP"
+            Write-Ui -Message "    Total Size: $($folder.TotalSizeFormatted)" -Level "STEP"
+            Write-Ui -Message "    Modified:   $($folder.LastModified)" -Level "STEP"
         }
         
         Write-Host ""
@@ -927,40 +927,40 @@ function Show-Help {
     
     Show-Header "ONEDRIVE STATUS CHECKER - HELP"
     
-    Write-Host "This tool checks OneDrive sync status by examining:" -ForegroundColor White
+    Write-Ui -Message "This tool checks OneDrive sync status by examining:" -Level "STEP"
     Write-Host ""
-    Write-Host "  1. Registry settings and account configurations" -ForegroundColor Gray
-    Write-Host "  2. OneDrive process status" -ForegroundColor Gray
-    Write-Host "  3. Sync logs for errors (last 7 days)" -ForegroundColor Gray
-    Write-Host "  4. OneDrive folder statistics" -ForegroundColor Gray
+    Write-Ui -Message "  1. Registry settings and account configurations" -Level "INFO"
+    Write-Ui -Message "  2. OneDrive process status" -Level "INFO"
+    Write-Ui -Message "  3. Sync logs for errors (last 7 days)" -Level "INFO"
+    Write-Ui -Message "  4. OneDrive folder statistics" -Level "INFO"
     Write-Host ""
-    Write-Host "Status Indicators:" -ForegroundColor Yellow
+    Write-Ui -Message "Status Indicators:" -Level "WARN"
     Write-Host "  " -NoNewline
     Write-Host "Up To Date" -ForegroundColor Green -NoNewline
-    Write-Host " - All files are synced" -ForegroundColor Gray
+    Write-Ui -Message " - All files are synced" -Level "INFO"
     Write-Host "  " -NoNewline
     Write-Host "Syncing" -ForegroundColor Cyan -NoNewline
-    Write-Host "    - Sync in progress" -ForegroundColor Gray
+    Write-Ui -Message "    - Sync in progress" -Level "INFO"
     Write-Host "  " -NoNewline
     Write-Host "Paused" -ForegroundColor Yellow -NoNewline
-    Write-Host "     - Sync is paused" -ForegroundColor Gray
+    Write-Ui -Message "     - Sync is paused" -Level "INFO"
     Write-Host "  " -NoNewline
     Write-Host "Error" -ForegroundColor Red -NoNewline
-    Write-Host "      - Sync errors detected" -ForegroundColor Gray
+    Write-Ui -Message "      - Sync errors detected" -Level "INFO"
     Write-Host ""
-    Write-Host "Common Issues:" -ForegroundColor Yellow
-    Write-Host "  - File is locked: Close the file and retry sync" -ForegroundColor Gray
-    Write-Host "  - Path too long: Shorten folder/file names" -ForegroundColor Gray
-    Write-Host "  - Quota exceeded: Free up OneDrive space" -ForegroundColor Gray
-    Write-Host "  - Sign-in required: Re-authenticate with OneDrive" -ForegroundColor Gray
+    Write-Ui -Message "Common Issues:" -Level "WARN"
+    Write-Ui -Message "  - File is locked: Close the file and retry sync" -Level "INFO"
+    Write-Ui -Message "  - Path too long: Shorten folder/file names" -Level "INFO"
+    Write-Ui -Message "  - Quota exceeded: Free up OneDrive space" -Level "INFO"
+    Write-Ui -Message "  - Sign-in required: Re-authenticate with OneDrive" -Level "INFO"
     Write-Host ""
-    Write-Host "Troubleshooting Commands:" -ForegroundColor Yellow
-    Write-Host "  Reset OneDrive:  %localappdata%\Microsoft\OneDrive\onedrive.exe /reset" -ForegroundColor Cyan
-    Write-Host "  Restart OneDrive: taskkill /f /im OneDrive.exe && start OneDrive.exe" -ForegroundColor Cyan
+    Write-Ui -Message "Troubleshooting Commands:" -Level "WARN"
+    Write-Ui -Message "  Reset OneDrive:  %localappdata%\Microsoft\OneDrive\onedrive.exe /reset" -Level "INFO"
+    Write-Ui -Message "  Restart OneDrive: taskkill /f /im OneDrive.exe && start OneDrive.exe" -Level "INFO"
     Write-Host ""
-    Write-Host "Log Locations:" -ForegroundColor Yellow
-    Write-Host "  Personal: $Script:OneDriveLogsPath\Personal" -ForegroundColor Gray
-    Write-Host "  Business: $Script:OneDriveLogsPath\Business1" -ForegroundColor Gray
+    Write-Ui -Message "Log Locations:" -Level "WARN"
+    Write-Ui -Message "  Personal: $Script:OneDriveLogsPath\Personal" -Level "INFO"
+    Write-Ui -Message "  Business: $Script:OneDriveLogsPath\Business1" -Level "INFO"
     Write-Host ""
     
     Wait-SouliTEKKeyPress
@@ -975,15 +975,15 @@ function Show-MainMenu {
     do {
         Show-Header "ONEDRIVE STATUS CHECKER"
         
-        Write-Host "Select an option:" -ForegroundColor White
+        Write-Ui -Message "Select an option:" -Level "STEP"
         Write-Host ""
-        Write-Host "  [1] Full Scan              - Complete OneDrive status check" -ForegroundColor Yellow
-        Write-Host "  [2] Quick Status           - One-line status summary" -ForegroundColor Yellow
-        Write-Host "  [3] View Sync Errors       - Show sync error details" -ForegroundColor Yellow
-        Write-Host "  [4] Account Details        - View configured accounts" -ForegroundColor Yellow
-        Write-Host "  [5] Export Results         - Export to TXT, CSV, or HTML" -ForegroundColor Yellow
-        Write-Host "  [6] Help                   - Usage guide and troubleshooting" -ForegroundColor Yellow
-        Write-Host "  [0] Exit" -ForegroundColor Red
+        Write-Ui -Message "  [1] Full Scan              - Complete OneDrive status check" -Level "WARN"
+        Write-Ui -Message "  [2] Quick Status           - One-line status summary" -Level "WARN"
+        Write-Ui -Message "  [3] View Sync Errors       - Show sync error details" -Level "WARN"
+        Write-Ui -Message "  [4] Account Details        - View configured accounts" -Level "WARN"
+        Write-Ui -Message "  [5] Export Results         - Export to TXT, CSV, or HTML" -Level "WARN"
+        Write-Ui -Message "  [6] Help                   - Usage guide and troubleshooting" -Level "WARN"
+        Write-Ui -Message "  [0] Exit" -Level "ERROR"
         Write-Host ""
         Write-Host "============================================================" -ForegroundColor DarkGray
         

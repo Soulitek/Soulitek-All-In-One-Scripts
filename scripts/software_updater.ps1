@@ -73,7 +73,7 @@ function Get-WinGetAvailability {
             try {
                 $versionOutput = winget --version 2>&1
                 if ($versionOutput) {
-                    Write-Host "  [*] WinGet Version: $versionOutput" -ForegroundColor Gray
+                    Write-Ui -Message "  [*] WinGet Version: $versionOutput" -Level "INFO"
                 }
             } catch {
                 Write-Verbose "Could not retrieve WinGet version"
@@ -83,14 +83,14 @@ function Get-WinGetAvailability {
         } else {
             Write-SouliTEKWarning "WinGet is not available on this system"
             Write-Host ""
-            Write-Host "  [!] WinGet comes pre-installed on:" -ForegroundColor Yellow
-            Write-Host "      - Windows 11 (all versions)" -ForegroundColor Gray
-            Write-Host "      - Windows 10 version 1809 and later" -ForegroundColor Gray
+            Write-Ui -Message "  [!] WinGet comes pre-installed on:" -Level "WARN"
+            Write-Ui -Message "      - Windows 11 (all versions)" -Level "INFO"
+            Write-Ui -Message "      - Windows 10 version 1809 and later" -Level "INFO"
             Write-Host ""
-            Write-Host "  [!] To install WinGet:" -ForegroundColor Yellow
-            Write-Host "      1. Open Microsoft Store" -ForegroundColor Gray
-            Write-Host "      2. Search for 'App Installer'" -ForegroundColor Gray
-            Write-Host "      3. Install or update 'App Installer'" -ForegroundColor Gray
+            Write-Ui -Message "  [!] To install WinGet:" -Level "WARN"
+            Write-Ui -Message "      1. Open Microsoft Store" -Level "INFO"
+            Write-Ui -Message "      2. Search for 'App Installer'" -Level "INFO"
+            Write-Ui -Message "      3. Install or update 'App Installer'" -Level "INFO"
             Write-Host ""
             Write-Host "  [!] Or download from: https://aka.ms/getwinget" -ForegroundColor Yellow
             Write-Host ""
@@ -117,8 +117,8 @@ function Get-AvailableUpdates {
     Write-Host ""
     
     try {
-        Write-Host "  [*] Querying WinGet for updates..." -ForegroundColor Cyan
-        Write-Host "  [*] This may take a moment..." -ForegroundColor Gray
+        Write-Ui -Message "  [*] Querying WinGet for updates..." -Level "INFO"
+        Write-Ui -Message "  [*] This may take a moment..." -Level "INFO"
         Write-Host ""
         
         $upgradeList = winget upgrade 2>&1 | Out-String
@@ -133,12 +133,12 @@ function Get-AvailableUpdates {
         
         # Display the update list
         Write-Host "  " -NoNewline
-        Write-Host "AVAILABLE UPDATES:" -ForegroundColor Cyan
+        Write-Ui -Message "AVAILABLE UPDATES:" -Level "INFO"
         Write-Host ""
         Write-Host "============================================================" -ForegroundColor Gray
         $upgradeList -split "`n" | ForEach-Object { 
             if ($_ -match "^\s*$") { return }
-            Write-Host "  $_" -ForegroundColor Gray 
+            Write-Ui -Message "  $_" -Level "INFO"
         }
         Write-Host "============================================================" -ForegroundColor Gray
         Write-Host ""
@@ -166,8 +166,8 @@ function Update-AllSoftware {
     }
     
     Write-Host ""
-    Write-Host "  [!] Starting automatic software update..." -ForegroundColor Yellow
-    Write-Host "  [!] This may take several minutes depending on the number of updates..." -ForegroundColor Yellow
+    Write-Ui -Message "  [!] Starting automatic software update..." -Level "WARN"
+    Write-Ui -Message "  [!] This may take several minutes depending on the number of updates..." -Level "WARN"
     Write-Host ""
     
     try {
@@ -181,9 +181,9 @@ function Update-AllSoftware {
             "--disable-interactivity"
         )
         
-        Write-Host "  [*] Command: winget $($wingetArgs -join ' ')" -ForegroundColor Cyan
+        Write-Ui -Message "  [*] Command: winget $($wingetArgs -join ' ')" -Level "INFO"
         Write-Host ""
-        Write-Host "  [*] Processing updates..." -ForegroundColor Cyan
+        Write-Ui -Message "  [*] Processing updates..." -Level "INFO"
         Write-Host ""
         
         # Create temp files for output
@@ -211,25 +211,25 @@ function Update-AllSoftware {
         
         if ($upgradeProcess.ExitCode -eq 0) {
             Write-SouliTEKSuccess "Software updates completed successfully!"
-            Write-Host "  [*] Duration: $($duration.Minutes) minutes, $($duration.Seconds) seconds" -ForegroundColor Gray
+            Write-Ui -Message "  [*] Duration: $($duration.Minutes) minutes, $($duration.Seconds) seconds" -Level "INFO"
         } elseif ($upgradeProcess.ExitCode -eq -1978335189) {
             Write-SouliTEKSuccess "Updates completed (some packages may have been skipped)"
-            Write-Host "  [*] Duration: $($duration.Minutes) minutes, $($duration.Seconds) seconds" -ForegroundColor Gray
-            Write-Host "  [!] Note: Exit code -1978335189 often indicates no updates or partial success" -ForegroundColor Yellow
+            Write-Ui -Message "  [*] Duration: $($duration.Minutes) minutes, $($duration.Seconds) seconds" -Level "INFO"
+            Write-Ui -Message "  [!] Note: Exit code -1978335189 often indicates no updates or partial success" -Level "WARN"
         } else {
             Write-SouliTEKWarning "Software update completed with warnings (Exit Code: $($upgradeProcess.ExitCode))"
-            Write-Host "  [*] Duration: $($duration.Minutes) minutes, $($duration.Seconds) seconds" -ForegroundColor Gray
+            Write-Ui -Message "  [*] Duration: $($duration.Minutes) minutes, $($duration.Seconds) seconds" -Level "INFO"
         }
         
         # Display output
         if ($output -and $output.Trim() -ne "") {
             Write-Host ""
             Write-Host "  " -NoNewline
-            Write-Host "UPDATE OUTPUT:" -ForegroundColor Cyan
+            Write-Ui -Message "UPDATE OUTPUT:" -Level "INFO"
             Write-Host ""
             $output -split "`n" | ForEach-Object { 
                 if ($_ -match "^\s*$") { return }
-                Write-Host "  $_" -ForegroundColor Gray 
+                Write-Ui -Message "  $_" -Level "INFO"
             }
         }
         
@@ -237,11 +237,11 @@ function Update-AllSoftware {
         if ($errors -and $errors.Trim() -ne "" -and $upgradeProcess.ExitCode -ne 0 -and $upgradeProcess.ExitCode -ne -1978335189) {
             Write-Host ""
             Write-Host "  " -NoNewline
-            Write-Host "MESSAGES:" -ForegroundColor Yellow
+            Write-Ui -Message "MESSAGES:" -Level "WARN"
             Write-Host ""
             $errors -split "`n" | ForEach-Object { 
                 if ($_ -match "^\s*$") { return }
-                Write-Host "  $_" -ForegroundColor Yellow 
+                Write-Ui -Message "  $_" -Level "WARN"
             }
         }
         
@@ -272,17 +272,17 @@ function Update-SoftwareInteractive {
     }
     
     Write-Host ""
-    Write-Host "  [!] Opening interactive WinGet upgrade interface..." -ForegroundColor Yellow
-    Write-Host "  [!] You will be able to review and approve each update..." -ForegroundColor Yellow
+    Write-Ui -Message "  [!] Opening interactive WinGet upgrade interface..." -Level "WARN"
+    Write-Ui -Message "  [!] You will be able to review and approve each update..." -Level "WARN"
     Write-Host ""
-    Write-Host "  [*] Press Enter to continue..." -ForegroundColor Cyan
+    Write-Ui -Message "  [*] Press Enter to continue..." -Level "INFO"
     Read-Host
     
     try {
         Clear-Host
         Write-Host ""
         Write-Host "============================================================" -ForegroundColor Cyan
-        Write-Host "  INTERACTIVE UPDATE MODE" -ForegroundColor Cyan
+        Write-Ui -Message "  INTERACTIVE UPDATE MODE" -Level "INFO"
         Write-Host "============================================================" -ForegroundColor Cyan
         Write-Host ""
         
@@ -296,7 +296,7 @@ function Update-SoftwareInteractive {
         Write-Host "============================================================" -ForegroundColor Cyan
         Write-Host ""
         Write-SouliTEKSuccess "Interactive update session completed"
-        Write-Host "  [*] Duration: $($duration.Minutes) minutes, $($duration.Seconds) seconds" -ForegroundColor Gray
+        Write-Ui -Message "  [*] Duration: $($duration.Minutes) minutes, $($duration.Seconds) seconds" -Level "INFO"
         
         # Save update history
         Save-UpdateHistory -Duration $duration -ExitCode 0 -Interactive
@@ -364,7 +364,7 @@ function Show-UpdateHistory {
     #>
     if (-not (Test-Path $Script:UpdateHistoryFile)) {
         Write-SouliTEKWarning "No update history found"
-        Write-Host "  [!] Run an update first to create history" -ForegroundColor Yellow
+        Write-Ui -Message "  [!] Run an update first to create history" -Level "WARN"
         return
     }
     
@@ -373,7 +373,7 @@ function Show-UpdateHistory {
         
         Show-SouliTEKHeader -Title "UPDATE HISTORY" -ClearHost -ShowBanner
         
-        Write-Host "  Showing last $($history.Count) update(s):" -ForegroundColor Yellow
+        Write-Ui -Message "  Showing last $($history.Count) update(s):" -Level "WARN"
         Write-Host ""
         
         $count = 0
@@ -383,19 +383,19 @@ function Show-UpdateHistory {
             $statusColor = if ($entry.Success) { "Green" } else { "Red" }
             $statusText = if ($entry.Success) { "[OK] Success" } else { "[X] Failed" }
             
-            Write-Host "  [$count] $($entry.Timestamp)" -ForegroundColor Cyan
-            Write-Host "      Mode:     $($entry.Mode)" -ForegroundColor Gray
-            Write-Host "      Duration: $($entry.Duration)" -ForegroundColor Gray
+            Write-Ui -Message "  [$count] $($entry.Timestamp)" -Level "INFO"
+            Write-Ui -Message "      Mode:     $($entry.Mode)" -Level "INFO"
+            Write-Ui -Message "      Duration: $($entry.Duration)" -Level "INFO"
             Write-Host "      Status:   " -NoNewline -ForegroundColor Gray
             Write-Host "$statusText" -ForegroundColor $statusColor
             if ($entry.ExitCode -ne 0 -and $entry.ExitCode -ne -1978335189) {
-                Write-Host "      Exit Code: $($entry.ExitCode)" -ForegroundColor Yellow
+                Write-Ui -Message "      Exit Code: $($entry.ExitCode)" -Level "WARN"
             }
             Write-Host ""
         }
         
         if ($history.Count -gt 20) {
-            Write-Host "  [!] Showing last 20 of $($history.Count) total updates" -ForegroundColor Gray
+            Write-Ui -Message "  [!] Showing last 20 of $($history.Count) total updates" -Level "INFO"
             Write-Host ""
         }
     }
@@ -487,24 +487,24 @@ function Show-Menu {
     #>
     Show-SouliTEKHeader -Title "SOFTWARE UPDATER" -ClearHost -ShowBanner
     
-    Write-Host "  Select an option:" -ForegroundColor Yellow
+    Write-Ui -Message "  Select an option:" -Level "WARN"
     Write-Host ""
-    Write-Host "  [1] Check for Available Updates" -ForegroundColor Cyan
-    Write-Host "      -> List all software that has updates available" -ForegroundColor Gray
+    Write-Ui -Message "  [1] Check for Available Updates" -Level "INFO"
+    Write-Ui -Message "      -> List all software that has updates available" -Level "INFO"
     Write-Host ""
-    Write-Host "  [2] Update All Software (Automatic)" -ForegroundColor Cyan
-    Write-Host "      -> Silently update all software without prompts" -ForegroundColor Gray
+    Write-Ui -Message "  [2] Update All Software (Automatic)" -Level "INFO"
+    Write-Ui -Message "      -> Silently update all software without prompts" -Level "INFO"
     Write-Host ""
-    Write-Host "  [3] Update Software (Interactive)" -ForegroundColor Cyan
-    Write-Host "      -> Review and approve each update individually" -ForegroundColor Gray
+    Write-Ui -Message "  [3] Update Software (Interactive)" -Level "INFO"
+    Write-Ui -Message "      -> Review and approve each update individually" -Level "INFO"
     Write-Host ""
-    Write-Host "  [4] View Update History" -ForegroundColor Cyan
-    Write-Host "      -> Display history of previous updates" -ForegroundColor Gray
+    Write-Ui -Message "  [4] View Update History" -Level "INFO"
+    Write-Ui -Message "      -> Display history of previous updates" -Level "INFO"
     Write-Host ""
-    Write-Host "  [5] Export Update Report" -ForegroundColor Cyan
-    Write-Host "      -> Generate detailed report and save to Desktop" -ForegroundColor Gray
+    Write-Ui -Message "  [5] Export Update Report" -Level "INFO"
+    Write-Ui -Message "      -> Generate detailed report and save to Desktop" -Level "INFO"
     Write-Host ""
-    Write-Host "  [0] Exit" -ForegroundColor Red
+    Write-Ui -Message "  [0] Exit" -Level "ERROR"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -545,8 +545,8 @@ function Main {
                 $updates = Get-AvailableUpdates
                 
                 if ($null -ne $updates) {
-                    Write-Host "  [*] Updates are available for installation" -ForegroundColor Cyan
-                    Write-Host "  [*] Use Option 2 for automatic update or Option 3 for interactive" -ForegroundColor Cyan
+                    Write-Ui -Message "  [*] Updates are available for installation" -Level "INFO"
+                    Write-Ui -Message "  [*] Use Option 2 for automatic update or Option 3 for interactive" -Level "INFO"
                 }
                 
                 Write-Host ""
@@ -557,9 +557,9 @@ function Main {
                 # Update All Software (Automatic)
                 Show-SouliTEKHeader -Title "AUTOMATIC SOFTWARE UPDATE" -ClearHost -ShowBanner
                 
-                Write-Host "  [!] This will automatically update all software on your system" -ForegroundColor Yellow
-                Write-Host "  [!] The process will run silently without prompts" -ForegroundColor Yellow
-                Write-Host "  [!] This may take several minutes depending on the number of updates" -ForegroundColor Yellow
+                Write-Ui -Message "  [!] This will automatically update all software on your system" -Level "WARN"
+                Write-Ui -Message "  [!] The process will run silently without prompts" -Level "WARN"
+                Write-Ui -Message "  [!] This may take several minutes depending on the number of updates" -Level "WARN"
                 Write-Host ""
                 
                 $confirm = Read-Host "Continue with automatic update? (Y/N)"
@@ -578,9 +578,9 @@ function Main {
                 # Update Software (Interactive)
                 Show-SouliTEKHeader -Title "INTERACTIVE SOFTWARE UPDATE" -ClearHost -ShowBanner
                 
-                Write-Host "  [!] This will open an interactive update interface" -ForegroundColor Yellow
-                Write-Host "  [!] You can review and approve each update individually" -ForegroundColor Yellow
-                Write-Host "  [!] Press Enter to continue or type 'cancel' to go back..." -ForegroundColor Yellow
+                Write-Ui -Message "  [!] This will open an interactive update interface" -Level "WARN"
+                Write-Ui -Message "  [!] You can review and approve each update individually" -Level "WARN"
+                Write-Ui -Message "  [!] Press Enter to continue or type 'cancel' to go back..." -Level "WARN"
                 Write-Host ""
                 
                 $confirm = Read-Host "Continue"
@@ -616,7 +616,7 @@ function Main {
             "0" {
                 # Exit
                 Write-Host ""
-                Write-Host "  Exiting..." -ForegroundColor Yellow
+                Write-Ui -Message "  Exiting..." -Level "WARN"
                 
                 Start-Sleep -Seconds 1
                 exit

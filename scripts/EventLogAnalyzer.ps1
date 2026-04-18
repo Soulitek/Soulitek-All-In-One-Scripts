@@ -728,7 +728,7 @@ function Export-AnalysisResults {
                         $logExport | ConvertTo-Json -Depth 10 -ErrorAction Stop | Set-Content -Path $jsonPath -Encoding UTF8 -ErrorAction Stop
                         $exportedFiles += $jsonPath
                         Write-Verbose "Exported JSON for $($log.LogName) to: $jsonPath"
-                        Write-Host "  [EXPORTED] JSON ($($log.LogName)): $jsonPath" -ForegroundColor Green
+                        Write-Ui -Message "  [EXPORTED] JSON ($($log.LogName)): $jsonPath" -Level "OK"
                     }
                 }
             }
@@ -739,7 +739,7 @@ function Export-AnalysisResults {
                     $Results | ConvertTo-Json -Depth 10 -ErrorAction Stop | Set-Content -Path $jsonPath -Encoding UTF8 -ErrorAction Stop
                     $exportedFiles += $jsonPath
                     Write-Verbose "Exported JSON to: $jsonPath"
-                    Write-Host "  [EXPORTED] JSON: $jsonPath" -ForegroundColor Green
+                    Write-Ui -Message "  [EXPORTED] JSON: $jsonPath" -Level "OK"
                 }
             }
         }
@@ -769,7 +769,7 @@ function Export-AnalysisResults {
                         @($csvData) | Export-Csv -Path $csvPath -NoTypeInformation -Encoding UTF8 -ErrorAction Stop
                         $exportedFiles += $csvPath
                         Write-Verbose "Exported CSV for $($log.LogName) to: $csvPath"
-                        Write-Host "  [EXPORTED] CSV ($($log.LogName)): $csvPath" -ForegroundColor Green
+                        Write-Ui -Message "  [EXPORTED] CSV ($($log.LogName)): $csvPath" -Level "OK"
                     }
                 }
             }
@@ -795,7 +795,7 @@ function Export-AnalysisResults {
                     $csvData | Export-Csv -Path $csvPath -NoTypeInformation -Encoding UTF8 -ErrorAction Stop
                     $exportedFiles += $csvPath
                     Write-Verbose "Exported CSV to: $csvPath"
-                    Write-Host "  [EXPORTED] CSV: $csvPath" -ForegroundColor Green
+                    Write-Ui -Message "  [EXPORTED] CSV: $csvPath" -Level "OK"
                 }
             }
             
@@ -823,7 +823,7 @@ function Export-AnalysisResults {
                         $allEvents | Export-Csv -Path $csvEventsPath -NoTypeInformation -Encoding UTF8 -ErrorAction Stop
                         $exportedFiles += $csvEventsPath
                         Write-Verbose "Exported detailed events CSV (flat) to: $csvEventsPath"
-                        Write-Host "  [EXPORTED] Events CSV (Flat): $csvEventsPath" -ForegroundColor Green
+                        Write-Ui -Message "  [EXPORTED] Events CSV (Flat): $csvEventsPath" -Level "OK"
                     }
                     catch {
                         Write-Error "Failed to export events CSV: $_"
@@ -844,7 +844,7 @@ function Export-AnalysisResults {
                 $clixmlFile = Export-EventLogClixml -Results $Results -ExportPath $clixmlPath
                 if ($clixmlFile) {
                     $exportedFiles += $clixmlFile
-                    Write-Host "  [EXPORTED] CLIXML Archive: $clixmlFile" -ForegroundColor Green
+                    Write-Ui -Message "  [EXPORTED] CLIXML Archive: $clixmlFile" -Level "OK"
                 }
             }
             catch {
@@ -861,7 +861,7 @@ function Export-AnalysisResults {
                 $html | Set-Content -Path $htmlPath -Encoding UTF8 -ErrorAction Stop
                 $exportedFiles += $htmlPath
                 Write-Verbose "Exported HTML to: $htmlPath"
-                Write-Host "  [EXPORTED] HTML: $htmlPath" -ForegroundColor Green
+                Write-Ui -Message "  [EXPORTED] HTML: $htmlPath" -Level "OK"
             }
         }
         
@@ -1122,18 +1122,18 @@ function Show-ExportMenu {
     
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  EXPORT RESULTS" -ForegroundColor Cyan
+    Write-Ui -Message "  EXPORT RESULTS" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "Select export format:" -ForegroundColor White
+    Write-Ui -Message "Select export format:" -Level "STEP"
     Write-Host ""
-    Write-Host "  [1] JSON          - Structured data for programmatic use" -ForegroundColor Yellow
-    Write-Host "  [2] CSV           - Spreadsheet format (flat, Excel-compatible)" -ForegroundColor Yellow
-    Write-Host "  [3] HTML          - Professional web report with styling" -ForegroundColor Yellow
-    Write-Host "  [4] CLIXML        - PowerShell native format for third-party analysis" -ForegroundColor Yellow
-    Write-Host "  [5] Both (JSON + CSV)" -ForegroundColor Cyan
-    Write-Host "  [6] All Formats   - Export everything" -ForegroundColor Cyan
-    Write-Host "  [0] Skip Export   - Don't export, just view summary" -ForegroundColor Red
+    Write-Ui -Message "  [1] JSON          - Structured data for programmatic use" -Level "WARN"
+    Write-Ui -Message "  [2] CSV           - Spreadsheet format (flat, Excel-compatible)" -Level "WARN"
+    Write-Ui -Message "  [3] HTML          - Professional web report with styling" -Level "WARN"
+    Write-Ui -Message "  [4] CLIXML        - PowerShell native format for third-party analysis" -Level "WARN"
+    Write-Ui -Message "  [5] Both (JSON + CSV)" -Level "INFO"
+    Write-Ui -Message "  [6] All Formats   - Export everything" -Level "INFO"
+    Write-Ui -Message "  [0] Skip Export   - Don't export, just view summary" -Level "ERROR"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -1149,7 +1149,7 @@ function Show-ExportMenu {
         "6" { return "All" }
         "0" { return "CANCEL" }
         default {
-            Write-Host "Invalid choice. Export cancelled." -ForegroundColor Red
+            Write-Ui -Message "Invalid choice. Export cancelled." -Level "ERROR"
             return "CANCEL"
         }
     }
@@ -1168,14 +1168,14 @@ function Show-ComparisonResults {
     
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  BASELINE COMPARISON" -ForegroundColor Cyan
+    Write-Ui -Message "  BASELINE COMPARISON" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  Current Analysis: $($Comparison.CurrentDate)" -ForegroundColor White
-    Write-Host "  Baseline Analysis: $($Comparison.BaselineDate)" -ForegroundColor White
+    Write-Ui -Message "  Current Analysis: $($Comparison.CurrentDate)" -Level "STEP"
+    Write-Ui -Message "  Baseline Analysis: $($Comparison.BaselineDate)" -Level "STEP"
     Write-Host ""
     
     foreach ($change in $Comparison.Changes) {
-        Write-Host "  [$($change.LogName)]" -ForegroundColor Yellow
+        Write-Ui -Message "  [$($change.LogName)]" -Level "WARN"
         
         if ($change.ErrorCountChange -ne 0) {
             $color = if ($change.ErrorCountChange -gt 0) { 'Red' } else { 'Green' }
@@ -1197,7 +1197,7 @@ function Show-ComparisonResults {
         
         if ($change.TotalEventsChange -ne 0) {
             $sign = if ($change.TotalEventsChange -gt 0) { '+' } else { '' }
-            Write-Host "    Total Events: $sign$($change.TotalEventsChange)" -ForegroundColor Gray
+            Write-Ui -Message "    Total Events: $sign$($change.TotalEventsChange)" -Level "INFO"
         }
         
         Write-Host ""
@@ -1427,15 +1427,15 @@ function Register-EventLogScheduledTask {
             
             Write-Host ""
             Write-Host "========================================" -ForegroundColor Green
-            Write-Host "  SUCCESS!" -ForegroundColor Green
+            Write-Ui -Message "  SUCCESS!" -Level "OK"
             Write-Host "========================================" -ForegroundColor Green
             Write-Host ""
-            Write-Host "Scheduled task created successfully." -ForegroundColor White
-            Write-Host "Task Name: $taskName" -ForegroundColor Gray
-            Write-Host "Schedule: $TaskSchedule at $TaskTime" -ForegroundColor Gray
+            Write-Ui -Message "Scheduled task created successfully." -Level "STEP"
+            Write-Ui -Message "Task Name: $taskName" -Level "INFO"
+            Write-Ui -Message "Schedule: $TaskSchedule at $TaskTime" -Level "INFO"
             Write-Host ""
-            Write-Host "The event log analyzer will run automatically." -ForegroundColor White
-            Write-Host "Reports will be saved to: $ExportPath" -ForegroundColor Gray
+            Write-Ui -Message "The event log analyzer will run automatically." -Level "STEP"
+            Write-Ui -Message "Reports will be saved to: $ExportPath" -Level "INFO"
             Write-Host ""
             return $true
         }
@@ -1445,11 +1445,11 @@ function Register-EventLogScheduledTask {
     catch {
         Write-Host ""
         Write-Host "========================================" -ForegroundColor Red
-        Write-Host "  ERROR" -ForegroundColor Red
+        Write-Ui -Message "  ERROR" -Level "ERROR"
         Write-Host "========================================" -ForegroundColor Red
         Write-Host ""
-        Write-Host "Failed to create scheduled task." -ForegroundColor Yellow
-        Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Ui -Message "Failed to create scheduled task." -Level "WARN"
+        Write-Ui -Message "Error: $($_.Exception.Message)" -Level "ERROR"
         Write-Host ""
         Write-Error "Failed to register scheduled task: $_"
         return $false
@@ -1469,51 +1469,51 @@ function Show-AnalysisSummary {
     
     Show-SouliTEKBanner
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  EVENT LOG ANALYSIS SUMMARY" -ForegroundColor Cyan
+    Write-Ui -Message "  EVENT LOG ANALYSIS SUMMARY" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "  Analysis Period: $($Results.StartTime) to $($Results.EndTime)" -ForegroundColor White
-    Write-Host "  Total Logs Analyzed: $($Results.LogAnalysis.Count)" -ForegroundColor White
+    Write-Ui -Message "  Analysis Period: $($Results.StartTime) to $($Results.EndTime)" -Level "STEP"
+    Write-Ui -Message "  Total Logs Analyzed: $($Results.LogAnalysis.Count)" -Level "STEP"
     Write-Host ""
     
     foreach ($log in $Results.LogAnalysis) {
-        Write-Host "  [$($log.LogName)]" -ForegroundColor Yellow
-        Write-Host "    Total Events: $($log.TotalEvents)" -ForegroundColor Gray
+        Write-Ui -Message "  [$($log.LogName)]" -Level "WARN"
+        Write-Ui -Message "    Total Events: $($log.TotalEvents)" -Level "INFO"
         
         if ($log.CriticalCount -gt 0) {
-            Write-Host "    Critical: $($log.CriticalCount)" -ForegroundColor Magenta
+            Write-Ui -Message "    Critical: $($log.CriticalCount)" -Level "INFO"
         }
         
         if ($log.ErrorCount -gt 0) {
-            Write-Host "    Errors: $($log.ErrorCount)" -ForegroundColor Red
+            Write-Ui -Message "    Errors: $($log.ErrorCount)" -Level "ERROR"
         }
         else {
-            Write-Host "    Errors: 0" -ForegroundColor Green
+            Write-Ui -Message "    Errors: 0" -Level "OK"
         }
         
         if ($log.WarningCount -gt 0) {
-            Write-Host "    Warnings: $($log.WarningCount)" -ForegroundColor Yellow
+            Write-Ui -Message "    Warnings: $($log.WarningCount)" -Level "WARN"
         }
         else {
-            Write-Host "    Warnings: 0" -ForegroundColor Green
+            Write-Ui -Message "    Warnings: 0" -Level "OK"
         }
         
         if ($log.InformationCount -gt 0) {
-            Write-Host "    Information: $($log.InformationCount)" -ForegroundColor Cyan
+            Write-Ui -Message "    Information: $($log.InformationCount)" -Level "INFO"
         }
         
         if ($log.AuditSuccessCount -gt 0) {
-            Write-Host "    Audit Success: $($log.AuditSuccessCount)" -ForegroundColor Green
+            Write-Ui -Message "    Audit Success: $($log.AuditSuccessCount)" -Level "OK"
         }
         
         if ($log.AuditFailureCount -gt 0) {
-            Write-Host "    Audit Failure: $($log.AuditFailureCount)" -ForegroundColor Red
+            Write-Ui -Message "    Audit Failure: $($log.AuditFailureCount)" -Level "ERROR"
         }
         
         if ($log.TopEventIDs -and $log.TopEventIDs.Count -gt 0) {
-            Write-Host "    Top Event IDs:" -ForegroundColor Gray
+            Write-Ui -Message "    Top Event IDs:" -Level "INFO"
             $log.TopEventIDs | Select-Object -First 5 | ForEach-Object {
-                Write-Host "      - Event $($_.EventID): $($_.Count) occurrences" -ForegroundColor DarkGray
+                Write-Ui -Message "      - Event $($_.EventID): $($_.Count) occurrences" -Level "INFO"
             }
         }
         
@@ -1527,18 +1527,18 @@ function Show-AnalysisSummary {
     $totalAuditFailure = ($Results.LogAnalysis | Measure-Object -Property AuditFailureCount -Sum).Sum
     
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  TOTALS ACROSS ALL LOGS" -ForegroundColor Cyan
+    Write-Ui -Message "  TOTALS ACROSS ALL LOGS" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     if ($totalCritical -gt 0) {
-        Write-Host "  Total Critical: $totalCritical" -ForegroundColor Magenta
+        Write-Ui -Message "  Total Critical: $totalCritical" -Level "INFO"
     }
     Write-Host "  Total Errors: $totalErrors" -ForegroundColor $(if ($totalErrors -gt 0) { 'Red' } else { 'Green' })
     Write-Host "  Total Warnings: $totalWarnings" -ForegroundColor $(if ($totalWarnings -gt 0) { 'Yellow' } else { 'Green' })
     if ($totalAuditSuccess -gt 0) {
-        Write-Host "  Total Audit Success: $totalAuditSuccess" -ForegroundColor Green
+        Write-Ui -Message "  Total Audit Success: $totalAuditSuccess" -Level "OK"
     }
     if ($totalAuditFailure -gt 0) {
-        Write-Host "  Total Audit Failure: $totalAuditFailure" -ForegroundColor Red
+        Write-Ui -Message "  Total Audit Failure: $totalAuditFailure" -Level "ERROR"
     }
     
     # Display statistics if available
@@ -1546,18 +1546,18 @@ function Show-AnalysisSummary {
         $stats = $Results.Statistics
         Write-Host ""
         Write-Host "============================================================" -ForegroundColor Cyan
-        Write-Host "  STATISTICAL ANALYSIS" -ForegroundColor Cyan
+        Write-Ui -Message "  STATISTICAL ANALYSIS" -Level "INFO"
         Write-Host "============================================================" -ForegroundColor Cyan
         Write-Host "  Error Percentage: $($stats.ErrorPercentage)%" -ForegroundColor $(if ($stats.ErrorPercentage -gt 10) { 'Red' } elseif ($stats.ErrorPercentage -gt 5) { 'Yellow' } else { 'Green' })
-        Write-Host "  Mean Event Count: $($stats.MeanEventCount)" -ForegroundColor White
-        Write-Host "  Std Dev Event Count: $($stats.StdDevEventCount)" -ForegroundColor White
+        Write-Ui -Message "  Mean Event Count: $($stats.MeanEventCount)" -Level "STEP"
+        Write-Ui -Message "  Std Dev Event Count: $($stats.StdDevEventCount)" -Level "STEP"
         
         if ($stats.MostCommonErrorEventID) {
-            Write-Host "  Most Common Error Event ID: $($stats.MostCommonErrorEventID.EventID) ($($stats.MostCommonErrorEventID.Count) occurrences)" -ForegroundColor Yellow
+            Write-Ui -Message "  Most Common Error Event ID: $($stats.MostCommonErrorEventID.EventID) ($($stats.MostCommonErrorEventID.Count) occurrences)" -Level "WARN"
         }
         
         if ($stats.MostCommonErrorProvider) {
-            Write-Host "  Most Common Error Provider: $($stats.MostCommonErrorProvider.Provider) ($($stats.MostCommonErrorProvider.Count) occurrences)" -ForegroundColor Yellow
+            Write-Ui -Message "  Most Common Error Provider: $($stats.MostCommonErrorProvider.Provider) ($($stats.MostCommonErrorProvider.Count) occurrences)" -Level "WARN"
         }
     }
     
@@ -1600,13 +1600,13 @@ function Invoke-MainAnalysis {
         $estimatedLoad = $LogNames.Count * $MaxEvents
         if ($estimatedLoad -gt 30000 -and -not $Force) {
             Write-Host ""
-            Write-Host "WARNING: This query may retrieve up to $estimatedLoad events." -ForegroundColor Yellow
-            Write-Host "This could take several minutes and consume significant memory." -ForegroundColor Yellow
+            Write-Ui -Message "WARNING: This query may retrieve up to $estimatedLoad events." -Level "WARN"
+            Write-Ui -Message "This could take several minutes and consume significant memory." -Level "WARN"
             Write-Host ""
             $confirm = Read-Host "Continue? (Y/N)"
             
             if ($confirm -ne 'Y' -and $confirm -ne 'y') {
-                Write-Host "Analysis cancelled by user." -ForegroundColor Yellow
+                Write-Ui -Message "Analysis cancelled by user." -Level "WARN"
                 Write-Verbose "Analysis cancelled by user (large query confirmation)"
                 return
             }
@@ -1615,12 +1615,12 @@ function Invoke-MainAnalysis {
         # Display header
         Write-Host ""
         Write-Host "============================================================" -ForegroundColor Cyan
-        Write-Host "  EventLogAnalyzer v$script:ScriptVersion - SouliTEK" -ForegroundColor Cyan
+        Write-Ui -Message "  EventLogAnalyzer v$script:ScriptVersion - SouliTEK" -Level "INFO"
         Write-Host "============================================================" -ForegroundColor Cyan
         Write-Host ""
-        Write-Host "  Analyzing logs: $($LogNames -join ', ')" -ForegroundColor White
-        Write-Host "  Time range: Last $Hours hours" -ForegroundColor White
-        Write-Host "  Include: $($entryTypes -join ', ')" -ForegroundColor White
+        Write-Ui -Message "  Analyzing logs: $($LogNames -join ', ')" -Level "STEP"
+        Write-Ui -Message "  Time range: Last $Hours hours" -Level "STEP"
+        Write-Ui -Message "  Include: $($entryTypes -join ', ')" -Level "STEP"
         Write-Host ""
         
         # Analyze each log
@@ -1632,16 +1632,16 @@ function Invoke-MainAnalysis {
             $percentComplete = [math]::Round(($logCount / $LogNames.Count) * 100)
             
             Write-Progress -Activity "Event Log Analysis" -Status "Processing $logName ($logCount of $($LogNames.Count))" -PercentComplete $percentComplete
-            Write-Host "  [Processing] $logName..." -ForegroundColor Cyan
+            Write-Ui -Message "  [Processing] $logName..." -Level "INFO"
             
             $analysis = Get-EventLogAnalysis -LogName $logName -StartTime $StartTime -EndTime $EndTime -EntryTypes $entryTypes -MaxEvents $MaxEvents -EventIDs $EventIDs -Sources $Sources -MessageFilter $MessageFilter -IncludeAuditSuccess $IncludeAuditSuccess.IsPresent -IncludeAuditFailure $IncludeAuditFailure.IsPresent -IncludeCritical $IncludeCritical -MachineName $MachineName
             
             if ($analysis) {
                 $logResults += $analysis
-                Write-Host "    [OK] Found $($analysis.TotalEvents) events" -ForegroundColor Green
+                Write-Ui -Message "    [OK] Found $($analysis.TotalEvents) events" -Level "OK"
             }
             else {
-                Write-Host "    [SKIP] No events or error occurred" -ForegroundColor Yellow
+                Write-Ui -Message "    [SKIP] No events or error occurred" -Level "WARN"
             }
         }
         
@@ -1680,7 +1680,7 @@ function Invoke-MainAnalysis {
         
         # Comparison with baseline if specified
         if ($CompareWithBaseline -and (Test-Path $CompareWithBaseline)) {
-            Write-Host "  [Comparing] With baseline: $CompareWithBaseline" -ForegroundColor Cyan
+            Write-Ui -Message "  [Comparing] With baseline: $CompareWithBaseline" -Level "INFO"
             try {
                 $baseline = Get-Content $CompareWithBaseline -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
                 $comparison = Compare-AnalysisResults -Current $finalResults -Baseline $baseline
@@ -1694,14 +1694,14 @@ function Invoke-MainAnalysis {
         # Export results - prompt user unless AutoRun mode or ExportFormat explicitly provided
         if ($AutoRun -or $PSBoundParameters.ContainsKey('ExportFormat')) {
             # Automatic export for scheduled tasks or when format is explicitly specified
-            Write-Host "  [Exporting] Results to $ExportPath..." -ForegroundColor Cyan
+            Write-Ui -Message "  [Exporting] Results to $ExportPath..." -Level "INFO"
             $clixmlPath = if ($ClixmlArchivePath) { $ClixmlArchivePath } else { Join-Path $ExportPath "Archives" }
             $exportResult = Export-AnalysisResults -Results $finalResults -ExportPath $ExportPath -Format $ExportFormat -ExportIndividualLogs:$ExportIndividualLogs.IsPresent -ClixmlArchivePath $clixmlPath
             
             if ($exportResult.Success) {
                 Write-Host ""
-                Write-Host "  [SUCCESS] Analysis complete!" -ForegroundColor Green
-                Write-Host "  Transcript: $script:TranscriptPath" -ForegroundColor Gray
+                Write-Ui -Message "  [SUCCESS] Analysis complete!" -Level "OK"
+                Write-Ui -Message "  Transcript: $script:TranscriptPath" -Level "INFO"
                 Write-Host ""
             }
         }
@@ -1709,20 +1709,20 @@ function Invoke-MainAnalysis {
             # Interactive export menu - ask user which format to export
             $exportChoice = Show-ExportMenu
             if ($exportChoice -ne 'CANCEL') {
-                Write-Host "  [Exporting] Results to $ExportPath..." -ForegroundColor Cyan
+                Write-Ui -Message "  [Exporting] Results to $ExportPath..." -Level "INFO"
                 $clixmlPath = if ($ClixmlArchivePath) { $ClixmlArchivePath } else { Join-Path $ExportPath "Archives" }
                 $exportResult = Export-AnalysisResults -Results $finalResults -ExportPath $ExportPath -Format $exportChoice -ExportIndividualLogs:$ExportIndividualLogs.IsPresent -ClixmlArchivePath $clixmlPath
                 
                 if ($exportResult.Success) {
                     Write-Host ""
-                    Write-Host "  [SUCCESS] Export complete!" -ForegroundColor Green
-                    Write-Host "  Transcript: $script:TranscriptPath" -ForegroundColor Gray
+                    Write-Ui -Message "  [SUCCESS] Export complete!" -Level "OK"
+                    Write-Ui -Message "  Transcript: $script:TranscriptPath" -Level "INFO"
                     Write-Host ""
                 }
             }
             else {
                 Write-Host ""
-                Write-Host "  Export cancelled." -ForegroundColor Yellow
+                Write-Ui -Message "  Export cancelled." -Level "WARN"
                 Write-Host ""
             }
         }
@@ -1743,12 +1743,12 @@ function Invoke-MainAnalysis {
     catch {
         Write-Error "Fatal error in main analysis: $_"
         Write-Host ""
-        Write-Host "TROUBLESHOOTING:" -ForegroundColor Yellow
-        Write-Host "  - Ensure you have Administrator privileges" -ForegroundColor Gray
-        Write-Host "  - Verify event log names are correct" -ForegroundColor Gray
-        Write-Host "  - Check available disk space in $env:TEMP" -ForegroundColor Gray
+        Write-Ui -Message "TROUBLESHOOTING:" -Level "WARN"
+        Write-Ui -Message "  - Ensure you have Administrator privileges" -Level "INFO"
+        Write-Ui -Message "  - Verify event log names are correct" -Level "INFO"
+        Write-Ui -Message "  - Check available disk space in $env:TEMP" -Level "INFO"
         if ($script:TranscriptPath) {
-            Write-Host "  - Review transcript: $script:TranscriptPath" -ForegroundColor Gray
+            Write-Ui -Message "  - Review transcript: $script:TranscriptPath" -Level "INFO"
         }
         Write-Host ""
         
@@ -1771,18 +1771,18 @@ function Invoke-MainAnalysis {
 if (-not (Test-SouliTEKAdministrator)) {
     Write-Host ""
     Write-Host "========================================" -ForegroundColor Red
-    Write-Host "  ERROR: Administrator Privileges Required" -ForegroundColor Red
+    Write-Ui -Message "  ERROR: Administrator Privileges Required" -Level "ERROR"
     Write-Host "========================================" -ForegroundColor Red
     Write-Host ""
-    Write-Host "This script requires Administrator privileges to access Windows Event Logs." -ForegroundColor Yellow
+    Write-Ui -Message "This script requires Administrator privileges to access Windows Event Logs." -Level "WARN"
     Write-Host ""
-    Write-Host "To run this script as Administrator:" -ForegroundColor White
-    Write-Host "  1. Right-click PowerShell and select 'Run as Administrator'" -ForegroundColor Gray
-    Write-Host "  2. Navigate to the script directory" -ForegroundColor Gray
-    Write-Host "  3. Run: .\EventLogAnalyzer.ps1" -ForegroundColor Gray
+    Write-Ui -Message "To run this script as Administrator:" -Level "STEP"
+    Write-Ui -Message "  1. Right-click PowerShell and select 'Run as Administrator'" -Level "INFO"
+    Write-Ui -Message "  2. Navigate to the script directory" -Level "INFO"
+    Write-Ui -Message "  3. Run: .\EventLogAnalyzer.ps1" -Level "INFO"
     Write-Host ""
-    Write-Host "OR run this command:" -ForegroundColor White
-    Write-Host "  Start-Process powershell -Verb RunAs -ArgumentList `"-File '$PSCommandPath'`"" -ForegroundColor Cyan
+    Write-Ui -Message "OR run this command:" -Level "STEP"
+    Write-Ui -Message "  Start-Process powershell -Verb RunAs -ArgumentList `"-File '$PSCommandPath'`"" -Level "INFO"
     Write-Host ""
     Write-Host "========================================" -ForegroundColor Red
     Write-Host ""
@@ -1797,20 +1797,20 @@ if (-not (Test-SouliTEKAdministrator)) {
 if ($RunExamples) {
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Green
-    Write-Host "  RUNNING EXAMPLES" -ForegroundColor Green
+    Write-Ui -Message "  RUNNING EXAMPLES" -Level "OK"
     Write-Host "============================================================" -ForegroundColor Green
     Write-Host ""
     
-    Write-Host "Example 1: Analyze Application log for last 1 hour (Errors only)" -ForegroundColor Cyan
+    Write-Ui -Message "Example 1: Analyze Application log for last 1 hour (Errors only)" -Level "INFO"
     & $PSCommandPath -LogNames "Application" -Hours 1 -IncludeWarnings $false -ExportFormat JSON -Force -Verbose
     
     Write-Host ""
-    Write-Host "Example 2: Analyze System log for last 6 hours (Errors + Warnings)" -ForegroundColor Cyan
+    Write-Ui -Message "Example 2: Analyze System log for last 6 hours (Errors + Warnings)" -Level "INFO"
     & $PSCommandPath -LogNames "System" -Hours 6 -IncludeWarnings $true -ExportFormat CSV -Force -Verbose
     
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Green
-    Write-Host "  EXAMPLES COMPLETED" -ForegroundColor Green
+    Write-Ui -Message "  EXAMPLES COMPLETED" -Level "OK"
     Write-Host "============================================================" -ForegroundColor Green
     Write-Host ""
     
@@ -1828,25 +1828,25 @@ function Show-ReportMenu {
     Clear-Host
     Show-SouliTEKBanner
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  EVENT LOG ANALYZER - REPORT OPTIONS" -ForegroundColor Cyan
+    Write-Ui -Message "  EVENT LOG ANALYZER - REPORT OPTIONS" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "Select a predefined report:" -ForegroundColor White
+    Write-Ui -Message "Select a predefined report:" -Level "STEP"
     Write-Host ""
-    Write-Host "  [1] PC Crash Events (Last 7 Days)     - System crashes, blue screens, critical errors" -ForegroundColor Yellow
-    Write-Host "  [2] Memory Issues (Last 3 Days)        - Memory leaks, out of memory errors" -ForegroundColor Yellow
-    Write-Host "  [3] Security Audit (Last 24 Hours)     - Failed logins, audit failures" -ForegroundColor Yellow
-    Write-Host "  [4] Application Errors (Last 7 Days)    - Application crashes and errors" -ForegroundColor Yellow
-    Write-Host "  [5] System Warnings (Last 3 Days)      - System warnings and issues" -ForegroundColor Yellow
-    Write-Host "  [6] Login Events (Last 7 Days)         - Successful and failed login attempts" -ForegroundColor Yellow
-    Write-Host "  [7] Disk Issues (Last 7 Days)          - Disk errors, I/O failures" -ForegroundColor Yellow
-    Write-Host "  [8] Network Problems (Last 3 Days)     - Network adapter errors, connectivity issues" -ForegroundColor Yellow
-    Write-Host "  [9] Driver Failures (Last 7 Days)      - Driver crashes and load failures" -ForegroundColor Yellow
-    Write-Host "  [10] Windows Update Issues (Last 14 Days) - Update failures and errors" -ForegroundColor Yellow
-    Write-Host "  [11] Custom Analysis                   - Configure your own analysis" -ForegroundColor Cyan
-    Write-Host "  [12] Scheduled Task Setup              - Register automatic daily analysis" -ForegroundColor Cyan
-    Write-Host "  [13] Help                              - Usage guide and examples" -ForegroundColor White
-    Write-Host "  [0] Exit" -ForegroundColor Red
+    Write-Ui -Message "  [1] PC Crash Events (Last 7 Days)     - System crashes, blue screens, critical errors" -Level "WARN"
+    Write-Ui -Message "  [2] Memory Issues (Last 3 Days)        - Memory leaks, out of memory errors" -Level "WARN"
+    Write-Ui -Message "  [3] Security Audit (Last 24 Hours)     - Failed logins, audit failures" -Level "WARN"
+    Write-Ui -Message "  [4] Application Errors (Last 7 Days)    - Application crashes and errors" -Level "WARN"
+    Write-Ui -Message "  [5] System Warnings (Last 3 Days)      - System warnings and issues" -Level "WARN"
+    Write-Ui -Message "  [6] Login Events (Last 7 Days)         - Successful and failed login attempts" -Level "WARN"
+    Write-Ui -Message "  [7] Disk Issues (Last 7 Days)          - Disk errors, I/O failures" -Level "WARN"
+    Write-Ui -Message "  [8] Network Problems (Last 3 Days)     - Network adapter errors, connectivity issues" -Level "WARN"
+    Write-Ui -Message "  [9] Driver Failures (Last 7 Days)      - Driver crashes and load failures" -Level "WARN"
+    Write-Ui -Message "  [10] Windows Update Issues (Last 14 Days) - Update failures and errors" -Level "WARN"
+    Write-Ui -Message "  [11] Custom Analysis                   - Configure your own analysis" -Level "INFO"
+    Write-Ui -Message "  [12] Scheduled Task Setup              - Register automatic daily analysis" -Level "INFO"
+    Write-Ui -Message "  [13] Help                              - Usage guide and examples" -Level "STEP"
+    Write-Ui -Message "  [0] Exit" -Level "ERROR"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -1857,7 +1857,7 @@ function Show-ReportMenu {
 
 function Invoke-CrashEventsReport {
     Write-Host ""
-    Write-Host "Generating PC Crash Events Report (Last 7 Days)..." -ForegroundColor Cyan
+    Write-Ui -Message "Generating PC Crash Events Report (Last 7 Days)..." -Level "INFO"
     Write-Host ""
     
     $StartTime = (Get-Date).AddDays(-7)
@@ -1872,11 +1872,11 @@ function Invoke-CrashEventsReport {
     # Sources for crash-related events
     $Sources = @('Microsoft-Windows-Kernel-General', 'Microsoft-Windows-Kernel-Power', 'BugCheck')
     
-    Write-Host "Searching for:" -ForegroundColor White
-    Write-Host "  - System crashes (Event ID 41)" -ForegroundColor Gray
-    Write-Host "  - Unexpected shutdowns (Event ID 6008)" -ForegroundColor Gray
-    Write-Host "  - Blue screen crashes (Event ID 1001)" -ForegroundColor Gray
-    Write-Host "  - Critical system errors" -ForegroundColor Gray
+    Write-Ui -Message "Searching for:" -Level "STEP"
+    Write-Ui -Message "  - System crashes (Event ID 41)" -Level "INFO"
+    Write-Ui -Message "  - Unexpected shutdowns (Event ID 6008)" -Level "INFO"
+    Write-Ui -Message "  - Blue screen crashes (Event ID 1001)" -Level "INFO"
+    Write-Ui -Message "  - Critical system errors" -Level "INFO"
     Write-Host ""
     
     & $PSCommandPath -LogNames $LogNames -StartTime $StartTime -EndTime $EndTime -IncludeWarnings:$IncludeWarnings -IncludeInformation:$IncludeInformation -IncludeCritical:$IncludeCritical -EventIDs $EventIDs -Sources $Sources -ExportFormat 'All' -Force
@@ -1884,7 +1884,7 @@ function Invoke-CrashEventsReport {
 
 function Invoke-MemoryIssuesReport {
     Write-Host ""
-    Write-Host "Generating Memory Issues Report (Last 3 Days)..." -ForegroundColor Cyan
+    Write-Ui -Message "Generating Memory Issues Report (Last 3 Days)..." -Level "INFO"
     Write-Host ""
     
     $StartTime = (Get-Date).AddDays(-3)
@@ -1897,11 +1897,11 @@ function Invoke-MemoryIssuesReport {
     $MessageFilter = "memory"
     $EventIDs = @('2004', '2005', '2019', '2020')
     
-    Write-Host "Searching for:" -ForegroundColor White
-    Write-Host "  - Out of memory errors" -ForegroundColor Gray
-    Write-Host "  - Memory allocation failures" -ForegroundColor Gray
-    Write-Host "  - Low memory warnings" -ForegroundColor Gray
-    Write-Host "  - Memory-related application errors" -ForegroundColor Gray
+    Write-Ui -Message "Searching for:" -Level "STEP"
+    Write-Ui -Message "  - Out of memory errors" -Level "INFO"
+    Write-Ui -Message "  - Memory allocation failures" -Level "INFO"
+    Write-Ui -Message "  - Low memory warnings" -Level "INFO"
+    Write-Ui -Message "  - Memory-related application errors" -Level "INFO"
     Write-Host ""
     
     & $PSCommandPath -LogNames $LogNames -StartTime $StartTime -EndTime $EndTime -IncludeWarnings:$IncludeWarnings -IncludeInformation:$IncludeInformation -MessageFilter $MessageFilter -EventIDs $EventIDs -ExportFormat 'All' -Force
@@ -1909,7 +1909,7 @@ function Invoke-MemoryIssuesReport {
 
 function Invoke-SecurityAuditReport {
     Write-Host ""
-    Write-Host "Generating Security Audit Report (Last 24 Hours)..." -ForegroundColor Cyan
+    Write-Ui -Message "Generating Security Audit Report (Last 24 Hours)..." -Level "INFO"
     Write-Host ""
     
     $StartTime = (Get-Date).AddHours(-24)
@@ -1922,11 +1922,11 @@ function Invoke-SecurityAuditReport {
     # Security audit event IDs
     $EventIDs = @('4624', '4625', '4648', '4672', '4776', '4777', '4778', '4779', '4780', '4800', '4801', '4802', '4803', '4768', '4769', '4770', '4771')
     
-    Write-Host "Searching for:" -ForegroundColor White
-    Write-Host "  - Failed login attempts (Event ID 4625)" -ForegroundColor Gray
-    Write-Host "  - Successful logins (Event ID 4624)" -ForegroundColor Gray
-    Write-Host "  - Privilege escalation (Event ID 4672)" -ForegroundColor Gray
-    Write-Host "  - Authentication failures" -ForegroundColor Gray
+    Write-Ui -Message "Searching for:" -Level "STEP"
+    Write-Ui -Message "  - Failed login attempts (Event ID 4625)" -Level "INFO"
+    Write-Ui -Message "  - Successful logins (Event ID 4624)" -Level "INFO"
+    Write-Ui -Message "  - Privilege escalation (Event ID 4672)" -Level "INFO"
+    Write-Ui -Message "  - Authentication failures" -Level "INFO"
     Write-Host ""
     
     & $PSCommandPath -LogNames $LogNames -StartTime $StartTime -EndTime $EndTime -IncludeWarnings:$IncludeWarnings -IncludeAuditSuccess:$IncludeAuditSuccess -IncludeAuditFailure:$IncludeAuditFailure -EventIDs $EventIDs -ExportFormat 'All' -Force
@@ -1934,7 +1934,7 @@ function Invoke-SecurityAuditReport {
 
 function Invoke-ApplicationErrorsReport {
     Write-Host ""
-    Write-Host "Generating Application Errors Report (Last 7 Days)..." -ForegroundColor Cyan
+    Write-Ui -Message "Generating Application Errors Report (Last 7 Days)..." -Level "INFO"
     Write-Host ""
     
     $StartTime = (Get-Date).AddDays(-7)
@@ -1943,10 +1943,10 @@ function Invoke-ApplicationErrorsReport {
     $IncludeWarnings = $true
     $IncludeInformation = $false
     
-    Write-Host "Searching for:" -ForegroundColor White
-    Write-Host "  - Application crashes" -ForegroundColor Gray
-    Write-Host "  - Application errors" -ForegroundColor Gray
-    Write-Host "  - Application warnings" -ForegroundColor Gray
+    Write-Ui -Message "Searching for:" -Level "STEP"
+    Write-Ui -Message "  - Application crashes" -Level "INFO"
+    Write-Ui -Message "  - Application errors" -Level "INFO"
+    Write-Ui -Message "  - Application warnings" -Level "INFO"
     Write-Host ""
     
     & $PSCommandPath -LogNames $LogNames -StartTime $StartTime -EndTime $EndTime -IncludeWarnings:$IncludeWarnings -IncludeInformation:$IncludeInformation -ExportFormat 'All' -Force
@@ -1954,7 +1954,7 @@ function Invoke-ApplicationErrorsReport {
 
 function Invoke-SystemWarningsReport {
     Write-Host ""
-    Write-Host "Generating System Warnings Report (Last 3 Days)..." -ForegroundColor Cyan
+    Write-Ui -Message "Generating System Warnings Report (Last 3 Days)..." -Level "INFO"
     Write-Host ""
     
     $StartTime = (Get-Date).AddDays(-3)
@@ -1963,10 +1963,10 @@ function Invoke-SystemWarningsReport {
     $IncludeWarnings = $true
     $IncludeInformation = $false
     
-    Write-Host "Searching for:" -ForegroundColor White
-    Write-Host "  - System warnings" -ForegroundColor Gray
-    Write-Host "  - System errors" -ForegroundColor Gray
-    Write-Host "  - Service issues" -ForegroundColor Gray
+    Write-Ui -Message "Searching for:" -Level "STEP"
+    Write-Ui -Message "  - System warnings" -Level "INFO"
+    Write-Ui -Message "  - System errors" -Level "INFO"
+    Write-Ui -Message "  - Service issues" -Level "INFO"
     Write-Host ""
     
     & $PSCommandPath -LogNames $LogNames -StartTime $StartTime -EndTime $EndTime -IncludeWarnings:$IncludeWarnings -IncludeInformation:$IncludeInformation -ExportFormat 'All' -Force
@@ -1974,7 +1974,7 @@ function Invoke-SystemWarningsReport {
 
 function Invoke-LoginEventsReport {
     Write-Host ""
-    Write-Host "Generating Login Events Report (Last 7 Days)..." -ForegroundColor Cyan
+    Write-Ui -Message "Generating Login Events Report (Last 7 Days)..." -Level "INFO"
     Write-Host ""
     
     $StartTime = (Get-Date).AddDays(-7)
@@ -1987,11 +1987,11 @@ function Invoke-LoginEventsReport {
     # Login-related event IDs
     $EventIDs = @('4624', '4625', '4634', '4647', '4648', '4675', '4776', '4777', '4778', '4779', '4800', '4801', '4802', '4803')
     
-    Write-Host "Searching for:" -ForegroundColor White
-    Write-Host "  - Successful logins (Event ID 4624)" -ForegroundColor Gray
-    Write-Host "  - Failed logins (Event ID 4625)" -ForegroundColor Gray
-    Write-Host "  - Logoffs (Event ID 4634)" -ForegroundColor Gray
-    Write-Host "  - Lock/unlock events" -ForegroundColor Gray
+    Write-Ui -Message "Searching for:" -Level "STEP"
+    Write-Ui -Message "  - Successful logins (Event ID 4624)" -Level "INFO"
+    Write-Ui -Message "  - Failed logins (Event ID 4625)" -Level "INFO"
+    Write-Ui -Message "  - Logoffs (Event ID 4634)" -Level "INFO"
+    Write-Ui -Message "  - Lock/unlock events" -Level "INFO"
     Write-Host ""
     
     & $PSCommandPath -LogNames $LogNames -StartTime $StartTime -EndTime $EndTime -IncludeWarnings:$IncludeWarnings -IncludeAuditSuccess:$IncludeAuditSuccess -IncludeAuditFailure:$IncludeAuditFailure -EventIDs $EventIDs -ExportFormat 'All' -Force
@@ -1999,7 +1999,7 @@ function Invoke-LoginEventsReport {
 
 function Invoke-DiskIssuesReport {
     Write-Host ""
-    Write-Host "Generating Disk Issues Report (Last 7 Days)..." -ForegroundColor Cyan
+    Write-Ui -Message "Generating Disk Issues Report (Last 7 Days)..." -Level "INFO"
     Write-Host ""
     
     $StartTime = (Get-Date).AddDays(-7)
@@ -2013,11 +2013,11 @@ function Invoke-DiskIssuesReport {
     $Sources = @('Disk', 'ntfs', 'Microsoft-Windows-Storage-Disk')
     $MessageFilter = "disk"
     
-    Write-Host "Searching for:" -ForegroundColor White
-    Write-Host "  - Disk I/O errors" -ForegroundColor Gray
-    Write-Host "  - Disk corruption" -ForegroundColor Gray
-    Write-Host "  - Disk timeout errors" -ForegroundColor Gray
-    Write-Host "  - Storage device failures" -ForegroundColor Gray
+    Write-Ui -Message "Searching for:" -Level "STEP"
+    Write-Ui -Message "  - Disk I/O errors" -Level "INFO"
+    Write-Ui -Message "  - Disk corruption" -Level "INFO"
+    Write-Ui -Message "  - Disk timeout errors" -Level "INFO"
+    Write-Ui -Message "  - Storage device failures" -Level "INFO"
     Write-Host ""
     
     & $PSCommandPath -LogNames $LogNames -StartTime $StartTime -EndTime $EndTime -IncludeWarnings:$IncludeWarnings -IncludeInformation:$IncludeInformation -EventIDs $EventIDs -Sources $Sources -MessageFilter $MessageFilter -ExportFormat 'All' -Force
@@ -2025,7 +2025,7 @@ function Invoke-DiskIssuesReport {
 
 function Invoke-NetworkProblemsReport {
     Write-Host ""
-    Write-Host "Generating Network Problems Report (Last 3 Days)..." -ForegroundColor Cyan
+    Write-Ui -Message "Generating Network Problems Report (Last 3 Days)..." -Level "INFO"
     Write-Host ""
     
     $StartTime = (Get-Date).AddDays(-3)
@@ -2038,11 +2038,11 @@ function Invoke-NetworkProblemsReport {
     $Sources = @('Microsoft-Windows-NetworkProfile', 'Microsoft-Windows-TCPIP', 'Microsoft-Windows-NCSI', 'e1rexpress', 'e2express')
     $MessageFilter = "network"
     
-    Write-Host "Searching for:" -ForegroundColor White
-    Write-Host "  - Network adapter errors" -ForegroundColor Gray
-    Write-Host "  - TCP/IP issues" -ForegroundColor Gray
-    Write-Host "  - Network connectivity problems" -ForegroundColor Gray
-    Write-Host "  - DNS resolution failures" -ForegroundColor Gray
+    Write-Ui -Message "Searching for:" -Level "STEP"
+    Write-Ui -Message "  - Network adapter errors" -Level "INFO"
+    Write-Ui -Message "  - TCP/IP issues" -Level "INFO"
+    Write-Ui -Message "  - Network connectivity problems" -Level "INFO"
+    Write-Ui -Message "  - DNS resolution failures" -Level "INFO"
     Write-Host ""
     
     & $PSCommandPath -LogNames $LogNames -StartTime $StartTime -EndTime $EndTime -IncludeWarnings:$IncludeWarnings -IncludeInformation:$IncludeInformation -Sources $Sources -MessageFilter $MessageFilter -ExportFormat 'All' -Force
@@ -2050,7 +2050,7 @@ function Invoke-NetworkProblemsReport {
 
 function Invoke-DriverFailuresReport {
     Write-Host ""
-    Write-Host "Generating Driver Failures Report (Last 7 Days)..." -ForegroundColor Cyan
+    Write-Ui -Message "Generating Driver Failures Report (Last 7 Days)..." -Level "INFO"
     Write-Host ""
     
     $StartTime = (Get-Date).AddDays(-7)
@@ -2064,11 +2064,11 @@ function Invoke-DriverFailuresReport {
     $Sources = @('Microsoft-Windows-Kernel-PnP', 'Microsoft-Windows-DriverFrameworks-UserMode')
     $MessageFilter = "driver"
     
-    Write-Host "Searching for:" -ForegroundColor White
-    Write-Host "  - Driver crashes" -ForegroundColor Gray
-    Write-Host "  - Driver load failures" -ForegroundColor Gray
-    Write-Host "  - Driver timeout errors" -ForegroundColor Gray
-    Write-Host "  - Plug and Play errors" -ForegroundColor Gray
+    Write-Ui -Message "Searching for:" -Level "STEP"
+    Write-Ui -Message "  - Driver crashes" -Level "INFO"
+    Write-Ui -Message "  - Driver load failures" -Level "INFO"
+    Write-Ui -Message "  - Driver timeout errors" -Level "INFO"
+    Write-Ui -Message "  - Plug and Play errors" -Level "INFO"
     Write-Host ""
     
     & $PSCommandPath -LogNames $LogNames -StartTime $StartTime -EndTime $EndTime -IncludeWarnings:$IncludeWarnings -IncludeInformation:$IncludeInformation -EventIDs $EventIDs -Sources $Sources -MessageFilter $MessageFilter -ExportFormat 'All' -Force
@@ -2076,7 +2076,7 @@ function Invoke-DriverFailuresReport {
 
 function Invoke-WindowsUpdateIssuesReport {
     Write-Host ""
-    Write-Host "Generating Windows Update Issues Report (Last 14 Days)..." -ForegroundColor Cyan
+    Write-Ui -Message "Generating Windows Update Issues Report (Last 14 Days)..." -Level "INFO"
     Write-Host ""
     
     $StartTime = (Get-Date).AddDays(-14)
@@ -2089,11 +2089,11 @@ function Invoke-WindowsUpdateIssuesReport {
     $Sources = @('Microsoft-Windows-WindowsUpdateClient', 'Microsoft-Windows-UpdateOrchestrator', 'Microsoft-Windows-Servicing')
     $MessageFilter = "update"
     
-    Write-Host "Searching for:" -ForegroundColor White
-    Write-Host "  - Update installation failures" -ForegroundColor Gray
-    Write-Host "  - Update download errors" -ForegroundColor Gray
-    Write-Host "  - Update service issues" -ForegroundColor Gray
-    Write-Host "  - Update rollback events" -ForegroundColor Gray
+    Write-Ui -Message "Searching for:" -Level "STEP"
+    Write-Ui -Message "  - Update installation failures" -Level "INFO"
+    Write-Ui -Message "  - Update download errors" -Level "INFO"
+    Write-Ui -Message "  - Update service issues" -Level "INFO"
+    Write-Ui -Message "  - Update rollback events" -Level "INFO"
     Write-Host ""
     
     & $PSCommandPath -LogNames $LogNames -StartTime $StartTime -EndTime $EndTime -IncludeWarnings:$IncludeWarnings -IncludeInformation:$IncludeInformation -Sources $Sources -MessageFilter $MessageFilter -ExportFormat 'All' -Force
@@ -2103,18 +2103,18 @@ function Show-CustomAnalysisMenu {
     Clear-Host
     Show-SouliTEKBanner
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  CUSTOM ANALYSIS CONFIGURATION" -ForegroundColor Cyan
+    Write-Ui -Message "  CUSTOM ANALYSIS CONFIGURATION" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "This will open the script with default parameters." -ForegroundColor White
-    Write-Host "You can then use command-line parameters for advanced configuration." -ForegroundColor White
+    Write-Ui -Message "This will open the script with default parameters." -Level "STEP"
+    Write-Ui -Message "You can then use command-line parameters for advanced configuration." -Level "STEP"
     Write-Host ""
-    Write-Host "Examples:" -ForegroundColor Yellow
-    Write-Host "  .\EventLogAnalyzer.ps1 -Hours 48 -LogNames System,Application" -ForegroundColor Gray
-    Write-Host "  .\EventLogAnalyzer.ps1 -EventIDs @(1000,1001) -IncludeWarnings" -ForegroundColor Gray
-    Write-Host "  .\EventLogAnalyzer.ps1 -ExportFormat HTML -ExportIndividualLogs" -ForegroundColor Gray
+    Write-Ui -Message "Examples:" -Level "WARN"
+    Write-Ui -Message "  .\EventLogAnalyzer.ps1 -Hours 48 -LogNames System,Application" -Level "INFO"
+    Write-Ui -Message "  .\EventLogAnalyzer.ps1 -EventIDs @(1000,1001) -IncludeWarnings" -Level "INFO"
+    Write-Ui -Message "  .\EventLogAnalyzer.ps1 -ExportFormat HTML -ExportIndividualLogs" -Level "INFO"
     Write-Host ""
-    Write-Host "Press any key to continue with default analysis..." -ForegroundColor Cyan
+    Write-Ui -Message "Press any key to continue with default analysis..." -Level "INFO"
     $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
     
     # Run with default parameters
@@ -2125,49 +2125,49 @@ function Show-HelpMenu {
     Clear-Host
     Show-SouliTEKBanner
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  EVENT LOG ANALYZER - HELP & EXAMPLES" -ForegroundColor Cyan
+    Write-Ui -Message "  EVENT LOG ANALYZER - HELP & EXAMPLES" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "REPORT OPTIONS:" -ForegroundColor Yellow
+    Write-Ui -Message "REPORT OPTIONS:" -Level "WARN"
     Write-Host ""
-    Write-Host "  1. PC Crash Events (Last 7 Days)" -ForegroundColor White
-    Write-Host "     - System crashes, blue screens, unexpected shutdowns" -ForegroundColor Gray
+    Write-Ui -Message "  1. PC Crash Events (Last 7 Days)" -Level "STEP"
+    Write-Ui -Message "     - System crashes, blue screens, unexpected shutdowns" -Level "INFO"
     Write-Host ""
-    Write-Host "  2. Memory Issues (Last 3 Days)" -ForegroundColor White
-    Write-Host "     - Out of memory errors, memory allocation failures" -ForegroundColor Gray
+    Write-Ui -Message "  2. Memory Issues (Last 3 Days)" -Level "STEP"
+    Write-Ui -Message "     - Out of memory errors, memory allocation failures" -Level "INFO"
     Write-Host ""
-    Write-Host "  3. Security Audit (Last 24 Hours)" -ForegroundColor White
-    Write-Host "     - Failed logins, authentication failures, privilege escalation" -ForegroundColor Gray
+    Write-Ui -Message "  3. Security Audit (Last 24 Hours)" -Level "STEP"
+    Write-Ui -Message "     - Failed logins, authentication failures, privilege escalation" -Level "INFO"
     Write-Host ""
-    Write-Host "  4. Application Errors (Last 7 Days)" -ForegroundColor White
-    Write-Host "     - Application crashes and errors from Application log" -ForegroundColor Gray
+    Write-Ui -Message "  4. Application Errors (Last 7 Days)" -Level "STEP"
+    Write-Ui -Message "     - Application crashes and errors from Application log" -Level "INFO"
     Write-Host ""
-    Write-Host "  5. System Warnings (Last 3 Days)" -ForegroundColor White
-    Write-Host "     - System warnings and errors from System log" -ForegroundColor Gray
+    Write-Ui -Message "  5. System Warnings (Last 3 Days)" -Level "STEP"
+    Write-Ui -Message "     - System warnings and errors from System log" -Level "INFO"
     Write-Host ""
-    Write-Host "  6. Login Events (Last 7 Days)" -ForegroundColor White
-    Write-Host "     - Successful and failed login attempts, lock/unlock events" -ForegroundColor Gray
+    Write-Ui -Message "  6. Login Events (Last 7 Days)" -Level "STEP"
+    Write-Ui -Message "     - Successful and failed login attempts, lock/unlock events" -Level "INFO"
     Write-Host ""
-    Write-Host "  7. Disk Issues (Last 7 Days)" -ForegroundColor White
-    Write-Host "     - Disk I/O errors, corruption, timeout errors" -ForegroundColor Gray
+    Write-Ui -Message "  7. Disk Issues (Last 7 Days)" -Level "STEP"
+    Write-Ui -Message "     - Disk I/O errors, corruption, timeout errors" -Level "INFO"
     Write-Host ""
-    Write-Host "  8. Network Problems (Last 3 Days)" -ForegroundColor White
-    Write-Host "     - Network adapter errors, TCP/IP issues, connectivity problems" -ForegroundColor Gray
+    Write-Ui -Message "  8. Network Problems (Last 3 Days)" -Level "STEP"
+    Write-Ui -Message "     - Network adapter errors, TCP/IP issues, connectivity problems" -Level "INFO"
     Write-Host ""
-    Write-Host "  9. Driver Failures (Last 7 Days)" -ForegroundColor White
-    Write-Host "     - Driver crashes, load failures, Plug and Play errors" -ForegroundColor Gray
+    Write-Ui -Message "  9. Driver Failures (Last 7 Days)" -Level "STEP"
+    Write-Ui -Message "     - Driver crashes, load failures, Plug and Play errors" -Level "INFO"
     Write-Host ""
-    Write-Host "  10. Windows Update Issues (Last 14 Days)" -ForegroundColor White
-    Write-Host "      - Update installation failures, download errors, service issues" -ForegroundColor Gray
+    Write-Ui -Message "  10. Windows Update Issues (Last 14 Days)" -Level "STEP"
+    Write-Ui -Message "      - Update installation failures, download errors, service issues" -Level "INFO"
     Write-Host ""
-    Write-Host "EXPORT FORMATS:" -ForegroundColor Yellow
-    Write-Host "  - JSON: Structured data for programmatic use" -ForegroundColor Gray
-    Write-Host "  - CSV: Spreadsheet-compatible format" -ForegroundColor Gray
-    Write-Host "  - HTML: Professional web report with styling" -ForegroundColor Gray
+    Write-Ui -Message "EXPORT FORMATS:" -Level "WARN"
+    Write-Ui -Message "  - JSON: Structured data for programmatic use" -Level "INFO"
+    Write-Ui -Message "  - CSV: Spreadsheet-compatible format" -Level "INFO"
+    Write-Ui -Message "  - HTML: Professional web report with styling" -Level "INFO"
     Write-Host ""
-    Write-Host "For more information, visit: www.soulitek.co.il" -ForegroundColor Cyan
+    Write-Ui -Message "For more information, visit: www.soulitek.co.il" -Level "INFO"
     Write-Host ""
-    Write-Host "Press any key to return to main menu..." -ForegroundColor Yellow
+    Write-Ui -Message "Press any key to return to main menu..." -Level "WARN"
     $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
 }
 
@@ -2202,8 +2202,8 @@ function Invoke-MainMenu {
             '13' { Show-HelpMenu }
             '0' { 
                 Write-Host ""
-                Write-Host "Thank you for using SouliTEK EventLogAnalyzer!" -ForegroundColor Green
-                Write-Host "Website: www.soulitek.co.il" -ForegroundColor Cyan
+                Write-Ui -Message "Thank you for using SouliTEK EventLogAnalyzer!" -Level "OK"
+                Write-Ui -Message "Website: www.soulitek.co.il" -Level "INFO"
                 Write-Host ""
                 
                 exit 0
@@ -2211,14 +2211,14 @@ function Invoke-MainMenu {
             default {
                 Write-Host ""
                 Write-Ui -Message "Invalid choice. Please select a number between 0-13" -Level "ERROR"
-                Write-Host "Press any key to continue..." -ForegroundColor Yellow
+                Write-Ui -Message "Press any key to continue..." -Level "WARN"
                 $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
             }
         }
         
         if ($choice -ne '0' -and $choice -ne '13') {
             Write-Host ""
-            Write-Host "Press any key to return to main menu..." -ForegroundColor Yellow
+            Write-Ui -Message "Press any key to return to main menu..." -Level "WARN"
             $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
         }
     } while ($true)

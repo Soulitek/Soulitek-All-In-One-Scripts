@@ -235,15 +235,15 @@ function Show-AdminUserDetails {
     } else { 
         $AdminUser.Username 
     }
-    Write-Host "  [$Index] $displayName" -ForegroundColor White
+    Write-Ui -Message "  [$Index] $displayName" -Level "STEP"
     if (-not [string]::IsNullOrWhiteSpace($AdminUser.FullName) -and $AdminUser.FullName -ne $displayName) {
-        Write-Host "      Full Name: $($AdminUser.FullName)" -ForegroundColor Gray
+        Write-Ui -Message "      Full Name: $($AdminUser.FullName)" -Level "INFO"
     }
     if (-not [string]::IsNullOrWhiteSpace($AdminUser.Domain)) {
-        Write-Host "      Domain: $($AdminUser.Domain)" -ForegroundColor Gray
+        Write-Ui -Message "      Domain: $($AdminUser.Domain)" -Level "INFO"
     }
     if (-not [string]::IsNullOrWhiteSpace($AdminUser.ObjectClass)) {
-        Write-Host "      Type: $($AdminUser.ObjectClass)" -ForegroundColor Gray
+        Write-Ui -Message "      Type: $($AdminUser.ObjectClass)" -Level "INFO"
     }
     Write-Host "      Local Account: " -NoNewline -ForegroundColor Gray
     Write-Host $(if ($AdminUser.IsLocal) { "Yes" } else { "No" }) -ForegroundColor $(if ($AdminUser.IsLocal) { "Cyan" } else { "Yellow" })
@@ -259,11 +259,11 @@ function Show-AdminUserDetails {
         
         if ($AdminUser.LastLogon) {
             $lastLogonStr = $AdminUser.LastLogon.ToString("yyyy-MM-dd HH:mm:ss")
-            Write-Host "      Last Logon: $lastLogonStr" -ForegroundColor Gray
+            Write-Ui -Message "      Last Logon: $lastLogonStr" -Level "INFO"
         }
         
         if (-not [string]::IsNullOrWhiteSpace($AdminUser.Description)) {
-            Write-Host "      Description: $($AdminUser.Description)" -ForegroundColor Gray
+            Write-Ui -Message "      Description: $($AdminUser.Description)" -Level "INFO"
         }
     }
     
@@ -271,9 +271,9 @@ function Show-AdminUserDetails {
     Write-Host $analysis.RiskLevel -ForegroundColor $riskColor
     
     if ($analysis.Warnings.Count -gt 0) {
-        Write-Host "      Warnings:" -ForegroundColor Yellow
+        Write-Ui -Message "      Warnings:" -Level "WARN"
         foreach ($warning in $analysis.Warnings) {
-            Write-Host "        ! $warning" -ForegroundColor Yellow
+            Write-Ui -Message "        ! $warning" -Level "WARN"
         }
     }
 }
@@ -315,33 +315,33 @@ function Show-ScanSummary {
     
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  SCAN SUMMARY" -ForegroundColor Cyan
+    Write-Ui -Message "  SCAN SUMMARY" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "  Total Admin Users: $($AdminUsers.Count)" -ForegroundColor White
+    Write-Ui -Message "  Total Admin Users: $($AdminUsers.Count)" -Level "STEP"
     Write-Host ""
-    Write-Host "  Account Types:" -ForegroundColor White
-    Write-Host "    - Standard Accounts: $standard" -ForegroundColor Gray
-    Write-Host "    - Local Accounts: $local" -ForegroundColor Cyan
-    Write-Host "    - Domain Accounts: $domain" -ForegroundColor Yellow
+    Write-Ui -Message "  Account Types:" -Level "STEP"
+    Write-Ui -Message "    - Standard Accounts: $standard" -Level "INFO"
+    Write-Ui -Message "    - Local Accounts: $local" -Level "INFO"
+    Write-Ui -Message "    - Domain Accounts: $domain" -Level "WARN"
     Write-Host ""
-    Write-Host "  Risk Distribution:" -ForegroundColor White
+    Write-Ui -Message "  Risk Distribution:" -Level "STEP"
     Write-Host "    - High Risk:   " -NoNewline -ForegroundColor Gray
     Write-Host $high -ForegroundColor $(if ($high -gt 0) { "Red" } else { "Green" })
     Write-Host "    - Medium Risk: " -NoNewline -ForegroundColor Gray
     Write-Host $medium -ForegroundColor $(if ($medium -gt 0) { "Yellow" } else { "Green" })
     Write-Host "    - Low Risk:    " -NoNewline -ForegroundColor Gray
-    Write-Host $low -ForegroundColor Green
+    Write-Ui -Message $low -Level "OK"
     Write-Host ""
     
     if ($high -gt 0) {
-        Write-Host "  [!] WARNING: $high admin account(s) with HIGH risk detected!" -ForegroundColor Red
-        Write-Host "      Review these accounts immediately and remove if unnecessary." -ForegroundColor Yellow
+        Write-Ui -Message "  [!] WARNING: $high admin account(s) with HIGH risk detected!" -Level "ERROR"
+        Write-Ui -Message "      Review these accounts immediately and remove if unnecessary." -Level "WARN"
     } elseif ($medium -gt 0) {
-        Write-Host "  [*] $medium admin account(s) with elevated risk detected." -ForegroundColor Yellow
-        Write-Host "      Review to ensure they are necessary and properly secured." -ForegroundColor Gray
+        Write-Ui -Message "  [*] $medium admin account(s) with elevated risk detected." -Level "WARN"
+        Write-Ui -Message "      Review to ensure they are necessary and properly secured." -Level "INFO"
     } else {
-        Write-Host "  [+] No high-risk admin accounts detected." -ForegroundColor Green
+        Write-Ui -Message "  [+] No high-risk admin accounts detected." -Level "OK"
     }
     
     Write-Host ""
@@ -359,20 +359,20 @@ function Invoke-FullScan {
     
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  SCANNING LOCAL ADMINISTRATOR ACCOUNTS" -ForegroundColor Cyan
+    Write-Ui -Message "  SCANNING LOCAL ADMINISTRATOR ACCOUNTS" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "Retrieving Administrators group members..." -ForegroundColor Cyan
+    Write-Ui -Message "Retrieving Administrators group members..." -Level "INFO"
     
     $Script:ScanResults = Get-LocalAdminUsers
     
     if ($Script:ScanResults.Count -eq 0) {
-        Write-Host "No administrator accounts found or unable to retrieve list." -ForegroundColor Yellow
+        Write-Ui -Message "No administrator accounts found or unable to retrieve list." -Level "WARN"
         Wait-SouliTEKKeyPress
         return
     }
     
-    Write-Host "Found $($Script:ScanResults.Count) administrator account(s)" -ForegroundColor Green
+    Write-Ui -Message "Found $($Script:ScanResults.Count) administrator account(s)" -Level "OK"
     Write-Host ""
     
     # Show summary
@@ -380,7 +380,7 @@ function Invoke-FullScan {
     
     # Show all admin users
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  ALL ADMINISTRATOR ACCOUNTS" -ForegroundColor Cyan
+    Write-Ui -Message "  ALL ADMINISTRATOR ACCOUNTS" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     
     $index = 1
@@ -401,7 +401,7 @@ function Show-SuspiciousAdmins {
     
     if ($Script:ScanResults.Count -eq 0) {
         Write-Host ""
-        Write-Host "No scan results. Please run a full scan first (Option 1)." -ForegroundColor Yellow
+        Write-Ui -Message "No scan results. Please run a full scan first (Option 1)." -Level "WARN"
         Wait-SouliTEKKeyPress
         return
     }
@@ -417,13 +417,13 @@ function Show-SuspiciousAdmins {
     Clear-Host
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Yellow
-    Write-Host "  SUSPICIOUS/UNNECESSARY ADMIN ACCOUNTS ($($suspiciousAdmins.Count))" -ForegroundColor Yellow
+    Write-Ui -Message "  SUSPICIOUS/UNNECESSARY ADMIN ACCOUNTS ($($suspiciousAdmins.Count))" -Level "WARN"
     Write-Host "============================================================" -ForegroundColor Yellow
     
     if ($suspiciousAdmins.Count -eq 0) {
         Write-Host ""
-        Write-Host "  No suspicious admin accounts detected!" -ForegroundColor Green
-        Write-Host "  All admin accounts appear to be standard or properly configured." -ForegroundColor Gray
+        Write-Ui -Message "  No suspicious admin accounts detected!" -Level "OK"
+        Write-Ui -Message "  All admin accounts appear to be standard or properly configured." -Level "INFO"
         Write-Host ""
     } else {
         $index = 1
@@ -444,7 +444,7 @@ function Export-ScanResults {
     
     if ($Script:ScanResults.Count -eq 0) {
         Write-Host ""
-        Write-Host "No scan results to export. Please run a full scan first." -ForegroundColor Yellow
+        Write-Ui -Message "No scan results to export. Please run a full scan first." -Level "WARN"
         Wait-SouliTEKKeyPress
         return
     }
@@ -517,40 +517,40 @@ function Show-Help {
     Clear-Host
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  LOCAL ADMIN USERS CHECKER - HELP" -ForegroundColor Cyan
+    Write-Ui -Message "  LOCAL ADMIN USERS CHECKER - HELP" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "  ABOUT:" -ForegroundColor Yellow
-    Write-Host "  This tool identifies users with local administrator privileges" -ForegroundColor Gray
-    Write-Host "  and flags potentially unnecessary or suspicious admin accounts." -ForegroundColor Gray
-    Write-Host "  This is a common attack vector - attackers often target admin accounts." -ForegroundColor Gray
+    Write-Ui -Message "  ABOUT:" -Level "WARN"
+    Write-Ui -Message "  This tool identifies users with local administrator privileges" -Level "INFO"
+    Write-Ui -Message "  and flags potentially unnecessary or suspicious admin accounts." -Level "INFO"
+    Write-Ui -Message "  This is a common attack vector - attackers often target admin accounts." -Level "INFO"
     Write-Host ""
-    Write-Host "  WHAT IT DOES:" -ForegroundColor Yellow
-    Write-Host "  - Lists all members of the local Administrators group" -ForegroundColor Gray
-    Write-Host "  - Analyzes each account for security risks" -ForegroundColor Gray
-    Write-Host "  - Flags suspicious patterns and configurations" -ForegroundColor Gray
-    Write-Host "  - Identifies potentially unnecessary admin accounts" -ForegroundColor Gray
+    Write-Ui -Message "  WHAT IT DOES:" -Level "WARN"
+    Write-Ui -Message "  - Lists all members of the local Administrators group" -Level "INFO"
+    Write-Ui -Message "  - Analyzes each account for security risks" -Level "INFO"
+    Write-Ui -Message "  - Flags suspicious patterns and configurations" -Level "INFO"
+    Write-Ui -Message "  - Identifies potentially unnecessary admin accounts" -Level "INFO"
     Write-Host ""
-    Write-Host "  RISK LEVELS:" -ForegroundColor Yellow
+    Write-Ui -Message "  RISK LEVELS:" -Level "WARN"
     Write-Host "  - High:   " -NoNewline -ForegroundColor Red
-    Write-Host "Disabled accounts, generic names (test/temp/demo)" -ForegroundColor Gray
+    Write-Ui -Message "Disabled accounts, generic names (test/temp/demo)" -Level "INFO"
     Write-Host "  - Medium: " -NoNewline -ForegroundColor Yellow
-    Write-Host "Suspicious patterns, password never expires" -ForegroundColor Gray
+    Write-Ui -Message "Suspicious patterns, password never expires" -Level "INFO"
     Write-Host "  - Low:    " -NoNewline -ForegroundColor Green
-    Write-Host "Standard accounts or properly configured" -ForegroundColor Gray
+    Write-Ui -Message "Standard accounts or properly configured" -Level "INFO"
     Write-Host ""
-    Write-Host "  RED FLAGS:" -ForegroundColor Yellow
-    Write-Host "  - Disabled accounts still in Administrators group" -ForegroundColor Red
-    Write-Host "  - Generic account names (test, temp, demo, guest)" -ForegroundColor Red
-    Write-Host "  - Accounts with password never expires" -ForegroundColor Yellow
-    Write-Host "  - Accounts with no description/documentation" -ForegroundColor Yellow
+    Write-Ui -Message "  RED FLAGS:" -Level "WARN"
+    Write-Ui -Message "  - Disabled accounts still in Administrators group" -Level "ERROR"
+    Write-Ui -Message "  - Generic account names (test, temp, demo, guest)" -Level "ERROR"
+    Write-Ui -Message "  - Accounts with password never expires" -Level "WARN"
+    Write-Ui -Message "  - Accounts with no description/documentation" -Level "WARN"
     Write-Host ""
-    Write-Host "  RECOMMENDATIONS:" -ForegroundColor Yellow
-    Write-Host "  - Remove unnecessary admin accounts" -ForegroundColor Gray
-    Write-Host "  - Use domain accounts instead of local when possible" -ForegroundColor Gray
-    Write-Host "  - Document all admin accounts with descriptions" -ForegroundColor Gray
-    Write-Host "  - Enable password expiration for admin accounts" -ForegroundColor Gray
-    Write-Host "  - Regularly audit admin group membership" -ForegroundColor Gray
+    Write-Ui -Message "  RECOMMENDATIONS:" -Level "WARN"
+    Write-Ui -Message "  - Remove unnecessary admin accounts" -Level "INFO"
+    Write-Ui -Message "  - Use domain accounts instead of local when possible" -Level "INFO"
+    Write-Ui -Message "  - Document all admin accounts with descriptions" -Level "INFO"
+    Write-Ui -Message "  - Enable password expiration for admin accounts" -Level "INFO"
+    Write-Ui -Message "  - Regularly audit admin group membership" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     
@@ -567,31 +567,31 @@ function Show-Menu {
     Show-SouliTEKBanner
     
     Write-Host "============================================================" -ForegroundColor Magenta
-    Write-Host "  LOCAL ADMIN USERS CHECKER v$Script:Version" -ForegroundColor Magenta
-    Write-Host "  Identify unnecessary admin accounts - Common attack vector" -ForegroundColor Gray
+    Write-Ui -Message "  LOCAL ADMIN USERS CHECKER v$Script:Version" -Level "INFO"
+    Write-Ui -Message "  Identify unnecessary admin accounts - Common attack vector" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Magenta
     Write-Host ""
     
     if ($Script:ScanResults.Count -gt 0) {
-        Write-Host "  Last Scan: $($Script:ScanResults.Count) admin user(s) found" -ForegroundColor Cyan
+        Write-Ui -Message "  Last Scan: $($Script:ScanResults.Count) admin user(s) found" -Level "INFO"
     }
     
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "  [1] Full Scan" -ForegroundColor Yellow
-    Write-Host "      Scan and analyze all local administrator accounts" -ForegroundColor Gray
+    Write-Ui -Message "  [1] Full Scan" -Level "WARN"
+    Write-Ui -Message "      Scan and analyze all local administrator accounts" -Level "INFO"
     Write-Host ""
-    Write-Host "  [2] View Suspicious Admins" -ForegroundColor Yellow
-    Write-Host "      Show only suspicious/unnecessary admin accounts" -ForegroundColor Gray
+    Write-Ui -Message "  [2] View Suspicious Admins" -Level "WARN"
+    Write-Ui -Message "      Show only suspicious/unnecessary admin accounts" -Level "INFO"
     Write-Host ""
-    Write-Host "  [3] Export Results" -ForegroundColor Yellow
-    Write-Host "      Export scan results to file" -ForegroundColor Gray
+    Write-Ui -Message "  [3] Export Results" -Level "WARN"
+    Write-Ui -Message "      Export scan results to file" -Level "INFO"
     Write-Host ""
-    Write-Host "  [4] Help" -ForegroundColor Yellow
-    Write-Host "      Show usage instructions" -ForegroundColor Gray
+    Write-Ui -Message "  [4] Help" -Level "WARN"
+    Write-Ui -Message "      Show usage instructions" -Level "INFO"
     Write-Host ""
-    Write-Host "  [0] Exit" -ForegroundColor Red
+    Write-Ui -Message "  [0] Exit" -Level "ERROR"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""

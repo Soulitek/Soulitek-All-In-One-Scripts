@@ -56,30 +56,30 @@ function Connect-ToExchangeOnline {
 	Show-Header "Connecting to Exchange Online"
 	
 	# Use centralized module installation function
-	Write-Host "[Step 1/3] Installing/verifying Exchange Online Management module..." -ForegroundColor Cyan
+	Write-Ui -Message "[Step 1/3] Installing/verifying Exchange Online Management module..." -Level "INFO"
 	Write-Host ""
 	
 	if (-not (Install-SouliTEKModule -ModuleName "ExchangeOnlineManagement")) {
 		Write-Host ""
-		Write-Host "[-] Failed to install ExchangeOnlineManagement module" -ForegroundColor Red
+		Write-Ui -Message "[-] Failed to install ExchangeOnlineManagement module" -Level "ERROR"
 		Write-Host ""
-		Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+		Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 		$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 		return $false
 	}
 	
 	Write-Host ""
-	Write-Host "[+] Exchange Online Management module ready" -ForegroundColor Green
+	Write-Ui -Message "[+] Exchange Online Management module ready" -Level "OK"
 	
 	try {
 		Write-Host ""
-		Write-Host "[Step 2/3] Checking existing connection..." -ForegroundColor Cyan
+		Write-Ui -Message "[Step 2/3] Checking existing connection..." -Level "INFO"
 		
 		# Check if already connected by trying to get organization info
 		try {
 			$orgInfo = Get-OrganizationConfig -ErrorAction SilentlyContinue
 			if ($orgInfo) {
-				Write-Host "          [+] Already connected to Exchange Online" -ForegroundColor Green
+				Write-Ui -Message "          [+] Already connected to Exchange Online" -Level "OK"
 				
 				if ($Script:TenantDomain -eq "Unknown") {
 					# Try to get organization name from current session
@@ -99,13 +99,13 @@ function Connect-ToExchangeOnline {
 						$Script:TenantName = "Connected"
 					}
 				}
-				Write-Host "          Organization: $($Script:TenantName)" -ForegroundColor Gray
+				Write-Ui -Message "          Organization: $($Script:TenantName)" -Level "INFO"
 			
 			Write-Host ""
 			Write-Host "------------------------------------------------------------" -ForegroundColor Yellow
-			Write-Host "Would you like to:" -ForegroundColor Yellow
-			Write-Host "  1. Keep current connection" -ForegroundColor White
-			Write-Host "  2. Disconnect and connect to a different tenant" -ForegroundColor White
+			Write-Ui -Message "Would you like to:" -Level "WARN"
+			Write-Ui -Message "  1. Keep current connection" -Level "STEP"
+			Write-Ui -Message "  2. Disconnect and connect to a different tenant" -Level "STEP"
 			Write-Host ""
 			Write-Host "Select option (1-2): " -NoNewline -ForegroundColor Cyan
 			$reconnectChoice = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
@@ -113,27 +113,27 @@ function Connect-ToExchangeOnline {
 			Write-Host ""
 			
 			if ($reconnectChoice.Character -eq '2') {
-				Write-Host "Disconnecting from current tenant..." -ForegroundColor Yellow
+				Write-Ui -Message "Disconnecting from current tenant..." -Level "WARN"
 				try {
 					Disconnect-ExchangeOnline -Confirm:$false -ErrorAction SilentlyContinue | Out-Null
 					$Script:Connected = $false
 					$Script:TenantDomain = "Unknown"
 					$Script:TenantName = "Unknown"
-					Write-Host "[+] Disconnected successfully" -ForegroundColor Green
+					Write-Ui -Message "[+] Disconnected successfully" -Level "OK"
 					Write-Host ""
 					# Continue to new connection below
 				} catch {
 					Write-Warning "Disconnect failed: $($_.Exception.Message)"
 					Write-Host ""
-					Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+					Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 					$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 					return $false
 				}
 			} else {
-				Write-Host "[+] Using existing connection" -ForegroundColor Green
+				Write-Ui -Message "[+] Using existing connection" -Level "OK"
 				$Script:Connected = $true
 				Write-Host ""
-				Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+				Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 				$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 				return $true
 			}
@@ -141,21 +141,21 @@ function Connect-ToExchangeOnline {
 		} catch {
 			# Not connected - this is expected, continue to new connection
 		}
-		Write-Host "          No existing connection found" -ForegroundColor Yellow
+		Write-Ui -Message "          No existing connection found" -Level "WARN"
 		
 		Write-Host ""
-		Write-Host "[Step 3/3] Initiating connection to Exchange Online..." -ForegroundColor Cyan
-		Write-Host "          This will open a browser window for authentication" -ForegroundColor Yellow
-		Write-Host "          Required permissions:" -ForegroundColor Gray
-		Write-Host "            - Exchange Administrator or Global Administrator role" -ForegroundColor Gray
-		Write-Host "            - Mailbox.Read permission" -ForegroundColor Gray
+		Write-Ui -Message "[Step 3/3] Initiating connection to Exchange Online..." -Level "INFO"
+		Write-Ui -Message "          This will open a browser window for authentication" -Level "WARN"
+		Write-Ui -Message "          Required permissions:" -Level "INFO"
+		Write-Ui -Message "            - Exchange Administrator or Global Administrator role" -Level "INFO"
+		Write-Ui -Message "            - Mailbox.Read permission" -Level "INFO"
 		Write-Host ""
-		Write-Host "          Opening authentication browser window..." -ForegroundColor Cyan
+		Write-Ui -Message "          Opening authentication browser window..." -Level "INFO"
 		
 		# Connect to Exchange Online
 		Connect-ExchangeOnline -ShowProgress $true -ErrorAction Stop | Out-Null
 		
-		Write-Host "          [+] Authentication successful!" -ForegroundColor Green
+		Write-Ui -Message "          [+] Authentication successful!" -Level "OK"
 		
 		# Get organization information
 		try {
@@ -163,7 +163,7 @@ function Connect-ToExchangeOnline {
 			if ($session -and $session.ComputerName) {
 				$Script:TenantDomain = $session.ComputerName
 				$Script:TenantName = $session.ComputerName
-				Write-Host "          Organization: $($Script:TenantName)" -ForegroundColor Gray
+				Write-Ui -Message "          Organization: $($Script:TenantName)" -Level "INFO"
 			}
 		} catch {
 			# Silent fail - not critical
@@ -171,7 +171,7 @@ function Connect-ToExchangeOnline {
 		
 		Write-Host ""
 		Write-Host "============================================================" -ForegroundColor Green
-		Write-Host "  [+] Exchange Online Connected Successfully" -ForegroundColor Green
+		Write-Ui -Message "  [+] Exchange Online Connected Successfully" -Level "OK"
 		Write-Host "============================================================" -ForegroundColor Green
 		Write-Host ""
 		$Script:Connected = $true
@@ -179,15 +179,15 @@ function Connect-ToExchangeOnline {
 	} catch {
 		Write-Host ""
 		Write-Host "============================================================" -ForegroundColor Red
-		Write-Host "  [-] Exchange Online Connection Failed" -ForegroundColor Red
+		Write-Ui -Message "  [-] Exchange Online Connection Failed" -Level "ERROR"
 		Write-Host "============================================================" -ForegroundColor Red
 		Write-Host ""
 		Write-Warning "Connection failed: $($_.Exception.Message)"
 		Write-Host ""
-		Write-Host "Troubleshooting steps:" -ForegroundColor Yellow
-		Write-Host "  1. Check your internet connection" -ForegroundColor Gray
-		Write-Host "  2. Verify you have Exchange Administrator or Global Administrator role" -ForegroundColor Gray
-		Write-Host "  3. Try running the script again" -ForegroundColor Gray
+		Write-Ui -Message "Troubleshooting steps:" -Level "WARN"
+		Write-Ui -Message "  1. Check your internet connection" -Level "INFO"
+		Write-Ui -Message "  2. Verify you have Exchange Administrator or Global Administrator role" -Level "INFO"
+		Write-Ui -Message "  3. Try running the script again" -Level "INFO"
 		Write-Host ""
 	}
 	return $connected
@@ -197,18 +197,18 @@ function Disconnect-FromExchangeOnline {
 	Show-Header "Disconnect from Exchange Online"
 	
 	if (-not $Script:Connected) {
-		Write-Host "Not currently connected to Exchange Online." -ForegroundColor Yellow
+		Write-Ui -Message "Not currently connected to Exchange Online." -Level "WARN"
 		Write-Host ""
-		Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+		Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 		$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 		return
 	}
 	
-	Write-Host "Current connection:" -ForegroundColor Cyan
+	Write-Ui -Message "Current connection:" -Level "INFO"
 	Write-Host ""
 	if ($Script:TenantDomain -ne "Unknown") {
-		Write-Host "  Organization: $($Script:TenantName)" -ForegroundColor Gray
-		Write-Host "  Domain: $($Script:TenantDomain)" -ForegroundColor Gray
+		Write-Ui -Message "  Organization: $($Script:TenantName)" -Level "INFO"
+		Write-Ui -Message "  Domain: $($Script:TenantDomain)" -Level "INFO"
 	}
 	Write-Host ""
 	Write-Host "------------------------------------------------------------" -ForegroundColor Yellow
@@ -219,7 +219,7 @@ function Disconnect-FromExchangeOnline {
 	
 	if ($confirm.Character -eq 'Y' -or $confirm.Character -eq 'y') {
 		try {
-			Write-Host "Disconnecting from Exchange Online..." -ForegroundColor Cyan
+			Write-Ui -Message "Disconnecting from Exchange Online..." -Level "INFO"
 			Disconnect-ExchangeOnline -Confirm:$false -ErrorAction Stop | Out-Null
 			$Script:Connected = $false
 			$Script:TenantDomain = "Unknown"
@@ -227,26 +227,26 @@ function Disconnect-FromExchangeOnline {
 			$Script:MailboxData = @()
 			Write-Host ""
 			Write-Host "============================================================" -ForegroundColor Green
-			Write-Host "  [+] Disconnected Successfully" -ForegroundColor Green
+			Write-Ui -Message "  [+] Disconnected Successfully" -Level "OK"
 			Write-Host "============================================================" -ForegroundColor Green
 			Write-Host ""
-			Write-Host "Mailbox data has been cleared." -ForegroundColor Gray
+			Write-Ui -Message "Mailbox data has been cleared." -Level "INFO"
 			Write-Host ""
 		} catch {
 			Write-Host ""
 			Write-Host "============================================================" -ForegroundColor Red
-			Write-Host "  [-] Disconnect Failed" -ForegroundColor Red
+			Write-Ui -Message "  [-] Disconnect Failed" -Level "ERROR"
 			Write-Host "============================================================" -ForegroundColor Red
 			Write-Host ""
 			Write-Warning "Disconnect failed: $($_.Exception.Message)"
 			Write-Host ""
 		}
 	} else {
-		Write-Host "Disconnect cancelled." -ForegroundColor Yellow
+		Write-Ui -Message "Disconnect cancelled." -Level "WARN"
 		Write-Host ""
 	}
 	
-	Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+	Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 	$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
@@ -254,30 +254,30 @@ function Get-AllMailboxes {
 	Show-Header "Retrieving Exchange Online Mailboxes"
 	
 	if (-not $Script:Connected) {
-		Write-Host "Not connected to Exchange Online. Please connect first." -ForegroundColor Red
+		Write-Ui -Message "Not connected to Exchange Online. Please connect first." -Level "ERROR"
 		Write-Host ""
-		Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+		Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 		$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 		return
 	}
 	
 	try {
-		Write-Host "Retrieving all mailboxes from Exchange Online..." -ForegroundColor Cyan
-		Write-Host "This may take a few moments depending on the number of mailboxes..." -ForegroundColor Gray
+		Write-Ui -Message "Retrieving all mailboxes from Exchange Online..." -Level "INFO"
+		Write-Ui -Message "This may take a few moments depending on the number of mailboxes..." -Level "INFO"
 		Write-Host ""
 		
 		# Get all mailboxes
 		$allMailboxes = Get-Mailbox -ResultSize Unlimited -ErrorAction Stop
 		
 		if (-not $allMailboxes -or $allMailboxes.Count -eq 0) {
-			Write-Host "No mailboxes found in the tenant." -ForegroundColor Yellow
+			Write-Ui -Message "No mailboxes found in the tenant." -Level "WARN"
 			Write-Host ""
-			Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+			Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 			$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 			return
 		}
 		
-		Write-Host "Found $($allMailboxes.Count) mailbox(es). Processing mailbox details..." -ForegroundColor Green
+		Write-Ui -Message "Found $($allMailboxes.Count) mailbox(es). Processing mailbox details..." -Level "OK"
 		Write-Host ""
 		
 		$Script:MailboxData = @()
@@ -405,19 +405,19 @@ function Get-AllMailboxes {
 		Write-Progress -Activity "Processing Mailboxes" -Completed
 		
 		Write-Host "============================================================" -ForegroundColor Green
-		Write-Host "  [+] Successfully retrieved $($Script:MailboxData.Count) mailboxes" -ForegroundColor Green
+		Write-Ui -Message "  [+] Successfully retrieved $($Script:MailboxData.Count) mailboxes" -Level "OK"
 		Write-Host "============================================================" -ForegroundColor Green
 		Write-Host ""
 		
 	} catch {
 		Write-Host ""
 		Write-Host "============================================================" -ForegroundColor Red
-		Write-Host "  [-] Error retrieving mailboxes" -ForegroundColor Red
+		Write-Ui -Message "  [-] Error retrieving mailboxes" -Level "ERROR"
 		Write-Host "============================================================" -ForegroundColor Red
 		Write-Host ""
 		Write-Warning "Error: $($_.Exception.Message)"
 		Write-Host ""
-		Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+		Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 		$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 	}
 }
@@ -426,9 +426,9 @@ function Show-MailboxSummary {
 	Show-Header "Mailbox Summary"
 	
 	if ($Script:MailboxData.Count -eq 0) {
-		Write-Host "No mailbox data available. Please retrieve mailboxes first." -ForegroundColor Yellow
+		Write-Ui -Message "No mailbox data available. Please retrieve mailboxes first." -Level "WARN"
 		Write-Host ""
-		Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+		Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 		$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 		return
 	}
@@ -442,7 +442,7 @@ function Show-MailboxSummary {
 	$totalSizeGB = ($Script:MailboxData | ForEach-Object { [double]$_.MailboxSizeGB } | Measure-Object -Sum).Sum
 	$totalItems = ($Script:MailboxData | ForEach-Object { $_.ItemCount } | Measure-Object -Sum).Sum
 	
-	Write-Host "SUMMARY STATISTICS" -ForegroundColor Cyan
+	Write-Ui -Message "SUMMARY STATISTICS" -Level "INFO"
 	Write-Host "------------------------------------------------------------" -ForegroundColor Gray
 	Write-Host ""
 	if ($Script:TenantDomain -ne "Unknown") {
@@ -461,7 +461,7 @@ function Show-MailboxSummary {
 	Write-SummaryLine "Total Mailbox Size" "$([math]::Round($totalSizeGB, 2)) GB" "White"
 	Write-SummaryLine "Total Item Count" "$totalItems items" "White"
 	Write-Host ""
-	Write-Host "TOP 10 MAILBOXES (by Display Name)" -ForegroundColor Cyan
+	Write-Ui -Message "TOP 10 MAILBOXES (by Display Name)" -Level "INFO"
 	Write-Host "------------------------------------------------------------" -ForegroundColor Gray
 	Write-Host ""
 	
@@ -474,35 +474,35 @@ function Show-MailboxSummary {
 			default { "White" }
 		}
 		
-		Write-Host "  $($mailbox.DisplayName)" -ForegroundColor White
-		Write-Host "    Email: $($mailbox.PrimarySmtpAddress)" -ForegroundColor Gray
+		Write-Ui -Message "  $($mailbox.DisplayName)" -Level "STEP"
+		Write-Ui -Message "    Email: $($mailbox.PrimarySmtpAddress)" -Level "INFO"
 		Write-Host "    Type: " -NoNewline -ForegroundColor Gray
 		Write-Host "$($mailbox.MailboxType)" -ForegroundColor $typeColor
 		Write-Host "    License: $($mailbox.LicenseStatus)" -ForegroundColor $(if ($mailbox.IsLicensed) { "Green" } else { "Yellow" })
-		Write-Host "    Size: $($mailbox.MailboxSizeGB) GB ($($mailbox.ItemCount) items)" -ForegroundColor Gray
+		Write-Ui -Message "    Size: $($mailbox.MailboxSizeGB) GB ($($mailbox.ItemCount) items)" -Level "INFO"
 		if ($mailbox.AliasesCount -gt 0) {
-			Write-Host "    Aliases: $($mailbox.AliasesCount) alias(es)" -ForegroundColor Cyan
+			Write-Ui -Message "    Aliases: $($mailbox.AliasesCount) alias(es)" -Level "INFO"
 		}
 		if ($mailbox.SendOnBehalfCount -gt 0) {
-			Write-Host "    SendOnBehalf: $($mailbox.SendOnBehalfCount) delegate(s)" -ForegroundColor Yellow
+			Write-Ui -Message "    SendOnBehalf: $($mailbox.SendOnBehalfCount) delegate(s)" -Level "WARN"
 		}
 		Write-Host ""
 	}
 	
 	if ($Script:MailboxData.Count -gt 10) {
-		Write-Host "  ... and $($Script:MailboxData.Count - 10) more mailboxes" -ForegroundColor Gray
+		Write-Ui -Message "  ... and $($Script:MailboxData.Count - 10) more mailboxes" -Level "INFO"
 		Write-Host ""
 	}
 	
-	Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+	Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 	$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
 function Export-MailboxListTxt {
 	if ($Script:MailboxData.Count -eq 0) {
-		Write-Host "No mailbox data available. Please retrieve mailboxes first." -ForegroundColor Yellow
+		Write-Ui -Message "No mailbox data available. Please retrieve mailboxes first." -Level "WARN"
 		Write-Host ""
-		Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+		Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 		$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 		return
 	}
@@ -556,32 +556,32 @@ function Export-MailboxListTxt {
 		
 		$output | Out-File -FilePath $filePath -Encoding UTF8 -Force
 		
-		Write-Host "Export completed successfully!" -ForegroundColor Green
+		Write-Ui -Message "Export completed successfully!" -Level "OK"
 		Write-Host ""
-		Write-Host "File saved to:" -ForegroundColor Cyan
-		Write-Host $filePath -ForegroundColor White
+		Write-Ui -Message "File saved to:" -Level "INFO"
+		Write-Ui -Message $filePath -Level "STEP"
 		Write-Host ""
-		Write-Host "Total mailboxes exported: $($Script:MailboxData.Count)" -ForegroundColor Green
+		Write-Ui -Message "Total mailboxes exported: $($Script:MailboxData.Count)" -Level "OK"
 		Write-Host ""
 		
-		Write-Host "Opening file..." -ForegroundColor Yellow
+		Write-Ui -Message "Opening file..." -Level "WARN"
 		Start-Sleep -Seconds 1
 		Start-Process $filePath
 		
 	} catch {
-		Write-Host "Export failed: $($_.Exception.Message)" -ForegroundColor Red
+		Write-Ui -Message "Export failed: $($_.Exception.Message)" -Level "ERROR"
 		Write-Host ""
 	}
 	
-	Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+	Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 	$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
 function Export-MailboxListCsv {
 	if ($Script:MailboxData.Count -eq 0) {
-		Write-Host "No mailbox data available. Please retrieve mailboxes first." -ForegroundColor Yellow
+		Write-Ui -Message "No mailbox data available. Please retrieve mailboxes first." -Level "WARN"
 		Write-Host ""
-		Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+		Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 		$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 		return
 	}
@@ -596,37 +596,37 @@ function Export-MailboxListCsv {
 	try {
 		$Script:MailboxData | Sort-Object DisplayName | Export-Csv -Path $filePath -NoTypeInformation -Encoding UTF8 -Force
 		
-		Write-Host "Export completed successfully!" -ForegroundColor Green
+		Write-Ui -Message "Export completed successfully!" -Level "OK"
 		Write-Host ""
-		Write-Host "File saved to:" -ForegroundColor Cyan
-		Write-Host $filePath -ForegroundColor White
+		Write-Ui -Message "File saved to:" -Level "INFO"
+		Write-Ui -Message $filePath -Level "STEP"
 		Write-Host ""
-		Write-Host "Total mailboxes exported: $($Script:MailboxData.Count)" -ForegroundColor Green
+		Write-Ui -Message "Total mailboxes exported: $($Script:MailboxData.Count)" -Level "OK"
 		Write-Host ""
-		Write-Host "This file can be opened in:" -ForegroundColor Yellow
-		Write-Host "  - Microsoft Excel" -ForegroundColor Gray
-		Write-Host "  - Google Sheets" -ForegroundColor Gray
-		Write-Host "  - Any spreadsheet program" -ForegroundColor Gray
+		Write-Ui -Message "This file can be opened in:" -Level "WARN"
+		Write-Ui -Message "  - Microsoft Excel" -Level "INFO"
+		Write-Ui -Message "  - Google Sheets" -Level "INFO"
+		Write-Ui -Message "  - Any spreadsheet program" -Level "INFO"
 		Write-Host ""
 		
-		Write-Host "Opening file..." -ForegroundColor Yellow
+		Write-Ui -Message "Opening file..." -Level "WARN"
 		Start-Sleep -Seconds 1
 		Start-Process $filePath
 		
 	} catch {
-		Write-Host "Export failed: $($_.Exception.Message)" -ForegroundColor Red
+		Write-Ui -Message "Export failed: $($_.Exception.Message)" -Level "ERROR"
 		Write-Host ""
 	}
 	
-	Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+	Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 	$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
 function Export-MailboxListHtml {
 	if ($Script:MailboxData.Count -eq 0) {
-		Write-Host "No mailbox data available. Please retrieve mailboxes first." -ForegroundColor Yellow
+		Write-Ui -Message "No mailbox data available. Please retrieve mailboxes first." -Level "WARN"
 		Write-Host ""
-		Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+		Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 		$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 		return
 	}
@@ -782,95 +782,95 @@ h2 { color: #4a5568; margin-top: 30px; }
 		
 		$html | Out-File -FilePath $filePath -Encoding UTF8 -Force
 		
-		Write-Host "Export completed successfully!" -ForegroundColor Green
+		Write-Ui -Message "Export completed successfully!" -Level "OK"
 		Write-Host ""
-		Write-Host "File saved to:" -ForegroundColor Cyan
-		Write-Host $filePath -ForegroundColor White
+		Write-Ui -Message "File saved to:" -Level "INFO"
+		Write-Ui -Message $filePath -Level "STEP"
 		Write-Host ""
-		Write-Host "Total mailboxes exported: $($Script:MailboxData.Count)" -ForegroundColor Green
+		Write-Ui -Message "Total mailboxes exported: $($Script:MailboxData.Count)" -Level "OK"
 		Write-Host ""
 		
-		Write-Host "Opening file in browser..." -ForegroundColor Yellow
+		Write-Ui -Message "Opening file in browser..." -Level "WARN"
 		Start-Sleep -Seconds 1
 		Start-Process $filePath
 		
 	} catch {
-		Write-Host "Export failed: $($_.Exception.Message)" -ForegroundColor Red
+		Write-Ui -Message "Export failed: $($_.Exception.Message)" -Level "ERROR"
 		Write-Host ""
 	}
 	
-	Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+	Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 	$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
 function Show-Help {
 	Show-Header "Help & Information"
 	
-	Write-Host "MICROSOFT 365 EXCHANGE ONLINE TOOL" -ForegroundColor Cyan
+	Write-Ui -Message "MICROSOFT 365 EXCHANGE ONLINE TOOL" -Level "INFO"
 	Write-Host "------------------------------------------------------------" -ForegroundColor Gray
 	Write-Host ""
-	Write-Host "This tool retrieves and lists all mailboxes in your Exchange Online tenant" -ForegroundColor White
-	Write-Host "with comprehensive information including:" -ForegroundColor White
+	Write-Ui -Message "This tool retrieves and lists all mailboxes in your Exchange Online tenant" -Level "STEP"
+	Write-Ui -Message "with comprehensive information including:" -Level "STEP"
 	Write-Host ""
-	Write-Host "  - Display name and primary email address" -ForegroundColor Gray
-	Write-Host "  - Email aliases" -ForegroundColor Gray
-	Write-Host "  - License status (Licensed/Unlicensed)" -ForegroundColor Gray
-	Write-Host "  - Mailbox type (User/Shared/Resource)" -ForegroundColor Gray
-	Write-Host "  - Protocol settings (IMAP, POP, EWS, ActiveSync, SMTP AUTH, MAPI)" -ForegroundColor Gray
-	Write-Host "  - Last activity time, last logon, and last access" -ForegroundColor Gray
-	Write-Host "  - Mailbox size (GB) and item count" -ForegroundColor Gray
-	Write-Host "  - SendOnBehalf permissions" -ForegroundColor Gray
+	Write-Ui -Message "  - Display name and primary email address" -Level "INFO"
+	Write-Ui -Message "  - Email aliases" -Level "INFO"
+	Write-Ui -Message "  - License status (Licensed/Unlicensed)" -Level "INFO"
+	Write-Ui -Message "  - Mailbox type (User/Shared/Resource)" -Level "INFO"
+	Write-Ui -Message "  - Protocol settings (IMAP, POP, EWS, ActiveSync, SMTP AUTH, MAPI)" -Level "INFO"
+	Write-Ui -Message "  - Last activity time, last logon, and last access" -Level "INFO"
+	Write-Ui -Message "  - Mailbox size (GB) and item count" -Level "INFO"
+	Write-Ui -Message "  - SendOnBehalf permissions" -Level "INFO"
 	Write-Host ""
-	Write-Host "REQUIREMENTS" -ForegroundColor Cyan
+	Write-Ui -Message "REQUIREMENTS" -Level "INFO"
 	Write-Host "------------------------------------------------------------" -ForegroundColor Gray
 	Write-Host ""
-	Write-Host "  - Exchange Online Management PowerShell module" -ForegroundColor Gray
-	Write-Host "  - Exchange Administrator or Global Administrator role" -ForegroundColor Gray
-	Write-Host "  - Required permissions:" -ForegroundColor Gray
-	Write-Host "    * Mailbox.Read" -ForegroundColor Yellow
-	Write-Host "    * Organization.Read" -ForegroundColor Yellow
+	Write-Ui -Message "  - Exchange Online Management PowerShell module" -Level "INFO"
+	Write-Ui -Message "  - Exchange Administrator or Global Administrator role" -Level "INFO"
+	Write-Ui -Message "  - Required permissions:" -Level "INFO"
+	Write-Ui -Message "    * Mailbox.Read" -Level "WARN"
+	Write-Ui -Message "    * Organization.Read" -Level "WARN"
 	Write-Host ""
-	Write-Host "USAGE" -ForegroundColor Cyan
+	Write-Ui -Message "USAGE" -Level "INFO"
 	Write-Host "------------------------------------------------------------" -ForegroundColor Gray
 	Write-Host ""
-	Write-Host "  1. Connect to Exchange Online" -ForegroundColor White
-	Write-Host "     - First-time users will need to authenticate via browser" -ForegroundColor Gray
-	Write-Host "     - Grant permissions when prompted" -ForegroundColor Gray
-	Write-Host "     - If already connected, you can keep or switch tenants" -ForegroundColor Gray
+	Write-Ui -Message "  1. Connect to Exchange Online" -Level "STEP"
+	Write-Ui -Message "     - First-time users will need to authenticate via browser" -Level "INFO"
+	Write-Ui -Message "     - Grant permissions when prompted" -Level "INFO"
+	Write-Ui -Message "     - If already connected, you can keep or switch tenants" -Level "INFO"
 	Write-Host ""
-	Write-Host "  2. Disconnect from Current Tenant" -ForegroundColor White
-	Write-Host "     - Disconnects from the current Exchange Online tenant" -ForegroundColor Gray
-	Write-Host "     - Clears all cached mailbox data" -ForegroundColor Gray
-	Write-Host "     - Use this to switch to a different tenant" -ForegroundColor Gray
+	Write-Ui -Message "  2. Disconnect from Current Tenant" -Level "STEP"
+	Write-Ui -Message "     - Disconnects from the current Exchange Online tenant" -Level "INFO"
+	Write-Ui -Message "     - Clears all cached mailbox data" -Level "INFO"
+	Write-Ui -Message "     - Use this to switch to a different tenant" -Level "INFO"
 	Write-Host ""
-	Write-Host "  3. Retrieve All Mailboxes" -ForegroundColor White
-	Write-Host "     - Fetches all mailboxes from your Exchange Online tenant" -ForegroundColor Gray
-	Write-Host "     - May take a few moments for large tenants" -ForegroundColor Gray
+	Write-Ui -Message "  3. Retrieve All Mailboxes" -Level "STEP"
+	Write-Ui -Message "     - Fetches all mailboxes from your Exchange Online tenant" -Level "INFO"
+	Write-Ui -Message "     - May take a few moments for large tenants" -Level "INFO"
 	Write-Host ""
-	Write-Host "  4. View Summary" -ForegroundColor White
-	Write-Host "     - Displays statistics and top 10 mailboxes" -ForegroundColor Gray
+	Write-Ui -Message "  4. View Summary" -Level "STEP"
+	Write-Ui -Message "     - Displays statistics and top 10 mailboxes" -Level "INFO"
 	Write-Host ""
-	Write-Host "  5-7. Export Reports" -ForegroundColor White
-	Write-Host "     - TXT: Human-readable text format" -ForegroundColor Gray
-	Write-Host "     - CSV: Spreadsheet format for Excel/Google Sheets" -ForegroundColor Gray
-	Write-Host "     - HTML: Professional web report with styling" -ForegroundColor Gray
+	Write-Ui -Message "  5-7. Export Reports" -Level "STEP"
+	Write-Ui -Message "     - TXT: Human-readable text format" -Level "INFO"
+	Write-Ui -Message "     - CSV: Spreadsheet format for Excel/Google Sheets" -Level "INFO"
+	Write-Ui -Message "     - HTML: Professional web report with styling" -Level "INFO"
 	Write-Host ""
-	Write-Host "SECURITY NOTES" -ForegroundColor Cyan
+	Write-Ui -Message "SECURITY NOTES" -Level "INFO"
 	Write-Host "------------------------------------------------------------" -ForegroundColor Gray
 	Write-Host ""
-	Write-Host "  - This tool only reads mailbox information (read-only)" -ForegroundColor Gray
-	Write-Host "  - No modifications are made to mailboxes" -ForegroundColor Gray
-	Write-Host "  - All data is stored locally on your computer" -ForegroundColor Gray
-	Write-Host "  - Authentication tokens are managed by Exchange Online" -ForegroundColor Gray
+	Write-Ui -Message "  - This tool only reads mailbox information (read-only)" -Level "INFO"
+	Write-Ui -Message "  - No modifications are made to mailboxes" -Level "INFO"
+	Write-Ui -Message "  - All data is stored locally on your computer" -Level "INFO"
+	Write-Ui -Message "  - Authentication tokens are managed by Exchange Online" -Level "INFO"
 	Write-Host ""
-	Write-Host "SUPPORT" -ForegroundColor Cyan
+	Write-Ui -Message "SUPPORT" -Level "INFO"
 	Write-Host "------------------------------------------------------------" -ForegroundColor Gray
 	Write-Host ""
-	Write-Host "  Website: www.soulitek.co.il" -ForegroundColor Cyan
-	Write-Host "  Email: letstalk@soulitek.co.il" -ForegroundColor Cyan
+	Write-Ui -Message "  Website: www.soulitek.co.il" -Level "INFO"
+	Write-Ui -Message "  Email: letstalk@soulitek.co.il" -Level "INFO"
 	Write-Host ""
 	
-	Write-Host "Press any key to return to menu..." -ForegroundColor Cyan
+	Write-Ui -Message "Press any key to return to menu..." -Level "INFO"
 	$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
@@ -885,24 +885,24 @@ function Show-Menu {
 	Write-Host "$status" -ForegroundColor $statusColor
 	if ($Script:Connected -and $Script:TenantDomain -ne "Unknown") {
 		Write-Host "Organization: " -NoNewline -ForegroundColor Gray
-		Write-Host "$($Script:TenantName)" -ForegroundColor Cyan
+		Write-Ui -Message "$($Script:TenantName)" -Level "INFO"
 		Write-Host "Domain: " -NoNewline -ForegroundColor Gray
-		Write-Host "$($Script:TenantDomain)" -ForegroundColor Cyan
+		Write-Ui -Message "$($Script:TenantDomain)" -Level "INFO"
 	}
 	Write-Host "Mailbox Data: " -NoNewline -ForegroundColor Gray
 	Write-Host "$($Script:MailboxData.Count) mailboxes$mailboxCount" -ForegroundColor $(if ($Script:MailboxData.Count -gt 0) { "Green" } else { "Yellow" })
 	Write-Host ""
 	Write-Host "============================================================" -ForegroundColor Cyan
 	Write-Host ""
-	Write-Host "  1. Connect to Exchange Online" -ForegroundColor White
-	Write-Host "  2. Disconnect from Current Tenant" -ForegroundColor White
-	Write-Host "  3. Retrieve All Mailboxes" -ForegroundColor White
-	Write-Host "  4. View Mailbox Summary" -ForegroundColor White
-	Write-Host "  5. Export Report - TXT Format" -ForegroundColor White
-	Write-Host "  6. Export Report - CSV Format" -ForegroundColor White
-	Write-Host "  7. Export Report - HTML Format" -ForegroundColor White
-	Write-Host "  8. Help & Information" -ForegroundColor White
-	Write-Host "  0. Exit" -ForegroundColor White
+	Write-Ui -Message "  1. Connect to Exchange Online" -Level "STEP"
+	Write-Ui -Message "  2. Disconnect from Current Tenant" -Level "STEP"
+	Write-Ui -Message "  3. Retrieve All Mailboxes" -Level "STEP"
+	Write-Ui -Message "  4. View Mailbox Summary" -Level "STEP"
+	Write-Ui -Message "  5. Export Report - TXT Format" -Level "STEP"
+	Write-Ui -Message "  6. Export Report - CSV Format" -Level "STEP"
+	Write-Ui -Message "  7. Export Report - HTML Format" -Level "STEP"
+	Write-Ui -Message "  8. Help & Information" -Level "STEP"
+	Write-Ui -Message "  0. Exit" -Level "STEP"
 	Write-Host ""
 	Write-Host "============================================================" -ForegroundColor Cyan
 	Write-Host ""
@@ -918,7 +918,7 @@ function Show-ExitMessage {
 	# Disconnect if connected
 	try {
 		if ($Script:Connected) {
-			Write-Host "Disconnecting from Exchange Online..." -ForegroundColor Cyan
+			Write-Ui -Message "Disconnecting from Exchange Online..." -Level "INFO"
 			Disconnect-ExchangeOnline -Confirm:$false -ErrorAction SilentlyContinue | Out-Null
 		}
 	} catch { }
@@ -951,9 +951,9 @@ while ($true) {
 		}
 		default {
 			Write-Host ""
-			Write-Host "Invalid option. Please select 0-8." -ForegroundColor Red
+			Write-Ui -Message "Invalid option. Please select 0-8." -Level "ERROR"
 			Write-Host ""
-			Write-Host "Press any key to continue..." -ForegroundColor Cyan
+			Write-Ui -Message "Press any key to continue..." -Level "INFO"
 			$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 		}
 	}

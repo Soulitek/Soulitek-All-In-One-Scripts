@@ -201,7 +201,7 @@ function Get-RAMSlotInformation {
         return $ramInfo
     }
     catch {
-        Write-Host "Error collecting RAM information: $_" -ForegroundColor Red
+        Write-Ui -Message "Error collecting RAM information: $_" -Level "ERROR"
         return $null
     }
 }
@@ -223,7 +223,7 @@ function Show-RAMReport {
     
     if (-not $ramInfo) {
         Set-SouliTEKConsoleColor "Red"
-        Write-Host "Failed to collect RAM information." -ForegroundColor Red
+        Write-Ui -Message "Failed to collect RAM information." -Level "ERROR"
         Write-Host ""
         Set-SouliTEKConsoleColor "White"
         Write-Host "Press any key to return to main menu..."
@@ -232,7 +232,7 @@ function Show-RAMReport {
     }
     
     # Summary
-    Write-Host "SUMMARY" -ForegroundColor Yellow
+    Write-Ui -Message "SUMMARY" -Level "WARN"
     Write-Host "========================================" -ForegroundColor Cyan
     Write-Host "Computer Name:      " -NoNewline; Write-Host $ramInfo.ComputerName -ForegroundColor Green
     Write-Host "Total Slots:        " -NoNewline; Write-Host $ramInfo.TotalSlots -ForegroundColor Green
@@ -244,13 +244,13 @@ function Show-RAMReport {
     Write-Host ""
     
     # Slot details
-    Write-Host "SLOT DETAILS" -ForegroundColor Yellow
+    Write-Ui -Message "SLOT DETAILS" -Level "WARN"
     Write-Host "========================================" -ForegroundColor Cyan
     Write-Host ""
     
     foreach ($slot in $ramInfo.SlotDetails) {
         if ($slot.Status -eq "In Use") {
-            Write-Host "Slot $($slot.Slot) - $($slot.DeviceLocator)" -ForegroundColor Green
+            Write-Ui -Message "Slot $($slot.Slot) - $($slot.DeviceLocator)" -Level "OK"
             Write-Host "  Capacity:   " -NoNewline; Write-Host "$($slot.CapacityGB) GB" -ForegroundColor White
             Write-Host "  Type:       " -NoNewline; Write-Host $slot.Type -ForegroundColor White
             Write-Host "  Speed:      " -NoNewline; Write-Host "$($slot.SpeedMHz) MHz" -ForegroundColor White
@@ -261,8 +261,8 @@ function Show-RAMReport {
             }
             Write-Host ""
         } else {
-            Write-Host "Slot $($slot.Slot) - $($slot.DeviceLocator)" -ForegroundColor DarkGray
-            Write-Host "  Status: Empty" -ForegroundColor DarkGray
+            Write-Ui -Message "Slot $($slot.Slot) - $($slot.DeviceLocator)" -Level "INFO"
+            Write-Ui -Message "  Status: Empty" -Level "INFO"
             Write-Host ""
         }
     }
@@ -288,7 +288,7 @@ function Export-RAMReportTXT {
     $ramInfo = Get-RAMSlotInformation
     
     if (-not $ramInfo) {
-        Write-Host "Failed to collect RAM information." -ForegroundColor Red
+        Write-Ui -Message "Failed to collect RAM information." -Level "ERROR"
         Write-Host ""
         Set-SouliTEKConsoleColor "White"
         Write-Host "Press any key to return to main menu..."
@@ -364,7 +364,7 @@ END OF REPORT
         $report | Out-File -FilePath $outputPath -Encoding UTF8
         Set-SouliTEKConsoleColor "Green"
         Write-Host ""
-        Write-Host "Report exported successfully!" -ForegroundColor Green
+        Write-Ui -Message "Report exported successfully!" -Level "OK"
         Write-Host ""
         Write-Host "File saved to:"
         Write-Host $outputPath
@@ -376,7 +376,7 @@ END OF REPORT
         }
     }
     catch {
-        Write-Host "Failed to export report: $_" -ForegroundColor Red
+        Write-Ui -Message "Failed to export report: $_" -Level "ERROR"
     }
     
     Write-Host ""
@@ -399,7 +399,7 @@ function Export-RAMReportCSV {
     $ramInfo = Get-RAMSlotInformation
     
     if (-not $ramInfo) {
-        Write-Host "Failed to collect RAM information." -ForegroundColor Red
+        Write-Ui -Message "Failed to collect RAM information." -Level "ERROR"
         Write-Host ""
         Set-SouliTEKConsoleColor "White"
         Write-Host "Press any key to return to main menu..."
@@ -414,7 +414,7 @@ function Export-RAMReportCSV {
         $ramInfo.SlotDetails | Export-Csv -Path $outputPath -NoTypeInformation -Encoding UTF8
         Set-SouliTEKConsoleColor "Green"
         Write-Host ""
-        Write-Host "Report exported successfully!" -ForegroundColor Green
+        Write-Ui -Message "Report exported successfully!" -Level "OK"
         Write-Host ""
         Write-Host "File saved to:"
         Write-Host $outputPath
@@ -446,7 +446,7 @@ function Export-RAMReportCSV {
         }
     }
     catch {
-        Write-Host "Failed to export report: $_" -ForegroundColor Red
+        Write-Ui -Message "Failed to export report: $_" -Level "ERROR"
     }
     
     Write-Host ""
@@ -469,7 +469,7 @@ function Export-RAMReportHTML {
     $ramInfo = Get-RAMSlotInformation
     
     if (-not $ramInfo) {
-        Write-Host "Failed to collect RAM information." -ForegroundColor Red
+        Write-Ui -Message "Failed to collect RAM information." -Level "ERROR"
         Write-Host ""
         Set-SouliTEKConsoleColor "White"
         Write-Host "Press any key to return to main menu..."
@@ -701,7 +701,7 @@ $slotRows
         $html | Out-File -FilePath $outputPath -Encoding UTF8
         Set-SouliTEKConsoleColor "Green"
         Write-Host ""
-        Write-Host "Report exported successfully!" -ForegroundColor Green
+        Write-Ui -Message "Report exported successfully!" -Level "OK"
         Write-Host ""
         Write-Host "File saved to:"
         Write-Host $outputPath
@@ -713,7 +713,7 @@ $slotRows
         }
     }
     catch {
-        Write-Host "Failed to export report: $_" -ForegroundColor Red
+        Write-Ui -Message "Failed to export report: $_" -Level "ERROR"
     }
     
     Write-Host ""
@@ -738,7 +738,7 @@ function Export-RAMReportAll {
     $ramInfo = Get-RAMSlotInformation
     
     if (-not $ramInfo) {
-        Write-Host "Failed to collect RAM information." -ForegroundColor Red
+        Write-Ui -Message "Failed to collect RAM information." -Level "ERROR"
         Write-Host ""
         Set-SouliTEKConsoleColor "White"
         Write-Host "Press any key to return to main menu..."
@@ -751,7 +751,7 @@ function Export-RAMReportAll {
     $filesCreated = @()
     
     # Export TXT
-    Write-Host "Exporting TXT format..." -ForegroundColor Yellow
+    Write-Ui -Message "Exporting TXT format..." -Level "WARN"
     try {
         $txtPath = "$basePath\RAM_Slot_Report_$timestamp.txt"
         $report = @"
@@ -814,13 +814,13 @@ END OF REPORT
 "@
         $report | Out-File -FilePath $txtPath -Encoding UTF8
         $filesCreated += "RAM_Slot_Report_$timestamp.txt"
-        Write-Host "  [OK] TXT exported" -ForegroundColor Green
+        Write-Ui -Message "  [OK] TXT exported" -Level "OK"
     } catch {
-        Write-Host "  [ERROR] TXT export failed: $_" -ForegroundColor Red
+        Write-Ui -Message "  [ERROR] TXT export failed: $_" -Level "ERROR"
     }
     
     # Export CSV
-    Write-Host "Exporting CSV format..." -ForegroundColor Yellow
+    Write-Ui -Message "Exporting CSV format..." -Level "WARN"
     try {
         $csvPath = "$basePath\RAM_Slot_Report_$timestamp.csv"
         $ramInfo.SlotDetails | Export-Csv -Path $csvPath -NoTypeInformation -Encoding UTF8
@@ -839,13 +839,13 @@ END OF REPORT
         }
         $summary | Export-Csv -Path $summaryPath -NoTypeInformation -Encoding UTF8
         $filesCreated += "RAM_Slot_Summary_$timestamp.csv"
-        Write-Host "  [OK] CSV exported" -ForegroundColor Green
+        Write-Ui -Message "  [OK] CSV exported" -Level "OK"
     } catch {
-        Write-Host "  [ERROR] CSV export failed: $_" -ForegroundColor Red
+        Write-Ui -Message "  [ERROR] CSV export failed: $_" -Level "ERROR"
     }
     
     # Export HTML
-    Write-Host "Exporting HTML format..." -ForegroundColor Yellow
+    Write-Ui -Message "Exporting HTML format..." -Level "WARN"
     try {
         $htmlPath = "$basePath\RAM_Slot_Report_$timestamp.html"
         $usedSlotsPercent = [math]::Round(($ramInfo.UsedSlots / $ramInfo.TotalSlots) * 100, 1)
@@ -1066,9 +1066,9 @@ $slotRows
 "@
         $html | Out-File -FilePath $htmlPath -Encoding UTF8
         $filesCreated += "RAM_Slot_Report_$timestamp.html"
-        Write-Host "  [OK] HTML exported" -ForegroundColor Green
+        Write-Ui -Message "  [OK] HTML exported" -Level "OK"
     } catch {
-        Write-Host "  [ERROR] HTML export failed: $_" -ForegroundColor Red
+        Write-Ui -Message "  [ERROR] HTML export failed: $_" -Level "ERROR"
     }
     
     Write-Host ""

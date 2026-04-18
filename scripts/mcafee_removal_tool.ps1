@@ -98,20 +98,20 @@ function Show-MCPRNotFound {
     Write-Host "  ERROR: MCPR Tool Not Found"
     Write-Host "========================================" -ForegroundColor Red
     Write-Host ""
-    Write-Host "The MCPR.exe file was not found at:" -ForegroundColor Yellow
-    Write-Host "  $MCPRPath" -ForegroundColor Gray
+    Write-Ui -Message "The MCPR.exe file was not found at:" -Level "WARN"
+    Write-Ui -Message "  $MCPRPath" -Level "INFO"
     Write-Host ""
-    Write-Host "Please ensure:" -ForegroundColor Yellow
+    Write-Ui -Message "Please ensure:" -Level "WARN"
     Write-Host "  1. MCPR.exe is placed in the 'tools' folder"
     Write-Host "  2. The file is named exactly 'MCPR.exe'"
     Write-Host "  3. The project structure is intact"
     Write-Host ""
-    Write-Host "Expected structure:" -ForegroundColor Cyan
-    Write-Host "  Soulitek-AIO/" -ForegroundColor Gray
-    Write-Host "    tools/" -ForegroundColor Gray
-    Write-Host "      MCPR.exe" -ForegroundColor Gray
-    Write-Host "    scripts/" -ForegroundColor Gray
-    Write-Host "      mcafee_removal_tool.ps1" -ForegroundColor Gray
+    Write-Ui -Message "Expected structure:" -Level "INFO"
+    Write-Ui -Message "  Soulitek-AIO/" -Level "INFO"
+    Write-Ui -Message "    tools/" -Level "INFO"
+    Write-Ui -Message "      MCPR.exe" -Level "INFO"
+    Write-Ui -Message "    scripts/" -Level "INFO"
+    Write-Ui -Message "      mcafee_removal_tool.ps1" -Level "INFO"
     Write-Host ""
     Write-Host "========================================"
     Read-Host "Press Enter to exit"
@@ -126,28 +126,28 @@ function Show-Warning {
     Write-Host "  WARNING: IMPORTANT NOTICE"
     Write-Host "========================================" -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "This tool will COMPLETELY REMOVE all McAfee" -ForegroundColor Red
-    Write-Host "products from your system, including:" -ForegroundColor Yellow
+    Write-Ui -Message "This tool will COMPLETELY REMOVE all McAfee" -Level "ERROR"
+    Write-Ui -Message "products from your system, including:" -Level "WARN"
     Write-Host ""
-    Write-Host "  - McAfee Antivirus" -ForegroundColor Gray
-    Write-Host "  - McAfee Total Protection" -ForegroundColor Gray
-    Write-Host "  - McAfee LiveSafe" -ForegroundColor Gray
-    Write-Host "  - All McAfee services and components" -ForegroundColor Gray
+    Write-Ui -Message "  - McAfee Antivirus" -Level "INFO"
+    Write-Ui -Message "  - McAfee Total Protection" -Level "INFO"
+    Write-Ui -Message "  - McAfee LiveSafe" -Level "INFO"
+    Write-Ui -Message "  - All McAfee services and components" -Level "INFO"
     Write-Host ""
-    Write-Host "This action CANNOT be undone easily." -ForegroundColor Red
+    Write-Ui -Message "This action CANNOT be undone easily." -Level "ERROR"
     Write-Host ""
-    Write-Host "Before proceeding, ensure:" -ForegroundColor Yellow
-    Write-Host "  - You have a system backup" -ForegroundColor Gray
-    Write-Host "  - You understand the consequences" -ForegroundColor Gray
-    Write-Host "  - You have administrator privileges" -ForegroundColor Gray
+    Write-Ui -Message "Before proceeding, ensure:" -Level "WARN"
+    Write-Ui -Message "  - You have a system backup" -Level "INFO"
+    Write-Ui -Message "  - You understand the consequences" -Level "INFO"
+    Write-Ui -Message "  - You have administrator privileges" -Level "INFO"
     Write-Host ""
     Write-Host "========================================" -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "Press 'Y' to continue or any other key to cancel..." -ForegroundColor Cyan
+    Write-Ui -Message "Press 'Y' to continue or any other key to cancel..." -Level "INFO"
     $response = Read-Host
     if ($response -ne 'Y' -and $response -ne 'y') {
         Write-Host ""
-        Write-Host "Operation cancelled by user." -ForegroundColor Yellow
+        Write-Ui -Message "Operation cancelled by user." -Level "WARN"
         Start-Sleep -Seconds 2
         exit 0
     }
@@ -162,20 +162,20 @@ function Invoke-McAfeeRemoval {
     Write-Host "========================================" -ForegroundColor Cyan
     Write-Host ""
     
-    Write-Host "[*] Checking MCPR tool..." -ForegroundColor Cyan
+    Write-Ui -Message "[*] Checking MCPR tool..." -Level "INFO"
     if (-not (Test-MCPRToolExists)) {
         Show-MCPRNotFound
         return $false
     }
-    Write-Host "    [OK] MCPR.exe found" -ForegroundColor Green
+    Write-Ui -Message "    [OK] MCPR.exe found" -Level "OK"
     Write-Host ""
     
-    Write-Host "[*] Preparing to run MCPR..." -ForegroundColor Cyan
-    Write-Host "    Tool location: $MCPRPath" -ForegroundColor Gray
+    Write-Ui -Message "[*] Preparing to run MCPR..." -Level "INFO"
+    Write-Ui -Message "    Tool location: $MCPRPath" -Level "INFO"
     Write-Host ""
     
-    Write-Host "[*] Launching McAfee Consumer Product Removal tool..." -ForegroundColor Cyan
-    Write-Host "    This may take several minutes. Please wait..." -ForegroundColor Yellow
+    Write-Ui -Message "[*] Launching McAfee Consumer Product Removal tool..." -Level "INFO"
+    Write-Ui -Message "    This may take several minutes. Please wait..." -Level "WARN"
     Write-Host ""
     
     try {
@@ -185,23 +185,23 @@ function Invoke-McAfeeRemoval {
         Write-Host ""
         Write-Host "========================================" -ForegroundColor Cyan
         if ($process.ExitCode -eq 0) {
-            Write-Host "  REMOVAL COMPLETED SUCCESSFULLY" -ForegroundColor Green
+            Write-Ui -Message "  REMOVAL COMPLETED SUCCESSFULLY" -Level "OK"
             Write-Host "========================================" -ForegroundColor Green
             Write-Host ""
-            Write-Host "McAfee products have been removed from your system." -ForegroundColor Green
+            Write-Ui -Message "McAfee products have been removed from your system." -Level "OK"
             Write-Host ""
-            Write-Host "IMPORTANT: You may need to restart your computer" -ForegroundColor Yellow
-            Write-Host "for all changes to take effect." -ForegroundColor Yellow
+            Write-Ui -Message "IMPORTANT: You may need to restart your computer" -Level "WARN"
+            Write-Ui -Message "for all changes to take effect." -Level "WARN"
             Write-Host ""
             return $true
         } else {
-            Write-Host "  REMOVAL COMPLETED WITH EXIT CODE: $($process.ExitCode)" -ForegroundColor Yellow
+            Write-Ui -Message "  REMOVAL COMPLETED WITH EXIT CODE: $($process.ExitCode)" -Level "WARN"
             Write-Host "========================================" -ForegroundColor Yellow
             Write-Host ""
-            Write-Host "The removal process has finished." -ForegroundColor Yellow
-            Write-Host "Please check the MCPR output for details." -ForegroundColor Yellow
+            Write-Ui -Message "The removal process has finished." -Level "WARN"
+            Write-Ui -Message "Please check the MCPR output for details." -Level "WARN"
             Write-Host ""
-            Write-Host "Exit code: $($process.ExitCode)" -ForegroundColor Gray
+            Write-Ui -Message "Exit code: $($process.ExitCode)" -Level "INFO"
             Write-Host ""
             return $true
         }
@@ -209,16 +209,16 @@ function Invoke-McAfeeRemoval {
     catch {
         Write-Host ""
         Write-Host "========================================" -ForegroundColor Red
-        Write-Host "  ERROR: Failed to run MCPR" -ForegroundColor Red
+        Write-Ui -Message "  ERROR: Failed to run MCPR" -Level "ERROR"
         Write-Host "========================================" -ForegroundColor Red
         Write-Host ""
-        Write-Host "Error details:" -ForegroundColor Yellow
-        Write-Host "  $($_.Exception.Message)" -ForegroundColor Red
+        Write-Ui -Message "Error details:" -Level "WARN"
+        Write-Ui -Message "  $($_.Exception.Message)" -Level "ERROR"
         Write-Host ""
-        Write-Host "Please ensure:" -ForegroundColor Yellow
-        Write-Host "  - You have administrator privileges" -ForegroundColor Gray
-        Write-Host "  - MCPR.exe is not corrupted" -ForegroundColor Gray
-        Write-Host "  - No antivirus is blocking the execution" -ForegroundColor Gray
+        Write-Ui -Message "Please ensure:" -Level "WARN"
+        Write-Ui -Message "  - You have administrator privileges" -Level "INFO"
+        Write-Ui -Message "  - MCPR.exe is not corrupted" -Level "INFO"
+        Write-Ui -Message "  - No antivirus is blocking the execution" -Level "INFO"
         Write-Host ""
         return $false
     }
@@ -252,9 +252,9 @@ $success = Invoke-McAfeeRemoval
 Write-Host ""
 Write-Host "========================================"
 if ($success) {
-    Write-Host "Process completed." -ForegroundColor Green
+    Write-Ui -Message "Process completed." -Level "OK"
 } else {
-    Write-Host "Process encountered errors." -ForegroundColor Red
+    Write-Ui -Message "Process encountered errors." -Level "ERROR"
 }
 Write-Host "========================================"
 Write-Host ""

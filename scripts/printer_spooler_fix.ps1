@@ -88,21 +88,21 @@ function Invoke-SpoolerFix {
                 # Try graceful stop first
                 try {
                     Stop-Service -Name Spooler -ErrorAction Stop
-                    Write-Host "      [OK] Stopped gracefully" -ForegroundColor Green
+                    Write-Ui -Message "      [OK] Stopped gracefully" -Level "OK"
                 } catch {
                     # If graceful stop fails, force stop
-                    Write-Host "      [WARNING] Graceful stop failed, forcing..." -ForegroundColor Yellow
+                    Write-Ui -Message "      [WARNING] Graceful stop failed, forcing..." -Level "WARN"
                     Stop-Service -Name Spooler -Force -ErrorAction Stop
-                    Write-Host "      [OK] Force stopped" -ForegroundColor Green
+                    Write-Ui -Message "      [OK] Force stopped" -Level "OK"
                 }
             } else {
-                Write-Host "      [INFO] Already stopped" -ForegroundColor Yellow
+                Write-Ui -Message "      [INFO] Already stopped" -Level "WARN"
             }
         } else {
-            Write-Host "      [WARNING] Print Spooler service not found" -ForegroundColor Yellow
+            Write-Ui -Message "      [WARNING] Print Spooler service not found" -Level "WARN"
         }
     } catch {
-        Write-Host "      [ERROR] Failed to stop service: $_" -ForegroundColor Red
+        Write-Ui -Message "      [ERROR] Failed to stop service: $_" -Level "ERROR"
     }
     Start-Sleep -Seconds 2
     
@@ -111,25 +111,25 @@ function Invoke-SpoolerFix {
     if (Test-Path $spoolPath) {
         try {
             Remove-Item -Path $spoolPath -Force -ErrorAction Stop
-            Write-Host "      [OK] Queue cleared" -ForegroundColor Green
+            Write-Ui -Message "      [OK] Queue cleared" -Level "OK"
         } catch {
-            Write-Host "      [WARNING] Some files could not be deleted: $_" -ForegroundColor Yellow
+            Write-Ui -Message "      [WARNING] Some files could not be deleted: $_" -Level "WARN"
         }
     } else {
-        Write-Host "      [INFO] Spool directory is empty" -ForegroundColor Gray
+        Write-Ui -Message "      [INFO] Spool directory is empty" -Level "INFO"
     }
     
     Write-Host "[3/5] Waiting for cleanup..."
     Start-Sleep -Seconds 2
-    Write-Host "      [OK] Ready" -ForegroundColor Green
+    Write-Ui -Message "      [OK] Ready" -Level "OK"
     
     Write-Host "[4/5] Starting Print Spooler..."
     try {
         Start-Service -Name Spooler -ErrorAction Stop
-        Write-Host "      [OK] Started" -ForegroundColor Green
+        Write-Ui -Message "      [OK] Started" -Level "OK"
     } catch {
         $Host.UI.RawUI.ForegroundColor = "Red"
-        Write-Host "      [ERROR] Failed to start" -ForegroundColor Red
+        Write-Ui -Message "      [ERROR] Failed to start" -Level "ERROR"
         return $false
     }
     Start-Sleep -Seconds 2
@@ -137,10 +137,10 @@ function Invoke-SpoolerFix {
     Write-Host "[5/5] Verifying..."
     $service = Get-Service -Name Spooler
     if ($service.Status -eq 'Running') {
-        Write-Host "      [OK] Running properly" -ForegroundColor Green
+        Write-Ui -Message "      [OK] Running properly" -Level "OK"
         return $true
     } else {
-        Write-Host "      [ERROR] Service not running properly" -ForegroundColor Red
+        Write-Ui -Message "      [ERROR] Service not running properly" -Level "ERROR"
         return $false
     }
 }
@@ -208,7 +208,7 @@ function Show-MainMenu {
     Show-SouliTEKBanner
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "Select an option:" -ForegroundColor Cyan
+    Write-Ui -Message "Select an option:" -Level "INFO"
     Write-Host ""
     Write-Host " [1] Basic Fix           - Quick one-time fix"
     Write-Host " [2] Advanced Monitor    - Continuous monitoring"
@@ -363,9 +363,9 @@ function Invoke-StatusCheckMode {
     Write-Host "Display Name: $($service.DisplayName)"
     Write-Host "Status: $($service.Status)"
     if ($service.Status -eq 'Running') {
-        Write-Host "Status: RUNNING (OK)" -ForegroundColor Green
+        Write-Ui -Message "Status: RUNNING (OK)" -Level "OK"
     } else {
-        Write-Host "Status: NOT RUNNING (ERROR!)" -ForegroundColor Red
+        Write-Ui -Message "Status: NOT RUNNING (ERROR!)" -Level "ERROR"
     }
     
     Write-Host ""
@@ -376,11 +376,11 @@ function Invoke-StatusCheckMode {
     Write-Host "Jobs in queue: $jobCount"
     
     if ($jobCount -eq 0) {
-        Write-Host "Status: No stuck jobs (OK)" -ForegroundColor Green
+        Write-Ui -Message "Status: No stuck jobs (OK)" -Level "OK"
     } elseif ($jobCount -lt 3) {
-        Write-Host "Status: Normal activity" -ForegroundColor Yellow
+        Write-Ui -Message "Status: Normal activity" -Level "WARN"
     } else {
-        Write-Host "Status: WARNING - Multiple jobs may be stuck" -ForegroundColor Red
+        Write-Ui -Message "Status: WARNING - Multiple jobs may be stuck" -Level "ERROR"
     }
     
     Write-Host ""
@@ -389,7 +389,7 @@ function Invoke-StatusCheckMode {
     try {
         Get-Printer | Select-Object Name, DriverName, PrinterStatus | Format-Table -AutoSize
     } catch {
-        Write-Host "Unable to retrieve printer information" -ForegroundColor Yellow
+        Write-Ui -Message "Unable to retrieve printer information" -Level "WARN"
     }
     
     Write-Host ""
@@ -399,7 +399,7 @@ function Invoke-StatusCheckMode {
         Get-EventLog -LogName System -Source 'Print' -Newest 5 -EntryType Error -ErrorAction SilentlyContinue | 
             Select-Object TimeGenerated, Message | Format-List
     } catch {
-        Write-Host "No recent print errors found or unable to access event log" -ForegroundColor Yellow
+        Write-Ui -Message "No recent print errors found or unable to access event log" -Level "WARN"
     }
     
     Write-Host ""
@@ -440,7 +440,7 @@ function Invoke-PowerShellMode {
             "3" { Invoke-PSViewLogs; break }
             "0" { return }
             default {
-                Write-Host "Invalid choice. Please try again." -ForegroundColor Red
+                Write-Ui -Message "Invalid choice. Please try again." -Level "ERROR"
                 Start-Sleep -Seconds 2
             }
         }
@@ -548,7 +548,7 @@ function Invoke-PSViewLogs {
                 Get-Content -Path $logPath
                 Write-Host ""
             } else {
-                Write-Host "File not found" -ForegroundColor Red
+                Write-Ui -Message "File not found" -Level "ERROR"
             }
         }
     } else {
@@ -736,7 +736,7 @@ while ($true) {
             exit 0
         }
         default {
-            Write-Host "Invalid choice. Please try again." -ForegroundColor Red
+            Write-Ui -Message "Invalid choice. Please try again." -Level "ERROR"
             Start-Sleep -Seconds 2
         }
     }

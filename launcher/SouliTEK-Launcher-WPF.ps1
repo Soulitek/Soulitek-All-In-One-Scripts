@@ -235,37 +235,37 @@ $currentPolicy = Get-ExecutionPolicy
 if ($currentPolicy -eq "Restricted" -or $currentPolicy -eq "AllSigned") {
     try {
         Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
-        Write-Host "Execution policy temporarily set to RemoteSigned for this session." -ForegroundColor Green
+        Write-Ui -Message "Execution policy temporarily set to RemoteSigned for this session." -Level "OK"
     }
     catch {
-        Write-Host "Warning: Could not modify execution policy. Some features may not work properly." -ForegroundColor Yellow
-        Write-Host "Error: $_" -ForegroundColor Red
+        Write-Ui -Message "Warning: Could not modify execution policy. Some features may not work properly." -Level "WARN"
+        Write-Ui -Message "Error: $_" -Level "ERROR"
     }
 }
 
 # Check if running as administrator, relaunch if not
 if (-not (Test-Administrator)) {
-    Write-Host "Relaunching as Administrator..." -ForegroundColor Yellow
+    Write-Ui -Message "Relaunching as Administrator..." -Level "WARN"
 
     try {
         # Get the current script path
         $scriptPath = $MyInvocation.MyCommand.Path
 
         # Relaunch with admin privileges
-        Start-Process -FilePath "powershell.exe" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`"" -Verb RunAs
+        Start-Process -FilePath "powershell.exe" -ArgumentList "-NoProfile -ExecutionPolicy RemoteSigned -File `"$scriptPath`"" -Verb RunAs
 
         # Exit the current non-admin instance
         exit
     }
     catch {
-        Write-Host "Failed to relaunch as Administrator. Error: $_" -ForegroundColor Red
-        Write-Host "Please run this script as Administrator manually." -ForegroundColor Yellow
+        Write-Ui -Message "Failed to relaunch as Administrator. Error: $_" -Level "ERROR"
+        Write-Ui -Message "Please run this script as Administrator manually." -Level "WARN"
         Read-Host "Press Enter to exit"
         exit 1
     }
 }
 
-Write-Host "Running as Administrator." -ForegroundColor Green
+Write-Ui -Message "Running as Administrator." -Level "OK"
 
 # ============================================================
 # GLOBAL VARIABLES
@@ -274,7 +274,10 @@ $Script:ScriptPath = Join-Path $Script:RootPath "scripts"
 $Script:AssetsPath = Join-Path $Script:RootPath "assets"
 $Script:CurrentVersion = "2.8.0"
 $Script:CurrentCategory = "All"
-$Script:CurrentTheme = "Light"  # Will be updated when theme is loaded
+$Script:CurrentTheme = "Dark"   # Will be updated when theme is loaded
+$Script:ToastTimer = $null
+$Script:SidebarCollapsed = $false
+$Script:RecentSearches = @()
 
 # Tool definitions
 $Script:Tools = @(
@@ -591,20 +594,27 @@ function Get-ThemePreference {
     $configPath = Join-Path $env:APPDATA "SouliTEK\theme-config.json"
     
     if (-not (Test-Path $configPath)) {
-        return "Light"
+        return "Dark"
     }
-    
+
     try {
         $config = Get-Content $configPath -Raw | ConvertFrom-Json
         if ($config.theme -in @("Light", "Dark")) {
+            # Load sidebar and recent searches state
+            if ($null -ne $config.sidebar_collapsed) {
+                $Script:SidebarCollapsed = [bool]$config.sidebar_collapsed
+            }
+            if ($null -ne $config.recent_searches) {
+                $Script:RecentSearches = @($config.recent_searches)
+            }
             return $config.theme
         }
     }
     catch {
         Write-Warning "Failed to read theme preference: $_"
     }
-    
-    return "Light"
+
+    return "Dark"
 }
 
 function Set-ThemePreference {
@@ -626,8 +636,10 @@ function Set-ThemePreference {
     }
     
     $config = @{
-        theme = $Theme
-        lastUpdated = (Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+        theme            = $Theme
+        lastUpdated      = (Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+        sidebar_collapsed = $Script:SidebarCollapsed
+        recent_searches  = $Script:RecentSearches
     }
     
     try {
@@ -659,62 +671,57 @@ function Apply-Theme {
     
     try {
         # Color definitions
-        $darkBg = [System.Windows.Media.Color]::FromRgb(11, 15, 26)      # #0B0F1A
-        $lightBg = [System.Windows.Media.Color]::FromRgb(248, 250, 252)  # #F8FAFC
-        $darkCard = [System.Windows.Media.Color]::FromRgb(39, 39, 42)    # #27272A
-        $lightCard = [System.Windows.Media.Color]::FromRgb(255, 255, 255) # White
-        $darkText = [System.Windows.Media.Color]::FromRgb(229, 231, 235)  # #E5E7EB
-        $lightText = [System.Windows.Media.Color]::FromRgb(11, 15, 26)    # #0B0F1A
-        $darkTextSecondary = [System.Windows.Media.Color]::FromRgb(138, 143, 152) # #8A8F98
-        $lightTextSecondary = [System.Windows.Media.Color]::FromRgb(138, 143, 152) # #8A8F98
-        $darkSearchBg = [System.Windows.Media.Color]::FromRgb(39, 39, 42)  # #27272A
-        $lightSearchBg = [System.Windows.Media.Color]::FromRgb(244, 244, 245) # #F4F4F5
-        $darkFooter = [System.Windows.Media.Color]::FromRgb(63, 63, 70)    # #3F3F46
-        $lightFooter = [System.Windows.Media.Color]::FromRgb(138, 143, 152) # #8A8F98
+        $darkBg            = [System.Windows.Media.Color]::FromRgb(15, 20, 25)      # #0F1419
+        $lightBg           = [System.Windows.Media.Color]::FromRgb(248, 250, 252)   # #F8FAFC
+        $sidebarBg         = [System.Windows.Media.Color]::FromRgb(19, 25, 32)      # #131920
+        $darkCard          = [System.Windows.Media.Color]::FromRgb(26, 31, 46)      # #1A1F2E
+        $lightCard         = [System.Windows.Media.Color]::FromRgb(255, 255, 255)
+        $darkText          = [System.Windows.Media.Color]::FromRgb(241, 245, 249)   # #F1F5F9
+        $lightText         = [System.Windows.Media.Color]::FromRgb(15, 23, 42)      # #0F172A
+        $darkTextSecondary  = [System.Windows.Media.Color]::FromRgb(160, 169, 184)  # #A0A9B8
+        $lightTextSecondary = [System.Windows.Media.Color]::FromRgb(100, 116, 139)  # #64748B
+        $darkSearchBg      = [System.Windows.Media.Color]::FromRgb(26, 31, 46)      # #1A1F2E
+        $lightSearchBg     = [System.Windows.Media.Color]::FromRgb(244, 244, 245)   # #F4F4F5
+        $darkFooter        = [System.Windows.Media.Color]::FromRgb(15, 20, 25)      # #0F1419
+        $lightFooter       = [System.Windows.Media.Color]::FromRgb(100, 116, 139)   # #64748B
         
         if ($Theme -eq "Dark") {
-            # Window background
             $Script:Window.Background = [System.Windows.Media.SolidColorBrush]::new($darkBg)
-            
-            # ScrollViewer (main content area)
+
             $scrollViewer = $Script:Window.FindName("MainScrollViewer")
             if ($null -ne $scrollViewer) {
                 $scrollViewer.Background = [System.Windows.Media.SolidColorBrush]::new($darkBg)
             }
-            
-            # Title bar background
+
             $titleBar = $Script:Window.FindName("TitleBarGrid")
             if ($null -ne $titleBar) {
-                $titleBar.Background = [System.Windows.Media.SolidColorBrush]::new($darkCard)
+                $titleBar.Background = [System.Windows.Media.SolidColorBrush]::new($sidebarBg)
             }
-            
-            # Title text (removed - using logo instead)
-            # Logo image doesn't need color changes as it's an image
-            
-            # Search box
+
+            $sidebarGrid = $Script:Window.FindName("SidebarGrid")
+            if ($null -ne $sidebarGrid) {
+                $sidebarGrid.Background = [System.Windows.Media.SolidColorBrush]::new($sidebarBg)
+            }
+
             if ($null -ne $Script:SearchBox) {
                 $Script:SearchBox.Background = [System.Windows.Media.SolidColorBrush]::new($darkSearchBg)
                 $Script:SearchBox.Foreground = [System.Windows.Media.SolidColorBrush]::new($darkText)
-                $Script:SearchBox.BorderBrush = [System.Windows.Media.SolidColorBrush]::new([System.Windows.Media.Color]::FromRgb(63, 63, 70))
+                $Script:SearchBox.BorderBrush = [System.Windows.Media.SolidColorBrush]::new([System.Windows.Media.Color]::FromRgb(37, 43, 59))
             }
-            
-            # Search placeholder
+
             if ($null -ne $Script:SearchPlaceholder) {
                 $Script:SearchPlaceholder.Foreground = [System.Windows.Media.SolidColorBrush]::new($darkTextSecondary)
             }
-            
-            # Footer background
+
             $footerGrid = $Script:Window.FindName("FooterGrid")
             if ($null -ne $footerGrid) {
                 $footerGrid.Background = [System.Windows.Media.SolidColorBrush]::new($darkFooter)
             }
-            
-            # Status label
+
             if ($null -ne $Script:StatusLabel) {
-                $Script:StatusLabel.Foreground = [System.Windows.Media.SolidColorBrush]::new($darkText)
+                $Script:StatusLabel.Foreground = [System.Windows.Media.SolidColorBrush]::new($darkTextSecondary)
             }
-            
-            # Category label
+
             $categoryLabel = $Script:Window.FindName("CategoriesLabel")
             if ($null -ne $categoryLabel) {
                 $categoryLabel.Foreground = [System.Windows.Media.SolidColorBrush]::new($darkTextSecondary)
@@ -723,46 +730,41 @@ function Apply-Theme {
         else {
             # Light theme
             $Script:Window.Background = [System.Windows.Media.SolidColorBrush]::new($lightBg)
-            
-            # ScrollViewer
+
             $scrollViewer = $Script:Window.FindName("MainScrollViewer")
             if ($null -ne $scrollViewer) {
                 $scrollViewer.Background = [System.Windows.Media.SolidColorBrush]::new($lightBg)
             }
             
-            # Title bar
             $titleBar = $Script:Window.FindName("TitleBarGrid")
             if ($null -ne $titleBar) {
                 $titleBar.Background = [System.Windows.Media.SolidColorBrush]::new($lightCard)
             }
-            
-            # Title text (removed - using logo instead)
-            # Logo image doesn't need color changes as it's an image
-            
-            # Search box
+
+            $sidebarGrid = $Script:Window.FindName("SidebarGrid")
+            if ($null -ne $sidebarGrid) {
+                $sidebarGrid.Background = [System.Windows.Media.SolidColorBrush]::new([System.Windows.Media.Color]::FromRgb(241, 245, 249))
+            }
+
             if ($null -ne $Script:SearchBox) {
                 $Script:SearchBox.Background = [System.Windows.Media.SolidColorBrush]::new($lightSearchBg)
                 $Script:SearchBox.Foreground = [System.Windows.Media.SolidColorBrush]::new($lightText)
-                $Script:SearchBox.BorderBrush = [System.Windows.Media.SolidColorBrush]::new([System.Windows.Media.Color]::FromRgb(228, 228, 231))
+                $Script:SearchBox.BorderBrush = [System.Windows.Media.SolidColorBrush]::new([System.Windows.Media.Color]::FromRgb(203, 213, 225))
             }
-            
-            # Search placeholder
+
             if ($null -ne $Script:SearchPlaceholder) {
                 $Script:SearchPlaceholder.Foreground = [System.Windows.Media.SolidColorBrush]::new($lightTextSecondary)
             }
-            
-            # Footer
+
             $footerGrid = $Script:Window.FindName("FooterGrid")
             if ($null -ne $footerGrid) {
-                $footerGrid.Background = [System.Windows.Media.SolidColorBrush]::new($lightFooter)
+                $footerGrid.Background = [System.Windows.Media.SolidColorBrush]::new($lightBg)
             }
-            
-            # Status label
+
             if ($null -ne $Script:StatusLabel) {
-                $Script:StatusLabel.Foreground = [System.Windows.Media.SolidColorBrush]::new([System.Windows.Media.Colors]::White)
+                $Script:StatusLabel.Foreground = [System.Windows.Media.SolidColorBrush]::new($lightTextSecondary)
             }
-            
-            # Category label
+
             $categoryLabel = $Script:Window.FindName("CategoriesLabel")
             if ($null -ne $categoryLabel) {
                 $categoryLabel.Foreground = [System.Windows.Media.SolidColorBrush]::new($lightTextSecondary)
@@ -791,18 +793,13 @@ function Apply-Theme {
         # Save preference
         Set-ThemePreference -Theme $Theme
         
-        # Refresh tool display to update card colors and icon colors
-        if ($null -ne $Script:ToolsPanel) {
-            Update-ToolsDisplay
-        }
-        
-        # Refresh category buttons to update icon colors
+        # Rebuild sidebar + tool cards for new theme
         if ($null -ne $Script:CurrentCategory) {
             Set-CategoryActive -CategoryName $Script:CurrentCategory
         }
         
         if (-not $Silent) {
-            Write-Host "Theme switched to $Theme" -ForegroundColor Green
+            Write-Ui -Message "Theme switched to $Theme" -Level "OK"
         }
     }
     catch {
@@ -827,17 +824,17 @@ function Start-Tool {
     
     try {
         $psPath = "powershell.exe"
-        $arguments = "-NoExit -NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`""
+        $arguments = "-NoExit -NoProfile -ExecutionPolicy RemoteSigned -File `"$scriptPath`""
         Start-Process -FilePath $psPath -ArgumentList $arguments
         
+        Show-Toast -Message "Launched: $ToolName" -Type Success
         $Script:StatusLabel.Text = "Launched: $ToolName"
-        $Script:StatusLabel.Foreground = "#5B2EFF"
-        Write-Host "Launched: $ToolName" -ForegroundColor Green
+        Write-Ui -Message "Launched: $ToolName" -Level "OK"
     }
     catch {
         Write-Warning "Failed to launch $ToolName`: $_"
+        Show-Toast -Message "Error launching: $ToolName" -Type Error
         $Script:StatusLabel.Text = "Error launching tool"
-        $Script:StatusLabel.Foreground = "#DC2626"
     }
 }
 
@@ -892,83 +889,98 @@ function Update-ToolsDisplay {
     $currentTheme = if ($null -ne $Script:CurrentTheme) { $Script:CurrentTheme } else { Get-ThemePreference }
     
     # Theme-aware colors
-    $cardBgColor = if ($currentTheme -eq "Dark") { "#27272A" } else { "#FFFFFF" }
-    $textColor = if ($currentTheme -eq "Dark") { "#E5E7EB" } else { "#0B0F1A" }
-    $textSecondaryColor = if ($currentTheme -eq "Dark") { "#8A8F98" } else { "#8A8F98" }
-    $iconColor = if ($currentTheme -eq "Dark") { "#E5E7EB" } else { "#000000" }
+    $cardBgColor        = if ($currentTheme -eq "Dark") { "#1A1F2E" } else { "#FFFFFF" }
+    $textColor          = if ($currentTheme -eq "Dark") { "#F1F5F9" } else { "#0F172A" }
+    $textSecondaryColor = if ($currentTheme -eq "Dark") { "#A0A9B8" } else { "#64748B" }
+    $iconColor          = if ($currentTheme -eq "Dark") { "#F1F5F9" } else { "#1E293B" }
     
     foreach ($tool in $filteredTools) {
-        # Create side-by-side tool card with fixed width (3 cards per row)
+        # 320x180 card with DockPanel layout
         $card = New-Object System.Windows.Controls.Border
         $card.Style = $Script:Window.FindResource("ToolCard")
-        $card.Cursor = "Hand"
-        $card.Width = 300
+        $card.Width = 320
+        $card.Height = 180
         $card.Margin = "0,0,12,12"
-        $card.Background = [System.Windows.Media.SolidColorBrush]::new([System.Windows.Media.ColorConverter]::ConvertFromString($cardBgColor))
-        
-        # Info stack with title and description
-        $infoStack = New-Object System.Windows.Controls.StackPanel
-        $infoStack.Orientation = "Vertical"
-        
-        # Header with icon and name
+        $card.Background = [System.Windows.Media.SolidColorBrush]::new(
+            [System.Windows.Media.ColorConverter]::ConvertFromString($cardBgColor))
+
+        $dock = New-Object System.Windows.Controls.DockPanel
+        $dock.LastChildFill = $true
+
+        # Category badge (docked top)
+        $badgeBorder = New-Object System.Windows.Controls.Border
+        $badgeBorder.CornerRadius = [System.Windows.CornerRadius]::new(4)
+        $badgeBorder.Background = [System.Windows.Media.SolidColorBrush]::new(
+            [System.Windows.Media.ColorConverter]::ConvertFromString($tool.Color))
+        $badgeBorder.Padding = [System.Windows.Thickness]::new(8, 3, 8, 3)
+        $badgeBorder.HorizontalAlignment = "Left"
+        $badgeBorder.Margin = [System.Windows.Thickness]::new(0, 0, 0, 10)
+        [System.Windows.Controls.DockPanel]::SetDock($badgeBorder, [System.Windows.Controls.Dock]::Top)
+        $badgeLabel = New-Object System.Windows.Controls.TextBlock
+        $badgeLabel.Text = $tool.Category
+        $badgeLabel.FontSize = 10
+        $badgeLabel.FontFamily = "Segoe UI"
+        $badgeLabel.FontWeight = "SemiBold"
+        $badgeLabel.Foreground = [System.Windows.Media.Brushes]::White
+        $badgeBorder.Child = $badgeLabel
+        $null = $dock.Children.Add($badgeBorder)
+
+        # Name row with icon (docked top)
         $headerStack = New-Object System.Windows.Controls.StackPanel
         $headerStack.Orientation = "Horizontal"
-        $headerStack.Margin = "0,0,0,4"
-        
-        # Add icon if tool has one
+        $headerStack.Margin = [System.Windows.Thickness]::new(0, 0, 0, 8)
+        [System.Windows.Controls.DockPanel]::SetDock($headerStack, [System.Windows.Controls.Dock]::Top)
+
         if ($tool.Icon -and $tool.Icon -notmatch "^\[.*\]$") {
             try {
-                $icon = New-IconPath -IconName $tool.Icon -Size 24 -Color $iconColor -StrokeWidth 1.5
-                $icon.Margin = "0,0,8,0"
+                $icon = New-IconPath -IconName $tool.Icon -Size 20 -Color $iconColor -StrokeWidth 1.5
+                $icon.Margin = [System.Windows.Thickness]::new(0, 0, 8, 0)
                 $icon.VerticalAlignment = "Center"
                 $null = $headerStack.Children.Add($icon)
             }
-            catch {
-                Write-Warning "Failed to create icon for tool '$($tool.Name)': $_"
-            }
+            catch { }
         }
-        
+
         $nameText = New-Object System.Windows.Controls.TextBlock
         $nameText.Text = $tool.Name
-        $nameText.FontSize = 16
+        $nameText.FontSize = 15
         $nameText.FontWeight = "SemiBold"
         $nameText.FontFamily = "Segoe UI"
-        $nameText.Foreground = [System.Windows.Media.SolidColorBrush]::new([System.Windows.Media.ColorConverter]::ConvertFromString($textColor))
+        $nameText.Foreground = [System.Windows.Media.SolidColorBrush]::new(
+            [System.Windows.Media.ColorConverter]::ConvertFromString($textColor))
         $nameText.VerticalAlignment = "Center"
         $nameText.TextWrapping = "Wrap"
-        
+        $nameText.MaxWidth = 240
         $null = $headerStack.Children.Add($nameText)
-        
-        # Truncate description to ~60 characters for side-by-side layout
+        $null = $dock.Children.Add($headerStack)
+
+        # Description (fills remaining space)
         $descText = New-Object System.Windows.Controls.TextBlock
-        $truncatedDesc = if ($tool.Description.Length -gt 60) {
-            $tool.Description.Substring(0, 57) + "..."
-        } else {
-            $tool.Description
-        }
-        $descText.Text = $truncatedDesc
-        $descText.FontSize = 13
+        $descText.Text = $tool.Description
+        $descText.FontSize = 12
         $descText.FontFamily = "Segoe UI"
-        $descText.Foreground = [System.Windows.Media.SolidColorBrush]::new([System.Windows.Media.ColorConverter]::ConvertFromString($textSecondaryColor))
+        $descText.Foreground = [System.Windows.Media.SolidColorBrush]::new(
+            [System.Windows.Media.ColorConverter]::ConvertFromString($textSecondaryColor))
         $descText.TextWrapping = "Wrap"
-        
-        $null = $infoStack.Children.Add($headerStack)
-        $null = $infoStack.Children.Add($descText)
-        
-        $card.Child = $infoStack
-        
-        # Make entire card clickable
-        $card.Tag = @{
-            Script = $tool.Script
-            Name = $tool.Name
-        }
-        
+        $descText.TextTrimming = "CharacterEllipsis"
+        $descText.MaxHeight = 48
+        $null = $dock.Children.Add($descText)
+
+        $card.Child = $dock
+
+        $card.Tag = @{ Script = $tool.Script; Name = $tool.Name }
         $null = $card.Add_MouseLeftButtonUp({
             $toolInfo = $this.Tag
             Start-Tool -ScriptName $toolInfo.Script -ToolName $toolInfo.Name
         })
-        
+
+        # Fade-in animation
+        $card.Opacity = 0
         $null = $Script:ToolsPanel.Children.Add($card)
+        $anim = New-Object System.Windows.Media.Animation.DoubleAnimation
+        $anim.From = 0.0; $anim.To = 1.0
+        $anim.Duration = [System.Windows.Duration]::new([TimeSpan]::FromMilliseconds(200))
+        $card.BeginAnimation([System.Windows.UIElement]::OpacityProperty, $anim)
     }
 }
 
@@ -1084,55 +1096,259 @@ function Set-FooterButtonIcon {
 
 function Set-CategoryActive {
     param([string]$CategoryName)
-    
+
     $Script:CurrentCategory = $CategoryName
-    
-    # Category icon mapping
-    $categoryIcons = @{
-        "All" = $null  # No icon for "All"
-        "Setup" = "Settings2"
-        "Network" = "Network"
-        "Internet" = "Globe"
-        "Security" = "ShieldCheck"
-        "Support" = "LifeBuoy"
-        "M365" = "Cloud"
-        "Hardware" = "Cpu"
+
+    # Rebuild sidebar to reflect new active state
+    $catPanel = $Script:Window.FindName("SidebarCategoriesPanel")
+    if ($null -ne $catPanel) {
+        Initialize-Sidebar
     }
-    
-    # Update button styles - use pill button styles
-    $categories = @{
-        "All" = $Script:BtnCatAll
-        "Setup" = $Script:BtnCatSetup
-        "Network" = $Script:BtnCatNetwork
-        "Internet" = $Script:BtnCatInternet
-        "Security" = $Script:BtnCatSecurity
-        "Support" = $Script:BtnCatSupport
-        "M365" = $Script:BtnCatM365
-        "Hardware" = $Script:BtnCatHardware
-    }
-    
-    foreach ($cat in $categories.GetEnumerator()) {
-        $isActive = $cat.Key -eq $CategoryName
-        
-        if ($isActive) {
-            # Set active style
-            $cat.Value.Style = $Script:Window.FindResource("CategoryButtonActive")
-            $cat.Value.Background = "#5B2EFF"
-            $cat.Value.Foreground = "White"
-        } else {
-            # Set inactive style
-            $cat.Value.Style = $Script:Window.FindResource("CategoryButtonInactive")
-            $cat.Value.Background = "#8A8F98"
-            $cat.Value.Foreground = "White"
-        }
-        
-        # Update icon if category has one
-        if ($categoryIcons.ContainsKey($cat.Key) -and $null -ne $categoryIcons[$cat.Key]) {
-            Set-CategoryButtonIcon -Button $cat.Value -IconName $categoryIcons[$cat.Key] -IsActive $isActive
-        }
-    }
-    
+
     Update-ToolsDisplay
+}
+
+function Initialize-Sidebar {
+    $catPanel = $Script:Window.FindName("SidebarCategoriesPanel")
+    $navPanel = $Script:Window.FindName("SidebarNavPanel")
+    if ($null -eq $catPanel) { return }
+
+    $catPanel.Children.Clear()
+
+    $catDefs = @(
+        @{ Name = "All";         Icon = "";           Label = "All Tools" }
+        @{ Name = "Setup";       Icon = "Settings2";  Label = "Setup" }
+        @{ Name = "Network";     Icon = "Network";    Label = "Network" }
+        @{ Name = "Internet";    Icon = "Globe";      Label = "Internet" }
+        @{ Name = "Security";    Icon = "ShieldCheck"; Label = "Security" }
+        @{ Name = "Support";     Icon = "LifeBuoy";   Label = "Support" }
+        @{ Name = "M365";        Icon = "Cloud";      Label = "M365" }
+        @{ Name = "Hardware";    Icon = "Cpu";        Label = "Hardware" }
+        @{ Name = "Performance"; Icon = "Gauge";      Label = "Performance" }
+    )
+
+    $indigoColor = [System.Windows.Media.ColorConverter]::ConvertFromString("#6366F1")
+    $cardColor   = [System.Windows.Media.ColorConverter]::ConvertFromString("#1A1F2E")
+    $badgeDark   = [System.Windows.Media.ColorConverter]::ConvertFromString("#252B3B")
+    $activeText  = "#F1F5F9"
+    $mutedText   = "#A0A9B8"
+
+    foreach ($catDef in $catDefs) {
+        $isActive  = $catDef.Name -eq $Script:CurrentCategory
+        $toolCount = if ($catDef.Name -eq "All") {
+            $Script:Tools.Count
+        } else {
+            ($Script:Tools | Where-Object { $_.Category -eq $catDef.Name }).Count
+        }
+
+        # Row container
+        $row = New-Object System.Windows.Controls.Border
+        $row.Height  = 40
+        $row.Padding = [System.Windows.Thickness]::new(0)
+        $row.Cursor  = "Hand"
+        $row.Tag     = $catDef.Name
+        if ($isActive) {
+            $row.Background = [System.Windows.Media.SolidColorBrush]::new($cardColor)
+        }
+
+        # Inner grid: indicator(4) | icon(32) | label(*) | badge(auto)
+        $g = New-Object System.Windows.Controls.Grid
+        $c0 = New-Object System.Windows.Controls.ColumnDefinition; $c0.Width = [System.Windows.GridLength]::new(4)
+        $c1 = New-Object System.Windows.Controls.ColumnDefinition; $c1.Width = [System.Windows.GridLength]::new(32)
+        $c2 = New-Object System.Windows.Controls.ColumnDefinition; $c2.Width = [System.Windows.GridLength]::new(1, [System.Windows.GridUnitType]::Star)
+        $c3 = New-Object System.Windows.Controls.ColumnDefinition; $c3.Width = [System.Windows.GridLength]::Auto
+        $g.ColumnDefinitions.Add($c0); $g.ColumnDefinitions.Add($c1)
+        $g.ColumnDefinitions.Add($c2); $g.ColumnDefinitions.Add($c3)
+
+        # Active indicator strip
+        $strip = New-Object System.Windows.Controls.Border
+        $strip.CornerRadius = [System.Windows.CornerRadius]::new(0, 3, 3, 0)
+        $strip.VerticalAlignment = "Stretch"
+        $strip.Background = if ($isActive) {
+            [System.Windows.Media.SolidColorBrush]::new($indigoColor)
+        } else {
+            [System.Windows.Media.Brushes]::Transparent
+        }
+        [System.Windows.Controls.Grid]::SetColumn($strip, 0)
+
+        # Icon
+        $iconGrid = New-Object System.Windows.Controls.Grid
+        $iconGrid.VerticalAlignment   = "Center"
+        $iconGrid.HorizontalAlignment = "Center"
+        [System.Windows.Controls.Grid]::SetColumn($iconGrid, 1)
+        if ($catDef.Icon) {
+            try {
+                $ic = New-IconPath -IconName $catDef.Icon -Size 16 `
+                    -Color (if ($isActive) { $activeText } else { $mutedText }) -StrokeWidth 1.5
+                $null = $iconGrid.Children.Add($ic)
+            } catch { }
+        }
+
+        # Label
+        $lbl = New-Object System.Windows.Controls.TextBlock
+        $lbl.Text       = $catDef.Label
+        $lbl.FontSize   = 13
+        $lbl.FontFamily = "Segoe UI"
+        $lbl.FontWeight = if ($isActive) { "SemiBold" } else { "Normal" }
+        $lbl.Foreground = if ($isActive) { $activeText } else { $mutedText }
+        $lbl.VerticalAlignment = "Center"
+        $lbl.Margin = [System.Windows.Thickness]::new(4, 0, 0, 0)
+        [System.Windows.Controls.Grid]::SetColumn($lbl, 2)
+
+        # Count badge
+        $badge = New-Object System.Windows.Controls.Border
+        $badge.CornerRadius = [System.Windows.CornerRadius]::new(8)
+        $badge.Background   = if ($isActive) {
+            [System.Windows.Media.SolidColorBrush]::new($indigoColor)
+        } else {
+            [System.Windows.Media.SolidColorBrush]::new($badgeDark)
+        }
+        $badge.Padding          = [System.Windows.Thickness]::new(6, 2, 6, 2)
+        $badge.VerticalAlignment = "Center"
+        $badge.Margin           = [System.Windows.Thickness]::new(0, 0, 12, 0)
+        $badgeNum = New-Object System.Windows.Controls.TextBlock
+        $badgeNum.Text       = "$toolCount"
+        $badgeNum.FontSize   = 11
+        $badgeNum.FontFamily = "Segoe UI"
+        $badgeNum.Foreground = if ($isActive) { [System.Windows.Media.Brushes]::White } else { $mutedText }
+        $badge.Child = $badgeNum
+        [System.Windows.Controls.Grid]::SetColumn($badge, 3)
+
+        $null = $g.Children.Add($strip)
+        $null = $g.Children.Add($iconGrid)
+        $null = $g.Children.Add($lbl)
+        $null = $g.Children.Add($badge)
+        $row.Child = $g
+
+        # Hover effects
+        $null = $row.Add_MouseEnter({
+            if ($this.Tag -ne $Script:CurrentCategory) {
+                $this.Background = [System.Windows.Media.SolidColorBrush]::new(
+                    [System.Windows.Media.ColorConverter]::ConvertFromString("#1A1F2E"))
+            }
+        })
+        $null = $row.Add_MouseLeave({
+            if ($this.Tag -ne $Script:CurrentCategory) {
+                $this.Background = [System.Windows.Media.Brushes]::Transparent
+            }
+        })
+        $null = $row.Add_MouseLeftButtonUp({
+            param($sender, $e)
+            Set-CategoryActive $sender.Tag
+            $e.Handled = $true
+        })
+
+        $null = $catPanel.Children.Add($row)
+    }
+
+    # Nav buttons at sidebar bottom
+    if ($null -ne $navPanel) {
+        $navPanel.Children.Clear()
+
+        # Separator
+        $sep = New-Object System.Windows.Controls.Border
+        $sep.Height     = 1
+        $sep.Background = [System.Windows.Media.SolidColorBrush]::new(
+            [System.Windows.Media.ColorConverter]::ConvertFromString("#1A1F2E"))
+        $sep.Margin = [System.Windows.Thickness]::new(12, 8, 12, 8)
+        $null = $navPanel.Children.Add($sep)
+
+        $navDefs = @(
+            @{ Name = "HelpButton";         Label = "Help";      Icon = "HelpCircle"; Color = "#A0A9B8" }
+            @{ Name = "AboutButton";        Label = "About";     Icon = "Info";       Color = "#A0A9B8" }
+            @{ Name = "GitHubButton";       Label = "GitHub";    Icon = "GitHub";     Color = "#A0A9B8" }
+            @{ Name = "DiscordButton";      Label = "Discord";   Icon = "Discord";    Color = "#A0A9B8" }
+            @{ Name = "SelfDestructButton"; Label = "Uninstall"; Icon = "Trash2";     Color = "#EF4444" }
+        )
+
+        foreach ($nd in $navDefs) {
+            $navRow = New-Object System.Windows.Controls.Border
+            $navRow.Height = 36
+            $navRow.Cursor = "Hand"
+            $navRow.Padding = [System.Windows.Thickness]::new(0)
+
+            $ng = New-Object System.Windows.Controls.Grid
+            $nc0 = New-Object System.Windows.Controls.ColumnDefinition; $nc0.Width = [System.Windows.GridLength]::new(36)
+            $nc1 = New-Object System.Windows.Controls.ColumnDefinition; $nc1.Width = [System.Windows.GridLength]::new(1, [System.Windows.GridUnitType]::Star)
+            $ng.ColumnDefinitions.Add($nc0); $ng.ColumnDefinitions.Add($nc1)
+
+            $icGrid = New-Object System.Windows.Controls.Grid
+            $icGrid.VerticalAlignment = "Center"; $icGrid.HorizontalAlignment = "Center"
+            [System.Windows.Controls.Grid]::SetColumn($icGrid, 0)
+            try {
+                $navIc = New-IconPath -IconName $nd.Icon -Size 14 -Color $nd.Color -StrokeWidth 1.5
+                $null = $icGrid.Children.Add($navIc)
+            } catch { }
+
+            $navLbl = New-Object System.Windows.Controls.TextBlock
+            $navLbl.Text       = $nd.Label
+            $navLbl.FontSize   = 12
+            $navLbl.FontFamily = "Segoe UI"
+            $navLbl.Foreground = $nd.Color
+            $navLbl.VerticalAlignment = "Center"
+            [System.Windows.Controls.Grid]::SetColumn($navLbl, 1)
+
+            $null = $ng.Children.Add($icGrid); $null = $ng.Children.Add($navLbl)
+            $navRow.Child = $ng
+
+            $null = $navRow.Add_MouseEnter({
+                $this.Background = [System.Windows.Media.SolidColorBrush]::new(
+                    [System.Windows.Media.ColorConverter]::ConvertFromString("#1A1F2E"))
+            })
+            $null = $navRow.Add_MouseLeave({ $this.Background = [System.Windows.Media.Brushes]::Transparent })
+
+            Set-Variable -Name $nd.Name -Value $navRow -Scope Script
+            $null = $navPanel.Children.Add($navRow)
+        }
+    }
+}
+
+function Show-Toast {
+    param(
+        [string]$Message,
+        [ValidateSet('Success', 'Error', 'Info')]
+        [string]$Type = 'Info',
+        [int]$DurationMs = 3000
+    )
+
+    $toastBorder = $Script:Window.FindName("ToastBorder")
+    $toastIcon   = $Script:Window.FindName("ToastIcon")
+    $toastText   = $Script:Window.FindName("ToastText")
+    if ($null -eq $toastBorder) { return }
+
+    if ($null -ne $Script:ToastTimer) {
+        $Script:ToastTimer.Stop()
+        $Script:ToastTimer = $null
+    }
+
+    switch ($Type) {
+        'Success' {
+            $toastIcon.Text = [char]0xE73E
+            $toastIcon.Foreground = [System.Windows.Media.SolidColorBrush]::new(
+                [System.Windows.Media.ColorConverter]::ConvertFromString("#10B981"))
+        }
+        'Error' {
+            $toastIcon.Text = [char]0xE711
+            $toastIcon.Foreground = [System.Windows.Media.SolidColorBrush]::new(
+                [System.Windows.Media.ColorConverter]::ConvertFromString("#EF4444"))
+        }
+        default {
+            $toastIcon.Text = [char]0xE946
+            $toastIcon.Foreground = [System.Windows.Media.SolidColorBrush]::new(
+                [System.Windows.Media.ColorConverter]::ConvertFromString("#6366F1"))
+        }
+    }
+
+    $toastText.Text = $Message
+    $toastBorder.Visibility = [System.Windows.Visibility]::Visible
+
+    $Script:ToastTimer = New-Object System.Windows.Threading.DispatcherTimer
+    $Script:ToastTimer.Interval = [TimeSpan]::FromMilliseconds($DurationMs)
+    $null = $Script:ToastTimer.Add_Tick({
+        $Script:Window.FindName("ToastBorder").Visibility = [System.Windows.Visibility]::Collapsed
+        $Script:ToastTimer.Stop()
+    })
+    $Script:ToastTimer.Start()
 }
 
 function New-QuickRestorePoint {
@@ -1215,7 +1431,7 @@ Would you like to create a restore point now?
             $createResult = New-QuickRestorePoint
             
                 if ($createResult.Success) {
-                    Write-Host $createResult.Message -ForegroundColor Green
+                    Write-Ui -Message $createResult.Message -Level "OK"
                 } else {
                     Write-Warning $createResult.Message
                 }
@@ -1302,7 +1518,7 @@ Click YES to proceed with uninstallation.
         if (Test-Path $shortcutPath) {
             try {
                 Remove-Item $shortcutPath -Force -ErrorAction Stop
-                Write-Host "Desktop shortcut removed: $shortcutPath" -ForegroundColor Green
+                Write-Ui -Message "Desktop shortcut removed: $shortcutPath" -Level "OK"
             }
             catch {
                 $errors += "Failed to remove desktop shortcut: $_"
@@ -1320,7 +1536,7 @@ Click YES to proceed with uninstallation.
         if (Test-Path $Script:RootPath) {
             try {
                 Remove-Item $Script:RootPath -Recurse -Force -ErrorAction Stop
-                Write-Host "Installation directory removed: $Script:RootPath" -ForegroundColor Green
+                Write-Ui -Message "Installation directory removed: $Script:RootPath" -Level "OK"
             }
             catch {
                 $errors += "Failed to remove installation directory: $_"
@@ -1370,8 +1586,8 @@ Click YES to proceed with uninstallation.
 $xamlPath = Join-Path $Script:LauncherPath "MainWindow.xaml"
 
 if (-not (Test-Path $xamlPath)) {
-    Write-Host "ERROR: MainWindow.xaml not found at: $xamlPath" -ForegroundColor Red
-    Write-Host "Please ensure MainWindow.xaml is in the launcher folder." -ForegroundColor Yellow
+    Write-Ui -Message "ERROR: MainWindow.xaml not found at: $xamlPath" -Level "ERROR"
+    Write-Ui -Message "Please ensure MainWindow.xaml is in the launcher folder." -Level "WARN"
     Read-Host "Press Enter to exit"
     exit 1
 }
@@ -1382,8 +1598,8 @@ try {
     $Script:Window = [Windows.Markup.XamlReader]::Load($reader)
 }
 catch {
-    Write-Host "ERROR: Failed to load XAML. Error: $_" -ForegroundColor Red
-    Write-Host "XAML file may be corrupted or contain invalid syntax." -ForegroundColor Yellow
+    Write-Ui -Message "ERROR: Failed to load XAML. Error: $_" -Level "ERROR"
+    Write-Ui -Message "XAML file may be corrupted or contain invalid syntax." -Level "WARN"
     Write-Host ""
     Read-Host "Press Enter to exit"
     exit 1
@@ -1399,40 +1615,44 @@ $Script:ToolsPanel = $Window.FindName("ToolsPanel")
 $Script:StatusLabel = $Window.FindName("StatusLabel")
 $LogoImage = $Window.FindName("LogoImage")
 
-$Script:BtnCatAll = $Window.FindName("BtnCatAll")
-$Script:BtnCatSetup = $Window.FindName("BtnCatSetup")
-$Script:BtnCatNetwork = $Window.FindName("BtnCatNetwork")
+# Category pill buttons no longer exist in the new XAML (replaced by sidebar).
+# FindName returns $null — guard all calls.
+$Script:BtnCatAll      = $Window.FindName("BtnCatAll")
+$Script:BtnCatSetup    = $Window.FindName("BtnCatSetup")
+$Script:BtnCatNetwork  = $Window.FindName("BtnCatNetwork")
 $Script:BtnCatInternet = $Window.FindName("BtnCatInternet")
 $Script:BtnCatSecurity = $Window.FindName("BtnCatSecurity")
-$Script:BtnCatSupport = $Window.FindName("BtnCatSupport")
-$Script:BtnCatM365 = $Window.FindName("BtnCatM365")
+$Script:BtnCatSupport  = $Window.FindName("BtnCatSupport")
+$Script:BtnCatM365     = $Window.FindName("BtnCatM365")
 $Script:BtnCatHardware = $Window.FindName("BtnCatHardware")
+if ($null -ne $Script:BtnCatSetup)    { Set-CategoryButtonIcon -Button $Script:BtnCatSetup    -IconName "Settings2"  -IsActive $false }
+if ($null -ne $Script:BtnCatNetwork)  { Set-CategoryButtonIcon -Button $Script:BtnCatNetwork  -IconName "Network"    -IsActive $false }
+if ($null -ne $Script:BtnCatInternet) { Set-CategoryButtonIcon -Button $Script:BtnCatInternet -IconName "Globe"      -IsActive $false }
+if ($null -ne $Script:BtnCatSecurity) { Set-CategoryButtonIcon -Button $Script:BtnCatSecurity -IconName "ShieldCheck" -IsActive $false }
+if ($null -ne $Script:BtnCatSupport)  { Set-CategoryButtonIcon -Button $Script:BtnCatSupport  -IconName "LifeBuoy"   -IsActive $false }
+if ($null -ne $Script:BtnCatM365)     { Set-CategoryButtonIcon -Button $Script:BtnCatM365     -IconName "Cloud"      -IsActive $false }
+if ($null -ne $Script:BtnCatHardware) { Set-CategoryButtonIcon -Button $Script:BtnCatHardware -IconName "Cpu"        -IsActive $false }
 
-# Initialize category button icons
-Set-CategoryButtonIcon -Button $Script:BtnCatSetup -IconName "Settings2" -IsActive $false
-Set-CategoryButtonIcon -Button $Script:BtnCatNetwork -IconName "Network" -IsActive $false
-Set-CategoryButtonIcon -Button $Script:BtnCatInternet -IconName "Globe" -IsActive $false
-Set-CategoryButtonIcon -Button $Script:BtnCatSecurity -IconName "ShieldCheck" -IsActive $false
-Set-CategoryButtonIcon -Button $Script:BtnCatSupport -IconName "LifeBuoy" -IsActive $false
-Set-CategoryButtonIcon -Button $Script:BtnCatM365 -IconName "Cloud" -IsActive $false
-Set-CategoryButtonIcon -Button $Script:BtnCatHardware -IconName "Cpu" -IsActive $false
-
-$MinimizeButton = $Window.FindName("MinimizeButton")
-$CloseButton = $Window.FindName("CloseButton")
+$MinimizeButton    = $Window.FindName("MinimizeButton")
+$CloseButton       = $Window.FindName("CloseButton")
 $ThemeToggleButton = $Window.FindName("ThemeToggleButton")
-$Script:ThemeIcon = $Window.FindName("ThemeIcon")
-$HelpButton = $Window.FindName("HelpButton")
-$AboutButton = $Window.FindName("AboutButton")
-$GitHubButton = $Window.FindName("GitHubButton")
-$DiscordButton = $Window.FindName("DiscordButton")
+$Script:ThemeIcon  = $Window.FindName("ThemeIcon")
+# Footer nav buttons are now created dynamically in Initialize-Sidebar.
+# FindName returns $null here — Initialize-Sidebar sets the Script-scope vars below.
+$HelpButton         = $Window.FindName("HelpButton")
+$AboutButton        = $Window.FindName("AboutButton")
+$GitHubButton       = $Window.FindName("GitHubButton")
+$DiscordButton      = $Window.FindName("DiscordButton")
 $SelfDestructButton = $Window.FindName("SelfDestructButton")
+# Guard old Set-FooterButtonIcon calls (buttons no longer in XAML)
+if ($null -ne $HelpButton)         { Set-FooterButtonIcon -Button $HelpButton         -IconName "HelpCircle" -TextColor "White" }
+if ($null -ne $AboutButton)        { Set-FooterButtonIcon -Button $AboutButton        -IconName "Info"       -TextColor "White" }
+if ($null -ne $GitHubButton)       { Set-FooterButtonIcon -Button $GitHubButton       -IconName "GitHub"     -TextColor "White" }
+if ($null -ne $DiscordButton)      { Set-FooterButtonIcon -Button $DiscordButton      -IconName "Discord"    -TextColor "White" }
+if ($null -ne $SelfDestructButton) { Set-FooterButtonIcon -Button $SelfDestructButton -IconName "Trash2"     -TextColor "#EF4444" }
 
-# Initialize footer button icons
-Set-FooterButtonIcon -Button $HelpButton -IconName "HelpCircle" -TextColor "White"
-Set-FooterButtonIcon -Button $AboutButton -IconName "Info" -TextColor "White"
-Set-FooterButtonIcon -Button $GitHubButton -IconName "GitHub" -TextColor "White"  # Simple Icon brand logo
-Set-FooterButtonIcon -Button $DiscordButton -IconName "Discord" -TextColor "White"  # Simple Icon brand logo
-Set-FooterButtonIcon -Button $SelfDestructButton -IconName "Trash2" -TextColor "#EF4444"
+# Build the sidebar (sets $Script:HelpButton etc. so event bindings below work)
+Initialize-Sidebar
 
 # Set logo image and make it clickable
 $LogoButton = $Window.FindName("LogoButton")
@@ -1464,7 +1684,7 @@ if ($null -ne $LogoImage) {
             try {
                 $websiteUrl = "https://www.soulitek.co.il"
                 Start-Process $websiteUrl
-                Write-Host "Opening website: $websiteUrl" -ForegroundColor Cyan
+                Write-Ui -Message "Opening website: $websiteUrl" -Level "INFO"
             }
             catch {
                 Write-Warning "Failed to open website: $_"
@@ -1500,7 +1720,7 @@ if ($null -ne $ThemeToggleButton) {
         try {
             $currentTheme = Get-ThemePreference
             $newTheme = if ($currentTheme -eq "Light") { "Dark" } else { "Light" }
-            Write-Host "Toggling theme from $currentTheme to $newTheme" -ForegroundColor Cyan
+            Write-Ui -Message "Toggling theme from $currentTheme to $newTheme" -Level "INFO"
             Apply-Theme -Theme $newTheme
         }
         catch {
@@ -1511,13 +1731,18 @@ if ($null -ne $ThemeToggleButton) {
 
 # Search
 $null = $SearchBox.Add_TextChanged({
-    # Show/hide placeholder based on text content
     if ($null -ne $Script:SearchPlaceholder) {
         if ([string]::IsNullOrWhiteSpace($Script:SearchBox.Text)) {
             $Script:SearchPlaceholder.Visibility = "Visible"
         } else {
             $Script:SearchPlaceholder.Visibility = "Collapsed"
         }
+    }
+    # Persist searches of 3+ characters
+    $q = $Script:SearchBox.Text
+    if ($q.Length -ge 3) {
+        $Script:RecentSearches = @($q) + ($Script:RecentSearches | Where-Object { $_ -ne $q }) | Select-Object -First 10
+        Set-ThemePreference -Theme $Script:CurrentTheme
     }
     Update-ToolsDisplay
 })
@@ -1535,18 +1760,34 @@ $null = $SearchBox.Add_LostFocus({
     }
 })
 
-# Category buttons
-$null = $BtnCatAll.Add_Click({ Set-CategoryActive "All" })
-$null = $BtnCatSetup.Add_Click({ Set-CategoryActive "Setup" })
-$null = $BtnCatNetwork.Add_Click({ Set-CategoryActive "Network" })
-$null = $BtnCatInternet.Add_Click({ Set-CategoryActive "Internet" })
-$null = $BtnCatSecurity.Add_Click({ Set-CategoryActive "Security" })
-$null = $BtnCatSupport.Add_Click({ Set-CategoryActive "Support" })
-$null = $BtnCatM365.Add_Click({ Set-CategoryActive "M365" })
-$null = $BtnCatHardware.Add_Click({ Set-CategoryActive "Hardware" })
+# Ctrl+K to focus search; Escape to clear it
+$null = $Script:Window.Add_KeyDown({
+    param($sender, $e)
+    if ($e.Key -eq [System.Windows.Input.Key]::K -and
+        [System.Windows.Input.Keyboard]::Modifiers -eq [System.Windows.Input.ModifierKeys]::Control) {
+        $Script:SearchBox.Focus()
+        $Script:SearchBox.SelectAll()
+        $e.Handled = $true
+    }
+    if ($e.Key -eq [System.Windows.Input.Key]::Escape -and
+        -not [string]::IsNullOrWhiteSpace($Script:SearchBox.Text)) {
+        $Script:SearchBox.Text = ""
+        $e.Handled = $true
+    }
+})
+
+# Category pill buttons — guarded (no longer in XAML; sidebar handles category switching)
+if ($null -ne $Script:BtnCatAll)      { $null = $Script:BtnCatAll.Add_Click({      Set-CategoryActive "All" }) }
+if ($null -ne $Script:BtnCatSetup)    { $null = $Script:BtnCatSetup.Add_Click({    Set-CategoryActive "Setup" }) }
+if ($null -ne $Script:BtnCatNetwork)  { $null = $Script:BtnCatNetwork.Add_Click({  Set-CategoryActive "Network" }) }
+if ($null -ne $Script:BtnCatInternet) { $null = $Script:BtnCatInternet.Add_Click({ Set-CategoryActive "Internet" }) }
+if ($null -ne $Script:BtnCatSecurity) { $null = $Script:BtnCatSecurity.Add_Click({ Set-CategoryActive "Security" }) }
+if ($null -ne $Script:BtnCatSupport)  { $null = $Script:BtnCatSupport.Add_Click({  Set-CategoryActive "Support" }) }
+if ($null -ne $Script:BtnCatM365)     { $null = $Script:BtnCatM365.Add_Click({     Set-CategoryActive "M365" }) }
+if ($null -ne $Script:BtnCatHardware) { $null = $Script:BtnCatHardware.Add_Click({ Set-CategoryActive "Hardware" }) }
 
 # Help button
-$null = $HelpButton.Add_Click({
+$null = $HelpButton.Add_MouseLeftButtonUp({
     $helpText = @"
 SOULITEK ALL-IN-ONE SCRIPTS LAUNCHER
 
@@ -1595,7 +1836,7 @@ GitHub: https://github.com/Soulitek/Soulitek-All-In-One-Scripts
 })
 
 # About button
-$null = $AboutButton.Add_Click({
+$null = $AboutButton.Add_MouseLeftButtonUp({
     $aboutText = @"
 SouliTEK All-In-One Scripts
 Version: $Script:CurrentVersion
@@ -1623,17 +1864,17 @@ Made with love in Soulitek
 })
 
 # GitHub button
-$null = $GitHubButton.Add_Click({
+$null = $GitHubButton.Add_MouseLeftButtonUp({
     Start-Process "https://github.com/Soulitek/Soulitek-All-In-One-Scripts"
 })
 
 # Discord button
-$null = $DiscordButton.Add_Click({
+$null = $DiscordButton.Add_MouseLeftButtonUp({
     Start-Process "https://discord.gg/eVqu269QBB"
 })
 
 # Self-Destruct button
-$null = $SelfDestructButton.Add_Click({
+$null = $SelfDestructButton.Add_MouseLeftButtonUp({
     Invoke-SelfDestruct
 })
 

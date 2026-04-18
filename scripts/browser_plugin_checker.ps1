@@ -417,18 +417,18 @@ function Show-BrowserSummary {
     
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  DETECTED BROWSERS" -ForegroundColor Cyan
+    Write-Ui -Message "  DETECTED BROWSERS" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     
     if ($Browsers.Count -eq 0) {
-        Write-Host "  No supported browsers detected." -ForegroundColor Yellow
+        Write-Ui -Message "  No supported browsers detected." -Level "WARN"
         return
     }
     
     foreach ($browser in $Browsers) {
-        Write-Host "  [+] $($browser.Name)" -ForegroundColor Green
-        Write-Host "      Path: $($browser.ProfilePath)" -ForegroundColor Gray
+        Write-Ui -Message "  [+] $($browser.Name)" -Level "OK"
+        Write-Ui -Message "      Path: $($browser.ProfilePath)" -Level "INFO"
     }
     
     Write-Host ""
@@ -455,25 +455,25 @@ function Show-ExtensionDetails {
     Write-Host ""
     # Show name prominently - use ID if name is same as ID (fallback case)
     if ($Extension.Name -eq $Extension.ExtensionId) {
-        Write-Host "  [$Index] Extension ID: $($Extension.ExtensionId)" -ForegroundColor Yellow
-        Write-Host "      (Name not available - using ID)" -ForegroundColor Gray
+        Write-Ui -Message "  [$Index] Extension ID: $($Extension.ExtensionId)" -Level "WARN"
+        Write-Ui -Message "      (Name not available - using ID)" -Level "INFO"
     } else {
-        Write-Host "  [$Index] $($Extension.Name)" -ForegroundColor White
-        Write-Host "      ID: $($Extension.ExtensionId)" -ForegroundColor Gray
+        Write-Ui -Message "  [$Index] $($Extension.Name)" -Level "STEP"
+        Write-Ui -Message "      ID: $($Extension.ExtensionId)" -Level "INFO"
     }
-    Write-Host "      Browser: $($Extension.Browser) ($($Extension.Profile))" -ForegroundColor Gray
-    Write-Host "      Version: $($Extension.Version)" -ForegroundColor Gray
+    Write-Ui -Message "      Browser: $($Extension.Browser) ($($Extension.Profile))" -Level "INFO"
+    Write-Ui -Message "      Version: $($Extension.Version)" -Level "INFO"
     Write-Host "      Risk Level: " -NoNewline -ForegroundColor Gray
     Write-Host $analysis.RiskLevel -ForegroundColor $riskColor
     
     if ($Extension.PermissionCount -gt 0) {
-        Write-Host "      Permissions ($($Extension.PermissionCount)): $($Extension.Permissions.Substring(0, [Math]::Min(80, $Extension.Permissions.Length)))..." -ForegroundColor Gray
+        Write-Ui -Message "      Permissions ($($Extension.PermissionCount)): $($Extension.Permissions.Substring(0, [Math]::Min(80, $Extension.Permissions.Length)))..." -Level "INFO"
     }
     
     if ($analysis.Warnings.Count -gt 0) {
-        Write-Host "      Warnings:" -ForegroundColor Yellow
+        Write-Ui -Message "      Warnings:" -Level "WARN"
         foreach ($warning in $analysis.Warnings) {
-            Write-Host "        ! $warning" -ForegroundColor Yellow
+            Write-Ui -Message "        ! $warning" -Level "WARN"
         }
     }
 }
@@ -502,28 +502,28 @@ function Show-ScanSummary {
     
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  SCAN SUMMARY" -ForegroundColor Cyan
+    Write-Ui -Message "  SCAN SUMMARY" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "  Total Extensions: $($Extensions.Count)" -ForegroundColor White
+    Write-Ui -Message "  Total Extensions: $($Extensions.Count)" -Level "STEP"
     Write-Host ""
-    Write-Host "  Risk Distribution:" -ForegroundColor White
+    Write-Ui -Message "  Risk Distribution:" -Level "STEP"
     Write-Host "    - High Risk:   " -NoNewline -ForegroundColor Gray
     Write-Host $high -ForegroundColor $(if ($high -gt 0) { "Red" } else { "Green" })
     Write-Host "    - Medium Risk: " -NoNewline -ForegroundColor Gray
     Write-Host $medium -ForegroundColor $(if ($medium -gt 0) { "Yellow" } else { "Green" })
     Write-Host "    - Low Risk:    " -NoNewline -ForegroundColor Gray
-    Write-Host $low -ForegroundColor Green
+    Write-Ui -Message $low -Level "OK"
     Write-Host ""
     
     if ($high -gt 0) {
-        Write-Host "  [!] WARNING: $high extension(s) with HIGH risk detected!" -ForegroundColor Red
-        Write-Host "      Review these extensions and consider removing suspicious ones." -ForegroundColor Yellow
+        Write-Ui -Message "  [!] WARNING: $high extension(s) with HIGH risk detected!" -Level "ERROR"
+        Write-Ui -Message "      Review these extensions and consider removing suspicious ones." -Level "WARN"
     } elseif ($medium -gt 0) {
-        Write-Host "  [*] $medium extension(s) with elevated permissions detected." -ForegroundColor Yellow
-        Write-Host "      Review to ensure they are from trusted sources." -ForegroundColor Gray
+        Write-Ui -Message "  [*] $medium extension(s) with elevated permissions detected." -Level "WARN"
+        Write-Ui -Message "      Review to ensure they are from trusted sources." -Level "INFO"
     } else {
-        Write-Host "  [+] No high-risk extensions detected." -ForegroundColor Green
+        Write-Ui -Message "  [+] No high-risk extensions detected." -Level "OK"
     }
     
     Write-Host ""
@@ -541,16 +541,16 @@ function Invoke-FullScan {
     
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  SCANNING BROWSER EXTENSIONS" -ForegroundColor Cyan
+    Write-Ui -Message "  SCANNING BROWSER EXTENSIONS" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "Detecting installed browsers..." -ForegroundColor Cyan
+    Write-Ui -Message "Detecting installed browsers..." -Level "INFO"
     
     $Script:BrowsersFound = Get-InstalledBrowsers
     Show-BrowserSummary -Browsers $Script:BrowsersFound
     
     if ($Script:BrowsersFound.Count -eq 0) {
-        Write-Host "No supported browsers found to scan." -ForegroundColor Yellow
+        Write-Ui -Message "No supported browsers found to scan." -Level "WARN"
         Wait-SouliTEKKeyPress
         return
     }
@@ -558,7 +558,7 @@ function Invoke-FullScan {
     $Script:ScanResults = @()
     
     foreach ($browser in $Script:BrowsersFound) {
-        Write-Host "Scanning $($browser.Name)..." -ForegroundColor Cyan
+        Write-Ui -Message "Scanning $($browser.Name)..." -Level "INFO"
         
         if ($browser.Type -eq "Firefox") {
             $extensions = Get-FirefoxExtensions -ProfilesPath $browser.ProfilePath
@@ -574,7 +574,7 @@ function Invoke-FullScan {
             }
         }
         
-        Write-Host "  Found $($extensions.Count) extension(s)" -ForegroundColor Gray
+        Write-Ui -Message "  Found $($extensions.Count) extension(s)" -Level "INFO"
         $Script:ScanResults += $extensions
     }
     
@@ -592,7 +592,7 @@ function Invoke-FullScan {
     
     if ($riskyExtensions.Count -gt 0) {
         Write-Host "============================================================" -ForegroundColor Yellow
-        Write-Host "  EXTENSIONS REQUIRING ATTENTION" -ForegroundColor Yellow
+        Write-Ui -Message "  EXTENSIONS REQUIRING ATTENTION" -Level "WARN"
         Write-Host "============================================================" -ForegroundColor Yellow
         
         $index = 1
@@ -614,7 +614,7 @@ function Show-AllExtensions {
     
     if ($Script:ScanResults.Count -eq 0) {
         Write-Host ""
-        Write-Host "No scan results. Please run a full scan first (Option 1)." -ForegroundColor Yellow
+        Write-Ui -Message "No scan results. Please run a full scan first (Option 1)." -Level "WARN"
         Wait-SouliTEKKeyPress
         return
     }
@@ -622,7 +622,7 @@ function Show-AllExtensions {
     Clear-Host
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  ALL DETECTED EXTENSIONS ($($Script:ScanResults.Count))" -ForegroundColor Cyan
+    Write-Ui -Message "  ALL DETECTED EXTENSIONS ($($Script:ScanResults.Count))" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     
     $index = 1
@@ -643,7 +643,7 @@ function Show-RiskyExtensions {
     
     if ($Script:ScanResults.Count -eq 0) {
         Write-Host ""
-        Write-Host "No scan results. Please run a full scan first (Option 1)." -ForegroundColor Yellow
+        Write-Ui -Message "No scan results. Please run a full scan first (Option 1)." -Level "WARN"
         Wait-SouliTEKKeyPress
         return
     }
@@ -659,12 +659,12 @@ function Show-RiskyExtensions {
     Clear-Host
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Yellow
-    Write-Host "  RISKY EXTENSIONS ($($riskyExtensions.Count))" -ForegroundColor Yellow
+    Write-Ui -Message "  RISKY EXTENSIONS ($($riskyExtensions.Count))" -Level "WARN"
     Write-Host "============================================================" -ForegroundColor Yellow
     
     if ($riskyExtensions.Count -eq 0) {
         Write-Host ""
-        Write-Host "  No risky extensions detected!" -ForegroundColor Green
+        Write-Ui -Message "  No risky extensions detected!" -Level "OK"
         Write-Host ""
     } else {
         $index = 1
@@ -685,7 +685,7 @@ function Export-ScanResults {
     
     if ($Script:ScanResults.Count -eq 0) {
         Write-Host ""
-        Write-Host "No scan results to export. Please run a full scan first." -ForegroundColor Yellow
+        Write-Ui -Message "No scan results to export. Please run a full scan first." -Level "WARN"
         Wait-SouliTEKKeyPress
         return
     }
@@ -752,42 +752,42 @@ function Show-Help {
     Clear-Host
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  BROWSER PLUGIN CHECKER - HELP" -ForegroundColor Cyan
+    Write-Ui -Message "  BROWSER PLUGIN CHECKER - HELP" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "  ABOUT:" -ForegroundColor Yellow
-    Write-Host "  This tool scans installed browser extensions and analyzes" -ForegroundColor Gray
-    Write-Host "  them for potential security risks based on permissions" -ForegroundColor Gray
-    Write-Host "  and known suspicious patterns." -ForegroundColor Gray
+    Write-Ui -Message "  ABOUT:" -Level "WARN"
+    Write-Ui -Message "  This tool scans installed browser extensions and analyzes" -Level "INFO"
+    Write-Ui -Message "  them for potential security risks based on permissions" -Level "INFO"
+    Write-Ui -Message "  and known suspicious patterns." -Level "INFO"
     Write-Host ""
-    Write-Host "  SUPPORTED BROWSERS:" -ForegroundColor Yellow
-    Write-Host "  - Google Chrome" -ForegroundColor Gray
-    Write-Host "  - Microsoft Edge" -ForegroundColor Gray
-    Write-Host "  - Mozilla Firefox" -ForegroundColor Gray
-    Write-Host "  - Brave Browser" -ForegroundColor Gray
-    Write-Host "  - Opera" -ForegroundColor Gray
-    Write-Host "  - Vivaldi" -ForegroundColor Gray
+    Write-Ui -Message "  SUPPORTED BROWSERS:" -Level "WARN"
+    Write-Ui -Message "  - Google Chrome" -Level "INFO"
+    Write-Ui -Message "  - Microsoft Edge" -Level "INFO"
+    Write-Ui -Message "  - Mozilla Firefox" -Level "INFO"
+    Write-Ui -Message "  - Brave Browser" -Level "INFO"
+    Write-Ui -Message "  - Opera" -Level "INFO"
+    Write-Ui -Message "  - Vivaldi" -Level "INFO"
     Write-Host ""
-    Write-Host "  RISK LEVELS:" -ForegroundColor Yellow
+    Write-Ui -Message "  RISK LEVELS:" -Level "WARN"
     Write-Host "  - High:   " -NoNewline -ForegroundColor Red
-    Write-Host "Access to all websites or multiple risky permissions" -ForegroundColor Gray
+    Write-Ui -Message "Access to all websites or multiple risky permissions" -Level "INFO"
     Write-Host "  - Medium: " -NoNewline -ForegroundColor Yellow
-    Write-Host "Some risky permissions or suspicious keywords" -ForegroundColor Gray
+    Write-Ui -Message "Some risky permissions or suspicious keywords" -Level "INFO"
     Write-Host "  - Low:    " -NoNewline -ForegroundColor Green
-    Write-Host "Normal extension with limited permissions" -ForegroundColor Gray
+    Write-Ui -Message "Normal extension with limited permissions" -Level "INFO"
     Write-Host ""
-    Write-Host "  RISKY PERMISSIONS:" -ForegroundColor Yellow
-    Write-Host "  - <all_urls>: Can read/modify any website" -ForegroundColor Gray
-    Write-Host "  - cookies: Can access your cookies" -ForegroundColor Gray
-    Write-Host "  - history: Can read browsing history" -ForegroundColor Gray
-    Write-Host "  - webRequest: Can intercept network requests" -ForegroundColor Gray
-    Write-Host "  - clipboardRead/Write: Can access clipboard" -ForegroundColor Gray
+    Write-Ui -Message "  RISKY PERMISSIONS:" -Level "WARN"
+    Write-Ui -Message "  - <all_urls>: Can read/modify any website" -Level "INFO"
+    Write-Ui -Message "  - cookies: Can access your cookies" -Level "INFO"
+    Write-Ui -Message "  - history: Can read browsing history" -Level "INFO"
+    Write-Ui -Message "  - webRequest: Can intercept network requests" -Level "INFO"
+    Write-Ui -Message "  - clipboardRead/Write: Can access clipboard" -Level "INFO"
     Write-Host ""
-    Write-Host "  RECOMMENDATIONS:" -ForegroundColor Yellow
-    Write-Host "  - Remove extensions you don't use" -ForegroundColor Gray
-    Write-Host "  - Only install from official stores" -ForegroundColor Gray
-    Write-Host "  - Review permissions before installing" -ForegroundColor Gray
-    Write-Host "  - Be cautious of free VPN/proxy extensions" -ForegroundColor Gray
+    Write-Ui -Message "  RECOMMENDATIONS:" -Level "WARN"
+    Write-Ui -Message "  - Remove extensions you don't use" -Level "INFO"
+    Write-Ui -Message "  - Only install from official stores" -Level "INFO"
+    Write-Ui -Message "  - Review permissions before installing" -Level "INFO"
+    Write-Ui -Message "  - Be cautious of free VPN/proxy extensions" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     
@@ -804,37 +804,37 @@ function Show-Menu {
     Show-SouliTEKBanner
     
     Write-Host "============================================================" -ForegroundColor Magenta
-    Write-Host "  BROWSER PLUGIN CHECKER v$Script:Version" -ForegroundColor Magenta
-    Write-Host "  Scan browser extensions for security risks" -ForegroundColor Gray
+    Write-Ui -Message "  BROWSER PLUGIN CHECKER v$Script:Version" -Level "INFO"
+    Write-Ui -Message "  Scan browser extensions for security risks" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Magenta
     Write-Host ""
     
     if ($Script:ScanResults.Count -gt 0) {
-        Write-Host "  Last Scan: $($Script:ScanResults.Count) extension(s) found" -ForegroundColor Cyan
+        Write-Ui -Message "  Last Scan: $($Script:ScanResults.Count) extension(s) found" -Level "INFO"
     }
     if ($Script:BrowsersFound.Count -gt 0) {
-        Write-Host "  Browsers: $($Script:BrowsersFound.Name -join ', ')" -ForegroundColor Gray
+        Write-Ui -Message "  Browsers: $($Script:BrowsersFound.Name -join ', ')" -Level "INFO"
     }
     
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "  [1] Full Scan" -ForegroundColor Yellow
-    Write-Host "      Scan all browsers for extensions" -ForegroundColor Gray
+    Write-Ui -Message "  [1] Full Scan" -Level "WARN"
+    Write-Ui -Message "      Scan all browsers for extensions" -Level "INFO"
     Write-Host ""
-    Write-Host "  [2] View All Extensions" -ForegroundColor Yellow
-    Write-Host "      List all detected extensions" -ForegroundColor Gray
+    Write-Ui -Message "  [2] View All Extensions" -Level "WARN"
+    Write-Ui -Message "      List all detected extensions" -Level "INFO"
     Write-Host ""
-    Write-Host "  [3] View Risky Extensions" -ForegroundColor Yellow
-    Write-Host "      Show only medium/high risk extensions" -ForegroundColor Gray
+    Write-Ui -Message "  [3] View Risky Extensions" -Level "WARN"
+    Write-Ui -Message "      Show only medium/high risk extensions" -Level "INFO"
     Write-Host ""
-    Write-Host "  [4] Export Results" -ForegroundColor Yellow
-    Write-Host "      Export scan results to file" -ForegroundColor Gray
+    Write-Ui -Message "  [4] Export Results" -Level "WARN"
+    Write-Ui -Message "      Export scan results to file" -Level "INFO"
     Write-Host ""
-    Write-Host "  [5] Help" -ForegroundColor Yellow
-    Write-Host "      Show usage instructions" -ForegroundColor Gray
+    Write-Ui -Message "  [5] Help" -Level "WARN"
+    Write-Ui -Message "      Show usage instructions" -Level "INFO"
     Write-Host ""
-    Write-Host "  [0] Exit" -ForegroundColor Red
+    Write-Ui -Message "  [0] Exit" -Level "ERROR"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""

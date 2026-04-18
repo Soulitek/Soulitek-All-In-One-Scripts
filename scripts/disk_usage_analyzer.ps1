@@ -103,9 +103,9 @@ function Get-LargeFolders {
     Show-SouliTEKHeader -Title "SCANNING FOR LARGE FOLDERS" -Color Yellow -ClearHost -ShowBanner
     
     Write-Host "Scanning path: " -NoNewline -ForegroundColor Cyan
-    Write-Host $Path -ForegroundColor White
+    Write-Ui -Message $Path -Level "STEP"
     Write-Host "Minimum size threshold: " -NoNewline -ForegroundColor Cyan
-    Write-Host "$MinSizeGB GB" -ForegroundColor White
+    Write-Ui -Message "$MinSizeGB GB" -Level "STEP"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -125,17 +125,17 @@ function Get-LargeFolders {
             return @()
         }
         
-        Write-Host "Enumerating directories..." -ForegroundColor Yellow
+        Write-Ui -Message "Enumerating directories..." -Level "WARN"
         $allFolders = Get-ChildItem -Path $Path -Directory -ErrorAction SilentlyContinue -Force -Recurse
         
-        Write-Host "Found $($allFolders.Count) directories to scan" -ForegroundColor Gray
+        Write-Ui -Message "Found $($allFolders.Count) directories to scan" -Level "INFO"
         Write-Host ""
         
         $progressCount = 0
         foreach ($folder in $allFolders) {
             $progressCount++
             if ($progressCount % 50 -eq 0) {
-                Write-Host "Progress: $progressCount / $($allFolders.Count) directories scanned... (Found: $foundCount)" -ForegroundColor Gray
+                Write-Ui -Message "Progress: $progressCount / $($allFolders.Count) directories scanned... (Found: $foundCount)" -Level "INFO"
             }
             
             try {
@@ -158,7 +158,7 @@ function Get-LargeFolders {
                     
                     Write-Host "  [FOUND] " -NoNewline -ForegroundColor Green
                     Write-Host "$(Format-FileSize $folderSize) " -NoNewline -ForegroundColor Yellow
-                    Write-Host "- $($folder.FullName)" -ForegroundColor White
+                    Write-Ui -Message "- $($folder.FullName)" -Level "STEP"
                 }
                 
                 $scannedCount++
@@ -171,22 +171,22 @@ function Get-LargeFolders {
         
         Write-Host ""
         Write-Host "============================================================" -ForegroundColor Cyan
-        Write-Host "  SCAN COMPLETE" -ForegroundColor Cyan
+        Write-Ui -Message "  SCAN COMPLETE" -Level "INFO"
         Write-Host "============================================================" -ForegroundColor Cyan
         Write-Host ""
-        Write-Host "Directories scanned: $scannedCount" -ForegroundColor White
+        Write-Ui -Message "Directories scanned: $scannedCount" -Level "STEP"
         Write-Host "Large folders found: $foundCount" -ForegroundColor $(if ($foundCount -gt 0) { "Green" } else { "Yellow" })
         Write-Host ""
         
         if ($largeFolders.Count -gt 0) {
             $largeFolders = $largeFolders | Sort-Object -Property SizeBytes -Descending
-            Write-Host "Top 10 largest folders:" -ForegroundColor Cyan
+            Write-Ui -Message "Top 10 largest folders:" -Level "INFO"
             Write-Host ""
             $top10 = $largeFolders | Select-Object -First 10
             foreach ($folder in $top10) {
                 Write-Host "  [$($top10.IndexOf($folder) + 1)] " -NoNewline -ForegroundColor Yellow
                 Write-Host "$(Format-FileSize $folder.SizeBytes) " -NoNewline -ForegroundColor Green
-                Write-Host "- $($folder.Path)" -ForegroundColor White
+                Write-Ui -Message "- $($folder.Path)" -Level "STEP"
             }
         }
         
@@ -212,7 +212,7 @@ function Show-LargeFolders {
         return
     }
     
-    Write-Host "Found $($Script:FolderData.Count) folder(s) larger than $($Script:MinSizeGB) GB" -ForegroundColor Cyan
+    Write-Ui -Message "Found $($Script:FolderData.Count) folder(s) larger than $($Script:MinSizeGB) GB" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -221,21 +221,21 @@ function Show-LargeFolders {
     
     $index = 1
     foreach ($folder in $sortedFolders) {
-        Write-Host "[$index] $($folder.Path)" -ForegroundColor Yellow
-        Write-Host "     Size: $(Format-FileSize $folder.SizeBytes) ($($folder.SizeGB) GB)" -ForegroundColor White
-        Write-Host "     Items: $($folder.ItemCount)" -ForegroundColor Gray
-        Write-Host "     Modified: $($folder.LastModified)" -ForegroundColor Gray
+        Write-Ui -Message "[$index] $($folder.Path)" -Level "WARN"
+        Write-Ui -Message "     Size: $(Format-FileSize $folder.SizeBytes) ($($folder.SizeGB) GB)" -Level "STEP"
+        Write-Ui -Message "     Items: $($folder.ItemCount)" -Level "INFO"
+        Write-Ui -Message "     Modified: $($folder.LastModified)" -Level "INFO"
         Write-Host ""
         $index++
     }
     
     $totalSize = ($Script:FolderData | Measure-Object -Property SizeBytes -Sum).Sum
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  SUMMARY" -ForegroundColor Cyan
+    Write-Ui -Message "  SUMMARY" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "Total folders found: $($Script:FolderData.Count)" -ForegroundColor White
-    Write-Host "Total size: $(Format-FileSize $totalSize)" -ForegroundColor Green
+    Write-Ui -Message "Total folders found: $($Script:FolderData.Count)" -Level "STEP"
+    Write-Ui -Message "Total size: $(Format-FileSize $totalSize)" -Level "OK"
     Write-Host ""
     
     Read-Host "Press Enter to return to main menu"
@@ -250,13 +250,13 @@ function Export-DiskUsageReport {
         return
     }
     
-    Write-Host "Select export format:" -ForegroundColor White
+    Write-Ui -Message "Select export format:" -Level "STEP"
     Write-Host ""
-    Write-Host "  [1] Text File (.txt)" -ForegroundColor Yellow
-    Write-Host "  [2] CSV File (.csv)" -ForegroundColor Yellow
-    Write-Host "  [3] HTML Report (.html) with Top 10 Visualization" -ForegroundColor Yellow
-    Write-Host "  [4] All Formats" -ForegroundColor Cyan
-    Write-Host "  [0] Cancel" -ForegroundColor Red
+    Write-Ui -Message "  [1] Text File (.txt)" -Level "WARN"
+    Write-Ui -Message "  [2] CSV File (.csv)" -Level "WARN"
+    Write-Ui -Message "  [3] HTML Report (.html) with Top 10 Visualization" -Level "WARN"
+    Write-Ui -Message "  [4] All Formats" -Level "INFO"
+    Write-Ui -Message "  [0] Cancel" -Level "ERROR"
     Write-Host ""
     
     $choice = Read-Host "Enter your choice (0-4)"
@@ -521,13 +521,13 @@ function Export-HTMLReport {
 function Select-ScanPath {
     Show-SouliTEKHeader -Title "SELECT SCAN PATH" -Color Cyan -ClearHost -ShowBanner
     
-    Write-Host "Select drive/path to scan:" -ForegroundColor White
+    Write-Ui -Message "Select drive/path to scan:" -Level "STEP"
     Write-Host ""
     
     # Get available drives
     $drives = Get-PSDrive -PSProvider FileSystem | Where-Object { $_.Used -gt 0 }
     
-    Write-Host "Available drives:" -ForegroundColor Cyan
+    Write-Ui -Message "Available drives:" -Level "INFO"
     Write-Host ""
     $index = 1
     $driveOptions = @()
@@ -537,14 +537,14 @@ function Select-ScanPath {
         $totalGB = [math]::Round(($drive.Free + $drive.Used) / 1GB, 2)
         
         Write-Host "  [$index] $($drive.Name):\" -NoNewline -ForegroundColor Yellow
-        Write-Host " (Used: $usedGB GB, Free: $freeGB GB, Total: $totalGB GB)" -ForegroundColor Gray
+        Write-Ui -Message " (Used: $usedGB GB, Free: $freeGB GB, Total: $totalGB GB)" -Level "INFO"
         $driveOptions += $drive.Root
         $index++
     }
     
     Write-Host ""
-    Write-Host "  [$index] Enter custom path" -ForegroundColor Yellow
-    Write-Host "  [0] Cancel" -ForegroundColor Red
+    Write-Ui -Message "  [$index] Enter custom path" -Level "WARN"
+    Write-Ui -Message "  [0] Cancel" -Level "ERROR"
     Write-Host ""
     
     $choice = Read-Host "Enter your choice (0-$index)"
@@ -585,10 +585,10 @@ function Select-ScanPath {
 function Set-MinimumSize {
     Show-SouliTEKHeader -Title "SET MINIMUM SIZE THRESHOLD" -Color Cyan -ClearHost -ShowBanner
     
-    Write-Host "Current minimum size threshold: $($Script:MinSizeGB) GB" -ForegroundColor White
+    Write-Ui -Message "Current minimum size threshold: $($Script:MinSizeGB) GB" -Level "STEP"
     Write-Host ""
-    Write-Host "Enter new minimum size in GB (folders larger than this will be included):" -ForegroundColor Yellow
-    Write-Host "  (Press Enter to keep current: $($Script:MinSizeGB) GB)" -ForegroundColor Gray
+    Write-Ui -Message "Enter new minimum size in GB (folders larger than this will be included):" -Level "WARN"
+    Write-Ui -Message "  (Press Enter to keep current: $($Script:MinSizeGB) GB)" -Level "INFO"
     Write-Host ""
     
     $input = Read-Host "Minimum size (GB)"
@@ -622,37 +622,37 @@ function Set-MinimumSize {
 function Show-MainMenu {
     Show-SouliTEKHeader -Title "DISK USAGE ANALYZER - Professional Tool" -Color Cyan -ClearHost -ShowBanner
     
-    Write-Host "      Coded by: Soulitek.co.il" -ForegroundColor Green
-    Write-Host "      IT Solutions for your business" -ForegroundColor Green
-    Write-Host "      www.soulitek.co.il" -ForegroundColor Green
+    Write-Ui -Message "      Coded by: Soulitek.co.il" -Level "OK"
+    Write-Ui -Message "      IT Solutions for your business" -Level "OK"
+    Write-Ui -Message "      www.soulitek.co.il" -Level "OK"
     Write-Host ""
-    Write-Host "      (C) 2025 Soulitek - All Rights Reserved" -ForegroundColor DarkGray
+    Write-Ui -Message "      (C) 2025 Soulitek - All Rights Reserved" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "Current Settings:" -ForegroundColor White
+    Write-Ui -Message "Current Settings:" -Level "STEP"
     Write-Host "  Scan Path: " -NoNewline -ForegroundColor Gray
     if ([string]::IsNullOrWhiteSpace($Script:ScanPath)) {
-        Write-Host "Not set" -ForegroundColor Yellow
+        Write-Ui -Message "Not set" -Level "WARN"
     } else {
-        Write-Host $Script:ScanPath -ForegroundColor Green
+        Write-Ui -Message $Script:ScanPath -Level "OK"
     }
     Write-Host "  Minimum Size: " -NoNewline -ForegroundColor Gray
-    Write-Host "$($Script:MinSizeGB) GB" -ForegroundColor Green
+    Write-Ui -Message "$($Script:MinSizeGB) GB" -Level "OK"
     Write-Host "  Folders Found: " -NoNewline -ForegroundColor Gray
     Write-Host "$($Script:FolderData.Count)" -ForegroundColor $(if ($Script:FolderData.Count -gt 0) { "Green" } else { "Yellow" })
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "Select an option:" -ForegroundColor White
+    Write-Ui -Message "Select an option:" -Level "STEP"
     Write-Host ""
-    Write-Host "  [1] Select Scan Path       - Choose drive/folder to analyze" -ForegroundColor Yellow
-    Write-Host "  [2] Set Minimum Size       - Change size threshold (default: 1 GB)" -ForegroundColor Yellow
-    Write-Host "  [3] Scan for Large Folders - Find folders > $($Script:MinSizeGB) GB" -ForegroundColor Yellow
-    Write-Host "  [4] View Results           - Display found folders" -ForegroundColor Yellow
-    Write-Host "  [5] Export Report           - Save to file (TXT/CSV/HTML)" -ForegroundColor Cyan
-    Write-Host "  [6] Help                   - Usage guide" -ForegroundColor White
-    Write-Host "  [0] Exit" -ForegroundColor Red
+    Write-Ui -Message "  [1] Select Scan Path       - Choose drive/folder to analyze" -Level "WARN"
+    Write-Ui -Message "  [2] Set Minimum Size       - Change size threshold (default: 1 GB)" -Level "WARN"
+    Write-Ui -Message "  [3] Scan for Large Folders - Find folders > $($Script:MinSizeGB) GB" -Level "WARN"
+    Write-Ui -Message "  [4] View Results           - Display found folders" -Level "WARN"
+    Write-Ui -Message "  [5] Export Report           - Save to file (TXT/CSV/HTML)" -Level "INFO"
+    Write-Ui -Message "  [6] Help                   - Usage guide" -Level "STEP"
+    Write-Ui -Message "  [0] Exit" -Level "ERROR"
     Write-Host ""
     Write-Host "========================================" -ForegroundColor DarkGray
     
@@ -663,57 +663,57 @@ function Show-MainMenu {
 function Show-Help {
     Show-SouliTEKHeader -Title "HELP GUIDE" -Color Cyan -ClearHost -ShowBanner
     
-    Write-Host "DISK USAGE ANALYZER - USAGE GUIDE" -ForegroundColor Yellow
+    Write-Ui -Message "DISK USAGE ANALYZER - USAGE GUIDE" -Level "WARN"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "[1] SELECT SCAN PATH" -ForegroundColor White
-    Write-Host "    Choose which drive or folder to analyze" -ForegroundColor Gray
-    Write-Host "    Options: Available drives or custom path" -ForegroundColor Gray
-    Write-Host "    Use: Start by selecting where to scan" -ForegroundColor Gray
+    Write-Ui -Message "[1] SELECT SCAN PATH" -Level "STEP"
+    Write-Ui -Message "    Choose which drive or folder to analyze" -Level "INFO"
+    Write-Ui -Message "    Options: Available drives or custom path" -Level "INFO"
+    Write-Ui -Message "    Use: Start by selecting where to scan" -Level "INFO"
     Write-Host ""
-    Write-Host "[2] SET MINIMUM SIZE" -ForegroundColor White
-    Write-Host "    Change the size threshold for large folders" -ForegroundColor Gray
-    Write-Host "    Default: 1 GB (folders larger than 1 GB are included)" -ForegroundColor Gray
-    Write-Host "    Use: Adjust threshold based on your needs" -ForegroundColor Gray
+    Write-Ui -Message "[2] SET MINIMUM SIZE" -Level "STEP"
+    Write-Ui -Message "    Change the size threshold for large folders" -Level "INFO"
+    Write-Ui -Message "    Default: 1 GB (folders larger than 1 GB are included)" -Level "INFO"
+    Write-Ui -Message "    Use: Adjust threshold based on your needs" -Level "INFO"
     Write-Host ""
-    Write-Host "[3] SCAN FOR LARGE FOLDERS" -ForegroundColor White
-    Write-Host "    Analyzes selected path and finds large folders" -ForegroundColor Gray
-    Write-Host "    Shows: Size, item count, last modified date" -ForegroundColor Gray
-    Write-Host "    Use: Identify folders consuming disk space" -ForegroundColor Gray
+    Write-Ui -Message "[3] SCAN FOR LARGE FOLDERS" -Level "STEP"
+    Write-Ui -Message "    Analyzes selected path and finds large folders" -Level "INFO"
+    Write-Ui -Message "    Shows: Size, item count, last modified date" -Level "INFO"
+    Write-Ui -Message "    Use: Identify folders consuming disk space" -Level "INFO"
     Write-Host ""
-    Write-Host "[4] VIEW RESULTS" -ForegroundColor White
-    Write-Host "    Displays all found folders sorted by size" -ForegroundColor Gray
-    Write-Host "    Includes: Full path, size, item count, summary" -ForegroundColor Gray
-    Write-Host "    Use: Review findings before export" -ForegroundColor Gray
+    Write-Ui -Message "[4] VIEW RESULTS" -Level "STEP"
+    Write-Ui -Message "    Displays all found folders sorted by size" -Level "INFO"
+    Write-Ui -Message "    Includes: Full path, size, item count, summary" -Level "INFO"
+    Write-Ui -Message "    Use: Review findings before export" -Level "INFO"
     Write-Host ""
-    Write-Host "[5] EXPORT REPORT" -ForegroundColor White
-    Write-Host "    Save analysis results to file" -ForegroundColor Gray
-    Write-Host "    Formats: Text (.txt), CSV (.csv), HTML (.html)" -ForegroundColor Gray
-    Write-Host "    HTML includes: Top 10 visualization chart" -ForegroundColor Gray
-    Write-Host "    Use: Documentation, reporting, sharing" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "TIPS FOR EFFECTIVE ANALYSIS:" -ForegroundColor Yellow
-    Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "- Start with C:\ drive for full system analysis" -ForegroundColor White
-    Write-Host "- Use custom paths for specific directories (e.g., C:\Users)" -ForegroundColor White
-    Write-Host "- Adjust minimum size threshold based on your disk size" -ForegroundColor White
-    Write-Host "- Large scans may take several minutes - be patient" -ForegroundColor White
-    Write-Host "- Export HTML report for best visualization" -ForegroundColor White
+    Write-Ui -Message "[5] EXPORT REPORT" -Level "STEP"
+    Write-Ui -Message "    Save analysis results to file" -Level "INFO"
+    Write-Ui -Message "    Formats: Text (.txt), CSV (.csv), HTML (.html)" -Level "INFO"
+    Write-Ui -Message "    HTML includes: Top 10 visualization chart" -Level "INFO"
+    Write-Ui -Message "    Use: Documentation, reporting, sharing" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "COMMON SCENARIOS:" -ForegroundColor Yellow
+    Write-Ui -Message "TIPS FOR EFFECTIVE ANALYSIS:" -Level "WARN"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "Scenario 1: Running out of disk space" -ForegroundColor White
-    Write-Host "  - Select C:\ drive, scan, review top folders, clean up large files" -ForegroundColor Gray
+    Write-Ui -Message "- Start with C:\ drive for full system analysis" -Level "STEP"
+    Write-Ui -Message "- Use custom paths for specific directories (e.g., C:\Users)" -Level "STEP"
+    Write-Ui -Message "- Adjust minimum size threshold based on your disk size" -Level "STEP"
+    Write-Ui -Message "- Large scans may take several minutes - be patient" -Level "STEP"
+    Write-Ui -Message "- Export HTML report for best visualization" -Level "STEP"
     Write-Host ""
-    Write-Host "Scenario 2: Analyzing specific user folder" -ForegroundColor White
-    Write-Host "  - Select custom path (e.g., C:\Users\Username), scan, review results" -ForegroundColor Gray
+    Write-Host "============================================================" -ForegroundColor Cyan
+    Write-Ui -Message "COMMON SCENARIOS:" -Level "WARN"
+    Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "Scenario 3: Storage cleanup planning" -ForegroundColor White
-    Write-Host "  - Scan multiple drives, export reports, plan cleanup strategy" -ForegroundColor Gray
+    Write-Ui -Message "Scenario 1: Running out of disk space" -Level "STEP"
+    Write-Ui -Message "  - Select C:\ drive, scan, review top folders, clean up large files" -Level "INFO"
+    Write-Host ""
+    Write-Ui -Message "Scenario 2: Analyzing specific user folder" -Level "STEP"
+    Write-Ui -Message "  - Select custom path (e.g., C:\Users\Username), scan, review results" -Level "INFO"
+    Write-Host ""
+    Write-Ui -Message "Scenario 3: Storage cleanup planning" -Level "STEP"
+    Write-Ui -Message "  - Scan multiple drives, export reports, plan cleanup strategy" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -781,7 +781,7 @@ do {
             break
         }
         default {
-            Write-Host "Invalid choice. Please try again." -ForegroundColor Red
+            Write-Ui -Message "Invalid choice. Please try again." -Level "ERROR"
             Start-Sleep -Seconds 2
         }
     }

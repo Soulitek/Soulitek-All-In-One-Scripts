@@ -49,11 +49,11 @@ $Script:DisconnectionHistory = @()
 # Function to display header - uses centralized module function
 function Show-Header {
     Show-SouliTEKHeader -Title "WIFI MONITOR" -ClearHost -ShowBanner
-    Write-Host "      Coded by: Soulitek.co.il" -ForegroundColor Yellow
-    Write-Host "      IT Solutions for your business" -ForegroundColor Yellow
-    Write-Host "      www.soulitek.co.il" -ForegroundColor Yellow
+    Write-Ui -Message "      Coded by: Soulitek.co.il" -Level "WARN"
+    Write-Ui -Message "      IT Solutions for your business" -Level "WARN"
+    Write-Ui -Message "      www.soulitek.co.il" -Level "WARN"
     Write-Host ""
-    Write-Host "      (C) 2025 Soulitek - All Rights Reserved" -ForegroundColor Gray
+    Write-Ui -Message "      (C) 2025 Soulitek - All Rights Reserved" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -266,25 +266,25 @@ function Get-WiFiDisconnectionHistory {
 function Show-CurrentWiFiStatus {
     Show-Header
     Write-Host "========================================" -ForegroundColor Green
-    Write-Host "   CURRENT WiFi CONNECTION STATUS" -ForegroundColor Green
+    Write-Ui -Message "   CURRENT WiFi CONNECTION STATUS" -Level "OK"
     Write-Host "========================================" -ForegroundColor Green
     Write-Host ""
     
     $wifiInfo = Get-CurrentWiFiInfo
     
     if (-not $wifiInfo -or -not $wifiInfo.SSID) {
-        Write-Host "Not connected to any WiFi network!" -ForegroundColor Red
+        Write-Ui -Message "Not connected to any WiFi network!" -Level "ERROR"
         Write-Host ""
-        Write-Host "Please connect to a WiFi network first." -ForegroundColor Yellow
+        Write-Ui -Message "Please connect to a WiFi network first." -Level "WARN"
     }
     else {
-        Write-Host "Network Information:" -ForegroundColor Cyan
+        Write-Ui -Message "Network Information:" -Level "INFO"
         Write-Host "----------------------------------------" -ForegroundColor Gray
         Write-Host "SSID: " -NoNewline -ForegroundColor White
-        Write-Host $wifiInfo.SSID -ForegroundColor Green
+        Write-Ui -Message $wifiInfo.SSID -Level "OK"
         Write-Host ""
         
-        Write-Host "Signal Strength:" -ForegroundColor Cyan
+        Write-Ui -Message "Signal Strength:" -Level "INFO"
         Write-Host "----------------------------------------" -ForegroundColor Gray
         if ($wifiInfo.SignalPercentage) {
             $signalColor = if ($wifiInfo.SignalPercentage -ge 70) { "Green" }
@@ -295,30 +295,30 @@ function Show-CurrentWiFiStatus {
         }
         if ($wifiInfo.RSSI) {
             Write-Host "RSSI: " -NoNewline -ForegroundColor White
-            Write-Host "$($wifiInfo.RSSI) dBm" -ForegroundColor Gray
+            Write-Ui -Message "$($wifiInfo.RSSI) dBm" -Level "INFO"
         }
         Write-Host ""
         
-        Write-Host "Frequency Band:" -ForegroundColor Cyan
+        Write-Ui -Message "Frequency Band:" -Level "INFO"
         Write-Host "----------------------------------------" -ForegroundColor Gray
         if ($wifiInfo.FrequencyBand) {
             $bandColor = if ($wifiInfo.FrequencyBand -eq "5 GHz") { "Green" } else { "Yellow" }
             Write-Host "Band: " -NoNewline -ForegroundColor White
             Write-Host $wifiInfo.FrequencyBand -ForegroundColor $bandColor
             if ($wifiInfo.FrequencyBand -eq "2.4 GHz") {
-                Write-Host "  Note: 2.4 GHz is slower and more crowded" -ForegroundColor Yellow
+                Write-Ui -Message "  Note: 2.4 GHz is slower and more crowded" -Level "WARN"
             }
             elseif ($wifiInfo.FrequencyBand -eq "5 GHz") {
-                Write-Host "  Note: 5 GHz is faster and less crowded" -ForegroundColor Green
+                Write-Ui -Message "  Note: 5 GHz is faster and less crowded" -Level "OK"
             }
         }
         if ($wifiInfo.Channel) {
             Write-Host "Channel: " -NoNewline -ForegroundColor White
-            Write-Host $wifiInfo.Channel -ForegroundColor Gray
+            Write-Ui -Message $wifiInfo.Channel -Level "INFO"
         }
         Write-Host ""
         
-        Write-Host "Connection Details:" -ForegroundColor Cyan
+        Write-Ui -Message "Connection Details:" -Level "INFO"
         Write-Host "----------------------------------------" -ForegroundColor Gray
         if ($wifiInfo.State) {
             Write-Host "State: " -NoNewline -ForegroundColor White
@@ -326,24 +326,24 @@ function Show-CurrentWiFiStatus {
         }
         if ($wifiInfo.Authentication) {
             Write-Host "Authentication: " -NoNewline -ForegroundColor White
-            Write-Host $wifiInfo.Authentication -ForegroundColor Gray
+            Write-Ui -Message $wifiInfo.Authentication -Level "INFO"
         }
         if ($wifiInfo.Cipher) {
             Write-Host "Cipher: " -NoNewline -ForegroundColor White
-            Write-Host $wifiInfo.Cipher -ForegroundColor Gray
+            Write-Ui -Message $wifiInfo.Cipher -Level "INFO"
         }
         if ($wifiInfo.ConnectionMode) {
             Write-Host "Connection Mode: " -NoNewline -ForegroundColor White
-            Write-Host $wifiInfo.ConnectionMode -ForegroundColor Gray
+            Write-Ui -Message $wifiInfo.ConnectionMode -Level "INFO"
         }
         if ($wifiInfo.RadioType) {
             Write-Host "Radio Type: " -NoNewline -ForegroundColor White
-            Write-Host $wifiInfo.RadioType -ForegroundColor Gray
+            Write-Ui -Message $wifiInfo.RadioType -Level "INFO"
         }
     }
     
     Write-Host ""
-    Write-Host "Press any key to return to main menu..." -ForegroundColor Cyan
+    Write-Ui -Message "Press any key to return to main menu..." -Level "INFO"
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
@@ -351,25 +351,25 @@ function Show-CurrentWiFiStatus {
 function Show-DisconnectionHistory {
     Show-Header
     Write-Host "========================================" -ForegroundColor Yellow
-    Write-Host "   WiFi DISCONNECTION HISTORY" -ForegroundColor Yellow
+    Write-Ui -Message "   WiFi DISCONNECTION HISTORY" -Level "WARN"
     Write-Host "========================================" -ForegroundColor Yellow
     Write-Host ""
     
-    Write-Host "Scanning event logs for disconnection events..." -ForegroundColor Yellow
+    Write-Ui -Message "Scanning event logs for disconnection events..." -Level "WARN"
     Write-Host ""
     
     $history = Get-WiFiDisconnectionHistory -Days 30
     
     if ($history.Count -eq 0) {
-        Write-Host "No disconnection events found in the last 30 days." -ForegroundColor Green
+        Write-Ui -Message "No disconnection events found in the last 30 days." -Level "OK"
         Write-Host ""
-        Write-Host "This could mean:" -ForegroundColor Yellow
-        Write-Host "  - Stable WiFi connection" -ForegroundColor Gray
-        Write-Host "  - Event logs not available" -ForegroundColor Gray
-        Write-Host "  - No WiFi adapter present" -ForegroundColor Gray
+        Write-Ui -Message "This could mean:" -Level "WARN"
+        Write-Ui -Message "  - Stable WiFi connection" -Level "INFO"
+        Write-Ui -Message "  - Event logs not available" -Level "INFO"
+        Write-Ui -Message "  - No WiFi adapter present" -Level "INFO"
     }
     else {
-        Write-Host "Found $($history.Count) connection/disconnection events:" -ForegroundColor Cyan
+        Write-Ui -Message "Found $($history.Count) connection/disconnection events:" -Level "INFO"
         Write-Host ""
         
         $disconnectCount = ($history | Where-Object { $_.Type -eq "Disconnected" }).Count
@@ -377,7 +377,7 @@ function Show-DisconnectionHistory {
         Write-Host $disconnectCount -ForegroundColor $(if ($disconnectCount -eq 0) { "Green" } elseif ($disconnectCount -lt 5) { "Yellow" } else { "Red" })
         Write-Host ""
         
-        Write-Host "Recent Events (Last 20):" -ForegroundColor Cyan
+        Write-Ui -Message "Recent Events (Last 20):" -Level "INFO"
         Write-Host "----------------------------------------" -ForegroundColor Gray
         
         $recentEvents = $history | Select-Object -First 20
@@ -389,32 +389,32 @@ function Show-DisconnectionHistory {
             Write-Host "[$timeStr] " -NoNewline -ForegroundColor Gray
             Write-Host $event.Type -NoNewline -ForegroundColor $typeColor
             if ($event.SSID -and $event.SSID -ne "Unknown") {
-                Write-Host " - SSID: $($event.SSID)" -ForegroundColor White
+                Write-Ui -Message " - SSID: $($event.SSID)" -Level "STEP"
             }
             else {
-                Write-Host "" -ForegroundColor White
+                Write-Ui -Message "" -Level "STEP"
             }
         }
         
         Write-Host ""
         Write-Host "========================================" -ForegroundColor Yellow
-        Write-Host "Disconnection Statistics:" -ForegroundColor Cyan
+        Write-Ui -Message "Disconnection Statistics:" -Level "INFO"
         Write-Host "----------------------------------------" -ForegroundColor Gray
         
         $disconnects = $history | Where-Object { $_.Type -eq "Disconnected" }
         if ($disconnects.Count -gt 0) {
             $bySSID = $disconnects | Group-Object -Property SSID | Sort-Object -Property Count -Descending
             
-            Write-Host "Disconnections by Network:" -ForegroundColor White
+            Write-Ui -Message "Disconnections by Network:" -Level "STEP"
             foreach ($group in $bySSID) {
                 Write-Host "  $($group.Name): " -NoNewline -ForegroundColor Gray
-                Write-Host "$($group.Count) times" -ForegroundColor Yellow
+                Write-Ui -Message "$($group.Count) times" -Level "WARN"
             }
         }
     }
     
     Write-Host ""
-    Write-Host "Press any key to return to main menu..." -ForegroundColor Cyan
+    Write-Ui -Message "Press any key to return to main menu..." -Level "INFO"
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
@@ -422,17 +422,17 @@ function Show-DisconnectionHistory {
 function Show-DetailedWiFiInfo {
     Show-Header
     Write-Host "========================================" -ForegroundColor Magenta
-    Write-Host "   DETAILED WiFi INFORMATION" -ForegroundColor Magenta
+    Write-Ui -Message "   DETAILED WiFi INFORMATION" -Level "INFO"
     Write-Host "========================================" -ForegroundColor Magenta
     Write-Host ""
     
     $wifiInfo = Get-CurrentWiFiInfo
     
     if (-not $wifiInfo -or -not $wifiInfo.SSID) {
-        Write-Host "Not connected to any WiFi network!" -ForegroundColor Red
+        Write-Ui -Message "Not connected to any WiFi network!" -Level "ERROR"
     }
     else {
-        Write-Host "Full Network Details:" -ForegroundColor Cyan
+        Write-Ui -Message "Full Network Details:" -Level "INFO"
         Write-Host "========================================" -ForegroundColor Gray
         Write-Host ""
         
@@ -455,26 +455,26 @@ function Show-DetailedWiFiInfo {
         }
         
         Write-Host ""
-        Write-Host "Frequency Band Information:" -ForegroundColor Cyan
+        Write-Ui -Message "Frequency Band Information:" -Level "INFO"
         Write-Host "----------------------------------------" -ForegroundColor Gray
         if ($wifiInfo.FrequencyBand -eq "2.4 GHz") {
-            Write-Host "• 2.4 GHz Band Characteristics:" -ForegroundColor Yellow
-            Write-Host "  - Slower speeds (up to ~150 Mbps)" -ForegroundColor Gray
-            Write-Host "  - Better range and wall penetration" -ForegroundColor Gray
-            Write-Host "  - More crowded (many devices use this band)" -ForegroundColor Gray
-            Write-Host "  - Channels: 1-14" -ForegroundColor Gray
+            Write-Ui -Message "• 2.4 GHz Band Characteristics:" -Level "WARN"
+            Write-Ui -Message "  - Slower speeds (up to ~150 Mbps)" -Level "INFO"
+            Write-Ui -Message "  - Better range and wall penetration" -Level "INFO"
+            Write-Ui -Message "  - More crowded (many devices use this band)" -Level "INFO"
+            Write-Ui -Message "  - Channels: 1-14" -Level "INFO"
         }
         elseif ($wifiInfo.FrequencyBand -eq "5 GHz") {
-            Write-Host "• 5 GHz Band Characteristics:" -ForegroundColor Green
-            Write-Host "  - Faster speeds (up to ~1300+ Mbps)" -ForegroundColor Gray
-            Write-Host "  - Less range and wall penetration" -ForegroundColor Gray
-            Write-Host "  - Less crowded (fewer devices)" -ForegroundColor Gray
-            Write-Host "  - Channels: 36+" -ForegroundColor Gray
+            Write-Ui -Message "• 5 GHz Band Characteristics:" -Level "OK"
+            Write-Ui -Message "  - Faster speeds (up to ~1300+ Mbps)" -Level "INFO"
+            Write-Ui -Message "  - Less range and wall penetration" -Level "INFO"
+            Write-Ui -Message "  - Less crowded (fewer devices)" -Level "INFO"
+            Write-Ui -Message "  - Channels: 36+" -Level "INFO"
         }
     }
     
     Write-Host ""
-    Write-Host "Press any key to return to main menu..." -ForegroundColor Cyan
+    Write-Ui -Message "Press any key to return to main menu..." -Level "INFO"
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
@@ -482,14 +482,14 @@ function Show-DetailedWiFiInfo {
 function Export-WiFiReport {
     Show-Header
     Write-Host "========================================" -ForegroundColor Yellow
-    Write-Host "   EXPORT WiFi REPORT" -ForegroundColor Yellow
+    Write-Ui -Message "   EXPORT WiFi REPORT" -Level "WARN"
     Write-Host "========================================" -ForegroundColor Yellow
     Write-Host ""
     
     $wifiInfo = Get-CurrentWiFiInfo
     $history = Get-WiFiDisconnectionHistory -Days 30
     
-    Write-Host "Preparing export data..." -ForegroundColor Yellow
+    Write-Ui -Message "Preparing export data..." -Level "WARN"
     Write-Host ""
     
     # Prepare export data as array of PSCustomObject
@@ -528,11 +528,11 @@ function Export-WiFiReport {
     }
     
     if ($exportData.Count -eq 0) {
-        Write-Host "No data to export!" -ForegroundColor Red
+        Write-Ui -Message "No data to export!" -Level "ERROR"
         Write-Host ""
-        Write-Host "Please ensure you are connected to WiFi and try again." -ForegroundColor Yellow
+        Write-Ui -Message "Please ensure you are connected to WiFi and try again." -Level "WARN"
         Write-Host ""
-        Write-Host "Press any key to return to main menu..." -ForegroundColor Cyan
+        Write-Ui -Message "Press any key to return to main menu..." -Level "INFO"
         $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
         return
     }
@@ -566,7 +566,7 @@ function Export-WiFiReport {
     Write-Host ""
     Write-Ui -Message "Export complete! Reports saved to Desktop" -Level "OK"
     Write-Host ""
-    Write-Host "Press any key to return to main menu..." -ForegroundColor Cyan
+    Write-Ui -Message "Press any key to return to main menu..." -Level "INFO"
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
@@ -574,60 +574,60 @@ function Export-WiFiReport {
 function Show-Help {
     Show-Header
     Write-Host "========================================" -ForegroundColor Cyan
-    Write-Host "   HELP GUIDE" -ForegroundColor Cyan
+    Write-Ui -Message "   HELP GUIDE" -Level "INFO"
     Write-Host "========================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "WHEN TO USE EACH OPTION:" -ForegroundColor Yellow
+    Write-Ui -Message "WHEN TO USE EACH OPTION:" -Level "WARN"
     Write-Host "----------------------------------------" -ForegroundColor Gray
     Write-Host ""
-    Write-Host "[1] CURRENT WiFi STATUS" -ForegroundColor White
-    Write-Host "    Use when: Need quick overview of current connection" -ForegroundColor Gray
-    Write-Host "    Shows: SSID, Signal %, Frequency Band, Channel" -ForegroundColor Gray
+    Write-Ui -Message "[1] CURRENT WiFi STATUS" -Level "STEP"
+    Write-Ui -Message "    Use when: Need quick overview of current connection" -Level "INFO"
+    Write-Ui -Message "    Shows: SSID, Signal %, Frequency Band, Channel" -Level "INFO"
     Write-Host ""
-    Write-Host "[2] DISCONNECTION HISTORY" -ForegroundColor White
-    Write-Host "    Use when: Troubleshooting WiFi stability issues" -ForegroundColor Gray
-    Write-Host "    Shows: All disconnections in last 30 days" -ForegroundColor Gray
+    Write-Ui -Message "[2] DISCONNECTION HISTORY" -Level "STEP"
+    Write-Ui -Message "    Use when: Troubleshooting WiFi stability issues" -Level "INFO"
+    Write-Ui -Message "    Shows: All disconnections in last 30 days" -Level "INFO"
     Write-Host ""
-    Write-Host "[3] DETAILED INFORMATION" -ForegroundColor White
-    Write-Host "    Use when: Need complete technical details" -ForegroundColor Gray
-    Write-Host "    Shows: All WiFi parameters and band characteristics" -ForegroundColor Gray
+    Write-Ui -Message "[3] DETAILED INFORMATION" -Level "STEP"
+    Write-Ui -Message "    Use when: Need complete technical details" -Level "INFO"
+    Write-Ui -Message "    Shows: All WiFi parameters and band characteristics" -Level "INFO"
     Write-Host ""
-    Write-Host "[4] EXPORT REPORT" -ForegroundColor White
-    Write-Host "    Use when: Need to document or share WiFi status" -ForegroundColor Gray
-    Write-Host "    Creates: TXT, CSV, and HTML reports on Desktop" -ForegroundColor Gray
+    Write-Ui -Message "[4] EXPORT REPORT" -Level "STEP"
+    Write-Ui -Message "    Use when: Need to document or share WiFi status" -Level "INFO"
+    Write-Ui -Message "    Creates: TXT, CSV, and HTML reports on Desktop" -Level "INFO"
     Write-Host ""
     Write-Host "========================================" -ForegroundColor Cyan
-    Write-Host "SIGNAL STRENGTH GUIDE:" -ForegroundColor Yellow
+    Write-Ui -Message "SIGNAL STRENGTH GUIDE:" -Level "WARN"
     Write-Host "----------------------------------------" -ForegroundColor Gray
     Write-Host ""
-    Write-Host "• 70-100%: Excellent signal (Green)" -ForegroundColor Green
-    Write-Host "• 40-69%:  Good signal (Yellow)" -ForegroundColor Yellow
-    Write-Host "• 0-39%:   Weak signal (Red)" -ForegroundColor Red
+    Write-Ui -Message "• 70-100%: Excellent signal (Green)" -Level "OK"
+    Write-Ui -Message "• 40-69%:  Good signal (Yellow)" -Level "WARN"
+    Write-Ui -Message "• 0-39%:   Weak signal (Red)" -Level "ERROR"
     Write-Host ""
     Write-Host "========================================" -ForegroundColor Cyan
-    Write-Host "FREQUENCY BAND GUIDE:" -ForegroundColor Yellow
+    Write-Ui -Message "FREQUENCY BAND GUIDE:" -Level "WARN"
     Write-Host "----------------------------------------" -ForegroundColor Gray
     Write-Host ""
-    Write-Host "• 2.4 GHz: Slower, better range, more crowded" -ForegroundColor Yellow
-    Write-Host "• 5 GHz:   Faster, less range, less crowded" -ForegroundColor Green
+    Write-Ui -Message "• 2.4 GHz: Slower, better range, more crowded" -Level "WARN"
+    Write-Ui -Message "• 5 GHz:   Faster, less range, less crowded" -Level "OK"
     Write-Host ""
     Write-Host "========================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "Press any key to return to main menu..." -ForegroundColor Cyan
+    Write-Ui -Message "Press any key to return to main menu..." -Level "INFO"
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
 # Function to show main menu
 function Show-MainMenu {
     Show-Header
-    Write-Host "Select an option:" -ForegroundColor Yellow
+    Write-Ui -Message "Select an option:" -Level "WARN"
     Write-Host ""
-    Write-Host "  [1] Current WiFi Status        - Show connection details" -ForegroundColor White
-    Write-Host "  [2] Disconnection History      - View WiFi disconnection events" -ForegroundColor White
-    Write-Host "  [3] Detailed Information       - Complete technical details" -ForegroundColor White
-    Write-Host "  [4] Export Report              - Save report to Desktop" -ForegroundColor White
-    Write-Host "  [5] Help                       - Usage guide" -ForegroundColor White
-    Write-Host "  [0] Exit" -ForegroundColor White
+    Write-Ui -Message "  [1] Current WiFi Status        - Show connection details" -Level "STEP"
+    Write-Ui -Message "  [2] Disconnection History      - View WiFi disconnection events" -Level "STEP"
+    Write-Ui -Message "  [3] Detailed Information       - Complete technical details" -Level "STEP"
+    Write-Ui -Message "  [4] Export Report              - Save report to Desktop" -Level "STEP"
+    Write-Ui -Message "  [5] Help                       - Usage guide" -Level "STEP"
+    Write-Ui -Message "  [0] Exit" -Level "STEP"
     Write-Host ""
     Write-Host "========================================" -ForegroundColor Cyan
     $choice = Read-Host "Enter your choice (0-5)"

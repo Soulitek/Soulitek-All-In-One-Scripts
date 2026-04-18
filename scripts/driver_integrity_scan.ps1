@@ -112,7 +112,7 @@ function Get-WinGetAvailability {
             return $true
         } else {
             Write-Ui -Message "WinGet is not available on this system" -Level "WARN"
-            Write-Host "  [!] WinGet comes pre-installed on Windows 11 and Windows 10 (version 1809+)" -ForegroundColor Yellow
+            Write-Ui -Message "  [!] WinGet comes pre-installed on Windows 11 and Windows 10 (version 1809+)" -Level "WARN"
             Write-Host "  [!] You can install it from: https://aka.ms/getwinget" -ForegroundColor Yellow
             return $false
         }
@@ -136,13 +136,13 @@ function Get-DriverIntegrityStatus {
     
     try {
         # Get all PnP devices
-        Write-Host "  [*] Querying all hardware devices..." -ForegroundColor Cyan
+        Write-Ui -Message "  [*] Querying all hardware devices..." -Level "INFO"
         $allDevices = Get-WmiObject Win32_PnPEntity -ErrorAction Stop
         
         $totalDevices = $allDevices.Count
         $currentDevice = 0
         
-        Write-Host "  [*] Found $totalDevices devices to analyze..." -ForegroundColor Cyan
+        Write-Ui -Message "  [*] Found $totalDevices devices to analyze..." -Level "INFO"
         Write-Host ""
         
         foreach ($device in $allDevices) {
@@ -150,7 +150,7 @@ function Get-DriverIntegrityStatus {
             
             # Show progress every 50 devices
             if ($currentDevice % 50 -eq 0) {
-                Write-Host "  [*] Progress: $currentDevice / $totalDevices devices analyzed..." -ForegroundColor Gray
+                Write-Ui -Message "  [*] Progress: $currentDevice / $totalDevices devices analyzed..." -Level "INFO"
             }
             
             $errorCode = if ($device.ConfigManagerErrorCode) { $device.ConfigManagerErrorCode } else { 0 }
@@ -183,44 +183,44 @@ function Get-DriverIntegrityStatus {
         }
         
         Write-Host ""
-        Write-Host "  [+] Device scan completed!" -ForegroundColor Green
+        Write-Ui -Message "  [+] Device scan completed!" -Level "OK"
         Write-Host ""
         
         # Display summary
         Write-Host "  " -NoNewline
         Write-Host "SCAN SUMMARY" -ForegroundColor Cyan -NoNewline
         Write-Host ""
-        Write-Host "  ----------------------------------------" -ForegroundColor Gray
+        Write-Ui -Message "  ----------------------------------------" -Level "INFO"
         Write-Host "  Total Devices:    " -NoNewline -ForegroundColor Gray
-        Write-Host "$totalDevices" -ForegroundColor White
+        Write-Ui -Message "$totalDevices" -Level "STEP"
         Write-Host "  Problem Devices:  " -NoNewline -ForegroundColor Gray
         if ($Script:ProblemDevices.Count -gt 0) {
-            Write-Host "$($Script:ProblemDevices.Count)" -ForegroundColor Red
+            Write-Ui -Message "$($Script:ProblemDevices.Count)" -Level "ERROR"
         } else {
-            Write-Host "0" -ForegroundColor Green
+            Write-Ui -Message "0" -Level "OK"
         }
-        Write-Host "  ----------------------------------------" -ForegroundColor Gray
+        Write-Ui -Message "  ----------------------------------------" -Level "INFO"
         Write-Host ""
         
         if ($Script:ProblemDevices.Count -gt 0) {
             Write-Host "  " -NoNewline
-            Write-Host "PROBLEM DEVICES DETECTED:" -ForegroundColor Red
+            Write-Ui -Message "PROBLEM DEVICES DETECTED:" -Level "ERROR"
             Write-Host ""
             
             $problemCount = 0
             foreach ($problem in $Script:ProblemDevices) {
                 $problemCount++
                 if ($problemCount -le 10) {
-                    Write-Host "  [$problemCount] $($problem.DeviceName)" -ForegroundColor Yellow
-                    Write-Host "      Status: $($problem.Status) | Error Code: $($problem.ErrorCode)" -ForegroundColor Gray
-                    Write-Host "      Issue: $($problem.ErrorDescription)" -ForegroundColor Gray
+                    Write-Ui -Message "  [$problemCount] $($problem.DeviceName)" -Level "WARN"
+                    Write-Ui -Message "      Status: $($problem.Status) | Error Code: $($problem.ErrorCode)" -Level "INFO"
+                    Write-Ui -Message "      Issue: $($problem.ErrorDescription)" -Level "INFO"
                     Write-Host ""
                 }
             }
             
             if ($Script:ProblemDevices.Count -gt 10) {
-                Write-Host "  [!] ... and $($Script:ProblemDevices.Count - 10) more problem devices" -ForegroundColor Yellow
-                Write-Host "  [!] Export the full report to see all issues" -ForegroundColor Yellow
+                Write-Ui -Message "  [!] ... and $($Script:ProblemDevices.Count - 10) more problem devices" -Level "WARN"
+                Write-Ui -Message "  [!] Export the full report to see all issues" -Level "WARN"
                 Write-Host ""
             }
         } else {
@@ -356,8 +356,8 @@ Website: www.soulitek.co.il
         Write-Ui -Message "TXT report exported: $txtFile" -Level "OK"
         
         Write-Host ""
-        Write-Host "  [+] Export completed successfully!" -ForegroundColor Green
-        Write-Host "  [*] Files saved to Desktop" -ForegroundColor Cyan
+        Write-Ui -Message "  [+] Export completed successfully!" -Level "OK"
+        Write-Ui -Message "  [*] Files saved to Desktop" -Level "INFO"
         Write-Host ""
         
         return $true
@@ -389,7 +389,7 @@ function Update-InstalledSoftware {
     
     try {
         # List available updates
-        Write-Host "  [*] Querying WinGet for available updates..." -ForegroundColor Cyan
+        Write-Ui -Message "  [*] Querying WinGet for available updates..." -Level "INFO"
         $upgradeList = winget upgrade 2>&1
         
         if ($upgradeList -like "*No installed package found*" -or $upgradeList -like "*No applicable update found*") {
@@ -399,14 +399,14 @@ function Update-InstalledSoftware {
         
         Write-Host ""
         Write-Host "  " -NoNewline
-        Write-Host "AVAILABLE UPDATES:" -ForegroundColor Cyan
+        Write-Ui -Message "AVAILABLE UPDATES:" -Level "INFO"
         Write-Host ""
         $upgradeList | ForEach-Object { Write-Host "  $_" -ForegroundColor Gray }
         Write-Host ""
         
         if ($AutoUpdate) {
-            Write-Host "  [!] Starting automatic software update..." -ForegroundColor Yellow
-            Write-Host "  [!] This may take several minutes..." -ForegroundColor Yellow
+            Write-Ui -Message "  [!] Starting automatic software update..." -Level "WARN"
+            Write-Ui -Message "  [!] This may take several minutes..." -Level "WARN"
             Write-Host ""
             
             # Run WinGet upgrade with all necessary flags
@@ -419,7 +419,7 @@ function Update-InstalledSoftware {
                 "--disable-interactivity"
             )
             
-            Write-Host "  [*] Executing: winget $($wingetArgs -join ' ')" -ForegroundColor Cyan
+            Write-Ui -Message "  [*] Executing: winget $($wingetArgs -join ' ')" -Level "INFO"
             Write-Host ""
             
             $upgradeProcess = Start-Process -FilePath "winget.exe" `
@@ -438,7 +438,7 @@ function Update-InstalledSoftware {
                 if ($output) {
                     Write-Host ""
                     Write-Host "  " -NoNewline
-                    Write-Host "OUTPUT:" -ForegroundColor Cyan
+                    Write-Ui -Message "OUTPUT:" -Level "INFO"
                     Write-Host ""
                     $output -split "`n" | ForEach-Object { Write-Host "  $_" -ForegroundColor Gray }
                 }
@@ -447,7 +447,7 @@ function Update-InstalledSoftware {
                 if ($errors) {
                     Write-Host ""
                     Write-Host "  " -NoNewline
-                    Write-Host "ERRORS:" -ForegroundColor Red
+                    Write-Ui -Message "ERRORS:" -Level "ERROR"
                     Write-Host ""
                     $errors -split "`n" | ForEach-Object { Write-Host "  $_" -ForegroundColor Yellow }
                 }
@@ -458,8 +458,8 @@ function Update-InstalledSoftware {
             Remove-Item "$env:TEMP\winget_upgrade_error.txt" -ErrorAction SilentlyContinue
             
         } elseif ($Interactive) {
-            Write-Host "  [!] Opening interactive WinGet upgrade interface..." -ForegroundColor Yellow
-            Write-Host "  [!] You will be prompted to approve each update..." -ForegroundColor Yellow
+            Write-Ui -Message "  [!] Opening interactive WinGet upgrade interface..." -Level "WARN"
+            Write-Ui -Message "  [!] You will be prompted to approve each update..." -Level "WARN"
             Write-Host ""
             
             Start-Process -FilePath "winget.exe" -ArgumentList "upgrade", "--all" -Wait -NoNewWindow
@@ -482,7 +482,7 @@ function Show-LastScanResults {
     #>
     if (-not (Test-Path $Script:LastScanFile)) {
         Write-SouliTEKWarning "No previous scan results found"
-        Write-Host "  [!] Please run a scan first (Option 1 or 2)" -ForegroundColor Yellow
+        Write-Ui -Message "  [!] Please run a scan first (Option 1 or 2)" -Level "WARN"
         return
     }
     
@@ -492,35 +492,35 @@ function Show-LastScanResults {
         Show-SouliTEKHeader -Title "LAST SCAN RESULTS" -ClearHost -ShowBanner
         
         Write-Host "  Scan Date:        " -NoNewline -ForegroundColor Gray
-        Write-Host "$($scanData.Timestamp)" -ForegroundColor Cyan
+        Write-Ui -Message "$($scanData.Timestamp)" -Level "INFO"
         Write-Host "  Total Devices:    " -NoNewline -ForegroundColor Gray
-        Write-Host "$($scanData.TotalDevices)" -ForegroundColor White
+        Write-Ui -Message "$($scanData.TotalDevices)" -Level "STEP"
         Write-Host "  Problem Devices:  " -NoNewline -ForegroundColor Gray
         if ($scanData.ProblemDevices -gt 0) {
-            Write-Host "$($scanData.ProblemDevices)" -ForegroundColor Red
+            Write-Ui -Message "$($scanData.ProblemDevices)" -Level "ERROR"
         } else {
-            Write-Host "0" -ForegroundColor Green
+            Write-Ui -Message "0" -Level "OK"
         }
         Write-Host ""
         
         if ($scanData.ProblemDevices -gt 0) {
             Write-Host "  " -NoNewline
-            Write-Host "PROBLEM DEVICES:" -ForegroundColor Red
+            Write-Ui -Message "PROBLEM DEVICES:" -Level "ERROR"
             Write-Host ""
             
             $problemCount = 0
             foreach ($problem in $scanData.Problems) {
                 $problemCount++
                 if ($problemCount -le 15) {
-                    Write-Host "  [$problemCount] $($problem.DeviceName)" -ForegroundColor Yellow
-                    Write-Host "      Status: $($problem.Status) | Error Code: $($problem.ErrorCode)" -ForegroundColor Gray
-                    Write-Host "      Issue: $($problem.ErrorDescription)" -ForegroundColor Gray
+                    Write-Ui -Message "  [$problemCount] $($problem.DeviceName)" -Level "WARN"
+                    Write-Ui -Message "      Status: $($problem.Status) | Error Code: $($problem.ErrorCode)" -Level "INFO"
+                    Write-Ui -Message "      Issue: $($problem.ErrorDescription)" -Level "INFO"
                     Write-Host ""
                 }
             }
             
             if ($scanData.ProblemDevices -gt 15) {
-                Write-Host "  [!] ... and $($scanData.ProblemDevices - 15) more problem devices" -ForegroundColor Yellow
+                Write-Ui -Message "  [!] ... and $($scanData.ProblemDevices - 15) more problem devices" -Level "WARN"
                 Write-Host ""
             }
         } else {
@@ -540,27 +540,27 @@ function Show-Menu {
     #>
     Show-SouliTEKHeader -Title "DRIVER INTEGRITY SCAN" -ClearHost -ShowBanner
     
-    Write-Host "  Select an option:" -ForegroundColor Yellow
+    Write-Ui -Message "  Select an option:" -Level "WARN"
     Write-Host ""
-    Write-Host "  [1] Run Full Scan" -ForegroundColor Cyan
-    Write-Host "      -> Scan driver integrity + Check for software updates" -ForegroundColor Gray
+    Write-Ui -Message "  [1] Run Full Scan" -Level "INFO"
+    Write-Ui -Message "      -> Scan driver integrity + Check for software updates" -Level "INFO"
     Write-Host ""
-    Write-Host "  [2] Driver Integrity Scan Only" -ForegroundColor Cyan
-    Write-Host "      -> Scan for driver issues and export results" -ForegroundColor Gray
+    Write-Ui -Message "  [2] Driver Integrity Scan Only" -Level "INFO"
+    Write-Ui -Message "      -> Scan for driver issues and export results" -Level "INFO"
     Write-Host ""
-    Write-Host "  [3] Export Driver List" -ForegroundColor Cyan
-    Write-Host "      -> Export current driver data to CSV and TXT" -ForegroundColor Gray
+    Write-Ui -Message "  [3] Export Driver List" -Level "INFO"
+    Write-Ui -Message "      -> Export current driver data to CSV and TXT" -Level "INFO"
     Write-Host ""
-    Write-Host "  [4] Update All Software (Auto)" -ForegroundColor Cyan
-    Write-Host "      -> Automatically update all software via WinGet" -ForegroundColor Gray
+    Write-Ui -Message "  [4] Update All Software (Auto)" -Level "INFO"
+    Write-Ui -Message "      -> Automatically update all software via WinGet" -Level "INFO"
     Write-Host ""
-    Write-Host "  [5] Update Software (Interactive)" -ForegroundColor Cyan
-    Write-Host "      -> Review and approve each software update" -ForegroundColor Gray
+    Write-Ui -Message "  [5] Update Software (Interactive)" -Level "INFO"
+    Write-Ui -Message "      -> Review and approve each software update" -Level "INFO"
     Write-Host ""
-    Write-Host "  [6] View Last Scan Results" -ForegroundColor Cyan
-    Write-Host "      -> Display results from previous scan" -ForegroundColor Gray
+    Write-Ui -Message "  [6] View Last Scan Results" -Level "INFO"
+    Write-Ui -Message "      -> Display results from previous scan" -Level "INFO"
     Write-Host ""
-    Write-Host "  [0] Exit" -ForegroundColor Red
+    Write-Ui -Message "  [0] Exit" -Level "ERROR"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -603,7 +603,7 @@ function Main {
                         Write-Host "============================================================" -ForegroundColor Cyan
                         Write-Host ""
                         Write-Host "  " -NoNewline
-                        Write-Host "CHECKING FOR SOFTWARE UPDATES..." -ForegroundColor Cyan
+                        Write-Ui -Message "CHECKING FOR SOFTWARE UPDATES..." -Level "INFO"
                         Write-Host ""
                         Update-InstalledSoftware -Interactive
                     }
@@ -637,12 +637,12 @@ function Main {
                 
                 if ($Script:AllDrivers.Count -eq 0) {
                     Write-SouliTEKWarning "No driver data available"
-                    Write-Host "  [!] Please run a scan first (Option 1 or 2)" -ForegroundColor Yellow
+                    Write-Ui -Message "  [!] Please run a scan first (Option 1 or 2)" -Level "WARN"
                 } else {
-                    Write-Host "  Choose export option:" -ForegroundColor Yellow
+                    Write-Ui -Message "  Choose export option:" -Level "WARN"
                     Write-Host ""
-                    Write-Host "  [1] Export All Drivers" -ForegroundColor Cyan
-                    Write-Host "  [2] Export Problem Devices Only" -ForegroundColor Cyan
+                    Write-Ui -Message "  [1] Export All Drivers" -Level "INFO"
+                    Write-Ui -Message "  [2] Export Problem Devices Only" -Level "INFO"
                     Write-Host ""
                     
                     $exportChoice = Read-Host "Enter your choice"
@@ -665,8 +665,8 @@ function Main {
                 Show-SouliTEKHeader -Title "AUTO SOFTWARE UPDATE" -ClearHost -ShowBanner
                 
                 if ($Script:WinGetAvailable) {
-                    Write-Host "  [!] This will automatically update all software on your system" -ForegroundColor Yellow
-                    Write-Host "  [!] The process may take several minutes" -ForegroundColor Yellow
+                    Write-Ui -Message "  [!] This will automatically update all software on your system" -Level "WARN"
+                    Write-Ui -Message "  [!] The process may take several minutes" -Level "WARN"
                     Write-Host ""
                     
                     $confirm = Read-Host "Continue with automatic update? (Y/N)"
@@ -689,8 +689,8 @@ function Main {
                 Show-SouliTEKHeader -Title "INTERACTIVE SOFTWARE UPDATE" -ClearHost -ShowBanner
                 
                 if ($Script:WinGetAvailable) {
-                    Write-Host "  [!] This will open an interactive update interface" -ForegroundColor Yellow
-                    Write-Host "  [!] You can review and approve each update" -ForegroundColor Yellow
+                    Write-Ui -Message "  [!] This will open an interactive update interface" -Level "WARN"
+                    Write-Ui -Message "  [!] You can review and approve each update" -Level "WARN"
                     Write-Host ""
                     
                     $confirm = Read-Host "Continue with interactive update? (Y/N)"
@@ -719,7 +719,7 @@ function Main {
             "0" {
                 # Exit
                 Write-Host ""
-                Write-Host "  Exiting..." -ForegroundColor Yellow
+                Write-Ui -Message "  Exiting..." -Level "WARN"
                 
                 Start-Sleep -Seconds 1
                 exit

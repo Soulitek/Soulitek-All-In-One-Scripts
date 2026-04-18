@@ -359,7 +359,7 @@ function Get-SetupAPIDeviceLog {
 function Start-USBAnalysis {
     Show-Header "USB DEVICE ANALYSIS" -Color Cyan
     
-    Write-Host "      Forensic USB Device History Scan" -ForegroundColor Gray
+    Write-Ui -Message "      Forensic USB Device History Scan" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -371,14 +371,14 @@ function Start-USBAnalysis {
     if (-not (Test-SouliTEKAdministrator)) {
         Write-Host ""
         Write-SouliTEKResult "WARNING: Running without administrator privileges" -Level WARNING
-        Write-Host "  Some information may be limited. Run as Administrator for full access." -ForegroundColor Yellow
+        Write-Ui -Message "  Some information may be limited. Run as Administrator for full access." -Level "WARN"
         Write-Host ""
         Start-Sleep -Seconds 2
     }
     
     # Stage 1: Registry Analysis
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  STAGE 1: Registry Analysis" -ForegroundColor Cyan
+    Write-Ui -Message "  STAGE 1: Registry Analysis" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     
@@ -388,7 +388,7 @@ function Start-USBAnalysis {
     
     # Stage 2: Event Log Analysis
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  STAGE 2: Event Log Analysis" -ForegroundColor Cyan
+    Write-Ui -Message "  STAGE 2: Event Log Analysis" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     
@@ -398,7 +398,7 @@ function Start-USBAnalysis {
     
     # Stage 3: SetupAPI Log
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  STAGE 3: SetupAPI Device Log" -ForegroundColor Cyan
+    Write-Ui -Message "  STAGE 3: SetupAPI Device Log" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     
@@ -406,28 +406,28 @@ function Start-USBAnalysis {
     
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  ANALYSIS SUMMARY" -ForegroundColor Cyan
+    Write-Ui -Message "  ANALYSIS SUMMARY" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "Computer Name: $Script:ComputerName" -ForegroundColor White
-    Write-Host "Analysis Date: $($Script:AnalysisDate.ToString('yyyy-MM-dd HH:mm:ss'))" -ForegroundColor White
+    Write-Ui -Message "Computer Name: $Script:ComputerName" -Level "STEP"
+    Write-Ui -Message "Analysis Date: $($Script:AnalysisDate.ToString('yyyy-MM-dd HH:mm:ss'))" -Level "STEP"
     Write-Host ""
-    Write-Host "Total USB Devices Found: $($Script:USBDevices.Count)" -ForegroundColor Green
-    Write-Host "USB Events (30 days): $($usbEvents.Count)" -ForegroundColor Cyan
-    Write-Host "SetupAPI Entries: $($setupApiInfo.TotalEntries)" -ForegroundColor Cyan
+    Write-Ui -Message "Total USB Devices Found: $($Script:USBDevices.Count)" -Level "OK"
+    Write-Ui -Message "USB Events (30 days): $($usbEvents.Count)" -Level "INFO"
+    Write-Ui -Message "SetupAPI Entries: $($setupApiInfo.TotalEntries)" -Level "INFO"
     Write-Host ""
     
     if ($Script:USBDevices.Count -eq 0) {
-        Write-Host "No USB storage devices found in registry." -ForegroundColor Yellow
-        Write-Host "This could mean:" -ForegroundColor Gray
-        Write-Host "  - No USB devices have been connected to this system" -ForegroundColor Gray
-        Write-Host "  - Registry entries have been cleaned" -ForegroundColor Gray
-        Write-Host "  - Insufficient permissions to read registry" -ForegroundColor Gray
+        Write-Ui -Message "No USB storage devices found in registry." -Level "WARN"
+        Write-Ui -Message "This could mean:" -Level "INFO"
+        Write-Ui -Message "  - No USB devices have been connected to this system" -Level "INFO"
+        Write-Ui -Message "  - Registry entries have been cleaned" -Level "INFO"
+        Write-Ui -Message "  - Insufficient permissions to read registry" -Level "INFO"
         Write-Host ""
     }
     else {
         Write-Host "============================================================" -ForegroundColor Cyan
-        Write-Host "  USB DEVICE DETAILS" -ForegroundColor Cyan
+        Write-Ui -Message "  USB DEVICE DETAILS" -Level "INFO"
         Write-Host "============================================================" -ForegroundColor Cyan
         Write-Host ""
         
@@ -435,14 +435,14 @@ function Start-USBAnalysis {
         foreach ($device in $Script:USBDevices) {
             $deviceNum++
             Write-Host "[$deviceNum] " -NoNewline -ForegroundColor Yellow
-            Write-Host "$($device.DeviceName)" -ForegroundColor White
-            Write-Host "    Vendor: $($device.Vendor)" -ForegroundColor Gray
-            Write-Host "    Product: $($device.Product)" -ForegroundColor Gray
-            Write-Host "    Serial Number: $($device.SerialNumber)" -ForegroundColor Cyan
-            Write-Host "    VID/PID: $($device.VID) / $($device.PID)" -ForegroundColor Gray
-            Write-Host "    Type: $($device.DeviceType)" -ForegroundColor Gray
-            Write-Host "    Status: $($device.Status)" -ForegroundColor Gray
-            Write-Host "    Install Date: $($device.InstallDate)" -ForegroundColor Gray
+            Write-Ui -Message "$($device.DeviceName)" -Level "STEP"
+            Write-Ui -Message "    Vendor: $($device.Vendor)" -Level "INFO"
+            Write-Ui -Message "    Product: $($device.Product)" -Level "INFO"
+            Write-Ui -Message "    Serial Number: $($device.SerialNumber)" -Level "INFO"
+            Write-Ui -Message "    VID/PID: $($device.VID) / $($device.PID)" -Level "INFO"
+            Write-Ui -Message "    Type: $($device.DeviceType)" -Level "INFO"
+            Write-Ui -Message "    Status: $($device.Status)" -Level "INFO"
+            Write-Ui -Message "    Install Date: $($device.InstallDate)" -Level "INFO"
             Write-Host "    Last Connected: $($device.LastConnected)" -ForegroundColor $(
                 if ($device.LastConnected -ne "Unknown") { 'Green' } else { 'Yellow' }
             )
@@ -467,7 +467,7 @@ function Start-USBAnalysis {
 function Export-USBReport {
     Show-Header "EXPORT USB DEVICE REPORT" -Color Yellow
     
-    Write-Host "      Save USB device history to file" -ForegroundColor Gray
+    Write-Ui -Message "      Save USB device history to file" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -475,21 +475,21 @@ function Export-USBReport {
     if ($Script:USBDevices.Count -eq 0) {
         Write-SouliTEKResult "No USB devices to export" -Level WARNING
         Write-Host ""
-        Write-Host "Run 'USB Device Analysis' first to scan for devices." -ForegroundColor Yellow
+        Write-Ui -Message "Run 'USB Device Analysis' first to scan for devices." -Level "WARN"
         Write-Host ""
         Start-Sleep -Seconds 3
         return
     }
     
-    Write-Host "Total devices found: $($Script:USBDevices.Count)" -ForegroundColor Cyan
+    Write-Ui -Message "Total devices found: $($Script:USBDevices.Count)" -Level "INFO"
     Write-Host ""
-    Write-Host "Select export format:" -ForegroundColor White
+    Write-Ui -Message "Select export format:" -Level "STEP"
     Write-Host ""
-    Write-Host "  [1] Text Report (.txt)" -ForegroundColor Yellow
-    Write-Host "  [2] CSV File (.csv)" -ForegroundColor Yellow
-    Write-Host "  [3] HTML Report (.html)" -ForegroundColor Yellow
-    Write-Host "  [4] All Formats" -ForegroundColor Green
-    Write-Host "  [0] Cancel" -ForegroundColor Red
+    Write-Ui -Message "  [1] Text Report (.txt)" -Level "WARN"
+    Write-Ui -Message "  [2] CSV File (.csv)" -Level "WARN"
+    Write-Ui -Message "  [3] HTML Report (.html)" -Level "WARN"
+    Write-Ui -Message "  [4] All Formats" -Level "OK"
+    Write-Ui -Message "  [0] Cancel" -Level "ERROR"
     Write-Host ""
     
     $choice = Read-Host "Enter your choice (0-4)"
@@ -848,85 +848,85 @@ function Export-HTMLReport {
 function Show-Help {
     Show-Header "HELP GUIDE" -Color Cyan
     
-    Write-Host "USB DEVICE LOG - FORENSIC TOOL - USAGE GUIDE" -ForegroundColor Yellow
+    Write-Ui -Message "USB DEVICE LOG - FORENSIC TOOL - USAGE GUIDE" -Level "WARN"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "[1] USB DEVICE ANALYSIS" -ForegroundColor White
-    Write-Host "    Comprehensive scan of USB device history" -ForegroundColor Gray
-    Write-Host "    - Registry analysis (USBSTOR)" -ForegroundColor Gray
-    Write-Host "    - Event log review (30 days)" -ForegroundColor Gray
-    Write-Host "    - SetupAPI device log check" -ForegroundColor Gray
-    Write-Host "    Use: Forensic investigation, security audit" -ForegroundColor Gray
+    Write-Ui -Message "[1] USB DEVICE ANALYSIS" -Level "STEP"
+    Write-Ui -Message "    Comprehensive scan of USB device history" -Level "INFO"
+    Write-Ui -Message "    - Registry analysis (USBSTOR)" -Level "INFO"
+    Write-Ui -Message "    - Event log review (30 days)" -Level "INFO"
+    Write-Ui -Message "    - SetupAPI device log check" -Level "INFO"
+    Write-Ui -Message "    Use: Forensic investigation, security audit" -Level "INFO"
     Write-Host ""
-    Write-Host "[2] EXPORT REPORT" -ForegroundColor White
-    Write-Host "    Save device history to file" -ForegroundColor Gray
-    Write-Host "    - Text format (.txt) - Human-readable report" -ForegroundColor Gray
-    Write-Host "    - CSV format (.csv) - Spreadsheet analysis" -ForegroundColor Gray
-    Write-Host "    - HTML format (.html) - Professional web report" -ForegroundColor Gray
-    Write-Host "    Use: Documentation, evidence collection" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "INFORMATION COLLECTED:" -ForegroundColor Yellow
-    Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "Device Details:" -ForegroundColor White
-    Write-Host "  - Device Name & Friendly Name" -ForegroundColor Gray
-    Write-Host "  - Vendor & Product Information" -ForegroundColor Gray
-    Write-Host "  - Serial Number (Unique Identifier)" -ForegroundColor Gray
-    Write-Host "  - VID (Vendor ID) & PID (Product ID)" -ForegroundColor Gray
-    Write-Host "  - Device Type & Revision" -ForegroundColor Gray
-    Write-Host "  - Installation Date" -ForegroundColor Gray
-    Write-Host "  - Last Connected Date (if available)" -ForegroundColor Gray
-    Write-Host "  - Device Status" -ForegroundColor Gray
-    Write-Host "  - Registry Path" -ForegroundColor Gray
+    Write-Ui -Message "[2] EXPORT REPORT" -Level "STEP"
+    Write-Ui -Message "    Save device history to file" -Level "INFO"
+    Write-Ui -Message "    - Text format (.txt) - Human-readable report" -Level "INFO"
+    Write-Ui -Message "    - CSV format (.csv) - Spreadsheet analysis" -Level "INFO"
+    Write-Ui -Message "    - HTML format (.html) - Professional web report" -Level "INFO"
+    Write-Ui -Message "    Use: Documentation, evidence collection" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "FORENSIC USE CASES:" -ForegroundColor Yellow
+    Write-Ui -Message "INFORMATION COLLECTED:" -Level "WARN"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "1. Security Incident Response" -ForegroundColor White
-    Write-Host "   - Identify unauthorized USB devices" -ForegroundColor Gray
-    Write-Host "   - Track data exfiltration attempts" -ForegroundColor Gray
-    Write-Host "   - Audit device access history" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "2. Compliance & Policy Enforcement" -ForegroundColor White
-    Write-Host "   - Verify approved device usage" -ForegroundColor Gray
-    Write-Host "   - Document device connections" -ForegroundColor Gray
-    Write-Host "   - Generate audit reports" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "3. IT Troubleshooting" -ForegroundColor White
-    Write-Host "   - Review device installation history" -ForegroundColor Gray
-    Write-Host "   - Identify driver issues" -ForegroundColor Gray
-    Write-Host "   - Track device problems" -ForegroundColor Gray
+    Write-Ui -Message "Device Details:" -Level "STEP"
+    Write-Ui -Message "  - Device Name & Friendly Name" -Level "INFO"
+    Write-Ui -Message "  - Vendor & Product Information" -Level "INFO"
+    Write-Ui -Message "  - Serial Number (Unique Identifier)" -Level "INFO"
+    Write-Ui -Message "  - VID (Vendor ID) & PID (Product ID)" -Level "INFO"
+    Write-Ui -Message "  - Device Type & Revision" -Level "INFO"
+    Write-Ui -Message "  - Installation Date" -Level "INFO"
+    Write-Ui -Message "  - Last Connected Date (if available)" -Level "INFO"
+    Write-Ui -Message "  - Device Status" -Level "INFO"
+    Write-Ui -Message "  - Registry Path" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "ADMINISTRATOR PRIVILEGES:" -ForegroundColor Yellow
+    Write-Ui -Message "FORENSIC USE CASES:" -Level "WARN"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "This tool works best with Administrator privileges." -ForegroundColor White
-    Write-Host "Running without admin rights may limit:" -ForegroundColor Yellow
-    Write-Host "  - Registry access" -ForegroundColor Gray
-    Write-Host "  - Event log queries" -ForegroundColor Gray
-    Write-Host "  - SetupAPI log reading" -ForegroundColor Gray
+    Write-Ui -Message "1. Security Incident Response" -Level "STEP"
+    Write-Ui -Message "   - Identify unauthorized USB devices" -Level "INFO"
+    Write-Ui -Message "   - Track data exfiltration attempts" -Level "INFO"
+    Write-Ui -Message "   - Audit device access history" -Level "INFO"
     Write-Host ""
-    Write-Host "To run as Administrator:" -ForegroundColor White
-    Write-Host "  Right-click PowerShell > Run as Administrator" -ForegroundColor Gray
+    Write-Ui -Message "2. Compliance & Policy Enforcement" -Level "STEP"
+    Write-Ui -Message "   - Verify approved device usage" -Level "INFO"
+    Write-Ui -Message "   - Document device connections" -Level "INFO"
+    Write-Ui -Message "   - Generate audit reports" -Level "INFO"
+    Write-Host ""
+    Write-Ui -Message "3. IT Troubleshooting" -Level "STEP"
+    Write-Ui -Message "   - Review device installation history" -Level "INFO"
+    Write-Ui -Message "   - Identify driver issues" -Level "INFO"
+    Write-Ui -Message "   - Track device problems" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "DATA INTERPRETATION:" -ForegroundColor Yellow
+    Write-Ui -Message "ADMINISTRATOR PRIVILEGES:" -Level "WARN"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "Serial Number:" -ForegroundColor White
-    Write-Host "  - Unique identifier for each device" -ForegroundColor Gray
-    Write-Host "  - Same device = same serial number" -ForegroundColor Gray
+    Write-Ui -Message "This tool works best with Administrator privileges." -Level "STEP"
+    Write-Ui -Message "Running without admin rights may limit:" -Level "WARN"
+    Write-Ui -Message "  - Registry access" -Level "INFO"
+    Write-Ui -Message "  - Event log queries" -Level "INFO"
+    Write-Ui -Message "  - SetupAPI log reading" -Level "INFO"
     Write-Host ""
-    Write-Host "VID/PID:" -ForegroundColor White
-    Write-Host "  - Vendor ID identifies manufacturer" -ForegroundColor Gray
-    Write-Host "  - Product ID identifies device model" -ForegroundColor Gray
+    Write-Ui -Message "To run as Administrator:" -Level "STEP"
+    Write-Ui -Message "  Right-click PowerShell > Run as Administrator" -Level "INFO"
     Write-Host ""
-    Write-Host "Last Connected:" -ForegroundColor White
-    Write-Host "  - May show 'Unknown' if not available" -ForegroundColor Gray
-    Write-Host "  - Registry doesn't always track disconnect time" -ForegroundColor Gray
+    Write-Host "============================================================" -ForegroundColor Cyan
+    Write-Ui -Message "DATA INTERPRETATION:" -Level "WARN"
+    Write-Host "============================================================" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Ui -Message "Serial Number:" -Level "STEP"
+    Write-Ui -Message "  - Unique identifier for each device" -Level "INFO"
+    Write-Ui -Message "  - Same device = same serial number" -Level "INFO"
+    Write-Host ""
+    Write-Ui -Message "VID/PID:" -Level "STEP"
+    Write-Ui -Message "  - Vendor ID identifies manufacturer" -Level "INFO"
+    Write-Ui -Message "  - Product ID identifies device model" -Level "INFO"
+    Write-Host ""
+    Write-Ui -Message "Last Connected:" -Level "STEP"
+    Write-Ui -Message "  - May show 'Unknown' if not available" -Level "INFO"
+    Write-Ui -Message "  - Registry doesn't always track disconnect time" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -940,26 +940,26 @@ function Show-Help {
 function Show-MainMenu {
     Show-Header "USB DEVICE LOG - FORENSIC TOOL" -Color Cyan
     
-    Write-Host "      Coded by: Soulitek.co.il" -ForegroundColor Green
-    Write-Host "      IT Solutions for your business" -ForegroundColor Green
-    Write-Host "      www.soulitek.co.il" -ForegroundColor Green
+    Write-Ui -Message "      Coded by: Soulitek.co.il" -Level "OK"
+    Write-Ui -Message "      IT Solutions for your business" -Level "OK"
+    Write-Ui -Message "      www.soulitek.co.il" -Level "OK"
     Write-Host ""
-    Write-Host "      (C) 2025 Soulitek - All Rights Reserved" -ForegroundColor DarkGray
+    Write-Ui -Message "      (C) 2025 Soulitek - All Rights Reserved" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     
     if ($Script:USBDevices.Count -gt 0) {
-        Write-Host "  Devices Found: $($Script:USBDevices.Count)" -ForegroundColor Green
+        Write-Ui -Message "  Devices Found: $($Script:USBDevices.Count)" -Level "OK"
         Write-Host ""
     }
     
-    Write-Host "Select an option:" -ForegroundColor White
+    Write-Ui -Message "Select an option:" -Level "STEP"
     Write-Host ""
-    Write-Host "  [1] USB Device Analysis  - Scan device history" -ForegroundColor Yellow
-    Write-Host "  [2] Export Report        - Save results to file" -ForegroundColor Yellow
-    Write-Host "  [3] Help                 - Usage guide" -ForegroundColor White
-    Write-Host "  [0] Exit" -ForegroundColor Red
+    Write-Ui -Message "  [1] USB Device Analysis  - Scan device history" -Level "WARN"
+    Write-Ui -Message "  [2] Export Report        - Save results to file" -Level "WARN"
+    Write-Ui -Message "  [3] Help                 - Usage guide" -Level "STEP"
+    Write-Ui -Message "  [0] Exit" -Level "ERROR"
     Write-Host ""
     Write-Host "========================================" -ForegroundColor DarkGray
     

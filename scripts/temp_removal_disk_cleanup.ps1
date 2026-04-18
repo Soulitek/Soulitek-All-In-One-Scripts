@@ -125,8 +125,8 @@ function Clear-UserTemp {
         Cleans user temporary files from %TEMP% and %TMP% directories.
     #>
     
-    Write-Host "Cleaning User Temp Files..." -ForegroundColor Yellow
-    Write-Host "  Scanning user temp directories..." -ForegroundColor Gray
+    Write-Ui -Message "Cleaning User Temp Files..." -Level "WARN"
+    Write-Ui -Message "  Scanning user temp directories..." -Level "INFO"
     
     $userTempPaths = @(
         $env:TEMP,
@@ -139,7 +139,7 @@ function Clear-UserTemp {
     
     foreach ($tempPath in $userTempPaths) {
         if (Test-Path $tempPath) {
-            Write-Host "  Checking: $tempPath" -ForegroundColor Gray
+            Write-Ui -Message "  Checking: $tempPath" -Level "INFO"
             $fileCount = 0
             $size = Get-FolderSize -Path $tempPath -FileCount ([ref]$fileCount)
             $totalSize += $size
@@ -149,10 +149,10 @@ function Clear-UserTemp {
                 try {
                     Get-ChildItem -Path $tempPath -Recurse -File -ErrorAction SilentlyContinue | 
                         Remove-Item -Force -ErrorAction Stop
-                    Write-Host "  [OK] Cleaned: $(Format-FileSize $size)" -ForegroundColor Green
+                    Write-Ui -Message "  [OK] Cleaned: $(Format-FileSize $size)" -Level "OK"
                 }
                 catch {
-                    Write-Host "  [WARNING] Some files could not be deleted: $($_.Exception.Message)" -ForegroundColor Yellow
+                    Write-Ui -Message "  [WARNING] Some files could not be deleted: $($_.Exception.Message)" -Level "WARN"
                 }
             }
         }
@@ -162,7 +162,7 @@ function Clear-UserTemp {
     $Script:CleanupResults.UserTemp.Files = $totalFiles
     $Script:CleanupResults.UserTemp.Status = "Completed"
     
-    Write-Host "  User Temp Cleanup: $(Format-FileSize $totalSize) from $totalFiles files" -ForegroundColor Green
+    Write-Ui -Message "  User Temp Cleanup: $(Format-FileSize $totalSize) from $totalFiles files" -Level "OK"
     Write-Host ""
 }
 
@@ -172,8 +172,8 @@ function Clear-SystemTemp {
         Cleans system temporary files from C:\Windows\Temp.
     #>
     
-    Write-Host "Cleaning System Temp Files..." -ForegroundColor Yellow
-    Write-Host "  Scanning C:\Windows\Temp..." -ForegroundColor Gray
+    Write-Ui -Message "Cleaning System Temp Files..." -Level "WARN"
+    Write-Ui -Message "  Scanning C:\Windows\Temp..." -Level "INFO"
     
     $systemTempPath = "C:\Windows\Temp"
     $totalSize = 0
@@ -189,10 +189,10 @@ function Clear-SystemTemp {
             try {
                 Get-ChildItem -Path $systemTempPath -Recurse -File -ErrorAction SilentlyContinue | 
                     Remove-Item -Force -ErrorAction Stop
-                Write-Host "  [OK] Cleaned: $(Format-FileSize $size)" -ForegroundColor Green
+                Write-Ui -Message "  [OK] Cleaned: $(Format-FileSize $size)" -Level "OK"
             }
             catch {
-                Write-Host "  [WARNING] Some files could not be deleted: $($_.Exception.Message)" -ForegroundColor Yellow
+                Write-Ui -Message "  [WARNING] Some files could not be deleted: $($_.Exception.Message)" -Level "WARN"
             }
         }
     }
@@ -201,7 +201,7 @@ function Clear-SystemTemp {
     $Script:CleanupResults.SystemTemp.Files = $totalFiles
     $Script:CleanupResults.SystemTemp.Status = "Completed"
     
-    Write-Host "  System Temp Cleanup: $(Format-FileSize $totalSize) from $totalFiles files" -ForegroundColor Green
+    Write-Ui -Message "  System Temp Cleanup: $(Format-FileSize $totalSize) from $totalFiles files" -Level "OK"
     Write-Host ""
 }
 
@@ -211,7 +211,7 @@ function Clear-RecycleBin {
         Cleans the Recycle Bin on all drives.
     #>
     
-    Write-Host "Cleaning Recycle Bin..." -ForegroundColor Yellow
+    Write-Ui -Message "Cleaning Recycle Bin..." -Level "WARN"
     
     $totalSize = 0
     $totalFiles = 0
@@ -231,7 +231,7 @@ function Clear-RecycleBin {
                         Clear-RecycleBin -DriveLetter $drive.Name -Force -ErrorAction SilentlyContinue
                         $totalSize += $size
                         $totalFiles += $fileCount
-                        Write-Host "  [OK] Cleaned drive $($drive.Name): $(Format-FileSize $size)" -ForegroundColor Green
+                        Write-Ui -Message "  [OK] Cleaned drive $($drive.Name): $(Format-FileSize $size)" -Level "OK"
                     }
                     catch {
                         # Use alternative method
@@ -242,7 +242,7 @@ function Clear-RecycleBin {
                                 $totalSize += $size
                                 $totalFiles += $fileCount
                             } catch {
-                                Write-Host "  [WARNING] Could not delete all files: $($_.Exception.Message)" -ForegroundColor Yellow
+                                Write-Ui -Message "  [WARNING] Could not delete all files: $($_.Exception.Message)" -Level "WARN"
                             }
                         }
                     }
@@ -267,7 +267,7 @@ function Clear-RecycleBin {
             }
         }
         catch {
-            Write-Host "  [WARNING] Could not access Recycle Bin" -ForegroundColor Yellow
+            Write-Ui -Message "  [WARNING] Could not access Recycle Bin" -Level "WARN"
         }
     }
     
@@ -275,7 +275,7 @@ function Clear-RecycleBin {
     $Script:CleanupResults.RecycleBin.Files = $totalFiles
     $Script:CleanupResults.RecycleBin.Status = "Completed"
     
-    Write-Host "  Recycle Bin Cleanup: $(Format-FileSize $totalSize) from $totalFiles items" -ForegroundColor Green
+    Write-Ui -Message "  Recycle Bin Cleanup: $(Format-FileSize $totalSize) from $totalFiles items" -Level "OK"
     Write-Host ""
 }
 
@@ -285,7 +285,7 @@ function Clear-BrowserCache {
         Cleans browser cache files from common browser locations.
     #>
     
-    Write-Host "Cleaning Browser Cache..." -ForegroundColor Yellow
+    Write-Ui -Message "Cleaning Browser Cache..." -Level "WARN"
     
     $browserPaths = @(
         @{ Name = "Chrome"; Path = "$env:LOCALAPPDATA\Google\Chrome\User Data\Default\Cache" },
@@ -314,10 +314,10 @@ function Clear-BrowserCache {
                                     Remove-Item -Force -ErrorAction Stop
                                 $totalSize += $size
                                 $totalFiles += $fileCount
-                                Write-Host "  [OK] $($browser.Name): $(Format-FileSize $size)" -ForegroundColor Green
+                                Write-Ui -Message "  [OK] $($browser.Name): $(Format-FileSize $size)" -Level "OK"
                             }
                             catch {
-                                Write-Host "  [SKIP] $($browser.Name): Files in use or access denied: $($_.Exception.Message)" -ForegroundColor Yellow
+                                Write-Ui -Message "  [SKIP] $($browser.Name): Files in use or access denied: $($_.Exception.Message)" -Level "WARN"
                             }
                         }
                     }
@@ -335,10 +335,10 @@ function Clear-BrowserCache {
                             Remove-Item -Force -ErrorAction Stop
                         $totalSize += $size
                         $totalFiles += $fileCount
-                        Write-Host "  [OK] $($browser.Name): $(Format-FileSize $size)" -ForegroundColor Green
+                        Write-Ui -Message "  [OK] $($browser.Name): $(Format-FileSize $size)" -Level "OK"
                     }
                     catch {
-                        Write-Host "  [SKIP] $($browser.Name): Files in use or access denied: $($_.Exception.Message)" -ForegroundColor Yellow
+                        Write-Ui -Message "  [SKIP] $($browser.Name): Files in use or access denied: $($_.Exception.Message)" -Level "WARN"
                     }
                 }
             }
@@ -349,7 +349,7 @@ function Clear-BrowserCache {
     $Script:CleanupResults.BrowserCache.Files = $totalFiles
     $Script:CleanupResults.BrowserCache.Status = "Completed"
     
-    Write-Host "  Browser Cache Cleanup: $(Format-FileSize $totalSize) from $totalFiles files" -ForegroundColor Green
+    Write-Ui -Message "  Browser Cache Cleanup: $(Format-FileSize $totalSize) from $totalFiles files" -Level "OK"
     Write-Host ""
 }
 
@@ -359,8 +359,8 @@ function Clear-WindowsUpdate {
         Cleans Windows Update cache and old update files.
     #>
     
-    Write-Host "Cleaning Windows Update Cache..." -ForegroundColor Yellow
-    Write-Host "  Note: This may take several minutes..." -ForegroundColor Gray
+    Write-Ui -Message "Cleaning Windows Update Cache..." -Level "WARN"
+    Write-Ui -Message "  Note: This may take several minutes..." -Level "INFO"
     
     $updatePaths = @(
         "C:\Windows\SoftwareDistribution\Download",
@@ -374,13 +374,13 @@ function Clear-WindowsUpdate {
         # Stop Windows Update service temporarily (graceful shutdown)
         $wuService = Get-Service -Name wuauserv -ErrorAction SilentlyContinue
         if ($wuService -and $wuService.Status -eq 'Running') {
-            Write-Host "  Stopping Windows Update service..." -ForegroundColor Gray
+            Write-Ui -Message "  Stopping Windows Update service..." -Level "INFO"
             try {
                 Stop-Service -Name wuauserv -ErrorAction Stop
                 $serviceStopped = $true
-                Write-Host "  [OK] Service stopped gracefully" -ForegroundColor Green
+                Write-Ui -Message "  [OK] Service stopped gracefully" -Level "OK"
             } catch {
-                Write-Host "  [WARNING] Graceful stop failed, forcing..." -ForegroundColor Yellow
+                Write-Ui -Message "  [WARNING] Graceful stop failed, forcing..." -Level "WARN"
                 Stop-Service -Name wuauserv -Force -ErrorAction Stop
                 $serviceStopped = $true
             }
@@ -399,7 +399,7 @@ function Clear-WindowsUpdate {
                         $totalFiles += $fileCount
                     }
                     catch {
-                        Write-Host "  [WARNING] Some update files could not be deleted: $($_.Exception.Message)" -ForegroundColor Yellow
+                        Write-Ui -Message "  [WARNING] Some update files could not be deleted: $($_.Exception.Message)" -Level "WARN"
                     }
                 }
             }
@@ -407,19 +407,19 @@ function Clear-WindowsUpdate {
         
         # Restart Windows Update service
         if ($serviceStopped) {
-            Write-Host "  Restarting Windows Update service..." -ForegroundColor Gray
+            Write-Ui -Message "  Restarting Windows Update service..." -Level "INFO"
             Start-Service -Name wuauserv -ErrorAction SilentlyContinue
         }
     }
     catch {
-        Write-Host "  [WARNING] Windows Update cleanup failed: $_" -ForegroundColor Yellow
+        Write-Ui -Message "  [WARNING] Windows Update cleanup failed: $_" -Level "WARN"
     }
     
     $Script:CleanupResults.WindowsUpdate.Size = $totalSize
     $Script:CleanupResults.WindowsUpdate.Files = $totalFiles
     $Script:CleanupResults.WindowsUpdate.Status = "Completed"
     
-    Write-Host "  Windows Update Cleanup: $(Format-FileSize $totalSize) from $totalFiles files" -ForegroundColor Green
+    Write-Ui -Message "  Windows Update Cleanup: $(Format-FileSize $totalSize) from $totalFiles files" -Level "OK"
     Write-Host ""
 }
 
@@ -429,8 +429,8 @@ function Invoke-DiskCleanup {
         Runs Windows Disk Cleanup utility.
     #>
     
-    Write-Host "Running Windows Disk Cleanup..." -ForegroundColor Yellow
-    Write-Host "  Launching cleanmgr.exe..." -ForegroundColor Gray
+    Write-Ui -Message "Running Windows Disk Cleanup..." -Level "WARN"
+    Write-Ui -Message "  Launching cleanmgr.exe..." -Level "INFO"
     
     try {
         # Run Disk Cleanup with automatic cleanup
@@ -438,14 +438,14 @@ function Invoke-DiskCleanup {
         Start-Process -FilePath "cleanmgr.exe" -ArgumentList $cleanupArgs -Wait -NoNewWindow -ErrorAction SilentlyContinue
         
         # Alternative: Use Dism for more control
-        Write-Host "  Running DISM cleanup..." -ForegroundColor Gray
+        Write-Ui -Message "  Running DISM cleanup..." -Level "INFO"
         Start-Process -FilePath "dism.exe" -ArgumentList "/online /cleanup-image /startcomponentcleanup /resetbase" -Wait -NoNewWindow -ErrorAction SilentlyContinue
         
         $Script:CleanupResults.DiskCleanup.Status = "Completed"
-        Write-Host "  [OK] Disk Cleanup completed" -ForegroundColor Green
+        Write-Ui -Message "  [OK] Disk Cleanup completed" -Level "OK"
     }
     catch {
-        Write-Host "  [WARNING] Disk Cleanup encountered errors" -ForegroundColor Yellow
+        Write-Ui -Message "  [WARNING] Disk Cleanup encountered errors" -Level "WARN"
         $Script:CleanupResults.DiskCleanup.Status = "Failed"
     }
     
@@ -460,8 +460,8 @@ function Start-CompleteCleanup {
     
     Show-SouliTEKHeader -Title "COMPLETE CLEANUP IN PROGRESS" -ClearHost -ShowBanner
     
-    Write-Host "Starting comprehensive disk cleanup..." -ForegroundColor Cyan
-    Write-Host "This may take several minutes depending on system size." -ForegroundColor Gray
+    Write-Ui -Message "Starting comprehensive disk cleanup..." -Level "INFO"
+    Write-Ui -Message "This may take several minutes depending on system size." -Level "INFO"
     Write-Host ""
     
     $startTime = Get-Date
@@ -493,25 +493,25 @@ function Start-CompleteCleanup {
     $duration = $Script:CleanupResults.EndTime - $startTime
     
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "CLEANUP SUMMARY" -ForegroundColor Cyan
+    Write-Ui -Message "CLEANUP SUMMARY" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "  Total Space Recovered: " -NoNewline -ForegroundColor White
-    Write-Host "$(Format-FileSize $Script:CleanupResults.TotalSize)" -ForegroundColor Green
+    Write-Ui -Message "$(Format-FileSize $Script:CleanupResults.TotalSize)" -Level "OK"
     Write-Host "  Total Files Removed: " -NoNewline -ForegroundColor White
-    Write-Host "$($Script:CleanupResults.TotalFiles)" -ForegroundColor Green
+    Write-Ui -Message "$($Script:CleanupResults.TotalFiles)" -Level "OK"
     Write-Host "  Duration: " -NoNewline -ForegroundColor White
-    Write-Host "$([math]::Round($duration.TotalMinutes, 2)) minutes" -ForegroundColor Green
+    Write-Ui -Message "$([math]::Round($duration.TotalMinutes, 2)) minutes" -Level "OK"
     Write-Host ""
-    Write-Host "Breakdown:" -ForegroundColor Cyan
-    Write-Host "  - User Temp: $(Format-FileSize $Script:CleanupResults.UserTemp.Size)" -ForegroundColor Gray
-    Write-Host "  - System Temp: $(Format-FileSize $Script:CleanupResults.SystemTemp.Size)" -ForegroundColor Gray
-    Write-Host "  - Recycle Bin: $(Format-FileSize $Script:CleanupResults.RecycleBin.Size)" -ForegroundColor Gray
-    Write-Host "  - Browser Cache: $(Format-FileSize $Script:CleanupResults.BrowserCache.Size)" -ForegroundColor Gray
-    Write-Host "  - Windows Update: $(Format-FileSize $Script:CleanupResults.WindowsUpdate.Size)" -ForegroundColor Gray
+    Write-Ui -Message "Breakdown:" -Level "INFO"
+    Write-Ui -Message "  - User Temp: $(Format-FileSize $Script:CleanupResults.UserTemp.Size)" -Level "INFO"
+    Write-Ui -Message "  - System Temp: $(Format-FileSize $Script:CleanupResults.SystemTemp.Size)" -Level "INFO"
+    Write-Ui -Message "  - Recycle Bin: $(Format-FileSize $Script:CleanupResults.RecycleBin.Size)" -Level "INFO"
+    Write-Ui -Message "  - Browser Cache: $(Format-FileSize $Script:CleanupResults.BrowserCache.Size)" -Level "INFO"
+    Write-Ui -Message "  - Windows Update: $(Format-FileSize $Script:CleanupResults.WindowsUpdate.Size)" -Level "INFO"
     Write-Host ""
     
-    Write-Host "Press any key to continue..." -ForegroundColor Yellow
+    Write-Ui -Message "Press any key to continue..." -Level "WARN"
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
@@ -524,56 +524,56 @@ function Show-CleanupSummary {
     Show-SouliTEKHeader -Title "CLEANUP SUMMARY" -ClearHost -ShowBanner
     
     if ($Script:CleanupResults.TotalSize -eq 0) {
-        Write-Host "No cleanup has been performed yet." -ForegroundColor Yellow
-        Write-Host "Please run a cleanup operation first." -ForegroundColor Gray
+        Write-Ui -Message "No cleanup has been performed yet." -Level "WARN"
+        Write-Ui -Message "Please run a cleanup operation first." -Level "INFO"
         Write-Host ""
-        Write-Host "Press any key to continue..." -ForegroundColor Yellow
+        Write-Ui -Message "Press any key to continue..." -Level "WARN"
         $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
         return
     }
     
-    Write-Host "Last Cleanup Results:" -ForegroundColor Cyan
+    Write-Ui -Message "Last Cleanup Results:" -Level "INFO"
     Write-Host ""
     Write-Host "  Total Space Recovered: " -NoNewline -ForegroundColor White
-    Write-Host "$(Format-FileSize $Script:CleanupResults.TotalSize)" -ForegroundColor Green
+    Write-Ui -Message "$(Format-FileSize $Script:CleanupResults.TotalSize)" -Level "OK"
     Write-Host "  Total Files Removed: " -NoNewline -ForegroundColor White
-    Write-Host "$($Script:CleanupResults.TotalFiles)" -ForegroundColor Green
+    Write-Ui -Message "$($Script:CleanupResults.TotalFiles)" -Level "OK"
     
     if ($Script:CleanupResults.StartTime) {
         Write-Host "  Cleanup Date: " -NoNewline -ForegroundColor White
-        Write-Host "$($Script:CleanupResults.StartTime.ToString('yyyy-MM-dd HH:mm:ss'))" -ForegroundColor Green
+        Write-Ui -Message "$($Script:CleanupResults.StartTime.ToString('yyyy-MM-dd HH:mm:ss'))" -Level "OK"
     }
     
     Write-Host ""
-    Write-Host "Breakdown by Category:" -ForegroundColor Cyan
+    Write-Ui -Message "Breakdown by Category:" -Level "INFO"
     Write-Host ""
-    Write-Host "  User Temp Files:" -ForegroundColor Yellow
-    Write-Host "    Size: $(Format-FileSize $Script:CleanupResults.UserTemp.Size)" -ForegroundColor Gray
-    Write-Host "    Files: $($Script:CleanupResults.UserTemp.Files)" -ForegroundColor Gray
-    Write-Host "    Status: $($Script:CleanupResults.UserTemp.Status)" -ForegroundColor Gray
+    Write-Ui -Message "  User Temp Files:" -Level "WARN"
+    Write-Ui -Message "    Size: $(Format-FileSize $Script:CleanupResults.UserTemp.Size)" -Level "INFO"
+    Write-Ui -Message "    Files: $($Script:CleanupResults.UserTemp.Files)" -Level "INFO"
+    Write-Ui -Message "    Status: $($Script:CleanupResults.UserTemp.Status)" -Level "INFO"
     Write-Host ""
-    Write-Host "  System Temp Files:" -ForegroundColor Yellow
-    Write-Host "    Size: $(Format-FileSize $Script:CleanupResults.SystemTemp.Size)" -ForegroundColor Gray
-    Write-Host "    Files: $($Script:CleanupResults.SystemTemp.Files)" -ForegroundColor Gray
-    Write-Host "    Status: $($Script:CleanupResults.SystemTemp.Status)" -ForegroundColor Gray
+    Write-Ui -Message "  System Temp Files:" -Level "WARN"
+    Write-Ui -Message "    Size: $(Format-FileSize $Script:CleanupResults.SystemTemp.Size)" -Level "INFO"
+    Write-Ui -Message "    Files: $($Script:CleanupResults.SystemTemp.Files)" -Level "INFO"
+    Write-Ui -Message "    Status: $($Script:CleanupResults.SystemTemp.Status)" -Level "INFO"
     Write-Host ""
-    Write-Host "  Recycle Bin:" -ForegroundColor Yellow
-    Write-Host "    Size: $(Format-FileSize $Script:CleanupResults.RecycleBin.Size)" -ForegroundColor Gray
-    Write-Host "    Files: $($Script:CleanupResults.RecycleBin.Files)" -ForegroundColor Gray
-    Write-Host "    Status: $($Script:CleanupResults.RecycleBin.Status)" -ForegroundColor Gray
+    Write-Ui -Message "  Recycle Bin:" -Level "WARN"
+    Write-Ui -Message "    Size: $(Format-FileSize $Script:CleanupResults.RecycleBin.Size)" -Level "INFO"
+    Write-Ui -Message "    Files: $($Script:CleanupResults.RecycleBin.Files)" -Level "INFO"
+    Write-Ui -Message "    Status: $($Script:CleanupResults.RecycleBin.Status)" -Level "INFO"
     Write-Host ""
-    Write-Host "  Browser Cache:" -ForegroundColor Yellow
-    Write-Host "    Size: $(Format-FileSize $Script:CleanupResults.BrowserCache.Size)" -ForegroundColor Gray
-    Write-Host "    Files: $($Script:CleanupResults.BrowserCache.Files)" -ForegroundColor Gray
-    Write-Host "    Status: $($Script:CleanupResults.BrowserCache.Status)" -ForegroundColor Gray
+    Write-Ui -Message "  Browser Cache:" -Level "WARN"
+    Write-Ui -Message "    Size: $(Format-FileSize $Script:CleanupResults.BrowserCache.Size)" -Level "INFO"
+    Write-Ui -Message "    Files: $($Script:CleanupResults.BrowserCache.Files)" -Level "INFO"
+    Write-Ui -Message "    Status: $($Script:CleanupResults.BrowserCache.Status)" -Level "INFO"
     Write-Host ""
-    Write-Host "  Windows Update Cache:" -ForegroundColor Yellow
-    Write-Host "    Size: $(Format-FileSize $Script:CleanupResults.WindowsUpdate.Size)" -ForegroundColor Gray
-    Write-Host "    Files: $($Script:CleanupResults.WindowsUpdate.Files)" -ForegroundColor Gray
-    Write-Host "    Status: $($Script:CleanupResults.WindowsUpdate.Status)" -ForegroundColor Gray
+    Write-Ui -Message "  Windows Update Cache:" -Level "WARN"
+    Write-Ui -Message "    Size: $(Format-FileSize $Script:CleanupResults.WindowsUpdate.Size)" -Level "INFO"
+    Write-Ui -Message "    Files: $($Script:CleanupResults.WindowsUpdate.Files)" -Level "INFO"
+    Write-Ui -Message "    Status: $($Script:CleanupResults.WindowsUpdate.Status)" -Level "INFO"
     Write-Host ""
     
-    Write-Host "Press any key to continue..." -ForegroundColor Yellow
+    Write-Ui -Message "Press any key to continue..." -Level "WARN"
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
@@ -586,10 +586,10 @@ function Export-CleanupReport {
     Show-SouliTEKHeader -Title "EXPORT CLEANUP REPORT" -ClearHost -ShowBanner
     
     if ($Script:CleanupResults.TotalSize -eq 0) {
-        Write-Host "No cleanup data to export." -ForegroundColor Yellow
-        Write-Host "Please run a cleanup operation first." -ForegroundColor Gray
+        Write-Ui -Message "No cleanup data to export." -Level "WARN"
+        Write-Ui -Message "Please run a cleanup operation first." -Level "INFO"
         Write-Host ""
-        Write-Host "Press any key to continue..." -ForegroundColor Yellow
+        Write-Ui -Message "Press any key to continue..." -Level "WARN"
         $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
         return
     }
@@ -598,7 +598,7 @@ function Export-CleanupReport {
     $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
     $baseFileName = "Disk_Cleanup_Report_$timestamp"
     
-    Write-Host "Exporting cleanup report..." -ForegroundColor Yellow
+    Write-Ui -Message "Exporting cleanup report..." -Level "WARN"
     Write-Host ""
     
     # TXT Export
@@ -658,7 +658,7 @@ END OF REPORT
 "@
     
     $txtContent | Out-File -FilePath $txtPath -Encoding UTF8
-    Write-Host "  [OK] Text report saved: $txtPath" -ForegroundColor Green
+    Write-Ui -Message "  [OK] Text report saved: $txtPath" -Level "OK"
     
     # CSV Export
     $csvPath = Join-Path $desktopPath "$baseFileName.csv"
@@ -708,7 +708,7 @@ END OF REPORT
     )
     
     $csvData | Export-Csv -Path $csvPath -NoTypeInformation -Encoding UTF8
-    Write-Host "  [OK] CSV report saved: $csvPath" -ForegroundColor Green
+    Write-Ui -Message "  [OK] CSV report saved: $csvPath" -Level "OK"
     
     # HTML Export
     $htmlPath = Join-Path $desktopPath "$baseFileName.html"
@@ -814,10 +814,10 @@ END OF REPORT
 "@
     
     $htmlContent | Out-File -FilePath $htmlPath -Encoding UTF8
-    Write-Host "  [OK] HTML report saved: $htmlPath" -ForegroundColor Green
+    Write-Ui -Message "  [OK] HTML report saved: $htmlPath" -Level "OK"
     
     Write-Host ""
-    Write-Host "All reports exported successfully!" -ForegroundColor Green
+    Write-Ui -Message "All reports exported successfully!" -Level "OK"
     Write-Host ""
     
     # Open reports
@@ -827,10 +827,10 @@ END OF REPORT
         Start-Process $htmlPath
     }
     catch {
-        Write-Host "Reports saved to Desktop. Open them manually if needed." -ForegroundColor Yellow
+        Write-Ui -Message "Reports saved to Desktop. Open them manually if needed." -Level "WARN"
     }
     
-    Write-Host "Press any key to continue..." -ForegroundColor Yellow
+    Write-Ui -Message "Press any key to continue..." -Level "WARN"
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
@@ -899,7 +899,7 @@ Email: letstalk@soulitek.co.il
     
     Write-Host $helpText
     Write-Host ""
-    Write-Host "Press any key to continue..." -ForegroundColor Yellow
+    Write-Ui -Message "Press any key to continue..." -Level "WARN"
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
@@ -921,19 +921,19 @@ function Show-MainMenu {
     do {
         Show-SouliTEKHeader -Title "MAIN MENU" -ClearHost -ShowBanner
         
-        Write-Host "Please select an option:" -ForegroundColor Cyan
+        Write-Ui -Message "Please select an option:" -Level "INFO"
         Write-Host ""
-        Write-Host "  1. Complete Cleanup (All Operations)" -ForegroundColor White
-        Write-Host "  2. Clean User Temp Files Only" -ForegroundColor White
-        Write-Host "  3. Clean System Temp Files Only" -ForegroundColor White
-        Write-Host "  4. Empty Recycle Bin" -ForegroundColor White
-        Write-Host "  5. Clean Browser Cache" -ForegroundColor White
-        Write-Host "  6. Clean Windows Update Cache" -ForegroundColor White
-        Write-Host "  7. Run Windows Disk Cleanup" -ForegroundColor White
-        Write-Host "  8. View Cleanup Summary" -ForegroundColor White
-        Write-Host "  9. Export Cleanup Report" -ForegroundColor White
-        Write-Host "  10. Help & Information" -ForegroundColor White
-        Write-Host "  0. Exit" -ForegroundColor White
+        Write-Ui -Message "  1. Complete Cleanup (All Operations)" -Level "STEP"
+        Write-Ui -Message "  2. Clean User Temp Files Only" -Level "STEP"
+        Write-Ui -Message "  3. Clean System Temp Files Only" -Level "STEP"
+        Write-Ui -Message "  4. Empty Recycle Bin" -Level "STEP"
+        Write-Ui -Message "  5. Clean Browser Cache" -Level "STEP"
+        Write-Ui -Message "  6. Clean Windows Update Cache" -Level "STEP"
+        Write-Ui -Message "  7. Run Windows Disk Cleanup" -Level "STEP"
+        Write-Ui -Message "  8. View Cleanup Summary" -Level "STEP"
+        Write-Ui -Message "  9. Export Cleanup Report" -Level "STEP"
+        Write-Ui -Message "  10. Help & Information" -Level "STEP"
+        Write-Ui -Message "  0. Exit" -Level "STEP"
         Write-Host ""
         Write-Host "============================================================" -ForegroundColor Cyan
         Write-Host ""
@@ -948,37 +948,37 @@ function Show-MainMenu {
             "2" {
                 Show-SouliTEKHeader -Title "CLEAN USER TEMP FILES" -ClearHost -ShowBanner
                 Clear-UserTemp
-                Write-Host "Press any key to continue..." -ForegroundColor Yellow
+                Write-Ui -Message "Press any key to continue..." -Level "WARN"
                 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
             }
             "3" {
                 Show-SouliTEKHeader -Title "CLEAN SYSTEM TEMP FILES" -ClearHost -ShowBanner
                 Clear-SystemTemp
-                Write-Host "Press any key to continue..." -ForegroundColor Yellow
+                Write-Ui -Message "Press any key to continue..." -Level "WARN"
                 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
             }
             "4" {
                 Show-SouliTEKHeader -Title "EMPTY RECYCLE BIN" -ClearHost -ShowBanner
                 Clear-RecycleBin
-                Write-Host "Press any key to continue..." -ForegroundColor Yellow
+                Write-Ui -Message "Press any key to continue..." -Level "WARN"
                 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
             }
             "5" {
                 Show-SouliTEKHeader -Title "CLEAN BROWSER CACHE" -ClearHost -ShowBanner
                 Clear-BrowserCache
-                Write-Host "Press any key to continue..." -ForegroundColor Yellow
+                Write-Ui -Message "Press any key to continue..." -Level "WARN"
                 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
             }
             "6" {
                 Show-SouliTEKHeader -Title "CLEAN WINDOWS UPDATE CACHE" -ClearHost -ShowBanner
                 Clear-WindowsUpdate
-                Write-Host "Press any key to continue..." -ForegroundColor Yellow
+                Write-Ui -Message "Press any key to continue..." -Level "WARN"
                 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
             }
             "7" {
                 Show-SouliTEKHeader -Title "WINDOWS DISK CLEANUP" -ClearHost -ShowBanner
                 Invoke-DiskCleanup
-                Write-Host "Press any key to continue..." -ForegroundColor Yellow
+                Write-Ui -Message "Press any key to continue..." -Level "WARN"
                 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
             }
             "8" {
@@ -995,7 +995,7 @@ function Show-MainMenu {
                 return
             }
             default {
-                Write-Host "Invalid choice. Please enter a number between 0 and 10." -ForegroundColor Red
+                Write-Ui -Message "Invalid choice. Please enter a number between 0 and 10." -Level "ERROR"
                 Start-Sleep -Seconds 2
             }
         }

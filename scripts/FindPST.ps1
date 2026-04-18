@@ -157,16 +157,16 @@ function Save-Summary {
 function Confirm-Administrator {
     if (-not (Test-SouliTEKAdministrator)) {
         Show-Header "ERROR: Administrator Required" -Color Red
-        Write-Host "  This script must run as Administrator." -ForegroundColor Yellow
+        Write-Ui -Message "  This script must run as Administrator." -Level "WARN"
         Write-Host ""
-        Write-Host "  HOW TO FIX:" -ForegroundColor White
-        Write-Host "  1. Right-click this file" -ForegroundColor Gray
-        Write-Host "  2. Select 'Run with PowerShell'" -ForegroundColor Gray
-        Write-Host "  3. Choose 'Run as Administrator'" -ForegroundColor Gray
+        Write-Ui -Message "  HOW TO FIX:" -Level "STEP"
+        Write-Ui -Message "  1. Right-click this file" -Level "INFO"
+        Write-Ui -Message "  2. Select 'Run with PowerShell'" -Level "INFO"
+        Write-Ui -Message "  3. Choose 'Run as Administrator'" -Level "INFO"
         Write-Host ""
         Write-Host "============================================================" -ForegroundColor Red
         Write-Host ""
-        Write-Host "Press any key to exit..." -ForegroundColor Yellow
+        Write-Ui -Message "Press any key to exit..." -Level "WARN"
         $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
         exit 1
     }
@@ -189,23 +189,23 @@ function Show-MainMenu {
     do {
         Show-Header "PST FINDER TOOL - All-in-One" -Color Cyan
         
-        Write-Host "      Coded by: Soulitek.co.il" -ForegroundColor Green
-        Write-Host "      IT Solutions for your business" -ForegroundColor Green
-        Write-Host "      www.soulitek.co.il" -ForegroundColor Green
+        Write-Ui -Message "      Coded by: Soulitek.co.il" -Level "OK"
+        Write-Ui -Message "      IT Solutions for your business" -Level "OK"
+        Write-Ui -Message "      www.soulitek.co.il" -Level "OK"
         Write-Host ""
-        Write-Host "      (C) 2025 Soulitek - All Rights Reserved" -ForegroundColor DarkGray
+        Write-Ui -Message "      (C) 2025 Soulitek - All Rights Reserved" -Level "INFO"
         Write-Host ""
         Write-Host "============================================================" -ForegroundColor Cyan
         Write-Host ""
-        Write-Host "Select an option:" -ForegroundColor White
+        Write-Ui -Message "Select an option:" -Level "STEP"
         Write-Host ""
-        Write-Host "  [1] Quick Scan         - Common PST locations" -ForegroundColor Yellow
-        Write-Host "  [2] Deep Scan          - All fixed drives (full)" -ForegroundColor Yellow
-        Write-Host "  [3] Summary            - View last scan summary" -ForegroundColor Yellow
-        Write-Host "  [4] PowerShell Mode    - Advanced report options" -ForegroundColor Yellow
-        Write-Host "  [5] Scheduled Scan     - Setup daily CSV report" -ForegroundColor Yellow
-        Write-Host "  [6] Help               - Usage guide" -ForegroundColor Yellow
-        Write-Host "  [0] Exit" -ForegroundColor Red
+        Write-Ui -Message "  [1] Quick Scan         - Common PST locations" -Level "WARN"
+        Write-Ui -Message "  [2] Deep Scan          - All fixed drives (full)" -Level "WARN"
+        Write-Ui -Message "  [3] Summary            - View last scan summary" -Level "WARN"
+        Write-Ui -Message "  [4] PowerShell Mode    - Advanced report options" -Level "WARN"
+        Write-Ui -Message "  [5] Scheduled Scan     - Setup daily CSV report" -Level "WARN"
+        Write-Ui -Message "  [6] Help               - Usage guide" -Level "WARN"
+        Write-Ui -Message "  [0] Exit" -Level "ERROR"
         Write-Host ""
         Write-Host "========================================" -ForegroundColor DarkGray
         
@@ -220,7 +220,7 @@ function Show-MainMenu {
             '6' { Show-Help }
             '0' { Show-Exit; return }
             default {
-                Write-Host "Invalid choice. Please try again." -ForegroundColor Red
+                Write-Ui -Message "Invalid choice. Please try again." -Level "ERROR"
                 Start-Sleep -Seconds 2
             }
         }
@@ -234,12 +234,12 @@ function Show-MainMenu {
 function Invoke-QuickScan {
     Show-Header "QUICK SCAN - Common PST Locations" -Color Yellow
     
-    Write-Host "Scanning:" -ForegroundColor White
-    Write-Host "  - C:\Users\*\Documents\Outlook Files" -ForegroundColor Gray
-    Write-Host "  - C:\Users\*\AppData\Local\Microsoft\Outlook" -ForegroundColor Gray
-    Write-Host "  - Root of each profile" -ForegroundColor Gray
+    Write-Ui -Message "Scanning:" -Level "STEP"
+    Write-Ui -Message "  - C:\Users\*\Documents\Outlook Files" -Level "INFO"
+    Write-Ui -Message "  - C:\Users\*\AppData\Local\Microsoft\Outlook" -Level "INFO"
+    Write-Ui -Message "  - Root of each profile" -Level "INFO"
     Write-Host ""
-    Write-Host "Please wait..." -ForegroundColor Cyan
+    Write-Ui -Message "Please wait..." -Level "INFO"
     Write-Host ""
     
     $searchPaths = @(
@@ -255,19 +255,19 @@ function Invoke-QuickScan {
         $summary = Save-Summary -Files $files
         
         Write-Host "========================================" -ForegroundColor Green
-        Write-Host "  SUCCESS!" -ForegroundColor Green
+        Write-Ui -Message "  SUCCESS!" -Level "OK"
         Write-Host "========================================" -ForegroundColor Green
         Write-Host ""
-        Write-Host "  $summary" -ForegroundColor White
+        Write-Ui -Message "  $summary" -Level "STEP"
         Write-Host ""
-        Write-Host "Report saved to:" -ForegroundColor Cyan
-        Write-Host "  $Script:LastReport" -ForegroundColor Yellow
+        Write-Ui -Message "Report saved to:" -Level "INFO"
+        Write-Ui -Message "  $Script:LastReport" -Level "WARN"
     } else {
-        Write-Host "No PST files found in common locations." -ForegroundColor Red
+        Write-Ui -Message "No PST files found in common locations." -Level "ERROR"
     }
     
     Write-Host ""
-    Write-Host "Press any key to return to main menu..." -ForegroundColor Cyan
+    Write-Ui -Message "Press any key to return to main menu..." -Level "INFO"
     $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
 }
 
@@ -278,11 +278,11 @@ function Invoke-QuickScan {
 function Invoke-DeepScan {
     Show-Header "DEEP SCAN - All Fixed Drives" -Color Magenta
     
-    Write-Host "This may take time depending on disk size." -ForegroundColor Yellow
-    Write-Host "Press any key to start, or Ctrl+C to cancel..." -ForegroundColor Cyan
+    Write-Ui -Message "This may take time depending on disk size." -Level "WARN"
+    Write-Ui -Message "Press any key to start, or Ctrl+C to cancel..." -Level "INFO"
     $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
     Write-Host ""
-    Write-Host "Scanning all fixed drives..." -ForegroundColor Cyan
+    Write-Ui -Message "Scanning all fixed drives..." -Level "INFO"
     Write-Host ""
     
     # Get all fixed drives
@@ -292,7 +292,7 @@ function Invoke-DeepScan {
     $allFiles = @()
     foreach ($drive in $drives) {
         $drivePath = "$($drive):\"
-        Write-Host "  Scanning drive $drivePath..." -ForegroundColor Gray
+        Write-Ui -Message "  Scanning drive $drivePath..." -Level "INFO"
         $allFiles += Get-PSTFiles -Paths @($drivePath) -Recurse
     }
     
@@ -306,20 +306,20 @@ function Invoke-DeepScan {
         
         Write-Host ""
         Write-Host "========================================" -ForegroundColor Green
-        Write-Host "  SUCCESS!" -ForegroundColor Green
+        Write-Ui -Message "  SUCCESS!" -Level "OK"
         Write-Host "========================================" -ForegroundColor Green
         Write-Host ""
-        Write-Host "  $summary" -ForegroundColor White
+        Write-Ui -Message "  $summary" -Level "STEP"
         Write-Host ""
-        Write-Host "Deep report saved to:" -ForegroundColor Cyan
-        Write-Host "  $deepReport" -ForegroundColor Yellow
+        Write-Ui -Message "Deep report saved to:" -Level "INFO"
+        Write-Ui -Message "  $deepReport" -Level "WARN"
     } else {
         Write-Host ""
-        Write-Host "No PST files found on fixed drives." -ForegroundColor Red
+        Write-Ui -Message "No PST files found on fixed drives." -Level "ERROR"
     }
     
     Write-Host ""
-    Write-Host "Press any key to return to main menu..." -ForegroundColor Cyan
+    Write-Ui -Message "Press any key to return to main menu..." -Level "INFO"
     $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
 }
 
@@ -331,15 +331,15 @@ function Show-Summary {
     Show-Header "PST FINDER - LAST SCAN SUMMARY" -Color Cyan
     
     if (-not (Test-Path $Script:LastSummary)) {
-        Write-Host "No scan has been performed yet." -ForegroundColor Yellow
-        Write-Host "Please run a Quick or Deep Scan first." -ForegroundColor Yellow
+        Write-Ui -Message "No scan has been performed yet." -Level "WARN"
+        Write-Ui -Message "Please run a Quick or Deep Scan first." -Level "WARN"
     } else {
         $summary = Get-Content $Script:LastSummary
-        Write-Host "  $summary" -ForegroundColor White
+        Write-Ui -Message "  $summary" -Level "STEP"
         Write-Host ""
         
         if (Test-Path $Script:LastReport) {
-            Write-Host "Top 10 Largest PST Files:" -ForegroundColor Cyan
+            Write-Ui -Message "Top 10 Largest PST Files:" -Level "INFO"
             Write-Host "----------------------------------------" -ForegroundColor DarkGray
             Write-Host ""
             
@@ -352,7 +352,7 @@ function Show-Summary {
     }
     
     Write-Host ""
-    Write-Host "Press any key to return to main menu..." -ForegroundColor Cyan
+    Write-Ui -Message "Press any key to return to main menu..." -Level "INFO"
     $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
 }
 
@@ -364,11 +364,11 @@ function Show-PowerShellMode {
     do {
         Show-Header "POWERSHELL MODE - Advanced Reports" -Color Green
         
-        Write-Host "  [1] Export to HTML" -ForegroundColor Yellow
-        Write-Host "  [2] Export to XLSX (requires Excel)" -ForegroundColor Yellow
-        Write-Host "  [3] PSTs per User Profile" -ForegroundColor Yellow
-        Write-Host "  [4] Custom Path Scan" -ForegroundColor Yellow
-        Write-Host "  [0] Back to Main Menu" -ForegroundColor Red
+        Write-Ui -Message "  [1] Export to HTML" -Level "WARN"
+        Write-Ui -Message "  [2] Export to XLSX (requires Excel)" -Level "WARN"
+        Write-Ui -Message "  [3] PSTs per User Profile" -Level "WARN"
+        Write-Ui -Message "  [4] Custom Path Scan" -Level "WARN"
+        Write-Ui -Message "  [0] Back to Main Menu" -Level "ERROR"
         Write-Host ""
         Write-Host "========================================" -ForegroundColor DarkGray
         
@@ -381,7 +381,7 @@ function Show-PowerShellMode {
             '4' { Invoke-CustomPathScan }
             '0' { return }
             default {
-                Write-Host "Invalid choice. Please try again." -ForegroundColor Red
+                Write-Ui -Message "Invalid choice. Please try again." -Level "ERROR"
                 Start-Sleep -Seconds 2
             }
         }
@@ -392,12 +392,12 @@ function Export-ToHTML {
     Clear-Host
     Write-Host ""
     Write-Host "========================================" -ForegroundColor Green
-    Write-Host "   Export to HTML" -ForegroundColor Green
+    Write-Ui -Message "   Export to HTML" -Level "OK"
     Write-Host "========================================" -ForegroundColor Green
     Write-Host ""
     
     if (-not (Test-Path $Script:LastReport)) {
-        Write-Host "No last scan found. Run Quick or Deep Scan first." -ForegroundColor Red
+        Write-Ui -Message "No last scan found. Run Quick or Deep Scan first." -Level "ERROR"
         Write-Host ""
         Read-Host "Press Enter to continue"
         return
@@ -465,7 +465,7 @@ function Export-ToHTML {
     
     Set-Content -Path $htmlFile -Value $html -Encoding UTF8
     
-    Write-Host "Exported: $htmlFile" -ForegroundColor Green
+    Write-Ui -Message "Exported: $htmlFile" -Level "OK"
     Write-Host ""
     Read-Host "Press Enter to continue"
 }
@@ -474,12 +474,12 @@ function Export-ToXLSX {
     Clear-Host
     Write-Host ""
     Write-Host "========================================" -ForegroundColor Green
-    Write-Host "   Export to XLSX" -ForegroundColor Green
+    Write-Ui -Message "   Export to XLSX" -Level "OK"
     Write-Host "========================================" -ForegroundColor Green
     Write-Host ""
     
     if (-not (Test-Path $Script:LastReport)) {
-        Write-Host "No last scan found. Run Quick or Deep Scan first." -ForegroundColor Red
+        Write-Ui -Message "No last scan found. Run Quick or Deep Scan first." -Level "ERROR"
         Write-Host ""
         Read-Host "Press Enter to continue"
         return
@@ -525,11 +525,11 @@ function Export-ToXLSX {
         
         [System.Runtime.Interopservices.Marshal]::ReleaseComObject($excel) | Out-Null
         
-        Write-Host "Exported: $xlsxFile" -ForegroundColor Green
+        Write-Ui -Message "Exported: $xlsxFile" -Level "OK"
     }
     catch {
-        Write-Host "Failed to export XLSX. Is Excel installed?" -ForegroundColor Red
-        Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Ui -Message "Failed to export XLSX. Is Excel installed?" -Level "ERROR"
+        Write-Ui -Message "Error: $($_.Exception.Message)" -Level "ERROR"
     }
     
     Write-Host ""
@@ -540,12 +540,12 @@ function Show-PerUserStats {
     Clear-Host
     Write-Host ""
     Write-Host "========================================" -ForegroundColor Cyan
-    Write-Host "   PSTs per User Profile" -ForegroundColor Cyan
+    Write-Ui -Message "   PSTs per User Profile" -Level "INFO"
     Write-Host "========================================" -ForegroundColor Cyan
     Write-Host ""
     
     if (-not (Test-Path $Script:LastReport)) {
-        Write-Host "No last scan found. Run Quick or Deep Scan first." -ForegroundColor Red
+        Write-Ui -Message "No last scan found. Run Quick or Deep Scan first." -Level "ERROR"
         Write-Host ""
         Read-Host "Press Enter to continue"
         return
@@ -574,7 +574,7 @@ function Invoke-CustomPathScan {
     Clear-Host
     Write-Host ""
     Write-Host "========================================" -ForegroundColor Cyan
-    Write-Host "   Custom Path Scan" -ForegroundColor Cyan
+    Write-Ui -Message "   Custom Path Scan" -Level "INFO"
     Write-Host "========================================" -ForegroundColor Cyan
     Write-Host ""
     
@@ -586,14 +586,14 @@ function Invoke-CustomPathScan {
     
     if (-not (Test-Path $customPath)) {
         Write-Host ""
-        Write-Host "Path does not exist: $customPath" -ForegroundColor Red
+        Write-Ui -Message "Path does not exist: $customPath" -Level "ERROR"
         Write-Host ""
         Read-Host "Press Enter to continue"
         return
     }
     
     Write-Host ""
-    Write-Host "Scanning $customPath..." -ForegroundColor Cyan
+    Write-Ui -Message "Scanning $customPath..." -Level "INFO"
     Write-Host ""
     
     $files = Get-PSTFiles -Paths @($customPath) -Recurse
@@ -607,13 +607,13 @@ function Invoke-CustomPathScan {
         $summary = Save-Summary -Files $files
         
         Write-Host "========================================" -ForegroundColor Green
-        Write-Host "  $summary" -ForegroundColor White
+        Write-Ui -Message "  $summary" -Level "STEP"
         Write-Host "========================================" -ForegroundColor Green
         Write-Host ""
-        Write-Host "Report saved to:" -ForegroundColor Cyan
-        Write-Host "  $customReport" -ForegroundColor Yellow
+        Write-Ui -Message "Report saved to:" -Level "INFO"
+        Write-Ui -Message "  $customReport" -Level "WARN"
     } else {
-        Write-Host "No PST files found in the specified path." -ForegroundColor Red
+        Write-Ui -Message "No PST files found in the specified path." -Level "ERROR"
     }
     
     Write-Host ""
@@ -627,12 +627,12 @@ function Invoke-CustomPathScan {
 function Set-ScheduledTask {
     Show-Header "SETUP SCHEDULED DAILY SCAN" -Color Yellow
     
-    Write-Host "This creates a daily scan that exports a CSV" -ForegroundColor White
-    Write-Host "of all PSTs on fixed drives to your Desktop." -ForegroundColor White
+    Write-Ui -Message "This creates a daily scan that exports a CSV" -Level "STEP"
+    Write-Ui -Message "of all PSTs on fixed drives to your Desktop." -Level "STEP"
     Write-Host ""
-    Write-Host "Task details:" -ForegroundColor Cyan
-    Write-Host "  - Runs: Daily at 3:00 AM" -ForegroundColor Gray
-    Write-Host "  - Action: Deep scan, CSV to Desktop" -ForegroundColor Gray
+    Write-Ui -Message "Task details:" -Level "INFO"
+    Write-Ui -Message "  - Runs: Daily at 3:00 AM" -Level "INFO"
+    Write-Ui -Message "  - Action: Deep scan, CSV to Desktop" -Level "INFO"
     Write-Host ""
     
     $confirm = Read-Host "Do you want to create this task? (Y/N)"
@@ -642,7 +642,7 @@ function Set-ScheduledTask {
     }
     
     Write-Host ""
-    Write-Host "Creating scheduled task..." -ForegroundColor Cyan
+    Write-Ui -Message "Creating scheduled task..." -Level "INFO"
     
     try {
         $scriptPath = $PSCommandPath
@@ -655,20 +655,20 @@ function Set-ScheduledTask {
         
         Write-Host ""
         Write-Host "========================================" -ForegroundColor Green
-        Write-Host "  SUCCESS!" -ForegroundColor Green
+        Write-Ui -Message "  SUCCESS!" -Level "OK"
         Write-Host "========================================" -ForegroundColor Green
         Write-Host ""
-        Write-Host "Scheduled task created successfully." -ForegroundColor White
-        Write-Host "CSV reports will appear daily on your Desktop." -ForegroundColor White
+        Write-Ui -Message "Scheduled task created successfully." -Level "STEP"
+        Write-Ui -Message "CSV reports will appear daily on your Desktop." -Level "STEP"
     }
     catch {
         Write-Host ""
         Write-Host "========================================" -ForegroundColor Red
-        Write-Host "  ERROR" -ForegroundColor Red
+        Write-Ui -Message "  ERROR" -Level "ERROR"
         Write-Host "========================================" -ForegroundColor Red
         Write-Host ""
-        Write-Host "Failed to create scheduled task." -ForegroundColor Yellow
-        Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Ui -Message "Failed to create scheduled task." -Level "WARN"
+        Write-Ui -Message "Error: $($_.Exception.Message)" -Level "ERROR"
     }
     
     Write-Host ""
@@ -683,45 +683,45 @@ function Set-ScheduledTask {
 function Show-Help {
     Show-Header "HELP GUIDE" -Color Cyan
     
-    Write-Host "WHEN TO USE EACH MODE:" -ForegroundColor White
+    Write-Ui -Message "WHEN TO USE EACH MODE:" -Level "STEP"
     Write-Host "----------------------------------------" -ForegroundColor DarkGray
     Write-Host ""
-    Write-Host "[1] QUICK SCAN" -ForegroundColor Yellow
-    Write-Host "    Scans typical PST locations inside user profiles." -ForegroundColor Gray
+    Write-Ui -Message "[1] QUICK SCAN" -Level "WARN"
+    Write-Ui -Message "    Scans typical PST locations inside user profiles." -Level "INFO"
     Write-Host ""
-    Write-Host "[2] DEEP SCAN" -ForegroundColor Yellow
-    Write-Host "    Scans every fixed drive thoroughly." -ForegroundColor Gray
+    Write-Ui -Message "[2] DEEP SCAN" -Level "WARN"
+    Write-Ui -Message "    Scans every fixed drive thoroughly." -Level "INFO"
     Write-Host ""
-    Write-Host "[3] SUMMARY" -ForegroundColor Yellow
-    Write-Host "    Shows totals + top 10 largest PSTs from last scan." -ForegroundColor Gray
+    Write-Ui -Message "[3] SUMMARY" -Level "WARN"
+    Write-Ui -Message "    Shows totals + top 10 largest PSTs from last scan." -Level "INFO"
     Write-Host ""
-    Write-Host "[4] POWERSHELL MODE" -ForegroundColor Yellow
-    Write-Host "    Export CSV/XLSX, per-user breakdown, custom path scan." -ForegroundColor Gray
+    Write-Ui -Message "[4] POWERSHELL MODE" -Level "WARN"
+    Write-Ui -Message "    Export CSV/XLSX, per-user breakdown, custom path scan." -Level "INFO"
     Write-Host ""
-    Write-Host "[5] SCHEDULED SCAN" -ForegroundColor Yellow
-    Write-Host "    Sets a daily 03:00 scan that exports a CSV to Desktop." -ForegroundColor Gray
+    Write-Ui -Message "[5] SCHEDULED SCAN" -Level "WARN"
+    Write-Ui -Message "    Sets a daily 03:00 scan that exports a CSV to Desktop." -Level "INFO"
     Write-Host ""
-    Write-Host "NOTES:" -ForegroundColor White
-    Write-Host "  - PSTs are personal Outlook data files (mail/archives)." -ForegroundColor Gray
-    Write-Host "  - Large PSTs can slow Outlook and increase corruption risk." -ForegroundColor Gray
-    Write-Host "  - Consider archiving/splitting or moving to modern solutions." -ForegroundColor Gray
+    Write-Ui -Message "NOTES:" -Level "STEP"
+    Write-Ui -Message "  - PSTs are personal Outlook data files (mail/archives)." -Level "INFO"
+    Write-Ui -Message "  - Large PSTs can slow Outlook and increase corruption risk." -Level "INFO"
+    Write-Ui -Message "  - Consider archiving/splitting or moving to modern solutions." -Level "INFO"
     Write-Host ""
     Write-Host "========================================" -ForegroundColor DarkGray
-    Write-Host "TROUBLESHOOTING:" -ForegroundColor White
+    Write-Ui -Message "TROUBLESHOOTING:" -Level "STEP"
     Write-Host "----------------------------------------" -ForegroundColor DarkGray
     Write-Host ""
-    Write-Host "Q: No PSTs found?" -ForegroundColor Yellow
-    Write-Host "A: Ensure drives are connected and profiles exist." -ForegroundColor Gray
+    Write-Ui -Message "Q: No PSTs found?" -Level "WARN"
+    Write-Ui -Message "A: Ensure drives are connected and profiles exist." -Level "INFO"
     Write-Host ""
-    Write-Host "Q: Access denied on some folders?" -ForegroundColor Yellow
-    Write-Host "A: Run this tool as Administrator." -ForegroundColor Gray
+    Write-Ui -Message "Q: Access denied on some folders?" -Level "WARN"
+    Write-Ui -Message "A: Run this tool as Administrator." -Level "INFO"
     Write-Host ""
-    Write-Host "Q: Need to stop a running scan?" -ForegroundColor Yellow
-    Write-Host "A: Press Ctrl+C to cancel." -ForegroundColor Gray
+    Write-Ui -Message "Q: Need to stop a running scan?" -Level "WARN"
+    Write-Ui -Message "A: Press Ctrl+C to cancel." -Level "INFO"
     Write-Host ""
     Write-Host "========================================" -ForegroundColor DarkGray
     Write-Host ""
-    Write-Host "Press any key to return to main menu..." -ForegroundColor Cyan
+    Write-Ui -Message "Press any key to return to main menu..." -Level "INFO"
     $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
 }
 
@@ -732,9 +732,9 @@ function Show-Help {
 function Show-Exit {
     Clear-Host
     Write-Host ""
-    Write-Host "Thank you for using SouliTEK PST Finder Tool!" -ForegroundColor Cyan
+    Write-Ui -Message "Thank you for using SouliTEK PST Finder Tool!" -Level "INFO"
     Write-Host ""
-    Write-Host "Website: www.soulitek.co.il" -ForegroundColor Yellow
+    Write-Ui -Message "Website: www.soulitek.co.il" -Level "WARN"
     Write-Host ""
 }
 

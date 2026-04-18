@@ -317,19 +317,19 @@ function Show-ProductKeys {
     } else {
         $index = 1
         foreach ($keyInfo in $Script:ProductKeys) {
-            Write-Host "  [$index] $($keyInfo.Product)" -ForegroundColor Yellow
+            Write-Ui -Message "  [$index] $($keyInfo.Product)" -Level "WARN"
             if ($keyInfo.Version -and $keyInfo.Version -ne "Unknown") {
-                Write-Host "      Version: $($keyInfo.Version)" -ForegroundColor Gray
+                Write-Ui -Message "      Version: $($keyInfo.Version)" -Level "INFO"
             }
             Write-Host "      Key: " -NoNewline -ForegroundColor Gray
             if ($keyInfo.Status -eq "Found") {
-                Write-Host $keyInfo.Key -ForegroundColor Green
+                Write-Ui -Message $keyInfo.Key -Level "OK"
             } else {
-                Write-Host $keyInfo.Key -ForegroundColor Yellow
+                Write-Ui -Message $keyInfo.Key -Level "WARN"
             }
-            Write-Host "      Method: $($keyInfo.Method)" -ForegroundColor Gray
+            Write-Ui -Message "      Method: $($keyInfo.Method)" -Level "INFO"
             if ($keyInfo.ProductID) {
-                Write-Host "      Product ID: $($keyInfo.ProductID)" -ForegroundColor Gray
+                Write-Ui -Message "      Product ID: $($keyInfo.ProductID)" -Level "INFO"
             }
             Write-Host ""
             $index++
@@ -446,39 +446,39 @@ function Show-Help {
     Clear-Host
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  PRODUCT KEY RETRIEVER - HELP" -ForegroundColor Cyan
+    Write-Ui -Message "  PRODUCT KEY RETRIEVER - HELP" -Level "INFO"
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "  ABOUT:" -ForegroundColor Yellow
-    Write-Host "  This tool retrieves product keys for Windows and Office" -ForegroundColor Gray
-    Write-Host "  installations from the system registry and WMI." -ForegroundColor Gray
+    Write-Ui -Message "  ABOUT:" -Level "WARN"
+    Write-Ui -Message "  This tool retrieves product keys for Windows and Office" -Level "INFO"
+    Write-Ui -Message "  installations from the system registry and WMI." -Level "INFO"
     Write-Host ""
-    Write-Host "  WHAT IT DOES:" -ForegroundColor Yellow
-    Write-Host "  - Retrieves Windows product keys using multiple methods" -ForegroundColor Gray
-    Write-Host "  - Retrieves Office product keys (2010, 2013, 2016, 2019, 2021, 365)" -ForegroundColor Gray
-    Write-Host "  - Attempts WMI queries, registry lookups, and key decoding" -ForegroundColor Gray
-    Write-Host "  - Exports results to multiple formats" -ForegroundColor Gray
+    Write-Ui -Message "  WHAT IT DOES:" -Level "WARN"
+    Write-Ui -Message "  - Retrieves Windows product keys using multiple methods" -Level "INFO"
+    Write-Ui -Message "  - Retrieves Office product keys (2010, 2013, 2016, 2019, 2021, 365)" -Level "INFO"
+    Write-Ui -Message "  - Attempts WMI queries, registry lookups, and key decoding" -Level "INFO"
+    Write-Ui -Message "  - Exports results to multiple formats" -Level "INFO"
     Write-Host ""
-    Write-Host "  RETRIEVAL METHODS:" -ForegroundColor Yellow
-    Write-Host "  - WMI (SoftwareLicensingProduct/Service)" -ForegroundColor Gray
-    Write-Host "  - Registry (DigitalProductId - decoded)" -ForegroundColor Gray
-    Write-Host "  - Registry (ProductKey direct)" -ForegroundColor Gray
+    Write-Ui -Message "  RETRIEVAL METHODS:" -Level "WARN"
+    Write-Ui -Message "  - WMI (SoftwareLicensingProduct/Service)" -Level "INFO"
+    Write-Ui -Message "  - Registry (DigitalProductId - decoded)" -Level "INFO"
+    Write-Ui -Message "  - Registry (ProductKey direct)" -Level "INFO"
     Write-Host ""
-    Write-Host "  LIMITATIONS:" -ForegroundColor Yellow
-    Write-Host "  - Digitally activated Windows/Office may not show keys" -ForegroundColor Gray
-    Write-Host "  - Keys stored in BIOS/UEFI may not be retrievable" -ForegroundColor Gray
-    Write-Host "  - Microsoft account-linked keys may not be accessible" -ForegroundColor Gray
-    Write-Host "  - Some OEM installations may not expose keys" -ForegroundColor Gray
+    Write-Ui -Message "  LIMITATIONS:" -Level "WARN"
+    Write-Ui -Message "  - Digitally activated Windows/Office may not show keys" -Level "INFO"
+    Write-Ui -Message "  - Keys stored in BIOS/UEFI may not be retrievable" -Level "INFO"
+    Write-Ui -Message "  - Microsoft account-linked keys may not be accessible" -Level "INFO"
+    Write-Ui -Message "  - Some OEM installations may not expose keys" -Level "INFO"
     Write-Host ""
-    Write-Host "  SECURITY:" -ForegroundColor Yellow
-    Write-Host "  - Product keys are sensitive information" -ForegroundColor Gray
-    Write-Host "  - Store exported files securely" -ForegroundColor Gray
-    Write-Host "  - Do not share product keys publicly" -ForegroundColor Gray
+    Write-Ui -Message "  SECURITY:" -Level "WARN"
+    Write-Ui -Message "  - Product keys are sensitive information" -Level "INFO"
+    Write-Ui -Message "  - Store exported files securely" -Level "INFO"
+    Write-Ui -Message "  - Do not share product keys publicly" -Level "INFO"
     Write-Host ""
-    Write-Host "  RECOMMENDATIONS:" -ForegroundColor Yellow
-    Write-Host "  - Export and save keys to secure location" -ForegroundColor Gray
-    Write-Host "  - Keep keys with system documentation" -ForegroundColor Gray
-    Write-Host "  - Use for backup/recovery purposes only" -ForegroundColor Gray
+    Write-Ui -Message "  RECOMMENDATIONS:" -Level "WARN"
+    Write-Ui -Message "  - Export and save keys to secure location" -Level "INFO"
+    Write-Ui -Message "  - Keep keys with system documentation" -Level "INFO"
+    Write-Ui -Message "  - Use for backup/recovery purposes only" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     
@@ -502,19 +502,19 @@ function Show-Menu {
     }
     
     Write-Host ""
-    Write-Host "  [1] Full Scan" -ForegroundColor Yellow
-    Write-Host "      Scan for Windows and Office product keys" -ForegroundColor Gray
+    Write-Ui -Message "  [1] Full Scan" -Level "WARN"
+    Write-Ui -Message "      Scan for Windows and Office product keys" -Level "INFO"
     Write-Host ""
-    Write-Host "  [2] View Results" -ForegroundColor Yellow
-    Write-Host "      Display all retrieved product keys" -ForegroundColor Gray
+    Write-Ui -Message "  [2] View Results" -Level "WARN"
+    Write-Ui -Message "      Display all retrieved product keys" -Level "INFO"
     Write-Host ""
-    Write-Host "  [3] Export Results" -ForegroundColor Yellow
-    Write-Host "      Export product keys to file" -ForegroundColor Gray
+    Write-Ui -Message "  [3] Export Results" -Level "WARN"
+    Write-Ui -Message "      Export product keys to file" -Level "INFO"
     Write-Host ""
-    Write-Host "  [4] Help" -ForegroundColor Yellow
-    Write-Host "      Show usage instructions" -ForegroundColor Gray
+    Write-Ui -Message "  [4] Help" -Level "WARN"
+    Write-Ui -Message "      Show usage instructions" -Level "INFO"
     Write-Host ""
-    Write-Host "  [0] Exit" -ForegroundColor Red
+    Write-Ui -Message "  [0] Exit" -Level "ERROR"
     Write-Host ""
 }
 

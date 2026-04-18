@@ -124,7 +124,7 @@ function Show-BitLockerStatus {
     }
     
     Write-Host ""
-    Write-Host "Volume Encryption Status:" -ForegroundColor Yellow
+    Write-Ui -Message "Volume Encryption Status:" -Level "WARN"
     Write-Host "========================" -ForegroundColor Yellow
     Write-Host ""
     
@@ -147,7 +147,7 @@ function Show-BitLockerStatus {
             default { "White" }
         }
         
-        Write-Host "Volume: $mountPoint ($volumeType)" -ForegroundColor Cyan
+        Write-Ui -Message "Volume: $mountPoint ($volumeType)" -Level "INFO"
         Write-Host "  Status: " -NoNewline
         Write-Host $encryptionStatus -ForegroundColor $statusColor
         Write-Host "  Encryption: $encryptionPercentage%"
@@ -170,7 +170,7 @@ function Show-BitLockerStatus {
         }
     }
     
-    Write-Host "Summary:" -ForegroundColor Yellow
+    Write-Ui -Message "Summary:" -Level "WARN"
     Write-Host "  Fully Encrypted: $encryptedCount"
     Write-Host "  Encryption In Progress: $encryptingCount"
     Write-Host "  Unencrypted: $unencryptedCount"
@@ -210,7 +210,7 @@ function Show-RecoveryKeys {
         
         if ($recoveryKeys) {
             $hasRecoveryKeys = $true
-            Write-Host "Volume: $mountPoint" -ForegroundColor Cyan
+            Write-Ui -Message "Volume: $mountPoint" -Level "INFO"
             Write-Host "===================" -ForegroundColor Cyan
             
             foreach ($key in $recoveryKeys) {
@@ -338,7 +338,7 @@ function Show-DetailedReport {
         $volumeType = if ($volume.VolumeType) { $volume.VolumeType } else { "Unknown" }
         
         Write-Host "========================================" -ForegroundColor Cyan
-        Write-Host "Volume: $mountPoint ($volumeType)" -ForegroundColor Cyan
+        Write-Ui -Message "Volume: $mountPoint ($volumeType)" -Level "INFO"
         Write-Host "========================================" -ForegroundColor Cyan
         Write-Host ""
         Write-Host "Encryption Status: $($volume.VolumeStatus)"
@@ -349,7 +349,7 @@ function Show-DetailedReport {
         Write-Host ""
         
         if ($volume.KeyProtector) {
-            Write-Host "Key Protectors:" -ForegroundColor Yellow
+            Write-Ui -Message "Key Protectors:" -Level "WARN"
             foreach ($protector in $volume.KeyProtector) {
                 Write-Host "  Type: $($protector.KeyProtectorType)"
                 Write-Host "  ID: $($protector.KeyProtectorId)"
@@ -386,7 +386,7 @@ function Show-SecurityAudit {
     }
     
     Write-Host ""
-    Write-Host "Security Analysis:" -ForegroundColor Yellow
+    Write-Ui -Message "Security Analysis:" -Level "WARN"
     Write-Host "==================" -ForegroundColor Yellow
     Write-Host ""
     
@@ -397,25 +397,25 @@ function Show-SecurityAudit {
     $coveragePercent = if ($totalVolumes -gt 0) { [math]::Round(($encryptedVolumes / $totalVolumes) * 100, 2) } else { 0 }
     
     Write-Host "Total Volumes: $totalVolumes"
-    Write-Host "Fully Encrypted: $encryptedVolumes" -ForegroundColor Green
-    Write-Host "Encryption In Progress: $encryptingVolumes" -ForegroundColor Yellow
+    Write-Ui -Message "Fully Encrypted: $encryptedVolumes" -Level "OK"
+    Write-Ui -Message "Encryption In Progress: $encryptingVolumes" -Level "WARN"
     Write-Host "Unencrypted: $unencryptedVolumes" -ForegroundColor $(if ($unencryptedVolumes -gt 0) { "Red" } else { "Green" })
     Write-Host "Encryption Coverage: $coveragePercent%"
     Write-Host ""
     
     # Recommendations
-    Write-Host "Recommendations:" -ForegroundColor Yellow
+    Write-Ui -Message "Recommendations:" -Level "WARN"
     Write-Host "================" -ForegroundColor Yellow
     Write-Host ""
     
     if ($unencryptedVolumes -gt 0) {
-        Write-Host "⚠ WARNING: $unencryptedVolumes volume(s) are not encrypted." -ForegroundColor Red
+        Write-Ui -Message "⚠ WARNING: $unencryptedVolumes volume(s) are not encrypted." -Level "ERROR"
         Write-Host "  Recommendation: Enable BitLocker encryption for all volumes containing sensitive data."
         Write-Host ""
     }
     
     if ($encryptingVolumes -gt 0) {
-        Write-Host "ℹ INFO: $encryptingVolumes volume(s) are currently encrypting." -ForegroundColor Yellow
+        Write-Ui -Message "ℹ INFO: $encryptingVolumes volume(s) are currently encrypting." -Level "WARN"
         Write-Host "  Recommendation: Allow encryption to complete before considering system secure."
         Write-Host ""
     }
@@ -426,13 +426,13 @@ function Show-SecurityAudit {
     }
     
     if ($volumesWithoutRecovery) {
-        Write-Host "⚠ WARNING: Some encrypted volumes do not have recovery keys configured." -ForegroundColor Red
+        Write-Ui -Message "⚠ WARNING: Some encrypted volumes do not have recovery keys configured." -Level "ERROR"
         Write-Host "  Recommendation: Configure recovery keys for all encrypted volumes."
         Write-Host ""
     }
     
     if ($encryptedVolumes -eq $totalVolumes -and $unencryptedVolumes -eq 0) {
-        Write-Host "✓ All volumes are encrypted. Good security posture!" -ForegroundColor Green
+        Write-Ui -Message "✓ All volumes are encrypted. Good security posture!" -Level "OK"
         Write-Host ""
     }
     
@@ -491,13 +491,13 @@ function Show-Help {
     Show-SouliTEKHeader "HELP" "BitLocker Status Report - Usage Guide" -Color ([ConsoleColor]::Blue)
     
     Write-Host ""
-    Write-Host "About This Tool:" -ForegroundColor Yellow
+    Write-Ui -Message "About This Tool:" -Level "WARN"
     Write-Host "================" -ForegroundColor Yellow
     Write-Host ""
     Write-Host "The BitLocker Status Report tool provides comprehensive analysis"
     Write-Host "and management of BitLocker encryption status across all volumes."
     Write-Host ""
-    Write-Host "Features:" -ForegroundColor Yellow
+    Write-Ui -Message "Features:" -Level "WARN"
     Write-Host "=========" -ForegroundColor Yellow
     Write-Host ""
     Write-Host "1. Check BitLocker Status"
@@ -522,14 +522,14 @@ function Show-Help {
     Write-Host "   - Encryption coverage analysis"
     Write-Host "   - Security recommendations"
     Write-Host ""
-    Write-Host "Requirements:" -ForegroundColor Yellow
+    Write-Ui -Message "Requirements:" -Level "WARN"
     Write-Host "=============" -ForegroundColor Yellow
     Write-Host ""
     Write-Host "- Windows 10/11 Pro or Enterprise"
     Write-Host "- Administrator privileges"
     Write-Host "- BitLocker feature available"
     Write-Host ""
-    Write-Host "Security Notes:" -ForegroundColor Yellow
+    Write-Ui -Message "Security Notes:" -Level "WARN"
     Write-Host "==============" -ForegroundColor Yellow
     Write-Host ""
     Write-Host "- Recovery keys can unlock encrypted drives"
@@ -570,7 +570,7 @@ try {
             }
             default {
                 Write-Host ""
-                Write-Host "Invalid choice. Please try again." -ForegroundColor Red
+                Write-Ui -Message "Invalid choice. Please try again." -Level "ERROR"
                 Start-Sleep -Seconds 2
             }
         }
@@ -578,10 +578,10 @@ try {
 }
 catch {
     Write-Host ""
-    Write-Host "[X] Fatal Error: $_" -ForegroundColor Red
+    Write-Ui -Message "[X] Fatal Error: $_" -Level "ERROR"
     Write-Host ""
-    Write-Host "Stack Trace:" -ForegroundColor Yellow
-    Write-Host $_.ScriptStackTrace -ForegroundColor Gray
+    Write-Ui -Message "Stack Trace:" -Level "WARN"
+    Write-Ui -Message $_.ScriptStackTrace -Level "INFO"
     Write-Host ""
     Read-Host "Press Enter to exit"
     exit 1
