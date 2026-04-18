@@ -410,8 +410,8 @@ try {
     
     # Ask if user wants to launch
     if (-not $Silent) {
-        $launch = Read-Host "Would you like to launch SouliTEK Launcher now? (Y/N)"
-        if ($launch -eq 'Y' -or $launch -eq 'y') {
+        $launch = Read-Host "Would you like to launch SouliTEK Launcher now? (Y/N) [Y]"
+        if ($launch -eq '' -or $launch -eq 'Y' -or $launch -eq 'y') {
             Write-Host ""
             Write-Step "Launching SouliTEK Launcher..."
             Start-Process powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy RemoteSigned -File `"$launcherPath`"" -WorkingDirectory $InstallPath
