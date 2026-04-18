@@ -35,6 +35,40 @@ $Script:SouliTEKConfig = @{
 # Set project root dynamically
 $Script:SouliTEKConfig.ProjectRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 
+function Test-SafeFilePath {
+    <#
+    .SYNOPSIS
+        Returns $true only if UserInput resolves to a file/folder inside BaseDir.
+        Prevents path traversal attacks such as ..\..\system32\cmd.exe.
+    .PARAMETER UserInput
+        String supplied by the user (filename or folder name).
+    .PARAMETER BaseDir
+        Trusted directory the result must remain within.
+    #>
+    param(
+        [Parameter(Mandatory=$true)][AllowEmptyString()][string]$UserInput,
+        [Parameter(Mandatory=$true)][AllowEmptyString()][string]$BaseDir
+    )
+
+    if ([string]::IsNullOrWhiteSpace($UserInput)) { return $false }
+    if ([string]::IsNullOrWhiteSpace($BaseDir))   { return $false }
+    if ($UserInput.Length -gt 260)                { return $false }
+
+    # Reject any input containing path separators or traversal patterns (fail-closed security posture)
+    if ($UserInput -match '[\\/]|\.\.') { return $false }
+
+    # Strip any directory component the user supplied — keep only the leaf name
+    $leaf = [System.IO.Path]::GetFileName($UserInput)
+    if ([string]::IsNullOrEmpty($leaf))           { return $false }
+
+    $base      = [System.IO.Path]::GetFullPath($BaseDir)
+    $candidate = [System.IO.Path]::GetFullPath((Join-Path $base $leaf))
+
+    # Accept only if the resolved path is still under $base
+    return $candidate.StartsWith($base + [System.IO.Path]::DirectorySeparatorChar) -or
+           $candidate -eq $base
+}
+
 # ============================================================
 # CORE FUNCTIONS
 # ============================================================
