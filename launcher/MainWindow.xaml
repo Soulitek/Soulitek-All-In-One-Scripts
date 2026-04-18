@@ -211,10 +211,10 @@
         </ScrollViewer>
 
         <!-- Footer: spans both columns -->
-        <Grid Grid.Row="2" Grid.ColumnSpan="2"
-              Name="FooterGrid"
-              Background="#0F1419"
-              BorderBrush="#1A1F2E" BorderThickness="0,1,0,0">
+        <Border Grid.Row="2" Grid.ColumnSpan="2"
+                Name="FooterGrid"
+                Background="#0F1419"
+                BorderBrush="#1A1F2E" BorderThickness="0,1,0,0">
             <TextBlock Name="StatusLabel"
                       Text="Ready"
                       FontSize="11"
@@ -222,7 +222,7 @@
                       Foreground="#A0A9B8"
                       HorizontalAlignment="Left"
                       Margin="16,6,0,6"/>
-        </Grid>
+        </Border>
 
         <!-- Toast notification overlay (row 1, col 1) -->
         <Border Name="ToastBorder" Grid.Row="1" Grid.Column="1"
