@@ -332,7 +332,7 @@ This file is the canonical source for findings that repeat across the codebase. 
 ### C6 — Scripts >1000 LOC with extractable duplication
 - **Severity:** med
 - **Category:** structure
-- **Files affected:** 8 scripts >1000 LOC: `EventLogAnalyzer` (2275), `startup_boot_analyzer` (1762), `domain_dns_analyzer` (1721), `license_expiration_checker` (1385), `m365_user_list` (1297), `ram_slot_utilization_report` (1195), `temp_removal_disk_cleanup` (1022), `onedrive_status_checker` (1029), `virustotal_checker` (1048), `usb_device_log` (1012), `sharepoint_site_inventory` (1009)
+- **Files affected:** 11 scripts >1000 LOC: `EventLogAnalyzer` (2275), `startup_boot_analyzer` (1762), `domain_dns_analyzer` (1721), `license_expiration_checker` (1385), `m365_user_list` (1297), `ram_slot_utilization_report` (1195), `temp_removal_disk_cleanup` (1022), `onedrive_status_checker` (1029), `virustotal_checker` (1048), `usb_device_log` (1012), `sharepoint_site_inventory` (1009)
 - **Recommended:** Each per-script audit identifies extract candidates (e.g. drive enumeration, parallel scanning, table rendering). Module gains `MODERNIZATION HELPERS` section in P4.
 - **Risk if changed:** High — large surface; behavior must be preserved by tests added in P5.
 - **Target phase:** P4

@@ -134,7 +134,7 @@ These will populate `docs/audits/00-cross-cutting.md`. They drive the phase boun
 | C3 | legacy-api | `Get-WmiObject` (removed in PS 7) used instead of `Get-CimInstance` | `driver_integrity_scan.ps1`, `product_key_retriever.ps1` | P1 |
 | C4 | error-handling | `-ErrorAction SilentlyContinue` swallowing failures (audit each occurrence — many are appropriate for cleanup, many are not) | 30 scripts, 186 occurrences | P2 |
 | C5 | safety | Destructive scripts lack `[CmdletBinding(SupportsShouldProcess)]` + `-WhatIf`/`-Confirm` | `essential_tweaks`, `win11_debloat`, `temp_removal_disk_cleanup`, `mcafee_removal_tool`, `network_configuration_tool`, `create_system_restore_point` | P3 |
-| C6 | structure | Scripts >1000 LOC with duplication that could move to module helpers | 8 scripts (>1000 LOC each) | P4 |
+| C6 | structure | Scripts >1000 LOC with duplication that could move to module helpers | 11 scripts (>1000 LOC each) | P4 |
 | C7 | tests | Pester suite covers 1/26 module functions; zero script-level smoke tests | all | P5 |
 | C8 | tooling | No PSScriptAnalyzer enforcement, no CI workflow | repo root | P0 |
 | C9 | naming | `SouliTEK-Choco-Installer.ps1` and `SouliTEK-Softwares-Installer.ps1` violate the `lowercase_with_underscores` rule in CONTRIBUTING.md; launcher must be updated when renamed | 2 scripts + launcher reference | P1 |
