@@ -101,7 +101,7 @@ Every per-file audit follows this exact 5-step loop. Tasks 5–39 cite this sect
    ```powershell
    $out = '<docs/audits/...md>'
    $missing = @('## Inventory','## Summary','## Findings','## Out-of-scope notes') |
-              Where-Object { -not (Select-String -Path $out -Pattern "^$_$" -SimpleMatch -Quiet) }
+              Where-Object { -not (Select-String -Path $out -Pattern "^$_$" -Quiet) }
    if ($missing) { throw "Missing sections in $out: $($missing -join ', ')" }
    git add $out
    git commit -m "docs(audit): add $(Split-Path $out -Leaf)"
@@ -469,7 +469,7 @@ git commit -m "docs(audit): expand cross-cutting findings (C1-C14)"
 ```powershell
 $out = 'docs/audits/01-modules-SouliTEK-Common.md'
 $missing = @('## Inventory','## Summary','## Findings','## Out-of-scope notes') |
-           Where-Object { -not (Select-String -Path $out -Pattern "^$_$" -SimpleMatch -Quiet) }
+           Where-Object { -not (Select-String -Path $out -Pattern "^$_$" -Quiet) }
 if ($missing) { throw "Missing in ${out}: $($missing -join ', ')" } else { 'OK' }
 git add $out
 git commit -m "docs(audit): add 01-modules-SouliTEK-Common.md"
@@ -508,7 +508,7 @@ git commit -m "docs(audit): add 01-modules-SouliTEK-Common.md"
 ```powershell
 $out = 'docs/audits/02-Install-SouliTEK.md'
 $missing = @('## Inventory','## Summary','## Findings','## Out-of-scope notes') |
-           Where-Object { -not (Select-String -Path $out -Pattern "^$_$" -SimpleMatch -Quiet) }
+           Where-Object { -not (Select-String -Path $out -Pattern "^$_$" -Quiet) }
 if ($missing) { throw "Missing in ${out}: $($missing -join ', ')" } else { 'OK' }
 git add $out
 git commit -m "docs(audit): add 02-Install-SouliTEK.md"
@@ -642,7 +642,7 @@ Fill in `<line>` placeholders from the actual `Select-String` output. Don't leav
 ```powershell
 $out = 'docs/audits/scripts-driver_integrity_scan.md'
 $missing = @('## Inventory','## Summary','## Findings','## Out-of-scope notes') |
-           Where-Object { -not (Select-String -Path $out -Pattern "^$_$" -SimpleMatch -Quiet) }
+           Where-Object { -not (Select-String -Path $out -Pattern "^$_$" -Quiet) }
 if ($missing) { throw "Missing in ${out}: $($missing -join ', ')" } else { 'OK' }
 # Verify no leftover angle-bracket placeholders
 if (Select-String -Path $out -Pattern '<[a-z…\.]+>' -Quiet) {
@@ -1034,7 +1034,7 @@ if ($missing) { throw "Missing: $($missing -join ', ')" }
 
 $incomplete = Get-ChildItem docs/audits/scripts-*.md, docs/audits/0*.md | Where-Object {
     $required = @('## Inventory','## Summary','## Findings','## Out-of-scope notes')
-    $required | Where-Object { -not (Select-String -Path $_.FullName -Pattern "^$_$" -SimpleMatch -Quiet) }
+    $required | Where-Object { -not (Select-String -Path $_.FullName -Pattern "^$_$" -Quiet) }
 }
 if ($incomplete) { throw "Incomplete: $($incomplete.Name -join ', ')" }
 'OK: 39 audit files, all complete'
