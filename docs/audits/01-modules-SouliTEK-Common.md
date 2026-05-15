@@ -145,11 +145,11 @@ The common module is the foundation every script in the repo dot-sources, so its
   Total: 30 untested functions. Priority order for P5: pure functions first (`Get-SouliTEKVersion`, `Format-SouliTEKFileSize`), then deterministic output functions (`Write-Ui` / `Write-Status` — assert on `Write-Host` mock), then security functions (`Protect-/Unprotect-SouliTEKSecret`, `Confirm-SouliTEKFileHash`), then `Export-SouliTEKReport` round-trip tests using a temp directory, then `Install-SouliTEKModule` with `Get-PackageProvider`/`Install-Module` mocked.
 - **Target phase:** P5
 
-### F8 — Five of 31 functions lack `[CmdletBinding()]`
+### F8 — No functions declare `[CmdletBinding()]` — security trio is the most consequential
 - **Severity:** low
 - **Category:** structure
-- **Location:** modules/SouliTEK-Common.ps1:1364 (`Protect-SouliTEKSecret`), 1380 (`Unprotect-SouliTEKSecret`), 1396 (`Confirm-SouliTEKFileHash`), and the private `Export-SouliTEKTextReport` (1080) / `Export-SouliTEKHtmlReport` (1138).
-- **Local notes:** All other functions in the module use a `<#...#>` comment-based help block but still declare only `param(...)` without `[CmdletBinding()]`. None of the 31 functions actually has `[CmdletBinding()]` — but the security trio (`Protect-/Unprotect-SouliTEKSecret`, `Confirm-SouliTEKFileHash`) is the most noticeable omission because they are advanced enough to benefit from common parameters (`-Verbose`, `-ErrorAction`). Recommend adding `[CmdletBinding()]` (and `OutputType`) when each function is touched during P4/P5, rather than a sweep.
+- **Location:** modules/SouliTEK-Common.ps1 (all 31 functions). Most-consequential omissions: 1364 (`Protect-SouliTEKSecret`), 1380 (`Unprotect-SouliTEKSecret`), 1396 (`Confirm-SouliTEKFileHash`), plus the private `Export-SouliTEKTextReport` (1080) / `Export-SouliTEKHtmlReport` (1138).
+- **Local notes:** Every function in the module uses a `<#...#>` comment-based help block but declares only `param(...)` without `[CmdletBinding()]`. The five listed locations are the most consequential because they would most benefit from common parameters (`-Verbose`, `-ErrorAction`). Recommend adding `[CmdletBinding()]` (and `OutputType`) opportunistically when each function is touched during P4/P5, rather than a sweep.
 - **Risk if changed:** Low — `[CmdletBinding()]` is additive.
 - **Target phase:** P4
 
