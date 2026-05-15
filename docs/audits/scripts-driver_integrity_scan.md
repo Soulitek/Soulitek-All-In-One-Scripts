@@ -38,6 +38,17 @@ A menu-driven driver-and-software triage tool: scans `Win32_PnPEntity` for probl
 - **Category:** output-style
 - **Location:** scripts/driver_integrity_scan.ps1 — 74 raw `Write-Host` occurrences (sample lines: 116, 146, 190, 191, 194, 196, 358, 423, 442, 565). Plus 12 legacy `Write-SouliTEK*` wrapper calls (lines 382, 484, 527, 532, 597, 639, 655, 677, 680, 701, 704, 729) that exercise C2's dead API.
 - **Reference:** [C1](00-cross-cutting.md#c1--raw-write-host-calls-not-migrated-to-write-uiwrite-status)
+- **Current (representative pattern — inline-color formatting at line 190–192):**
+  ```powershell
+  Write-Host "  " -NoNewline
+  Write-Host "Checking driver integrity..." -ForegroundColor Cyan -NoNewline
+  Write-Host ""
+  ```
+- **Recommended:**
+  ```powershell
+  Write-Ui -Message "Checking driver integrity..." -Level "STEP"
+  ```
+- **Risk if changed:** Low — message text preserved verbatim; the `[STEP]` bracket emitted by `Write-Ui` replaces the manual color formatting. Per-category fix patterns are enumerated below in Local notes.
 - **Local notes:** Three categories of raw `Write-Host`:
   1. **Blank-line / spacer calls** — bare `Write-Host ""` used as vertical spacing (e.g. lines 132, 146, 185, 187, 203, 208, 217, 224, 228, 358, 361, 388, 400, 403, 405, 410, 423, 439, 442, 448, 451, 463, 494, 504, 509, 518, 524, 528, 544, 547, 550, 553, 556, 559, 562, 580, 596, 602, 604, 607, 612, 623, 630, 643, 646, 659, 670, 683, 694, 707, 715, 721). These should remain as-is or migrate to a `Write-Ui -Spacer` / `Show-Section` helper if one is added in P4 — they are not C1 violations per the "visual separator helpers" exception, but they are noisy.
   2. **Inline-color formatting** — `Write-Host "  " -NoNewline` followed by `Write-Host "TITLE" -ForegroundColor Cyan -NoNewline` (lines 190–192, 194, 196, 206, 401–403, 440–442, 449–451, 507–509, 564–566, 603–607). These are real C1 violations: pre-Write-Ui-era manual color formatting that should be `Write-Ui -Message "TITLE" -Level "STEP"` (or `-Level "INFO"`).
