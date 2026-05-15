@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Produce 38 audit markdown files (1 index + 1 cross-cutting + 1 module + 1 installer + 35 per-script) under `docs/audits/`, following the template defined in `docs/superpowers/specs/2026-05-15-modernize-roadmap-design.md` §3, plus a final summary linked from the roadmap.
+**Goal:** Produce 40 audit markdown files (1 README index + 1 cross-cutting + 1 module + 1 installer + 36 per-script) under `docs/audits/`, following the template defined in `docs/superpowers/specs/2026-05-15-modernize-roadmap-design.md` §3, plus a final summary linked from the roadmap.
 
 **Architecture:** Docs-only deliverable. Each audit file is written by reading the target artifact, identifying findings (with file:line citations and code excerpts), tagging them against the cross-cutting findings list (`C1`–`C14`) or adding script-local findings (`F1+`), and committing after each file. No source code is added — validation is inline `Select-String` checks per task.
 
@@ -63,7 +63,7 @@ docs/superpowers/specs/
 
 Each per-script audit file is one self-contained artifact. The cross-cutting file is canonical — script audits reference `C1`–`C14` rather than re-stating findings.
 
-**Total files created: 38. Files modified: 1 (roadmap spec, final task only).**
+**Total files created: 40 (1 README + 39 audits). Files modified: 1 (roadmap spec, final task only).**
 
 ---
 
@@ -222,7 +222,7 @@ foreach ($a in $audits) {
 "Created: $((Get-ChildItem docs/audits -Filter *.md | Measure-Object).Count) files"
 ```
 
-Expected output: `Created: 39 files` (38 audits + README).
+Expected output: `Created: 40 files` (39 audits + README).
 
 - [ ] **Step 3: Commit**
 
@@ -1023,7 +1023,7 @@ git commit -m "docs(audit): add summary stats + roadmap §10 back-reference"
 - [ ] **Step 6: Final integrity check**
 
 ```powershell
-# Verify all 38 audit files exist and have all four required sections
+# Verify all 39 audit files exist and have all four required sections
 $expected = Get-Content docs/superpowers/plans/2026-05-15-modernization-audit.md |
             Select-String -Pattern 'docs/audits/[\w\.-]+\.md' -AllMatches |
             ForEach-Object { $_.Matches.Value } |
@@ -1037,10 +1037,10 @@ $incomplete = Get-ChildItem docs/audits/scripts-*.md, docs/audits/0*.md | Where-
     $required | Where-Object { -not (Select-String -Path $_.FullName -Pattern "^$_$" -SimpleMatch -Quiet) }
 }
 if ($incomplete) { throw "Incomplete: $($incomplete.Name -join ', ')" }
-'OK: 38 audit files, all complete'
+'OK: 39 audit files, all complete'
 ```
 
-Expected output: `OK: 38 audit files, all complete`.
+Expected output: `OK: 39 audit files, all complete`.
 
 ---
 

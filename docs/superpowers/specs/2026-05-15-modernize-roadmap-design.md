@@ -70,7 +70,7 @@ docs/
     └── scripts-win11_debloat.md
 ```
 
-**Total audit files: 38** (35 scripts + module + installer + cross-cutting index).
+**Total audit files: 39** (36 scripts + module + installer + cross-cutting index), plus a `docs/audits/README.md` index = **40 files** under `docs/audits/`.
 
 ---
 
