@@ -4,7 +4,7 @@
 | Item | Value |
 |---|---|
 | Path           | scripts/driver_integrity_scan.ps1 |
-| LOC            | 712 |
+| LOC            | 746 |
 | Functions      | 8 |
 | `#Requires`    | `#Requires -RunAsAdministrator` and `#Requires -Version 5.1` |
 | Admin-required | yes (declared by `#Requires -RunAsAdministrator`; reads/queries Win32_PnPEntity device tree and invokes `winget upgrade --all` to mutate installed software) |
