@@ -13,10 +13,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Code signing implementation for enhanced security
 - Multi-language support (Hebrew/English)
 - Automatic update checker
-- Integrity verification system with SHA256 checksums
-- Pester unit tests for core functionality
+- Pester unit tests across modules + scripts (per audit C7)
 - Dark/Light theme toggle for launcher
 - Rate limiting for installer proxy
+
+---
+
+## [2.2.0] - 2026-05-16
+
+### Added
+- **Full modernization audit** under `docs/audits/` — 39 files (README index + cross-cutting findings + module audit + installer audit + 36 per-script audits) covering legacy-API debt, error-handling discipline, destructive-script safety, structural decomposition opportunities, test coverage gap, and an actionable 7-phase roadmap. See `docs/audits/README.md`.
+- **WinGet manifests** scaffolded under `winget-manifests/` so the package can be submitted to `microsoft/winget-pkgs` (portable PowerShell installer).
+
+### Changed
+- **`scripts/bitlocker_status_report.ps1`**: recovery keys are now masked by default (`XXXXXX-...` shape preserved). Plaintext reveal requires the operator to type uppercase `YES` at a confirmation prompt. Detailed Volume Report masks unconditionally; use the dedicated Recovery Keys menu option to reveal.
+- **`scripts/win11_debloat.ps1`**: before executing the remote payload from `https://debloat.raphi.re/`, the script now prints size + SHA256 + first 8 lines and requires the operator to type uppercase `YES` to proceed.
+- **`scripts/mcafee_removal_tool.ps1`**: invocation of vendored `tools/MCPR.exe` now verifies its SHA256 against a pinned constant and fails closed on mismatch.
+- **`hosting/.htaccess-redirect`**: rewrite targets fixed (`Soulitek-AIO` → `Soulitek-All-In-One-Scripts`). The non-existent repo name would have 404'd at minimum or, if squatted on GitHub, enabled a supply-chain attack on installs through the proxy.
+- **`launcher/SouliTEK-Launcher-WPF.ps1`**: nav buttons (Help / About / GitHub / Discord / Uninstall) are no longer silently rebuilt by `Set-CategoryActive`. Build-once guard added; previously every category click recreated the WPF objects and detached their event handlers, leaving the visible buttons inert.
+- **README.md**: tool count updated 33 → 32 following removal of the Domain & DNS Analyzer.
+
+### Removed
+- **`scripts/domain_dns_analyzer.ps1`** + **`tools/whois.exe`** + **`docs/domain_dns_analyzer.md`**. The script's runtime hash check for the vendored `whois.exe` binary was gated by a literal `"PASTE_SHA256_HERE"` placeholder, so every run silently skipped integrity verification. Rather than fix the placeholder, the tool was removed entirely along with its supporting docs and launcher entry.
+
+### Security
+- **Five P0 supply-chain / data-exposure fixes** landed in commits `afd50c1`, `37080c5`, `e3677d8`, `2501fd5`, `9d3ce45`. See `docs/audits/README.md` "High-impact discoveries beyond the cross-cutting list" for full enumeration with severity tags and per-fix commit references.
+- **Pinned vendored-binary hash**: `tools/MCPR.exe` SHA256 = `D4D2266A19876BECCC95A97E1E5821EF42D98D503818C1E3F19BE75E9358B100`. Refreshing the binary requires updating this constant in `scripts/mcafee_removal_tool.ps1` atomically in the same commit.
+
+### Documentation
+- Modernization design spec at `docs/superpowers/specs/2026-05-15-modernize-roadmap-design.md` (the 7-phase roadmap that drove this release).
+- Modernization implementation plan at `docs/superpowers/plans/2026-05-15-modernization-audit.md` (the 40-task plan that produced the audit deliverables).
 
 ---
 

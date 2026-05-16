@@ -1,0 +1,143 @@
+# WinGet Manifests
+
+These YAML files are scaffolded for submission to
+[`microsoft/winget-pkgs`](https://github.com/microsoft/winget-pkgs). They live in this
+repo only as a convenience copy — the actual WinGet catalog reads them from `winget-pkgs`.
+
+## Current version
+
+- **2.2.0** — `s/Soulitek/AllInOneScripts/2.2.0/`
+  - Version: `Soulitek.AllInOneScripts.yaml`
+  - Installer: `Soulitek.AllInOneScripts.installer.yaml`
+  - Locale (en-US): `Soulitek.AllInOneScripts.locale.en-US.yaml`
+
+After publication, users install with:
+
+```powershell
+winget install Soulitek.AllInOneScripts
+```
+
+WinGet drops `Install-SouliTEK.ps1` into a per-package directory under
+`%LOCALAPPDATA%\Microsoft\WinGet\Packages\` and exposes it as the `Install-SouliTEK`
+command on `PATH`. The user then runs `Install-SouliTEK` to actually perform the install
+into `C:\SouliTEK`.
+
+## Submission workflow
+
+Each release goes through the following steps. Per-step commands shown.
+
+### 1. Tag + push the release
+
+```powershell
+git tag v2.2.0
+git push origin v2.2.0
+```
+
+### 2. Create a GitHub Release with `Install-SouliTEK.ps1` attached
+
+The installer file must be available at:
+`https://github.com/Soulitek/Soulitek-All-In-One-Scripts/releases/download/v2.2.0/Install-SouliTEK.ps1`
+
+Two ways to create the release:
+
+**Option A — `gh` CLI (recommended if authenticated):**
+```powershell
+gh release create v2.2.0 `
+  --title "v2.2.0 — Audit, P0 security fixes, launcher fix" `
+  --notes-file CHANGELOG.md `
+  Install-SouliTEK.ps1
+```
+
+**Option B — GitHub web UI:**
+1. Go to <https://github.com/Soulitek/Soulitek-All-In-One-Scripts/releases/new>
+2. Choose tag `v2.2.0`
+3. Title: `v2.2.0 — Audit, P0 security fixes, launcher fix`
+4. Paste the `[2.2.0]` section of `CHANGELOG.md` into the description
+5. Drag `Install-SouliTEK.ps1` into the "Attach binaries" zone
+6. Publish
+
+### 3. Verify the SHA256 matches the manifest
+
+The installer manifest pins:
+```
+InstallerSha256: D4FB751C42B3CEE8D74CDCD0FC25E059C8180228261B6181C6B28C0394CAD39D
+```
+
+After uploading, download the file from the release URL and compute its SHA256:
+```powershell
+$url = 'https://github.com/Soulitek/Soulitek-All-In-One-Scripts/releases/download/v2.2.0/Install-SouliTEK.ps1'
+Invoke-WebRequest -Uri $url -OutFile $env:TEMP\verify.ps1
+(Get-FileHash $env:TEMP\verify.ps1 -Algorithm SHA256).Hash
+```
+
+If the output does not match `D4FB751C...`, update the manifest before submitting.
+Most common cause of mismatch: line-ending normalization between checkout and upload.
+Upload the exact bytes from the Windows checkout in this repo.
+
+### 4. Validate manifests locally (optional but recommended)
+
+```powershell
+winget validate winget-manifests\s\Soulitek\AllInOneScripts\2.2.0\
+```
+
+Expected: `Manifest validation succeeded.`
+
+### 5. Test the manifest against the live release URL
+
+```powershell
+winget install --manifest winget-manifests\s\Soulitek\AllInOneScripts\2.2.0\
+```
+
+This actually downloads from the release URL, validates the SHA256, and installs.
+Confirm `Install-SouliTEK` is on PATH after install.
+
+### 6. Submit the PR to `microsoft/winget-pkgs`
+
+```powershell
+# Fork and clone winget-pkgs (one-time setup)
+gh repo fork microsoft/winget-pkgs --clone --remote
+cd winget-pkgs
+
+# Create a branch for this submission
+git checkout -b soulitek-allinonescripts-2.2.0
+
+# Copy the manifests into the canonical path
+$src = 'C:\Users\Eitan\claude\Soulitek-All-In-One-Scripts\Soulitek-All-In-One-Scripts\winget-manifests\s\Soulitek\AllInOneScripts\2.2.0'
+$dst = 'manifests\s\Soulitek\AllInOneScripts\2.2.0'
+New-Item -ItemType Directory -Path $dst -Force | Out-Null
+Copy-Item "$src\*.yaml" $dst
+
+# Commit + push + open the PR
+git add manifests\s\Soulitek\AllInOneScripts\2.2.0\
+git commit -m "Soulitek.AllInOneScripts 2.2.0"
+git push origin soulitek-allinonescripts-2.2.0
+gh pr create --base master --head soulitek-allinonescripts-2.2.0 `
+  --title "Soulitek.AllInOneScripts version 2.2.0" `
+  --body "New package submission for SouliTEK All-In-One Scripts 2.2.0. Portable PowerShell installer; details in the manifest. Release: https://github.com/Soulitek/Soulitek-All-In-One-Scripts/releases/tag/v2.2.0"
+```
+
+The PR triggers automated validation. If the bots flag issues, fix the manifest locally
+and amend. Maintainer review typically takes 1–7 days.
+
+## Bumping to a future version
+
+For each new release (e.g. 2.3.0):
+
+1. Copy `winget-manifests/s/Soulitek/AllInOneScripts/2.2.0/` → `.../2.3.0/`.
+2. In each `.yaml`, replace `2.2.0` → `2.3.0` and update `ReleaseDate`.
+3. Recompute the SHA256 of the new `Install-SouliTEK.ps1` and update `InstallerSha256`.
+4. Re-run the submission workflow above with the new version + branch name.
+
+## Why this approach
+
+- **Portable installer type**: `Install-SouliTEK.ps1` is a PowerShell script, not an MSI/EXE. WinGet's `portable` type is the closest fit. It drops the file into a managed location and exposes the `Install-SouliTEK` command.
+- **Two-step install** (`winget install` then `Install-SouliTEK`): unavoidable with this approach. The script itself does the heavy lifting; WinGet is just a convenient way to distribute and update it.
+- **Why not a proper MSI**: would require WiX Toolset + code-signing cert + ~1–2 days of new tooling. Worth revisiting if WinGet distribution becomes the primary install path.
+
+## Schema reference
+
+- Singleton/version: <https://aka.ms/winget-manifest.version.1.6.0.schema.json>
+- Installer: <https://aka.ms/winget-manifest.installer.1.6.0.schema.json>
+- Default locale: <https://aka.ms/winget-manifest.defaultLocale.1.6.0.schema.json>
+- WinGet docs: <https://learn.microsoft.com/en-us/windows/package-manager/package/manifest>
+- winget-pkgs contribution guide: <https://github.com/microsoft/winget-pkgs/blob/master/CONTRIBUTING.md>
