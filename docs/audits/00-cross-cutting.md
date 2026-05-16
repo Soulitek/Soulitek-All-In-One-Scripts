@@ -69,7 +69,7 @@ This file is the canonical source for findings that repeat across the codebase. 
 ### C5 — Destructive scripts lack `[CmdletBinding(SupportsShouldProcess)]` + `-WhatIf`/`-Confirm`
 - **Severity:** high
 - **Category:** safety
-- **Files affected:** `essential_tweaks.ps1`, `win11_debloat.ps1`, `temp_removal_disk_cleanup.ps1`, `mcafee_removal_tool.ps1`, `network_configuration_tool.ps1`, `create_system_restore_point.ps1`
+- **Files affected:** `essential_tweaks.ps1`, `win11_debloat.ps1`, `temp_removal_disk_cleanup.ps1`, `mcafee_removal_tool.ps1`, `network_configuration_tool.ps1`, `create_system_restore_point.ps1`, `printer_spooler_fix.ps1` (added per its audit's F3 — Stop-Service Spooler + Remove-Item spool + Register-ScheduledTask SYSTEM)
 - **Current:** Scripts mutate system state (registry, services, files, network adapters) without offering `-WhatIf` to preview or `-Confirm` to gate per-action.
 - **Recommended:**
   ```powershell
@@ -111,8 +111,8 @@ This file is the canonical source for findings that repeat across the codebase. 
 - **Severity:** low
 - **Category:** naming
 - **Files affected:** `scripts/SouliTEK-Choco-Installer.ps1`, `scripts/SouliTEK-Softwares-Installer.ps1`, plus launcher reference (`launcher/SouliTEK-Launcher-WPF.ps1` `$Script:Tools` array)
-- **Recommended:** Rename to `chocolatey_installer.ps1` and `softwares_installer.ps1`. Update launcher entries. Update `docs/*.md` cross-references. Use `git mv` to preserve history.
-- **Risk if changed:** Low. Verify the launcher launches the renamed tools after the change.
+- **Recommended:** `SouliTEK-Softwares-Installer.ps1` → `softwares_installer.ps1` (rename via `git mv` to preserve history; update launcher entries; update `docs/*.md` cross-references). `SouliTEK-Choco-Installer.ps1` → **DELETE** (per its audit: not referenced by launcher, dead code since 2025-11-22; was deleted then accidentally re-added in an unrelated commit; also calls `Show-ScriptBanner`/`Write-Ui` without dot-sourcing the common module so it would throw on a clean shell).
+- **Risk if changed:** Low. Verify the launcher launches the renamed `softwares_installer.ps1` after the change. Confirm no other repo file references `SouliTEK-Choco-Installer.ps1` before deletion.
 - **Target phase:** P1
 
 ### C10 — `Import SouliTEK Common Functions` boilerplate duplicated 35×
