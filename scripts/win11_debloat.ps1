@@ -191,17 +191,48 @@ function Invoke-Win11Debloat {
     Write-Host ""
     
     try {
-        # Download and execute the Win11Debloat script
+        # Download the Win11Debloat script
         Write-Ui -Message "[*] Fetching script from remote server..." -Level "INFO"
         $scriptContent = Invoke-RestMethod -Uri $Win11DebloatURL -ErrorAction Stop
-        
+
         Write-Ui -Message "    [OK] Script downloaded successfully" -Level "OK"
         Write-Host ""
-        
+
+        # Show what we just downloaded BEFORE executing it. Win11Debloat is a third-party
+        # script delivered over the network — if debloat.raphi.re is ever compromised,
+        # this is the choke point that would prevent attacker code from running with
+        # the elevated privileges this script runs under. Operator must confirm.
+        $payloadBytes  = [System.Text.Encoding]::UTF8.GetBytes($scriptContent)
+        $payloadSize   = $payloadBytes.Length
+        $payloadSha256 = ([System.Security.Cryptography.SHA256]::Create().ComputeHash($payloadBytes) |
+                          ForEach-Object { $_.ToString('X2') }) -join ''
+        $previewLines  = ($scriptContent -split "`n") | Select-Object -First 8
+
+        Write-Host "============================================================" -ForegroundColor Yellow
+        Write-Ui -Message "  REMOTE SCRIPT INTEGRITY CHECK" -Level "WARN"
+        Write-Host "============================================================" -ForegroundColor Yellow
+        Write-Host ""
+        Write-Ui -Message "Source URL: $Win11DebloatURL" -Level "INFO"
+        Write-Ui -Message "Size:       $payloadSize bytes" -Level "INFO"
+        Write-Ui -Message "SHA256:     $payloadSha256" -Level "INFO"
+        Write-Host ""
+        Write-Ui -Message "First 8 lines of payload:" -Level "INFO"
+        foreach ($line in $previewLines) { Write-Host "  | $line" -ForegroundColor Gray }
+        Write-Host ""
+        Write-Ui -Message "This script will be executed in the current PowerShell session" -Level "WARN"
+        Write-Ui -Message "with the privileges of this process (likely Administrator)." -Level "WARN"
+        Write-Host ""
+        $answer = Read-Host "Type YES (uppercase) to execute, anything else to abort"
+        if ($answer -cne 'YES') {
+            Write-Ui -Message "Aborted by operator. Remote script was NOT executed." -Level "WARN"
+            return $false
+        }
+
+        Write-Host ""
         Write-Ui -Message "[*] Launching Win11Debloat..." -Level "INFO"
         Write-Host "========================================" -ForegroundColor Cyan
         Write-Host ""
-        
+
         # Execute the downloaded script
         & ([scriptblock]::Create($scriptContent))
         
