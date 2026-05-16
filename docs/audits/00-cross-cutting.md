@@ -85,7 +85,7 @@ This file is the canonical source for findings that repeat across the codebase. 
 ### C6 — Scripts >1000 LOC with extractable duplication
 - **Severity:** med
 - **Category:** structure
-- **Files affected:** 11 scripts >1000 LOC: `EventLogAnalyzer` (2275), `startup_boot_analyzer` (1762), `domain_dns_analyzer` (1721), `license_expiration_checker` (1385), `m365_user_list` (1297), `ram_slot_utilization_report` (1195), `temp_removal_disk_cleanup` (1022), `onedrive_status_checker` (1029), `virustotal_checker` (1048), `usb_device_log` (1012), `sharepoint_site_inventory` (1009)
+- **Files affected:** 10 scripts >1000 LOC: `EventLogAnalyzer` (2275), `startup_boot_analyzer` (1762), `license_expiration_checker` (1385), `m365_user_list` (1297), `ram_slot_utilization_report` (1195), `temp_removal_disk_cleanup` (1022), `onedrive_status_checker` (1029), `virustotal_checker` (1048), `usb_device_log` (1012), `sharepoint_site_inventory` (1009). (`domain_dns_analyzer` was on this list at 1721 LOC; removed from the repo in commit `3986797`.)
 - **Recommended:** Each per-script audit identifies extract candidates (e.g. drive enumeration, parallel scanning, table rendering). Module gains `MODERNIZATION HELPERS` section in P4.
 - **Risk if changed:** High — large surface; behavior must be preserved by tests added in P5.
 - **Target phase:** P4
@@ -151,7 +151,7 @@ This file is the canonical source for findings that repeat across the codebase. 
 ### C13 — Sequential `foreach` over large datasets where parallelism would help
 - **Severity:** low (perf)
 - **Category:** perf
-- **Files affected:** Candidates: `disk_usage_analyzer.ps1` (folder scan), `domain_dns_analyzer.ps1` (per-record DNS lookups), `EventLogAnalyzer.ps1` (per-log enumeration), `browser_plugin_checker.ps1` (per-extension scan).
+- **Files affected:** Candidates: `disk_usage_analyzer.ps1` (folder scan), `EventLogAnalyzer.ps1` (per-log enumeration), `browser_plugin_checker.ps1` (per-extension scan). (`domain_dns_analyzer.ps1` was on this list — script removed from the repo in commit `3986797`.)
 - **Current:** Sequential loops. `ForEach-Object -Parallel` is PS-7-only and outside the floor.
 - **Recommended:** Add `Invoke-SouliTEKParallel` runspace-pool helper to the common module (PS 5.1-compatible). Per-script audits identify the loop and the expected speedup. **Do not refactor until the module helper exists** (P4 dependency).
 - **Risk if changed:** Medium — concurrency bugs are real. Helper must include max-thread cap + cancellation token.

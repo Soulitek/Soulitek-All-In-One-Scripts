@@ -81,7 +81,7 @@ The common module is the foundation every script in the repo dot-sources, so its
 - **Category:** structure
 - **Location:** modules/SouliTEK-Common.ps1 — end of file (helper does not exist).
 - **Reference:** [C13](00-cross-cutting.md#c13--sequential-foreach-over-large-datasets-where-parallelism-would-help)
-- **Local notes:** P4 needs a runspace-pool-based helper (PS 5.1-compatible — `ForEach-Object -Parallel` is PS 7 only and outside the floor). The helper must accept a script block and an input collection, expose a `-ThrottleLimit` parameter (default to `[Environment]::ProcessorCount`), wire a cancellation token (or `[CancellationTokenSource]`), and dispose the runspace pool in a `finally`. It will be called by `disk_usage_analyzer`, `domain_dns_analyzer`, `EventLogAnalyzer`, and `browser_plugin_checker` per C13's per-script audit notes.
+- **Local notes:** P4 needs a runspace-pool-based helper (PS 5.1-compatible — `ForEach-Object -Parallel` is PS 7 only and outside the floor). The helper must accept a script block and an input collection, expose a `-ThrottleLimit` parameter (default to `[Environment]::ProcessorCount`), wire a cancellation token (or `[CancellationTokenSource]`), and dispose the runspace pool in a `finally`. It will be called by `disk_usage_analyzer`, `EventLogAnalyzer`, and `browser_plugin_checker` per C13's per-script audit notes. (`domain_dns_analyzer` was originally on this list — script removed from the repo in commit `3986797`.)
 - **Target phase:** P4
 
 ### F5 — Gap: no `Import-SouliTEKCommon` helper (see C10)

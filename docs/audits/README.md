@@ -21,7 +21,6 @@ This folder contains the modernization audit produced from
 | `scripts/bsod_history_scanner.ps1`         | [audit](scripts-bsod_history_scanner.md)         | B |
 | `scripts/create_system_restore_point.ps1`  | [audit](scripts-create_system_restore_point.md)  | C |
 | `scripts/disk_usage_analyzer.ps1`          | [audit](scripts-disk_usage_analyzer.md)          | C |
-| `scripts/domain_dns_analyzer.ps1`          | [audit](scripts-domain_dns_analyzer.md)          | C |
 | `scripts/driver_integrity_scan.ps1`        | [audit](scripts-driver_integrity_scan.md)        | D |
 | `scripts/essential_tweaks.ps1`             | [audit](scripts-essential_tweaks.md)             | D |
 | `scripts/EventLogAnalyzer.ps1`             | [audit](scripts-EventLogAnalyzer.md)             | D |
@@ -63,7 +62,7 @@ Grades are predictions; each audit confirms or revises in its Inventory section.
 |---|---|---|
 | **A** | 1  | `virustotal_checker` |
 | **B** | 17 | `battery_report_generator`, `bitlocker_status_report`, `browser_plugin_checker`, `bsod_history_scanner`, `exchange_calendar_permissions_audit`, `FindPST`, `local_admin_checker`, `network_test_tool`, `onedrive_status_checker`, `sharepoint_site_inventory`, `software_updater`, `SouliTEK-Choco-Installer` (slated for deletion), `SouliTEK-Softwares-Installer`, `storage_health_monitor`, `usb_device_log`, `wifi_monitor`, `wifi_password_viewer` |
-| **C** | 10 | `1-click_pc_install`, `create_system_restore_point`, `disk_usage_analyzer`, `domain_dns_analyzer`, `license_expiration_checker`, `m365_exchange_online`, `m365_user_list`, `network_configuration_tool`, `ram_slot_utilization_report`, `startup_boot_analyzer` |
+| **C** | 9 | `1-click_pc_install`, `create_system_restore_point`, `disk_usage_analyzer`, `license_expiration_checker`, `m365_exchange_online`, `m365_user_list`, `network_configuration_tool`, `ram_slot_utilization_report`, `startup_boot_analyzer` |
 | **D** | 8  | `driver_integrity_scan`, `essential_tweaks`, `EventLogAnalyzer`, `mcafee_removal_tool`, `printer_spooler_fix`, `product_key_retriever`, `temp_removal_disk_cleanup`, `win11_debloat` |
 
 ### Cross-cutting findings — citation counts
@@ -93,12 +92,11 @@ Real bugs and security gaps surfaced during the audit that are not covered by C1
 
 - **`scripts/temp_removal_disk_cleanup.ps1` F1 (high, correctness):** Function `Clear-RecycleBin` shadows the built-in cmdlet, causing recursive self-invocation; per-drive recycle-bin emptying is **unreachable** on non-C: drives as shipped.
 - **`scripts/network_configuration_tool.ps1` F1 (high, safety):** 4 of 9 mutation sites pass `-Confirm:$false`, suppressing each cmdlet built-in HIGH-impact confirmation. `Set-StaticIP` has no rollback path if `New-NetIPAddress` throws after `Remove-NetIPAddress` succeeds.
-- **`scripts/domain_dns_analyzer.ps1` F5 (high, security):** `whois.exe` hash-check is gated by the placeholder `"PASTE_SHA256_HERE"` — every run today silently skips integrity verification of the vendored binary.
-- **`scripts/win11_debloat.ps1` F1 (high, security):** Script downloads `https://debloat.raphi.re/` via `Invoke-RestMethod` and executes via `[scriptblock]::Create()`. No URL pinning, no hash verification.
-- **`scripts/mcafee_removal_tool.ps1` F3 (high, security):** `tools/MCPR.exe` has no runtime hash verification. Pinned SHA256 captured: `D4D2266A19876BECCC95A97E1E5821EF42D98D503818C1E3F19BE75E9358B100`.
-- **`scripts/domain_dns_analyzer.ps1` (high, security):** `tools/whois.exe` has no enforced hash check. Pinned SHA256 captured: `EA845B43C323E35DF041B8914A520F1D9643E3689454AB3049C2103458A0142D`.
-- **`hosting/.htaccess-redirect` (Install-SouliTEK F7, med, security):** Rewrites point at `Soulitek-AIO` instead of the real `Soulitek-All-In-One-Scripts` repo. Currently 404s; if anyone squats `Soulitek-AIO` on GitHub it becomes a supply-chain attack.
-- **`scripts/bitlocker_status_report.ps1` F3 (high, security):** Recovery keys printed to stdout in plaintext with no masking, no `-Reveal` switch, no confirmation prompt.
+- **`scripts/win11_debloat.ps1` F1 (high, security):** Script downloads `https://debloat.raphi.re/` via `Invoke-RestMethod` and executes via `[scriptblock]::Create()`. No URL pinning, no hash verification. **[Fixed in commit `e3f7d74`]** — operator-confirmation gate (size + SHA256 + first 8 lines + uppercase YES prompt) added before execution.
+- **`scripts/mcafee_removal_tool.ps1` F3 (high, security):** `tools/MCPR.exe` had no runtime hash verification. **[Fixed in commit `5728cb6`]** — pinned SHA256 `D4D2266A19876BECCC95A97E1E5821EF42D98D503818C1E3F19BE75E9358B100`, fail-closed on mismatch.
+- **`scripts/domain_dns_analyzer.ps1` + `tools/whois.exe` (high, security):** Hash check was gated by a `"PASTE_SHA256_HERE"` placeholder, so every run silently skipped integrity verification of the vendored binary. **[Resolved in commit `3986797`]** — script + binary + launcher entry + installer manifest reference all removed; archived pinned hash `EA845B43C323E35DF041B8914A520F1D9643E3689454AB3049C2103458A0142D` retained in git history only.
+- **`hosting/.htaccess-redirect` (Install-SouliTEK F7, med, security):** Rewrites pointed at `Soulitek-AIO` (non-existent repo) instead of `Soulitek-All-In-One-Scripts`. **[Fixed in commit `d6a9619`]**. Verify production deployment status separately — if the broken `.htaccess` is currently deployed at `get.soulitek.co.il`, push the fix immediately and audit recent installer requests.
+- **`scripts/bitlocker_status_report.ps1` F3 (high, security):** Recovery keys printed to stdout in plaintext with no masking, no `-Reveal` switch, no confirmation prompt. **[Fixed in commit `c5871d8`]** — masked by default; reveal requires uppercase `YES` confirmation.
 - **`scripts/wifi_password_viewer.ps1` F9 (med, security):** Cleartext password exports dropped onto Desktop with default ACLs and auto-opened in Notepad.
 - **`scripts/network_test_tool.ps1` F3 (high, correctness):** `$ping.ResponseTime` is null on PS 7 (cmdlet shape changed); `$null -lt 50` is `$true` so all latencies silently grade as "Excellent".
 - **`scripts/storage_health_monitor.ps1` F3 (correctness):** `BusType -ne "USB" -or BusType -ne "Unknown"` is a tautology; USB disks leak into the report. F4: menu option 7 "Exit" does not actually exit (`break` inside `switch` does not break the outer `do/while($true)`).
@@ -118,7 +116,8 @@ For the P0 / P6 work — runtime hash verification before invocation:
 | Binary | Size (bytes) | SHA256 | Last updated |
 |---|---|---|---|
 | `tools/MCPR.exe`  | 12,647,224 | `D4D2266A19876BECCC95A97E1E5821EF42D98D503818C1E3F19BE75E9358B100` | 2025-11-18 |
-| `tools/whois.exe` | 398,712    | `EA845B43C323E35DF041B8914A520F1D9643E3689454AB3049C2103458A0142D` | 2025-12-02 |
+
+`tools/whois.exe` was removed in commit `3986797`; pinned hash retained in git history for forensic reference if needed.
 
 When either binary is refreshed, the audit, spec, and plan must be updated atomically with the new hash in the same commit.
 
@@ -128,13 +127,13 @@ Each phase implementation plan should begin by reading the cross-cutting finding
 
 | Phase | Driving findings | Per-script audits to consult |
 |---|---|---|
-| **P0** | C8 (CI baseline), F7 of 02-Install-SouliTEK (`.htaccess-redirect` repo-name typo), F5 of `domain_dns_analyzer` (whois.exe hash placeholder), F3 of `mcafee_removal_tool` (MCPR.exe hash pinning) | repo root + 02 + scripts-domain_dns_analyzer + scripts-mcafee_removal_tool |
+| **P0** | C8 (CI baseline). P0 security work landed in commits `3986797` (whois.exe + script removed), `d6a9619` (.htaccess-redirect fix), `5728cb6` (MCPR.exe hash pin), `c5871d8` (BitLocker masking), `e3f7d74` (win11_debloat confirmation gate). Remaining P0 = CI baseline only. | repo root |
 | **P1** | C1, C2, C3, C9 + a handful of F entries that fold in (e.g. `network_test_tool` F3 PS-7 ping bug, `local_admin_checker` F9 null-comparison) | all per-script audits with C1/C2/C3/C9 references |
 | **P2** | C4 + per-script F entries with tag-B/C SilentlyContinue (notably `onedrive_status_checker` F5 empty catches, `1-click_pc_install` F2 broken `$?` checks) | all per-script audits with F entries citing C4 |
 | **P3** | C5 (now 7 scripts including `printer_spooler_fix`) + per-script destructive findings | the 7 scripts listed in C5 Files affected, plus auth-mode work for `m365_exchange_online` F3 (interactive-only deadlocks under SYSTEM) |
 | **P4** | C6, C10, C11, C13 + per-script extraction notes (esp. `Connect-SouliTEKMgGraph` helper for ~700-LOC Graph dedup) | the 11 scripts >1000 LOC + `01-modules-SouliTEK-Common` F4/F5 module-helper additions |
 | **P5** | C7 | `01-modules-SouliTEK-Common` (28 untested functions) + per-script smoke tests |
-| **P6** | C12 + F8 of `bitlocker_status_report` (recovery-key masking) + F1 of `win11_debloat` (remote-script supply chain) | `02-Install-SouliTEK`, `scripts-bitlocker_status_report`, `scripts-win11_debloat`, `scripts-mcafee_removal_tool`, `scripts-domain_dns_analyzer` |
+| **P6** | C12 (installer hash-verification gap). Note: bitlocker recovery-key masking (F8) and win11_debloat remote-payload (F1) and mcafee MCPR pinning (F3) all already landed pre-P6 as urgent security commits — see P0 row. | `02-Install-SouliTEK` |
 
 ### Validation method notes
 

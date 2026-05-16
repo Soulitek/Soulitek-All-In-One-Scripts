@@ -39,7 +39,6 @@ docs/
     ├── scripts-bsod_history_scanner.md
     ├── scripts-create_system_restore_point.md
     ├── scripts-disk_usage_analyzer.md
-    ├── scripts-domain_dns_analyzer.md
     ├── scripts-driver_integrity_scan.md
     ├── scripts-essential_tweaks.md
     ├── scripts-EventLogAnalyzer.md
@@ -141,7 +140,7 @@ These will populate `docs/audits/00-cross-cutting.md`. They drive the phase boun
 | C10 | structure | Per-script `Import SouliTEK Common Functions` boilerplate duplicated 35× — candidate for a 1-line dot-source via a shared header pattern | all scripts | P4 |
 | C11 | docs | Banner/disclaimer block (~35 lines) duplicated at top of every script | all scripts | P4 |
 | C12 | security | Installer downloads ZIP without mandatory hash verification (`$ExpectedZipHash` param exists but is empty by default) | `Install-SouliTEK.ps1`, `api/install.js`, `hosting/install-proxy.php` | P6 |
-| C13 | perf | Sequential `foreach` over large data sets where `ForEach-Object -Parallel` would help — must stay 5.1-compatible, so use runspace pool helper in module instead | candidates: `disk_usage_analyzer`, `domain_dns_analyzer`, `EventLogAnalyzer` | P4 (defer until module helper exists) |
+| C13 | perf | Sequential `foreach` over large data sets where `ForEach-Object -Parallel` would help — must stay 5.1-compatible, so use runspace pool helper in module instead | candidates: `disk_usage_analyzer`, `EventLogAnalyzer` | P4 (defer until module helper exists) |
 | C14 | legacy-api | `netsh wlan` shelling out — kept because there is no native cmdlet exposing saved-key contents; flag for awareness, no change recommended | `wifi_password_viewer`, `wifi_monitor` | (none) |
 
 The cross-cutting file is the single source of truth. Per-script audits reference cross-cutting IDs (`see C1`) instead of repeating them.
@@ -287,7 +286,7 @@ The 39 audit files described in §2 are committed under `docs/audits/`. See [`do
 ### High-impact discoveries beyond C1–C14
 The audit surfaced 19 real bugs and security gaps not anticipated by the original cross-cutting list. Highlights:
 - `temp_removal_disk_cleanup.ps1` — `function Clear-RecycleBin` shadows the cmdlet, recursively self-invokes, leaves per-drive recycle-bin emptying unreachable.
-- `domain_dns_analyzer.ps1` — `whois.exe` hash check is gated by literal `"PASTE_SHA256_HERE"` placeholder; integrity verification silently skipped today.
+- `domain_dns_analyzer.ps1` + `tools/whois.exe` — hash check was gated by literal `"PASTE_SHA256_HERE"` placeholder. **Resolved by deleting the script + binary entirely in commit `3986797`.**
 - `network_configuration_tool.ps1` — 4 of 9 mutation sites pass `-Confirm:$false`, suppressing each cmdlet's HIGH-impact confirmation; `Set-StaticIP` has no rollback on partial-success.
 - `win11_debloat.ps1` — script downloads remote payload via `Invoke-RestMethod` and executes via `[scriptblock]::Create()`; no URL pinning, no hash verification.
 - `bitlocker_status_report.ps1` — recovery keys printed to stdout in plaintext, no masking, no `-Reveal` switch.
@@ -298,8 +297,8 @@ The audit surfaced 19 real bugs and security gaps not anticipated by the origina
 See `docs/audits/README.md` "High-impact discoveries beyond the cross-cutting list" for the full enumeration with severity tags.
 
 ### Pinned vendored-binary hashes (for P0 / P6)
-- `tools/MCPR.exe` — SHA256 `D4D2266A19876BECCC95A97E1E5821EF42D98D503818C1E3F19BE75E9358B100` (12,647,224 bytes; last updated 2025-11-18).
-- `tools/whois.exe` — SHA256 `EA845B43C323E35DF041B8914A520F1D9643E3689454AB3049C2103458A0142D` (398,712 bytes; last updated 2025-12-02).
+- `tools/MCPR.exe` — SHA256 `D4D2266A19876BECCC95A97E1E5821EF42D98D503818C1E3F19BE75E9358B100` (12,647,224 bytes; last updated 2025-11-18). Pinned + verified at runtime as of commit `5728cb6`.
+- `tools/whois.exe` — REMOVED in commit `3986797`. Historical SHA256 (for forensic reference only): `EA845B43C323E35DF041B8914A520F1D9643E3689454AB3049C2103458A0142D`.
 
 When either binary is refreshed, the audit, spec, and plan must be updated atomically with the new hash in the same commit.
 
@@ -308,7 +307,7 @@ When either binary is refreshed, the audit, spec, and plan must be updated atomi
 To execute a phase, invoke `superpowers:writing-plans` with input:
 > Write the implementation plan for Phase **Pn** from `docs/superpowers/specs/2026-05-15-modernize-roadmap-design.md` §5, drawing findings from the per-script audits cited by the cross-cutting IDs driving that phase. See `docs/audits/README.md` "Phase entry-point summary" table.
 
-Recommended starting phase: **P0** (CI baseline + `.htaccess-redirect` fix + vendored-binary hash pinning) — small, unblocks every later phase, includes the urgent supply-chain hardening surfaced by F7 of `02-Install-SouliTEK` and F5 of `domain_dns_analyzer`.
+Recommended starting phase for the remaining roadmap: **P0** (CI baseline). The urgent P0 security work (`.htaccess-redirect` fix, MCPR.exe hash pin, BitLocker masking, win11_debloat confirmation gate, whois.exe + domain_dns_analyzer deletion) already landed as commits `3986797`, `d6a9619`, `5728cb6`, `c5871d8`, `e3f7d74` — see audit README "High-impact discoveries" section for the cross-reference.
 
 ---
 
