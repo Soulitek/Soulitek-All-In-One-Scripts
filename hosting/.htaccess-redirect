@@ -17,10 +17,10 @@
 RewriteEngine On
 
 # Redirect root to GitHub raw file
-RewriteRule ^$ https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1 [L,R=301]
+RewriteRule ^$ https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1 [L,R=301]
 
 # Optional: Redirect /install as well
-RewriteRule ^install/?$ https://raw.githubusercontent.com/Soulitek/Soulitek-AIO/main/Install-SouliTEK.ps1 [L,R=301]
+RewriteRule ^install/?$ https://raw.githubusercontent.com/Soulitek/Soulitek-All-In-One-Scripts/main/Install-SouliTEK.ps1 [L,R=301]
 
 # ============================================================
 # Alternative: Serve file directly (if you have Install-SouliTEK.ps1 in this folder)
