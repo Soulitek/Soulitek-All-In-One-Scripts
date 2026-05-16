@@ -270,4 +270,46 @@ The audit deliverables (the 38 markdown files) are written as part of executing 
 
 ---
 
+## 10. Audit complete — pointers into deliverables
+
+The 39 audit files described in §2 are committed under `docs/audits/`. See [`docs/audits/README.md`](../../audits/README.md) for the index and the audit summary table (cross-cutting citation counts + confirmed grade distribution + high-impact discoveries beyond C1–C14 + pinned binary hashes).
+
+### Confirmed grade distribution
+- **A**: 1 script (`virustotal_checker` — exemplary security model, reference for the rest of the repo)
+- **B**: 17 scripts
+- **C**: 10 scripts
+- **D**: 8 scripts (`driver_integrity_scan`, `essential_tweaks`, `EventLogAnalyzer`, `mcafee_removal_tool`, `printer_spooler_fix`, `product_key_retriever`, `temp_removal_disk_cleanup`, `win11_debloat`)
+
+### Cross-cutting updates landed during the audit
+- **C5** (destructive scripts): added `printer_spooler_fix.ps1` as 7th file (per its audit F3 — Stop-Service Spooler + Remove-Item spool + Register-ScheduledTask SYSTEM are unguarded mutations).
+- **C9** (naming drift): `SouliTEK-Choco-Installer.ps1` should be **DELETED**, not renamed (dead code since 2025-11-22; sat broken in main for ~6 months; would throw on a clean shell because the common module is not dot-sourced).
+
+### High-impact discoveries beyond C1–C14
+The audit surfaced 19 real bugs and security gaps not anticipated by the original cross-cutting list. Highlights:
+- `temp_removal_disk_cleanup.ps1` — `function Clear-RecycleBin` shadows the cmdlet, recursively self-invokes, leaves per-drive recycle-bin emptying unreachable.
+- `domain_dns_analyzer.ps1` — `whois.exe` hash check is gated by literal `"PASTE_SHA256_HERE"` placeholder; integrity verification silently skipped today.
+- `network_configuration_tool.ps1` — 4 of 9 mutation sites pass `-Confirm:$false`, suppressing each cmdlet's HIGH-impact confirmation; `Set-StaticIP` has no rollback on partial-success.
+- `win11_debloat.ps1` — script downloads remote payload via `Invoke-RestMethod` and executes via `[scriptblock]::Create()`; no URL pinning, no hash verification.
+- `bitlocker_status_report.ps1` — recovery keys printed to stdout in plaintext, no masking, no `-Reveal` switch.
+- `network_test_tool.ps1` — `$ping.ResponseTime` is null on PS 7 (cmdlet shape changed); `$null -lt 50` is `$true`, so all latencies silently grade as "Excellent".
+- `storage_health_monitor.ps1` — tautology `BusType -ne "USB" -or BusType -ne "Unknown"` always true; menu option 7 "Exit" doesn't actually exit (`break` inside `switch` doesn't break the outer loop).
+- `usb_device_log.ps1` — `LastArrivalDate` registry read uses wrong value name, leaks a registry handle; `LastConnected` column has zero forensic value.
+
+See `docs/audits/README.md` "High-impact discoveries beyond the cross-cutting list" for the full enumeration with severity tags.
+
+### Pinned vendored-binary hashes (for P0 / P6)
+- `tools/MCPR.exe` — SHA256 `D4D2266A19876BECCC95A97E1E5821EF42D98D503818C1E3F19BE75E9358B100` (12,647,224 bytes; last updated 2025-11-18).
+- `tools/whois.exe` — SHA256 `EA845B43C323E35DF041B8914A520F1D9643E3689454AB3049C2103458A0142D` (398,712 bytes; last updated 2025-12-02).
+
+When either binary is refreshed, the audit, spec, and plan must be updated atomically with the new hash in the same commit.
+
+### Next steps — phase execution
+
+To execute a phase, invoke `superpowers:writing-plans` with input:
+> Write the implementation plan for Phase **Pn** from `docs/superpowers/specs/2026-05-15-modernize-roadmap-design.md` §5, drawing findings from the per-script audits cited by the cross-cutting IDs driving that phase. See `docs/audits/README.md` "Phase entry-point summary" table.
+
+Recommended starting phase: **P0** (CI baseline + `.htaccess-redirect` fix + vendored-binary hash pinning) — small, unblocks every later phase, includes the urgent supply-chain hardening surfaced by F7 of `02-Install-SouliTEK` and F5 of `domain_dns_analyzer`.
+
+---
+
 *End of design spec.*
