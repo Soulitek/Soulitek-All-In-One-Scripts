@@ -38,7 +38,7 @@ iwr -useb https://get.soulitek.co.il | iex
 
 ---
 
-## 🛠️ Tools (33 Scripts)
+## 🛠️ Tools (32 Scripts)
 
 ### 🚀 Setup
 - **1-Click PC Install** - Complete PC setup automation: Configure time zone (Jerusalem), regional settings (Israel), Windows updates, power plan, bloatware removal, and install essential software (Chrome, AnyDesk, Office) via WinGet. Includes system restore point creation and detailed installation summary.
@@ -73,9 +73,6 @@ iwr -useb https://get.soulitek.co.il | iex
 - **WiFi Monitor** - Monitor WiFi signal strength, frequency band (2.4/5GHz), SSID, and disconnection history
 - **Network Test Tool** - Ping, tracert, DNS lookup, and latency testing for network diagnostics
 - **Network Configuration Tool** - View IP configuration, set static IP addresses, flush DNS cache, and reset network adapters
-
-### 🌍 Internet
-- **Domain & DNS Analyzer** - WHOIS lookup, DNS records analysis, and email security check (SPF, DKIM, DMARC)
 
 ### 🛠️ Support
 - **Product Key Retriever** - Retrieve Windows and Office product keys from system registry and WMI
