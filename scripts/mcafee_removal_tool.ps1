@@ -174,10 +174,22 @@ function Invoke-McAfeeRemoval {
     Write-Ui -Message "    Tool location: $MCPRPath" -Level "INFO"
     Write-Host ""
     
+    # Pinned SHA256 of the vendored tools/MCPR.exe (captured 2025-11-18, 12,647,224 bytes).
+    # When the binary is refreshed, update this constant atomically in the same commit.
+    $expectedMCPRHash = 'D4D2266A19876BECCC95A97E1E5821EF42D98D503818C1E3F19BE75E9358B100'
+    Write-Ui -Message "[*] Verifying MCPR.exe integrity..." -Level "INFO"
+    if (-not (Confirm-SouliTEKFileHash -FilePath $MCPRPath -ExpectedHash $expectedMCPRHash)) {
+        Write-Ui -Message "MCPR.exe hash verification FAILED. Aborting removal." -Level "ERROR"
+        Write-Ui -Message "Expected SHA256: $expectedMCPRHash" -Level "ERROR"
+        Write-Ui -Message "If you intentionally updated tools/MCPR.exe, refresh the pinned hash in this script and commit both files together." -Level "WARN"
+        return $false
+    }
+    Write-Host ""
+
     Write-Ui -Message "[*] Launching McAfee Consumer Product Removal tool..." -Level "INFO"
     Write-Ui -Message "    This may take several minutes. Please wait..." -Level "WARN"
     Write-Host ""
-    
+
     try {
         # Run MCPR.exe and wait for it to complete
         $process = Start-Process -FilePath $MCPRPath -Wait -NoNewWindow -PassThru -ErrorAction Stop
