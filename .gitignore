@@ -46,6 +46,9 @@ exports/
 *.code-workspace
 .vs/
 
+# Claude Code local settings (machine-specific permissions/MCP config)
+.claude/settings.local.json
+
 # System files
 .DS_Store
 
