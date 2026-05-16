@@ -43,6 +43,29 @@ if (Test-Path $CommonPath) {
     Write-Warning "Some functions may not work properly."
 }
 
+# Mask a BitLocker recovery password so it doesn't leak via stdout, screen-share,
+# RMM session recording, terminal scrollback, or Start-Transcript logs.
+# Recovery passwords have the shape: 6-digit groups separated by hyphens
+# (e.g. 123456-234567-345678-456789-567890-678901-789012-890123).
+# Masking preserves group/length shape so operators can sanity-check format.
+function Format-MaskedRecoveryKey {
+    param([Parameter(Mandatory)][AllowEmptyString()][string]$RecoveryPassword)
+    if ([string]::IsNullOrWhiteSpace($RecoveryPassword)) { return '<no recovery password>' }
+    return ($RecoveryPassword -replace '\d', 'X')
+}
+
+# Confirm-Reveal: prompt the operator before printing recovery keys in plaintext.
+# Returns $true only if they explicitly type YES (case-sensitive).
+function Confirm-RecoveryKeyReveal {
+    Write-Host ""
+    Write-Ui -Message "WARNING: You are about to display BitLocker recovery keys in plaintext." -Level "WARN"
+    Write-Ui -Message "These will be visible to anyone who can see the screen, in terminal" -Level "WARN"
+    Write-Ui -Message "scrollback, RMM session recordings, and any Start-Transcript log." -Level "WARN"
+    Write-Host ""
+    $answer = Read-Host "Type YES (uppercase) to reveal recovery keys, anything else to keep masked"
+    return ($answer -ceq 'YES')
+}
+
 # Check if BitLocker module is available
 function Test-BitLockerAvailable {
     try {
@@ -183,10 +206,19 @@ function Show-BitLockerStatus {
 function Show-RecoveryKeys {
     Clear-Host
     Show-SouliTEKHeader "RECOVERY KEYS" "BitLocker recovery keys (SENSITIVE INFORMATION)" -Color ([ConsoleColor]::Red)
-    
+
     Write-Ui -Message "Recovery keys are sensitive. Handle with care and store securely" -Level "WARN"
     Write-Host ""
-    
+
+    # Default to masked. Operator must explicitly confirm to reveal.
+    $reveal = Confirm-RecoveryKeyReveal
+    if (-not $reveal) {
+        Write-Ui -Message "Recovery keys will be displayed MASKED. Use the export option to write them to a file." -Level "INFO"
+    } else {
+        Write-Ui -Message "Recovery keys will be displayed in PLAINTEXT for this view only." -Level "WARN"
+    }
+    Write-Host ""
+
     if (-not (Test-BitLockerAvailable)) {
         Write-Ui -Message "BitLocker is not available on this system" -Level "ERROR"
         Write-Host ""
@@ -215,7 +247,11 @@ function Show-RecoveryKeys {
             
             foreach ($key in $recoveryKeys) {
                 Write-Host "  Key ID: $($key.KeyProtectorId)"
-                Write-Host "  Recovery Key: $($key.RecoveryPassword)"
+                if ($reveal) {
+                    Write-Host "  Recovery Key: $($key.RecoveryPassword)"
+                } else {
+                    Write-Host "  Recovery Key: $(Format-MaskedRecoveryKey -RecoveryPassword $key.RecoveryPassword)" -ForegroundColor DarkGray
+                }
                 Write-Host ""
             }
         }
@@ -314,6 +350,9 @@ function Export-RecoveryKeys {
 
 # Function to show detailed volume report
 function Show-DetailedReport {
+    # Recovery passwords default to masked in this view. Use option 2 (Recovery Keys)
+    # to access plaintext via the explicit confirmation prompt, or option 3 (Export).
+    $script:DetailedReportRevealKeys = $false
     Clear-Host
     Show-SouliTEKHeader "DETAILED VOLUME REPORT" "Comprehensive BitLocker information" -Color ([ConsoleColor]::Magenta)
     
@@ -354,7 +393,11 @@ function Show-DetailedReport {
                 Write-Host "  Type: $($protector.KeyProtectorType)"
                 Write-Host "  ID: $($protector.KeyProtectorId)"
                 if ($protector.KeyProtectorType -eq "RecoveryPassword") {
-                    Write-Host "  Recovery Password: $($protector.RecoveryPassword)"
+                    if ($script:DetailedReportRevealKeys) {
+                        Write-Host "  Recovery Password: $($protector.RecoveryPassword)"
+                    } else {
+                        Write-Host "  Recovery Password: $(Format-MaskedRecoveryKey -RecoveryPassword $protector.RecoveryPassword) (use menu option 2 to reveal)" -ForegroundColor DarkGray
+                    }
                 }
                 Write-Host ""
             }
