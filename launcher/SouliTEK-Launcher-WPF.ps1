@@ -1165,10 +1165,12 @@ function Initialize-Sidebar {
         $null = $catPanel.Children.Add($row)
     }
 
-    # Nav buttons at sidebar bottom
-    if ($null -ne $navPanel) {
-        $navPanel.Children.Clear()
-
+    # Nav buttons at sidebar bottom — build ONCE on first call.
+    # Skipping rebuilds preserves the Add_MouseLeftButtonUp handlers wired
+    # up later in the script; rebuilding would create new WPF objects whose
+    # handlers were never attached, silently breaking Help/About/GitHub/
+    # Discord/Uninstall buttons after any category change.
+    if ($null -ne $navPanel -and $navPanel.Children.Count -eq 0) {
         # Separator
         $sep = New-Object System.Windows.Controls.Border
         $sep.Height     = 1
