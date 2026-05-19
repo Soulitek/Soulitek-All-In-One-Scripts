@@ -1,3 +1,6 @@
+# Build artifacts (compiled installer exe — ships only as a GitHub release asset)
+/Install-SouliTEK.exe
+
 # Windows
 Thumbs.db
 ehthumbs.db

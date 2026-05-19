@@ -19,8 +19,29 @@ param(
     [string]$RepoName = "Soulitek-All-In-One-Scripts",
     [string]$Branch = "main",
     [switch]$Silent,
-    [string]$ExpectedZipHash = ""
+    [string]$ExpectedZipHash = "",
+    [Parameter(ValueFromRemainingArguments = $true)]
+    [string[]]$RemainingArgs
 )
+
+$InstallerVersion = "2.2.0"
+
+# Handle smoke-test / CLI flags (--version, --help) that package managers run.
+# Note: PowerShell treats '--' as end-of-options, so '--version' binds positionally
+# instead of reaching $RemainingArgs. Inspect the raw OS command line to detect it.
+$rawCmdLine = ([Environment]::GetCommandLineArgs() + $RemainingArgs) -join ' '
+if ($rawCmdLine -match '(?i)(^|\s)(--?version|/version)(\s|$)') {
+    Write-Output "SouliTEK All-In-One Scripts Installer $InstallerVersion"
+    exit 0
+}
+if ($rawCmdLine -match '(?i)(^|\s)(--?help|/\?|-h)(\s|$)') {
+    Write-Output "SouliTEK All-In-One Scripts Installer $InstallerVersion"
+    Write-Output ""
+    Write-Output "Usage: Install-SouliTEK [-InstallPath <path>] [-Silent] [-ExpectedZipHash <sha256>]"
+    Write-Output "       Install-SouliTEK --version"
+    Write-Output "       Install-SouliTEK --help"
+    exit 0
+}
 
 # Set error action preference
 $ErrorActionPreference = "Stop"
