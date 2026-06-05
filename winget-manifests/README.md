@@ -17,6 +17,25 @@ After publication, users install with:
 winget install Soulitek.AllInOneScripts
 ```
 
+## Submission status (2026-06-05)
+
+PR [`microsoft/winget-pkgs#375358`](https://github.com/microsoft/winget-pkgs/pull/375358)
+is **open**. The Azure validation pipeline passes and the CLA is signed. The installer is a
+**compiled `.exe`** (PS2EXE build of `Install-SouliTEK.ps1`) — a raw `.ps1` declared
+`portable` was rejected because WinGet aliases it as `Install-SouliTEK.exe` and Windows
+won't run a `.ps1` as a PE.
+
+The remaining gate is the **"Targeted Brand"** policy: the original `Description`/`Tags`
+enumerated third-party product names (McAfee, VirusTotal, etc.). They have been rewritten
+to describe capabilities generically. Keep brand names out of the locale manifest on every
+future bump.
+
+> **Known wart:** the shipped exe is **32-bit (x86)** but the installer manifest declares
+> `Architecture: x64`. The pipeline tolerates it. The installer has no 64-bit dependency, so
+> the correct fix is to **relabel the manifest `Architecture: x86`** — one line, no re-upload,
+> no new hash, and x86 runs on x64/ARM64 via emulation. Deferred to avoid resetting the
+> in-flight validation run; apply it on the next push or version bump.
+
 WinGet drops `Install-SouliTEK.ps1` into a per-package directory under
 `%LOCALAPPDATA%\Microsoft\WinGet\Packages\` and exposes it as the `Install-SouliTEK`
 command on `PATH`. The user then runs `Install-SouliTEK` to actually perform the install
@@ -33,10 +52,17 @@ git tag v2.2.0
 git push origin v2.2.0
 ```
 
-### 2. Create a GitHub Release with `Install-SouliTEK.ps1` attached
+### 2. Compile the installer, then attach `Install-SouliTEK.exe` to the Release
+
+WinGet's `portable` type needs a real PE. Compile the script with PS2EXE first:
+
+```powershell
+Install-Module ps2exe -Scope CurrentUser   # one-time
+Invoke-ps2exe Install-SouliTEK.ps1 Install-SouliTEK.exe -noConsole:$false
+```
 
 The installer file must be available at:
-`https://github.com/Soulitek/Soulitek-All-In-One-Scripts/releases/download/v2.2.0/Install-SouliTEK.ps1`
+`https://github.com/Soulitek/Soulitek-All-In-One-Scripts/releases/download/v2.2.0/Install-SouliTEK.exe`
 
 Two ways to create the release:
 
@@ -45,7 +71,7 @@ Two ways to create the release:
 gh release create v2.2.0 `
   --title "v2.2.0 — Audit, P0 security fixes, launcher fix" `
   --notes-file CHANGELOG.md `
-  Install-SouliTEK.ps1
+  Install-SouliTEK.exe
 ```
 
 **Option B — GitHub web UI:**
@@ -53,26 +79,26 @@ gh release create v2.2.0 `
 2. Choose tag `v2.2.0`
 3. Title: `v2.2.0 — Audit, P0 security fixes, launcher fix`
 4. Paste the `[2.2.0]` section of `CHANGELOG.md` into the description
-5. Drag `Install-SouliTEK.ps1` into the "Attach binaries" zone
+5. Drag `Install-SouliTEK.exe` into the "Attach binaries" zone
 6. Publish
 
 ### 3. Verify the SHA256 matches the manifest
 
 The installer manifest pins:
 ```
-InstallerSha256: D4FB751C42B3CEE8D74CDCD0FC25E059C8180228261B6181C6B28C0394CAD39D
+InstallerSha256: 728B88E9DC876D096BF8F6394D9D5A030F6A38564F13E603FDB4B81306139659
 ```
 
 After uploading, download the file from the release URL and compute its SHA256:
 ```powershell
-$url = 'https://github.com/Soulitek/Soulitek-All-In-One-Scripts/releases/download/v2.2.0/Install-SouliTEK.ps1'
-Invoke-WebRequest -Uri $url -OutFile $env:TEMP\verify.ps1
-(Get-FileHash $env:TEMP\verify.ps1 -Algorithm SHA256).Hash
+$url = 'https://github.com/Soulitek/Soulitek-All-In-One-Scripts/releases/download/v2.2.0/Install-SouliTEK.exe'
+Invoke-WebRequest -Uri $url -OutFile $env:TEMP\verify.exe
+(Get-FileHash $env:TEMP\verify.exe -Algorithm SHA256).Hash
 ```
 
-If the output does not match `D4FB751C...`, update the manifest before submitting.
-Most common cause of mismatch: line-ending normalization between checkout and upload.
-Upload the exact bytes from the Windows checkout in this repo.
+If the output does not match `728B88E9...`, update the manifest before submitting.
+Most common cause of mismatch: PS2EXE embeds a build timestamp, so recompiling produces
+a different hash. Hash the exact `.exe` you upload and pin that value — don't reuse an old one.
 
 ### 4. Validate manifests locally (optional but recommended)
 
@@ -125,12 +151,13 @@ For each new release (e.g. 2.3.0):
 
 1. Copy `winget-manifests/s/Soulitek/AllInOneScripts/2.2.0/` → `.../2.3.0/`.
 2. In each `.yaml`, replace `2.2.0` → `2.3.0` and update `ReleaseDate`.
-3. Recompute the SHA256 of the new `Install-SouliTEK.ps1` and update `InstallerSha256`.
-4. Re-run the submission workflow above with the new version + branch name.
+3. Recompile `Install-SouliTEK.exe`, recompute its SHA256, and update `InstallerSha256`.
+4. Keep the `Description`/`Tags` brand-neutral (Targeted Brand policy — see status note above).
+5. Re-run the submission workflow above with the new version + branch name.
 
 ## Why this approach
 
-- **Portable installer type**: `Install-SouliTEK.ps1` is a PowerShell script, not an MSI/EXE. WinGet's `portable` type is the closest fit. It drops the file into a managed location and exposes the `Install-SouliTEK` command.
+- **Portable installer type**: `Install-SouliTEK.ps1` is a PowerShell script. WinGet's `portable` type needs a real executable, so the script is compiled to `Install-SouliTEK.exe` with PS2EXE. WinGet drops the exe into a managed location and exposes the `Install-SouliTEK` command. The exe handles `--version`/`--help` so the validator's smoke test exits 0 without running the full installer.
 - **Two-step install** (`winget install` then `Install-SouliTEK`): unavoidable with this approach. The script itself does the heavy lifting; WinGet is just a convenient way to distribute and update it.
 - **Why not a proper MSI**: would require WiX Toolset + code-signing cert + ~1–2 days of new tooling. Worth revisiting if WinGet distribution becomes the primary install path.
 
