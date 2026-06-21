@@ -106,7 +106,7 @@
     Author         : SouliTEK
     Contact        : www.soulitek.co.il
     Prerequisite   : PowerShell 5.1+, Administrator privileges
-    Copyright      : (C) 2025 SouliTEK - All Rights Reserved
+    Copyright      : (C) 2025 SouliTEK
     
     Target Systems : Windows 8.1 / 10 / 11 / Server 2016+
     

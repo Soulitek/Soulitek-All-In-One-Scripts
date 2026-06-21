@@ -165,7 +165,7 @@ start "" "%localappdata%\Microsoft\OneDrive\OneDrive.exe"
 - Website: [www.soulitek.co.il](https://www.soulitek.co.il)
 - Email: letstalk@soulitek.co.il
 
-© 2025 SouliTEK - All Rights Reserved
+© 2025 SouliTEK
 
 
 

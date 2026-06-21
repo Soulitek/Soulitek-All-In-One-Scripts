@@ -5,7 +5,7 @@
 # Coded by: Soulitek.co.il
 # IT Solutions for your business
 # 
-# (C) 2025 Soulitek - All Rights Reserved
+# (C) 2025 Soulitek
 # Website: www.soulitek.co.il
 # 
 # Professional IT Solutions:
@@ -800,7 +800,7 @@ function Export-HTMLReport {
         </table>
         
         <div class="footer">
-            <p>(C) 2025 Soulitek - All Rights Reserved</p>
+            <p>(C) 2025 Soulitek</p>
             <p>Professional IT Solutions for your business</p>
         </div>
     </div>
@@ -881,7 +881,7 @@ SUPPORT:
 Website: www.soulitek.co.il
 Email: letstalk@soulitek.co.il
 
-(C) 2025 Soulitek - All Rights Reserved
+(C) 2025 Soulitek
 
 ============================================================
 

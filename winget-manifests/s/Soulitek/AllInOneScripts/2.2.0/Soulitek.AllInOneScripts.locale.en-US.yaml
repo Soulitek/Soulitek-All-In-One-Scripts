@@ -10,9 +10,9 @@ PublisherSupportUrl: https://github.com/Soulitek/Soulitek-All-In-One-Scripts/iss
 Author: Eitan / SouliTEK
 PackageName: SouliTEK All-In-One Scripts
 PackageUrl: https://github.com/Soulitek/Soulitek-All-In-One-Scripts
-License: Proprietary
+License: MIT
 LicenseUrl: https://github.com/Soulitek/Soulitek-All-In-One-Scripts/blob/main/LICENSE
-Copyright: Copyright (c) 2025 SouliTEK - All Rights Reserved
+Copyright: Copyright (c) 2025 SouliTEK
 ShortDescription: Professional PowerShell tools for IT technicians — 32 scripts plus a WPF launcher.
 Description: |
   SouliTEK All-In-One Scripts is a curated collection of PowerShell tools for IT technicians.

@@ -2,7 +2,7 @@
 # Exchange Online Calendar Permissions Audit - SouliTEK Edition
 # ============================================================
 # Coded by: Soulitek.co.il | www.soulitek.co.il | letstalk@soulitek.co.il
-# (C) 2025 SouliTEK - All Rights Reserved
+# (C) 2025 SouliTEK
 # ============================================================
 
 $Host.UI.RawUI.WindowTitle = "Exchange Online Calendar Permissions Audit"

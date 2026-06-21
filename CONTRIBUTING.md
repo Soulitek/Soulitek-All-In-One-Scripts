@@ -77,7 +77,7 @@ There are several ways you can contribute to this project:
 # 
 # Description of what the script does
 # 
-# (C) 2025 SouliTEK - All Rights Reserved
+# (C) 2025 SouliTEK
 # Website: www.soulitek.co.il
 # ============================================================
 

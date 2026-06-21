@@ -520,7 +520,7 @@ When reporting issues, include:
 
 ## License
 
-Copyright (C) 2025 SouliTEK - All Rights Reserved
+Copyright (C) 2025 SouliTEK
 
 This tool is provided "AS IS" without warranty of any kind. Use of this tool is at your own risk. The user is solely responsible for any outcomes, damages, or issues that may arise from using this script.
 

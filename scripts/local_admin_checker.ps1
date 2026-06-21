@@ -5,7 +5,7 @@
 # Coded by: Soulitek.co.il
 # IT Solutions for your business
 # 
-# (C) 2025 SouliTEK - All Rights Reserved
+# (C) 2025 SouliTEK
 # Website: www.soulitek.co.il
 # 
 # This tool identifies users with local administrator privileges

@@ -4,7 +4,7 @@
 
 ![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue?style=for-the-badge&logo=powershell)
 ![Windows](https://img.shields.io/badge/Windows-10%2B-0078D6?style=for-the-badge&logo=windows)
-![License](https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
 **Professional PowerShell Tools for IT Technicians**
 
@@ -125,7 +125,9 @@ See [docs/](docs/) folder for complete documentation.
 
 ## 📄 License
 
-Proprietary - © 2025 SouliTEK. All Rights Reserved.
+[MIT License](LICENSE) - © 2025 SouliTEK. Free to use, modify, and distribute.
+
+These tools run with Administrator privileges and modify system settings. They are provided "as is", with no warranty. **You use them entirely at your own risk — all responsibility and all actions rest solely with the user.**
 
 ---
 

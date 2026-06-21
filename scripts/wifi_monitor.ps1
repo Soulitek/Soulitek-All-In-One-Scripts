@@ -5,7 +5,7 @@
 # Coded by: Soulitek.co.il
 # IT Solutions for your business
 # 
-# (C) 2025 Soulitek - All Rights Reserved
+# (C) 2025 Soulitek
 # Website: www.soulitek.co.il
 # 
 # Professional IT Solutions:
@@ -53,7 +53,7 @@ function Show-Header {
     Write-Ui -Message "      IT Solutions for your business" -Level "WARN"
     Write-Ui -Message "      www.soulitek.co.il" -Level "WARN"
     Write-Host ""
-    Write-Ui -Message "      (C) 2025 Soulitek - All Rights Reserved" -Level "INFO"
+    Write-Ui -Message "      (C) 2025 Soulitek" -Level "INFO"
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""

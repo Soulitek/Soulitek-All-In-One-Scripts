@@ -228,7 +228,7 @@ For assistance or to report issues:
 **Coded by:** SouliTEK  
 *IT Solutions for your business*
 
-(C) 2025 SouliTEK - All Rights Reserved
+(C) 2025 SouliTEK
 
 
 

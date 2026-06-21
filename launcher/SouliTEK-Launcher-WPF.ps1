@@ -5,7 +5,7 @@
 # Coded by: Soulitek.co.il
 # IT Solutions for your business
 # 
-# (C) 2025 Soulitek - All Rights Reserved
+# (C) 2025 Soulitek
 # Website: www.soulitek.co.il
 # 
 # Modern WPF GUI with Material Design aesthetics
@@ -1749,7 +1749,7 @@ Website: www.soulitek.co.il
 Email: letstalk@soulitek.co.il
 GitHub: https://github.com/Soulitek/Soulitek-All-In-One-Scripts
 
-(C) 2025 SouliTEK - All Rights Reserved
+(C) 2025 SouliTEK
 "@
     
     # Show help in MessageBox (too long for snackbar)
@@ -1775,7 +1775,7 @@ Coded by: SouliTEK
 Website: www.soulitek.co.il
 Email: letstalk@soulitek.co.il
 
-(C) 2025 SouliTEK - All Rights Reserved
+(C) 2025 SouliTEK
 
 Made with love in Soulitek
 "@

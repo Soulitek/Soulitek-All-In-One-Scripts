@@ -5,7 +5,7 @@
 # Coded by: Soulitek.co.il
 # IT Solutions for your business
 # 
-# (C) 2025 Soulitek - All Rights Reserved
+# (C) 2025 Soulitek
 # Website: www.soulitek.co.il
 # 
 # Professional IT Solutions:

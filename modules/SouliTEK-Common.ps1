@@ -8,7 +8,7 @@
 # Coded by: Soulitek.co.il
 # IT Solutions for your business
 # 
-# (C) 2025 SouliTEK - All Rights Reserved
+# (C) 2025 SouliTEK
 # Website: www.soulitek.co.il
 # 
 # ============================================================
@@ -26,7 +26,7 @@ $Script:SouliTEKConfig = @{
     Website = "www.soulitek.co.il"
     Email = "letstalk@soulitek.co.il"
     CompanyName = "SouliTEK"
-    Copyright = "(C) 2025 SouliTEK - All Rights Reserved"
+    Copyright = "(C) 2025 SouliTEK"
     DefaultTimeout = 420  # 7 minutes in seconds
     MaxHistoryEntries = 50
     ProjectRoot = $null  # Set dynamically
@@ -101,7 +101,7 @@ function Show-SouliTEKBanner {
     Write-Host "www.soulitek.co.il" -ForegroundColor Cyan
     Write-Host "  Email: " -NoNewline -ForegroundColor Gray
     Write-Host "letstalk@soulitek.co.il" -ForegroundColor Cyan
-    Write-Host "  (C) 2025 SouliTEK - All Rights Reserved" -ForegroundColor Gray
+    Write-Host "  (C) 2025 SouliTEK" -ForegroundColor Gray
     Write-Host ""
 }
 
